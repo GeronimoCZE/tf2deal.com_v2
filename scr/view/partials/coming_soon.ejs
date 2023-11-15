@@ -1,0 +1,45 @@
+<div class="coming_soon">
+    <div class="header">Coming soon!</div>
+    <div class="text-under">This page is currently under construction...</div>
+    <div class="text-under">... will be published in the near future.</div>
+    <span class="icon icon-info"></span>
+    <style>
+        .coming_soon{
+            display: block;
+            position: relative;
+            margin: 0 0 20rem 0;
+            width: fit-content;
+            background: orange;
+            color: rgb(15, 15, 15);
+            padding: 1rem 2rem;
+            border-top: 5px solid rgb(33, 33, 33);
+            border-right: 5px solid rgb(15, 15, 15);
+            border-radius: 10px;
+            animation: horizontal-shaking 400ms .2s forwards;
+        }
+        @keyframes horizontal-shaking {
+        0% { transform: translateX(0) }
+        25% { transform: translateX(5px) }
+        50% { transform: translateX(-5px) }
+        75% { transform: translateX(5px) }
+        100% { transform: translateX(0) }
+        }
+        .coming_soon .header{
+            display: block;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 0 .5rem 0;
+        }
+        .coming_soon .text-under{
+            display: block;
+            font-size: 18px;
+        }
+        .coming_soon .icon{
+            display: block;
+            position: relative;
+            text-align: center;
+            font-size: 30px;
+            margin: .5rem 0 0 0;
+        }
+    </style>
+</div>

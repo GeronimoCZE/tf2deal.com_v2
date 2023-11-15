@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        
+        <main>
+            <div class="page-section about-ps">
+
+                <!-- How it works? -->
+
+                <!-- Rules (TOS) -->
+
+                <div id="bots-table" style="display: block; position: relative; height: 1px; width: 100%;"></div>
+                <div class="bots-table">
+                    <div class="table-header">
+                        <div class="cell _id">id</div>
+                        <div class="cell _name">steam name</div>
+                        <div class="cell _steamid">steamid</div>
+                        <div class="cell _trades">active trades</div>
+                        <div class="cell _items">items</div>
+                    </div>
+                    <div class="table-content">
+                        <% info.bots.TradeBots.forEach(bot => { %>
+                            <% if (bot.type == 'trade') { %>
+                                <div class="table-row">
+                                    <div class="cell _id"><%- bot.index || '—'%></div>
+                                    <div class="cell _name"><%- bot.name || '—'%></div>
+                                    <div class="cell _steamid"><a href="https://steamcommunity.com/profiles/<%- bot.steamid %>" target="_blank"><%- bot.steamid %></a></div>
+                                    <div class="cell _trades"><%- bot.pendingTradeOffers.size %></div>
+                                    <div class="cell _items"><%- bot.allItems || '—' %> / <%- bot.itemsSlots || '3000' %></div>
+                                </div>
+                            <% } %>
+                        <% }) %>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+        
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

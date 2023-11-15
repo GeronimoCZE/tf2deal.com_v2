@@ -1,0 +1,129 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Buy & Sell TF2 items with automated trade bot. Visit our lovely TF2 trading website and start trading now. Get free trade bonus by putting 'tf2deal.com' into your Steam name!">
+    <meta name="DC.Subject" content="tf2 deal, tf2deal, tf2dealcom, tf2 trade bot, tf2 bot, tf2 trade, tf2 trading bot, teamfortress trading, team fortress trade, trading bot, trade bot, tf2 skin bot, tf2 trading, skin bot, tf2 skins, tf2 trade site">
+    <link rel="icon" href="/img/group-icon.png">
+    <title>TF2DEAL.COM - Automated Team Fortress 2 trading bots for trading your Items</title>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&display=swap" rel="stylesheet">
+    <link href="/css/dist/hamburgers.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/iziToast-master/dist/css/iziToast.min.css">
+    <style>
+        .iziToast{
+            min-height: unset !important;
+        }
+    </style>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <script type="text/javascript" src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <script async>
+        const view = `<%- info.view %>`;
+        const key_price = `<%- data.key_price.metal %>`;
+
+        const itemAttr = {
+            "Quality": 
+            {
+                "Normal": {"color": "B2B2B2", "id": 0},
+                "Genuine": {"color": "4D7455", "id": 1},
+                "Vintage": {"color": "476291", "id": 3},
+                "Unusual": {"color": "8650AC", "id": 5},
+                "Unique": {"color": "FFD700", "id": 6},
+                "Community": {"color": "70B04A", "id": 7},
+                "Valve": {"color": "A50F79", "id": 8},
+                "Self-Made": {"color": "70B04A", "id": 9},
+                "Strange": {"color": "CF6A32", "id": 11},
+                "Haunted": {"color": "38F3AB", "id": 13},
+                "Collector's": {"color": "AA0000", "id": 14},
+                "Decorated": {"color": "FAFAFA", "id": 15},
+                "0": {"color": "B2B2B2", "name": "Normal"},
+                "1": {"color": "4D7455", "name": "Genuine"},
+                "3": {"color": "476291", "name": "Vintage"},
+                "5": {"color": "8650AC", "name": "Unusual"},
+                "6": {"color": "FFD700", "name": "Unique"},
+                "7": {"color": "70B04A", "name": "Community"},
+                "8": {"color": "A50F79", "name": "Valve"},
+                "9": {"color": "70B04A", "name": "Self-Made"},
+                "11": {"color": "CF6A32", "name": "Strange"},
+                "13": {"color": "38F3AB", "name": "Haunted"},
+                "14": {"color": "AA0000", "name": "Collector's"},
+                "15": {"color": "FAFAFA", "name": "Decorated Weapon"}
+            },
+        
+            "Types": {
+        
+            },
+        
+            "Grades": {
+                "Civilian": "#B0C3D9",
+                "Freelance": "#5E98D9",
+                "Mercenary": "#4B69FF",
+                "Commando": "#8847FF",
+                "Assassin": "#D32CE6",
+                "Elite": "#EB4B4B"
+            }
+        }
+
+        if(localStorage.getItem('unusual_effects') == null){
+            get_particles()
+        } else {
+            try{ 
+                if(JSON.parse(localStorage.getItem('unusual_update')) < (Date.now())){
+                    get_particles()
+                }
+            } catch{}
+        }
+
+        async function get_particles(){
+            $.ajax({
+                "async": true,
+                "crossDomain": true,
+                "url": '../api/unusual_effects',
+                "method": "GET",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer ",
+                    "Accept": "*/*",
+                }
+            }).done(async function (response) {
+                localStorage.setItem('unusual_effects', JSON.stringify(response))
+                localStorage.setItem('unusual_update', Date.now() + 1000*60*60*24)
+            });
+        }
+    </script>
+
+<% if(user){ %>
+    <script>
+        const user = `<%- user.steamid %>`;
+        const user_accountid = `<%- user_db.user.accountid %>`;
+        const user_role = `<%- user_db.user.role %>`;
+        const user_tradeurl = `<%- (user_db.user.tradelink == 'null') ? ``: user_db.user.tradelink%>`;
+        const user_email = `<%- (user_db.user.email == 'null') ? ``: user_db.user.email %>`;
+        const user_firstlogin = `<%- user_db.user.firstlogin %>`;
+        const trade_offer = `<%- user_db.trade_offer.id %>`
+    </script>
+<% } else { %>
+    <script>
+        const user = 'no_session';
+    </script>
+<% } %>
+    <script async type="application/javascript">
+        const socket = io();
+        socket.emit('init', user)
+    </script>
+    <script src="/js/main.js" type="module"></script>
+    <script src="/js/window.js" type="application/javascript"></script>
+</head>
+
+<script src="/iziToast-master/dist/js/iziToast.min.js" type="text/javascript" defer></script>

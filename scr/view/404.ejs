@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        <main>
+            <div class="page-section e404">
+                <!-- randomly alternate btw images (JS) -->
+                <!-- <img class="e404_img" src="/img/sfm/sfm404_2.png" alt="" style="width: 19rem; margin-left: -10rem; -webkit-filter: drop-shadow(30px 30px 40px #4b0fc3);; filter: drop-shadow(30px 30px 40px #4b0fc3);"> -->
+                <div class="e404-text" style="margin-right: 2rem; margin-bottom: 8rem; margin-top: 7.5rem; padding: .5rem 1rem .5rem 2rem; display: flex; flex-direction: column;">
+                    <span class="e404-heading" style="font-size: 4rem;">404</span>
+                    <span class="e404-description" style="font-size: 1.5rem; color: rgb(198, 198, 198);">Oops, page was not found.</span>
+                    <a href="/">Return to homepage</a>
+                </div>
+            </div>
+        </main>
+
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        <main>
+            <div class="page-section index-ps tradeCreated-ps">
+                <%- include('./partials/item_tooltip.ejs') %>
+
+                <div class="trade-loader">
+                    <img src="/img/trade-icon.jpg" alt="">
+                </div>
+
+                <div class="trade_offer-header">
+                    <h1>Congrats! Your trade offer has been made.</h1>
+                    <p>#<%- user_db.trade_offer.id %></p>
+                </div>
+              
+                <div class="trade-status">
+                    <div class="title">xxxxxxxxxx</div>
+                    <div class="desc">xxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxx xxxxxxxxxx</div>
+                </div>
+
+                <div class="trade_offer-content">
+                    <div class="widget-wrapper">
+                        <div class="items-in-trade user">
+                            <div class="items user-items" id="user-grid">
+
+                            </div>
+                        </div>
+                        <div class="btns tradeCreated">
+                            <div class="confirmed">
+                                <a class="browser no-click" href="#" target="_blank">Open</a>
+                                <a href="/trade">Continue</a>
+                            </div>
+                            <div class="awaiting-conf">
+                                <div class="create-trade-animation">
+                                    <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="items-in-trade site">
+                            <div class="items site-items" id="site-grid">
+
+                            </div>
+                        </div>
+                    </div>  
+
+                    <a href="" class="trade-bot" target="_blank">
+                        <h2><span class="icon-steam_circle"></span> Trade Bot</h2>
+                        <div class="info">
+                            <div class="param">
+                                <div class="param-name">Name: </div>
+                                <div class="param-value" id="bot-name">XXXXXXXXX</div>
+                            </div>
+                            <div class="param">
+                                <div class="param-name">Level: </div>
+                                <div class="param-value" id="bot-level">XX</div>
+                            </div>
+                            <div class="param">
+                                <div class="param-name">On Steam Since: </div>
+                                <div class="param-value" id="bot-creation">XX/XXXX, XXXX</div>
+                            </div>
+                        </div>
+                        <img src="/img/svg/Steam_Icon.svg" alt="" class="steam-icon">
+                    </a>
+                </div>
+            </div>
+        </main>
+
+        <script type="module">
+            $.ajax({
+                "async": true,
+                "crossDomain": true,
+                "url": '/api/trade_info',
+                "method": "GET",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer ",
+                    "Accept": "*/*",
+                }
+            })
+            .fail(async function (response){
+                if(response.statusText == 'Too Many Requests'){
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Too many requests!'
+                    });
+                }
+            })
+            .done(async function (response) {
+                if(response.status == 'OK'){
+                    if(response.trade == null){
+                        remove_offer_from_cookie()
+                        setTimeout(() => {
+                            document.location.reload()
+                        }, 3000);
+                    }
+                    if(response.trade != null){
+                        trade_offer_ready(response.trade) 
+                        listen_trade_change(response.trade) 
+                    }
+
+                }
+            })
+
+            async function trade_offer_error(error){
+                const tooManyRequests = `<div class='e429'><h3>Too Many Requests</h3><div>Recently you've made too many calls. Please, now you have to wait.</div></div>`
+            }
+
+            async function trade_offer_ready(tradeOffer){
+                const tradeOfferExp = tradeOffer.willCanceled;
+                const element = document.querySelector(".tradeCreated-ps")
+                element.classList.add(`state-${tradeOffer.state}`)
+                
+                const inv = JSON.parse(localStorage.getItem('user_inventory'))
+                const eff_arr = JSON.parse(localStorage.getItem('unusual_effects'))
+                const userTrade = $('.items-in-trade #user-grid')
+                const siteTrade = $('.items-in-trade #site-grid')
+
+                tradeOffer.userSide.forEach(item => {
+                    const match = inv.inventory.items.find((obj) => obj.assetid == item.assetid)
+                    if(match.quality == 'Unusual'){
+                        let effect = null; let effect_id = null;
+                        try{
+                            let effect_obj = match.description.find((obj) => obj.color === "ffd700");
+                            effect = effect_obj.value.replace('★ Unusual Effect: ', '')
+                            if(eff_arr != null && effect_obj != undefined){
+                                effect_id = eff_arr.find((eff) => eff.name == effect).ID;
+                            }
+                        } catch{ }
+                        if(effect == null || effect_id == null){                 
+                            const match_el = $(`<div class="item q-${match.quality} c-${match.craftable}" data-assetid="${match.assetid}" data-quality="${match.quality}" data-name="${match.name}" data-type="${match.type}" data-keys="${match.keys}" data-refs="${match.refs}" data-tradable="${match.tradable}"><img class="match-img" src="https://community.cloudflare.steamstatic.com/economy/image/${match.image}" loading="lazy"></div>`)
+                            userTrade.append(match_el) 
+                        }
+                        else{                 
+                            const match_el = $(`<div class="item q-${match.quality} c-${match.craftable}" data-assetid="${match.assetid}" data-quality="${match.quality}" data-effect="${effect}" data-name="${match.name}" data-type="${match.type}" data-keys="${match.keys}" data-refs="${match.refs}" data-tradable="${match.tradable}"><img class="match-img" style='background-image: url("/img/particles/${effect_id}_94x94.png")' src="https://community.cloudflare.steamstatic.com/economy/image/${match.image}" loading="lazy"></div>`)
+                            userTrade.append(match_el)
+                        }
+                    } else {
+                        const match_el = $(`<div class="item q-${match.quality} c-${match.craftable}" data-assetid="${match.assetid}" data-quality="${match.quality}" data-name="${match.name}" data-type="${match.type}" data-keys="${match.keys}" data-refs="${match.refs}" data-tradable="${match.tradable}"><img class="match-img" src="https://community.cloudflare.steamstatic.com/economy/image/${match.image}" loading="lazy"></div>`)
+                        userTrade.append(match_el)
+                    }
+
+                });
+
+                let botCreated = ""; 
+                if(tradeOffer.tradeBot.steamJoined != undefined){
+                    let date = new Date(Number(tradeOffer.tradeBot.steamJoined.toString() + "000"))
+                    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+                    botCreated = date.getDate() + " " + months[date.getMonth()] + ", " + date.getFullYear() 
+                }
+
+                $('.trade-bot').attr('href', 'https://steamcommunity.com/profiles/' + tradeOffer.tradeBot.steamid)
+                $('.trade-bot .param #bot-name').html( tradeOffer.tradeBot.name || '?')
+                $('.trade-bot .param #bot-level').html( tradeOffer.tradeBot.steamLevel || '?')
+                $('.trade-bot .param #bot-creation').html( botCreated || '?')
+                    // $('#trade-offer_popUp .to-content').addClass(`state-${tradeOffer.state}`)
+
+                if(tradeOffer.state == 2){
+                    $('.trade-status .title').html('sent succesfully')
+                    $('.trade-status .desc').html('Trade Offer will be awaiting your response for ')
+                    tradeExpiration(tradeOfferExp)
+                    $('.btns.tradeCreated .browser').attr('href', `https://steamcommunity.com/tradeoffer/${tradeOffer.id}`)
+                    $('.btns.tradeCreated .browser').removeClass('no-click')
+                    if (navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPod/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Windows Phone/i)) {
+
+                    } else {
+                    }
+                }
+                if(tradeOffer.state == 9){
+                    $('.trade-status .title').html('pending')
+                    $('.trade-status .desc').html('Trade Offer is awaiting confirmation. This may take up to 2 minutes.')
+                }
+
+                if(!sessionStorage.getItem(`trade#${tradeOffer.id}`)){
+                    $('.tradeCreated-ps').addClass('loaded')
+                    sessionStorage.setItem(`trade#${tradeOffer.id}`, 'animated')
+                } else {
+                    $('.tradeCreated-ps').addClass('loaded-noAnimation')
+                }
+            }
+
+            async function listen_trade_change(tradeOffer){
+                socket.on('tradeChange', (state) => {
+                    const element = document.querySelector(".tradeCreated-ps")
+                    const stateClassIndex = (element.classList[element.classList.length-1].includes('state-')) ? element.classList.length-1 : element.classList.length-2
+                    element.classList.replace(element.classList[stateClassIndex], `state-${state}`)
+                    if(state == 2){
+                        $('.trade-status .title').html('sent succesfully')
+                        $('.trade-status .desc').html('Trade Offer will be awaiting your response for ')
+                        tradeExpiration(Date.now() + 600000)
+                        $('.btns.tradeCreated .browser').attr('href', `https://steamcommunity.com/tradeoffer/${tradeOffer.id}`)
+                        $('.btns.tradeCreated .browser').removeClass('no-click')
+                        if (navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPod/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Windows Phone/i)) {
+
+                        } else {
+                        }
+                    }
+                    if(state == 3){
+                        $('.trade-status .title').html('accepted')
+                        $('.trade-status .desc').html('Thank you for accepting the trade offer! Huray!')
+                    }
+                    if(state == 4){
+                        $('.trade-status .title').html('declined')
+                        $('.trade-status .desc').html('Sorry, your counter offer has been declined.')
+                    }
+                    if(state == 5){
+                        $('.trade-status .title').html('canceled')
+                        $('.trade-status .desc').html('Trade offer has been canceled by a bot.')
+                    }
+                    if(state == 6){
+                        $('.trade-status .title').html('canceled')
+                        $('.trade-status .desc').html('Trade offer has been canceled by a bot.')
+                    }
+                    if(state == 7 || state == 10){
+                        $('.trade-status .title').html('declined')
+                        $('.trade-status .desc').html('You have declined the trade offer.')
+                    }
+                    if(state == 8){
+                        $('.trade-status .title').html('unavailable')
+                        $('.trade-status .desc').html('Some items are no longer available.')
+                    }
+                    if(state == 11){
+                        $('.trade-status .title').html('escrow (trade hold)')
+                        $('.trade-status .desc').html('Your offer is in escrow, thus will be declined.')
+                    }
+                    if([3,4,5,6,7,8,10,11].includes(state)){
+                        $('.trade_offer-header h1').text('Trade offer is finished.')
+                        remove_offer_from_cookie()
+                    }
+                })
+
+            }
+
+            function remove_offer_from_cookie(){
+                let settings = {
+                        "async": true,
+                        "crossDomain": false,
+                        "url": '/api/done_trade',
+                        "method": "POST",
+                        "headers": {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer ",
+                            "Accept": "*/*",
+                        }
+                    }
+                $.ajax(settings).done(function( res ) {
+                    if(res == 'OK'){
+                    }
+                    if(res == 'ERROR'){
+                    }
+                })
+            }
+
+            function tradeExpiration(expires){
+                function flashTitle(pageTitle, newTitle) {
+                    document.title == pageTitle
+                        ? (document.title = newTitle)
+                        : (document.title = pageTitle);
+                }
+                setInterval(flashTitle('TF2DEAL.COM - Automated Team Fortress 2 trading bots to trade your Items with', 'Trade offer is ready | tf2deal'), 2000);
+                $(".trade-status .desc").append($(`<div>??:??</div>`).addClass('expiration'))
+                $(".trade-status .desc").append(' minutes!')
+                // Update the count down every 1 second
+                var x = setInterval(function() {
+
+                    // Get today's date and time
+                    let now = new Date().getTime();
+                        
+                    // Find the distance between now and the count down date
+                    let distance = expires - now;
+                        
+                    // Time calculations for days, hours, minutes and seconds
+                    let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                        
+                    // Output the result in an element with id="demo"
+                    document.querySelector(".trade-status .desc .expiration").innerHTML = `${((minutes < 10) ? "0" : "") + minutes}:${((seconds < 10) ? "0" : "") + seconds}`;  
+                    // If the count down is over, write some text 
+                    if (distance < 1) {
+                        clearInterval(x);
+                        document.querySelector(".trade-status .desc .expiration").innerHTML = `00:00`;  
+                    }
+                }, 1000);
+            }
+
+        </script>
+        
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

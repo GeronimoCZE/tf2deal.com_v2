@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        
+        <main>
+            <div class="page-section premium-ps" width="1200px">
+                <h1>Premium</h1>
+                <section>
+                    <h3>How can I get it?</h3>
+                    <ul>
+                        <li></li>
+                    </ul>
+                </section>
+                <div class="buttons">
+                    <% if(user){ %>
+                        <% if(user_db.user.bonus == "null"){ %>
+                            <a href="">1 key / month</a>
+                            <a href="">Edit Name</a>
+                        <% } else {%>
+                            <span>You already have an active premium.</span>
+                        <% } %>
+                    <% } else { %>
+                        <a href="/auth/steam">1 key / month</a>
+                        <a href="/auth/steam">Edit Name</a>
+                    <% } %>
+                </div>
+                <section>
+                    <h3>What are the benefits?</h3>
+                    <ul>
+                        <li></li>
+                    </ul>
+                </section>
+            </div>
+        </main>
+        
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>
