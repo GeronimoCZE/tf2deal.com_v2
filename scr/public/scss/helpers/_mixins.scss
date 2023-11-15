@@ -1,0 +1,18 @@
+@mixin backgroundGrad($deg, $firstColor, $secondColor) {
+    background: $firstColor;
+    background: -moz-linear-gradient($deg, $firstColor 0%, $secondColor 100%);
+    background: -webkit-linear-gradient($deg, $firstColor 0%, $secondColor 100%);
+    background: linear-gradient($deg, $firstColor 0%, $secondColor 100%);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+@mixin flexCenter() {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+@mixin itemSmallCard() {
+    
+}

@@ -1,0 +1,68 @@
+.create-ticket{
+    letter-spacing: .1rem;
+    max-width: 50rem;
+    margin: 0 auto;
+    h1{
+        margin-top: 2.5rem;
+        margin-bottom: .5rem;
+        font-weight: bold;
+    }
+
+    p{
+        padding: .5rem .7rem;
+        letter-spacing: normal;
+        width: 88%;
+        background: rgb(12, 12, 12);
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 18px;
+        border-radius: 5px;
+        span{
+            color: rgba(255, 255, 255, 0.658);
+            display: block;
+            padding: .2rem .4rem;
+        }
+    }
+
+    form{
+        display: block;
+        label{
+            display: block;
+            color: rgba(255, 255, 255, 0.658);
+            letter-spacing: 0rem;
+        }
+        input,
+        textarea{
+            width: 90%;
+            letter-spacing: 0rem;
+            color: rgb(230, 229, 229);
+            background: rgba(123, 35, 237, 0.498);
+            display: block;
+            padding: .35rem .5rem;
+            margin: .3rem 0 1rem 0;
+            outline: none;
+            border: none;
+            border-radius: 5px;
+            &:hover{
+                
+            }
+        }
+        textarea{
+            min-height: 10rem;
+        }
+        button{
+            display: block;
+            position: relative;
+            outline: none;
+            border: none;
+            padding: .4rem 1rem;
+            margin-left: auto;
+            margin-right: 8%;
+            background: orange;
+            transition: 200ms;
+            border-radius: 5px;
+            &:hover{
+                background: rgb(207, 135, 2);
+            }
+        }
+    }
+}
