@@ -1,0 +1,52 @@
+{
+  "name": "tf2deal.com",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently --kill-others \"nodemon src/app\" \"sass --watch src/public/scss:src/public/css\"",
+    "app": "node src/app"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apicache": "^1.6.3",
+    "body-parser": "^1.20.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "csrf": "^3.1.0",
+    "csurf": "^1.11.0",
+    "dotenv": "^16.0.2",
+    "ejs": "^3.1.8",
+    "env": "0.0.2",
+    "express": "^4.18.1",
+    "express-rate-limit": "^6.7.0",
+    "express-session": "^1.17.3",
+    "get-steam-inventory": "^2.0.0",
+    "http": "0.0.1-security",
+    "https-proxy-agent": "^7.0.1",
+    "izitoast": "^1.4.0",
+    "mongodb": "^4.4.1",
+    "mongoose": "^5.11.15",
+    "node-fetch": "^2.6.8",
+    "passport": "^0.6.0",
+    "passport-steam": "^1.0.17",
+    "path": "^0.12.7",
+    "puppeteer": "^18.0.4",
+    "redis": "^4.6.5",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.9",
+    "socket.io": "^4.5.2",
+    "steam-totp": "^2.1.2",
+    "steam-tradeoffer-manager": "^2.10.6",
+    "steam-user": "^4.29.3",
+    "steamcommunity": "^3.47.1",
+    "steamid": "^2.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^7.4.0",
+    "nodemon": "^2.0.20"
+  }
+}
