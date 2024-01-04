@@ -21,17 +21,6 @@
                         <div class="cell _items">items</div>
                     </div>
                     <div class="table-content">
-                        <% info.bots.TradeBots.forEach(bot => { %>
-                            <% if (bot.type == 'trade') { %>
-                                <div class="table-row">
-                                    <div class="cell _id"><%- bot.index || '—'%></div>
-                                    <div class="cell _name"><%- bot.name || '—'%></div>
-                                    <div class="cell _steamid"><a href="https://steamcommunity.com/profiles/<%- bot.steamid %>" target="_blank"><%- bot.steamid %></a></div>
-                                    <div class="cell _trades"><%- bot.pendingTradeOffers.size %></div>
-                                    <div class="cell _items"><%- bot.allItems || '—' %> / <%- bot.itemsSlots || '3000' %></div>
-                                </div>
-                            <% } %>
-                        <% }) %>
                     </div>
                 </div>
 
