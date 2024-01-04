@@ -57,7 +57,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/public',express.static(path.join(__dirname,'static')));
 app.use(express.static(__dirname + '/public'));
 app.set('view engine','ejs');
-app.set('trust proxy', true)
+app.set('trust proxy', false)
 
 passport.serializeUser((user, done) => {
 	done(null, user._json);
@@ -124,7 +124,7 @@ global.tradesToday = 0;
 global.itemsAvailable = 0;
 global.botsRunning = 0;
 
-global.key_price = {metal: 0, usd: 2.00};
+global.key_price = {metal: 0, usd: '2.20'};
 
 // status (ok/bad), in_use = active usage e.g. item updates (avoiding beiing rate limited)
 global.api = {
@@ -206,12 +206,14 @@ const rateLimit = require('express-rate-limit')
 const view_limiter = rateLimit({
   windowMs: 100 * 1000,
   max: 150,
-  message: "You are beeing rate limited (for 1 hour). You have made too many requests."
+  message: "You are beeing rate limited (for 1 hour). You have made too many requests.",
+  validate: {ip: false}
 }); 
 const item_limiter = rateLimit({
   windowMs: 100 * 1000,
   max: 150,
-  message: "You are beeing rate limited (for 1 hour). You have made too many requests."
+  message: "You are beeing rate limited (for 1 hour). You have made too many requests.",
+  validate: {ip: false}
 }); 
 
 app.get('/', view_limiter, mw.curPath, router.home);
