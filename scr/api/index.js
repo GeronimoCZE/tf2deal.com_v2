@@ -148,6 +148,10 @@ router.post('/done_trade', mw.isLogged, async (req, res) => {
 // endpoint https://api.steamapis.com/steam/inventory/${steamid}/${appid}/${contextid}
 router.use('/user', require('./routes/user'))
 
+router.get('/key', async (req, res) => {
+  res.send( config.key )
+})
+
 router.get('/skins', async (req, res) => {
   res.send( config.skins )
 })
