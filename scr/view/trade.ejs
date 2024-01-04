@@ -103,71 +103,90 @@
                         })
                     </script>
                     <div class="filters" id="user-filters">
-                        <!-- quality, type, class, price (asc x desc), input search field -->
-                        <div class="filter" filter="quality" value="none">
-                            <div class="filter-name">
-                                <span>Quality</span>
+                        <div class="filter-btn" id="filter-btn-user"><span class="icon icon-arrow_down"></span> Filters</div>
+                        <div class="filter-box hidden">
+                            <!-- quality, type, class, price (asc x desc), input search field -->
+                            <div class="filter" filter="quality" value="none">
+                                <div class="filter-name">
+                                    <span>Quality</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                    <div class="fd-value" style="color: #FFD700 !important;">Unique</div>
+                                    <div class="fd-value" style="color: #CF6A32 !important;">Strange</div>
+                                    <div class="fd-value" style="color: #8650AC !important;">Unusual</div>
+                                    <div class="fd-value" style="color: #476291 !important;">Vintage</div>
+                                    <div class="fd-value" style="color: #4D7455 !important;">Genuine</div>
+                                    <div class="fd-value" style="color: #38F3AB !important;">Haunted</div>
+                                    <div class="fd-value" style="color: #AA0000 !important;">Collector</div>
+                                    <div class="fd-value" style="color: #FAFAFA !important;">Decorated</div>
+                                    <div class="fd-value" style="color: #70B04A !important;">Self-Made</div>
+                                </div>
                             </div>
-                            <div class="filter-value"></div>
-                            <div class="filter-dropdown">
-                                <div class="fd-value"><span class="icon icon-close"></span> None</div>
-                                <div class="fd-value" style="color: #FFD700 !important;">Unique</div>
-                                <div class="fd-value" style="color: #CF6A32 !important;">Strange</div>
-                                <div class="fd-value" style="color: #8650AC !important;">Unusual</div>
-                                <div class="fd-value" style="color: #476291 !important;">Vintage</div>
-                                <div class="fd-value" style="color: #4D7455 !important;">Genuine</div>
-                                <div class="fd-value" style="color: #38F3AB !important;">Haunted</div>
-                                <div class="fd-value" style="color: #AA0000 !important;">Collector</div>
-                                <div class="fd-value" style="color: #FAFAFA !important;">Decorated</div>
-                                <div class="fd-value" style="color: #70B04A !important;">Self-Made</div>
+                            <div class="filter" filter="type" value="none">
+                                <div class="filter-name">
+                                    <span>Type</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                    <div class="fd-value"><span class="icon icon-hat2"></span> Cosmetic</div>
+                                    <div class="fd-value"><span class="icon icon-pencil"></span> Weapon</div>
+                                    <div class="fd-value"><span class="icon icon-autoselect"></span> War Paint</div>
+                                    <div class="fd-value"><span class="icon icon-group"></span> Taunt</div>
+                                    <div class="fd-value"><span class="icon icon-wrench"></span> Tool</div>
+                                </div>
                             </div>
+                            <div class="filter" filter="particle" value="none">
+                                <div class="filter-name">
+                                    <span>Particle</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                </div>
+                            </div>
+                            <div class="filter" filter="warpaint" value="none">
+                                <div class="filter-name">
+                                    <span>Warpaint</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                    <div class="fd-value"><span class="icon icon-desc"></span> Descending</div>
+                                    <div class="fd-value"><span class="icon icon-asc"></span> Ascending</div>
+                                </div>
+                            </div>
+                            <div class="filter" filter="item-order" value="none">
+                                <div class="filter-name">
+                                    <span>Order</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                    <div class="fd-value"><span class="icon icon-desc"></span> Descending</div>
+                                    <div class="fd-value"><span class="icon icon-asc"></span> Ascending</div>
+                                </div>
+                            </div>
+                            <div class="filter" filter="price" value="none">
+                                <div class="filter-name">
+                                    <span>Price</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                    <div class="fd-value">0 - 1 <span class="icon icon-key"></span></div>
+                                    <div class="fd-value">1 - 5 <span class="icon icon-key"></span></div>
+                                    <div class="fd-value">5 - 12 <span class="icon icon-key"></span></div>
+                                    <div class="fd-value">12 - 25 <span class="icon icon-key"></span></div>
+                                    <div class="fd-value">25 - 50 <span class="icon icon-key"></span></div>
+                                    <div class="fd-value">50+ <span class="icon icon-key"></span></div>
+                                </div>
+                            </div>
+                            <div class="reset-filters">reset all</div>
+
                         </div>
-                        <div class="filter" filter="type" value="none">
-                            <div class="filter-name">
-                                <span>Type</span>
-                            </div>
-                            <div class="filter-value"></div>
-                            <div class="filter-dropdown">
-                                <div class="fd-value"><span class="icon icon-close"></span> None</div>
-                                <div class="fd-value"><span class="icon icon-hat2"></span> Cosmetic</div>
-                                <div class="fd-value"><span class="icon icon-pencil"></span> Weapon</div>
-                                <div class="fd-value"><span class="icon icon-autoselect"></span> War Paint</div>
-                                <div class="fd-value"><span class="icon icon-group"></span> Taunt</div>
-                                <div class="fd-value"><span class="icon icon-wrench"></span> Tool</div>
-                            </div>
-                        </div>
-                        <div class="filter" filter="particle" value="none">
-                            <div class="filter-name">
-                                <span>Particle</span>
-                            </div>
-                            <div class="filter-value"></div>
-                            <div class="filter-dropdown">
-                                <div class="fd-value"><span class="icon icon-close"></span> None</div>
-                            </div>
-                        </div>
-                        <div class="filter" filter="warpaint" value="none">
-                            <div class="filter-name">
-                                <span>Warpaint</span>
-                            </div>
-                            <div class="filter-value"></div>
-                            <div class="filter-dropdown">
-                                <div class="fd-value"><span class="icon icon-close"></span> None</div>
-                                <div class="fd-value"><span class="icon icon-desc"></span> Descending</div>
-                                <div class="fd-value"><span class="icon icon-asc"></span> Ascending</div>
-                            </div>
-                        </div>
-                        <div class="filter" filter="item-order" value="none">
-                            <div class="filter-name">
-                                <span>Item Order</span>
-                            </div>
-                            <div class="filter-value"></div>
-                            <div class="filter-dropdown">
-                                <div class="fd-value"><span class="icon icon-close"></span> None</div>
-                                <div class="fd-value"><span class="icon icon-desc"></span> Descending</div>
-                                <div class="fd-value"><span class="icon icon-asc"></span> Ascending</div>
-                            </div>
-                        </div>
-                        <div class="reset-filters">reset all</div>
                         <form action="" method="post" class="input-filter" id="user-input-filter">
                             <input type="text" name="" id="" spellcheck="false" placeholder="Search for items ...">
                             <button type="submit"><span class="icon icon-search"></span></button>
@@ -212,70 +231,91 @@
                 </div>
                 <div class="trade-inv-window site-window">
                     <div class="filters" id="site-filters">
-                        <div class="filter" filter="quality" value="none">
-                            <div class="filter-name">
-                                <span>Quality</span>
+                        <div class="filter-btn" id="filter-btn-site"><span class="icon icon-arrow_down"></span> Filters</div>
+                        <div class="filter-box hidden">
+                            <!-- quality, type, class, price (asc x desc), input search field -->
+                            <div class="filter" filter="quality" value="none">
+                                <div class="filter-name">
+                                    <span>Quality</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                    <div class="fd-value" style="color: #FFD700 !important;">Unique</div>
+                                    <div class="fd-value" style="color: #CF6A32 !important;">Strange</div>
+                                    <div class="fd-value" style="color: #8650AC !important;">Unusual</div>
+                                    <div class="fd-value" style="color: #476291 !important;">Vintage</div>
+                                    <div class="fd-value" style="color: #4D7455 !important;">Genuine</div>
+                                    <div class="fd-value" style="color: #38F3AB !important;">Haunted</div>
+                                    <div class="fd-value" style="color: #AA0000 !important;">Collector</div>
+                                    <div class="fd-value" style="color: #FAFAFA !important;">Decorated</div>
+                                    <div class="fd-value" style="color: #70B04A !important;">Self-Made</div>
+                                </div>
                             </div>
-                            <div class="filter-value"></div>
-                            <div class="filter-dropdown">
-                                <div class="fd-value"><span class="icon icon-close"></span> None</div>
-                                <div class="fd-value" style="color: #FFD700 !important;">Unique</div>
-                                <div class="fd-value" style="color: #CF6A32 !important;">Strange</div>
-                                <div class="fd-value" style="color: #8650AC !important;">Unusual</div>
-                                <div class="fd-value" style="color: #476291 !important;">Vintage</div>
-                                <div class="fd-value" style="color: #4D7455 !important;">Genuine</div>
-                                <div class="fd-value" style="color: #38F3AB !important;">Haunted</div>
-                                <div class="fd-value" style="color: #AA0000 !important;">Collector</div>
-                                <div class="fd-value" style="color: #FAFAFA !important;">Decorated</div>
-                                <div class="fd-value" style="color: #70B04A !important;">Self-Made</div>
+                            <div class="filter" filter="type" value="none">
+                                <div class="filter-name">
+                                    <span>Type</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                    <div class="fd-value"><span class="icon icon-hat2"></span> Cosmetic</div>
+                                    <div class="fd-value"><span class="icon icon-pencil"></span> Weapon</div>
+                                    <div class="fd-value"><span class="icon icon-autoselect"></span> War Paint</div>
+                                    <div class="fd-value"><span class="icon icon-group"></span> Taunt</div>
+                                    <div class="fd-value"><span class="icon icon-wrench"></span> Tool</div>
+                                </div>
                             </div>
+                            <div class="filter" filter="particle" value="none">
+                                <div class="filter-name">
+                                    <span>Particle</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                </div>
+                            </div>
+                            <div class="filter" filter="warpaint" value="none">
+                                <div class="filter-name">
+                                    <span>Warpaint</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                    <div class="fd-value"><span class="icon icon-desc"></span> Descending</div>
+                                    <div class="fd-value"><span class="icon icon-asc"></span> Ascending</div>
+                                </div>
+                            </div>
+                            <div class="filter" filter="item-order" value="none">
+                                <div class="filter-name">
+                                    <span>Order</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                    <div class="fd-value"><span class="icon icon-desc"></span> Descending</div>
+                                    <div class="fd-value"><span class="icon icon-asc"></span> Ascending</div>
+                                </div>
+                            </div>
+                            <div class="filter" filter="price" value="none">
+                                <div class="filter-name">
+                                    <span>Price</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                    <div class="fd-value">0 - 1 <span class="icon icon-key"></span></div>
+                                    <div class="fd-value">1 - 5 <span class="icon icon-key"></span></div>
+                                    <div class="fd-value">5 - 12 <span class="icon icon-key"></span></div>
+                                    <div class="fd-value">12 - 25 <span class="icon icon-key"></span></div>
+                                    <div class="fd-value">25 - 50 <span class="icon icon-key"></span></div>
+                                    <div class="fd-value">50+ <span class="icon icon-key"></span></div>
+                                </div>
+                            </div>
+                            <div class="reset-filters">reset all</div>
+
                         </div>
-                        <div class="filter" filter="type" value="none">
-                            <div class="filter-name">
-                                <span>Type</span>
-                            </div>
-                            <div class="filter-value"></div>
-                            <div class="filter-dropdown">
-                                <div class="fd-value"><span class="icon icon-close"></span> None</div>
-                                <div class="fd-value"><span class="icon icon-hat2"></span> Cosmetic</div>
-                                <div class="fd-value"><span class="icon icon-pencil"></span> Weapon</div>
-                                <div class="fd-value"><span class="icon icon-autoselect"></span> War Paint</div>
-                                <div class="fd-value"><span class="icon icon-group"></span> Taunt</div>
-                                <div class="fd-value"><span class="icon icon-wrench"></span> Tool</div>
-                            </div>
-                        </div>
-                        <div class="filter" filter="particle" value="none">
-                            <div class="filter-name">
-                                <span>Particle</span>
-                            </div>
-                            <div class="filter-value"></div>
-                            <div class="filter-dropdown">
-                                <div class="fd-value"><span class="icon icon-close"></span> None</div>
-                            </div>
-                        </div>
-                        <div class="filter" filter="warpaint" value="none">
-                            <div class="filter-name">
-                                <span>Warpaint</span>
-                            </div>
-                            <div class="filter-value"></div>
-                            <div class="filter-dropdown">
-                                <div class="fd-value"><span class="icon icon-close"></span> None</div>
-                                <div class="fd-value"><span class="icon icon-desc"></span> Descending</div>
-                                <div class="fd-value"><span class="icon icon-asc"></span> Ascending</div>
-                            </div>
-                        </div>
-                        <div class="filter" filter="item-order" value="none">
-                            <div class="filter-name">
-                                <span>Item Order</span>
-                            </div>
-                            <div class="filter-value"></div>
-                            <div class="filter-dropdown">
-                                <div class="fd-value"><span class="icon icon-close"></span> None</div>
-                                <div class="fd-value"><span class="icon icon-desc"></span> Descending</div>
-                                <div class="fd-value"><span class="icon icon-asc"></span> Ascending</div>
-                            </div>
-                        </div>
-                        <div class="reset-filters">reset all</div>
+
                         <form action="" method="post" class="input-filter" id="site-input-filter">
                             <input type="text" name="" id="" spellcheck="false" placeholder="Search for items ...">
                             <button type="submit"><span class="icon icon-search"></span></button>
@@ -314,6 +354,13 @@
                     });
                 }
             }
+
+            document.querySelectorAll('.filter-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    btn.parentElement.querySelector('.filter-box').classList.toggle('hidden')
+                    btn.classList.toggle('active')
+                })
+            })
         </script>
         
         <%- include('./partials/footer.ejs') %>
