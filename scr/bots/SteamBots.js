@@ -49,6 +49,8 @@ class TradeBot extends EventEmitter{
       this.steamid = undefined;
       this.tradeURL = undefined;
       this.name = undefined;
+
+      this.friends = new Map();
       
       this.pendingTradeOffers = new Map(); // list of trade offer ids    
       this.itemsLimit = {Total: 1500};
@@ -80,6 +82,17 @@ class TradeBot extends EventEmitter{
           this.logOnCommunity(this.logOnOptions)
         }
       }, 5000);
+
+      setInterval(() => {
+        for (let [key, value] of this.friends) {
+          if(value.remove <= Date.now()){
+            try {
+              this.client.removeFriend(key)
+              this.friends.delete(key)
+            } catch (error) {}
+          }
+        }
+      }, 45000);
 
       this.logOff = function() {
         this.client.logOff()
@@ -159,12 +172,13 @@ class TradeBot extends EventEmitter{
           relationship == SteamUser.EFriendRelationship.RequestInitiator
         ){
           self.client.addFriend(SteamID, (err, personaname) => {
-            if(err){
-              
-            } 
+            self.friends.set(SteamID, { remove: Date.now() + 1000*60*10 })
           })
 
-          self.client.chat.sendFriendMessage(SteamID, `Hi, \n bellow is the list of commands to interact with me: \n\n !sell \n !buy \n\n Or you can visit https://tf2deal.com/ for more details.`)
+          self.client.chat.sendFriendMessage(SteamID, `Hello, I'm an automated trading bot! You can interact with me through commands. \nFor more visit https://tf2deal.com/about#bots-table \n\nTo sell an item type:`)
+          self.client.chat.sendFriendMessage(SteamID, `/code !sell [item name]`)
+          self.client.chat.sendFriendMessage(SteamID, `\n To buy an item type:`)
+          self.client.chat.sendFriendMessage(SteamID, `/code !buy [item name]`)
         }
       })
 
