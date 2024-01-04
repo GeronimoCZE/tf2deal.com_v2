@@ -75,10 +75,19 @@ const round_ref = (refs) => {
 }
 
 async function update_pure(){
+    const config = require('./config/config.json')
     const fetch = require('node-fetch')
     const Pure = require('./model/dev/_pure')
     const Key = await Pure.find({name: "Mann Co. Supply Crate Key"})
+    let key_usd = '2.2'
 
+    fetch('https://steamcommunity.com/market/itemordershistogram?country=US&language=english&currency=1&item_nameid=1&two_factor=0')
+        .then(res => res.json())
+        .then(async(res) => {
+            if(res != null && res?.success == 1){
+                key_usd = String(res.highest_buy_order.slice(0,-2) + '.' + res.highest_buy_order.slice(-2))
+            }
+        })
     fetch('http://46.101.135.110/prices')
      .then(res => res.json())
      .then(async(res) => {
@@ -86,23 +95,24 @@ async function update_pure(){
             let key_value = Object.values(res.response.items)[Object.keys(res.response.items).indexOf("Mann Co. Supply Crate Key")].prices['6'].Tradable['Craftable'][0].value_raw
             if(key_value != undefined){
                 key_value = key_value.toString()
-                if(key_value.includes('.')){
-                    key_value = Math.trunc(parseFloat(key_value)) + '.' + key_value.slice(key_value.indexOf('.') + 1).slice(0,2)
-                } 
                 key_value = parseFloat(key_value)
                 key_price.metal = key_value
+                key_price.usd = key_usd
                 try{
-                    let updated = await Pure.findOneAndUpdate({name: "Mann Co. Supply Crate Key"}, {metal: key_value, usd: "2.00", update: Date.now().toString()}, { new: true, useFindAndModify: false })
-                    console.log(updated)
+                    let updated = await Pure.findOneAndUpdate({name: "Mann Co. Supply Crate Key"}, {metal: key_value, usd: key_usd, update: Date.now().toString()}, { new: true, useFindAndModify: false })
+                    config.key = updated
+                    console.log(config.key)
                 } catch { console.log(key_value) }
             } else {
                 if(Key != undefined){
                     key_price.metal = Key.metal
+                    key_price.usd = key_usd
                 }
             }
         } else {
             if(Key != undefined){
                 key_price.metal = Key.metal
+                key_price.usd = key_usd
             }
         }
      })
