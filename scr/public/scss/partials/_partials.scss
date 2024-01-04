@@ -15,10 +15,24 @@
     a{
         display: inline-block;
         vertical-align: middle;
-        color: rgba(245, 245, 245, 0.498);
+        color: rgba(210, 210, 210, 0.948);
+        text-decoration: underline;
     }
     span{
+        display: inline-block;
         vertical-align: middle;
+    }
+    &.test{
+        background: rgb(184, 34, 34);
+        color: #ffffffd5 !important;
+        a{
+            transition: 200ms;
+            color: rgb(249, 197, 63);
+            text-underline-offset: .1rem;
+            &:hover{
+                opacity: .7;
+            }
+        }
     }
 }
 
