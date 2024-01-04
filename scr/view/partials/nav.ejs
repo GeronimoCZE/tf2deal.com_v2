@@ -62,7 +62,7 @@
                         <span class="lang lang-pt">Sobre nós</span>
                         <span class="lang lang-de">Über uns</span>
                     </a>
-                    <span class="key-price"><span class="icon-key"></span> = <%- data.key_price.metal %> ref</span>
+                    <span class="key-price"><span class="icon-key"></span> = <%- data.key_price.metal.toFixed(2) %> ref</span>
                 </ul>
             </div>
             <div class="bottom-nav-items">
@@ -150,10 +150,9 @@
         </div>
     </nav>
 </header>
+<div href="#" class="page-message test">
+    <span>Alpha testing for now! Some major functionalities does not work. Please, follow us on <a href="https://www.facebook.com/groups/1952662985090434" target="_blank">social media</a> where we'll announce full release. It may be any minute now. 👀</span>
+</div>
 <% if(user){ %>
-    <% if(user_db.user.bonus == "null" && !['home', 'trade', 'items', 'premium', 'about'].includes(info.view)){ %>
-        <a href="/premium" class="page-message">
-            <span><span class="icon icon-checkmark"></span> Premium for <span style="color: rgb(255, 205, 111);">1 key/month</span>! (free option available)</span>
-        </a>
-    <% } %>
+
 <% } %>
