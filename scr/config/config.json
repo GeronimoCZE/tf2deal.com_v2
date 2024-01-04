@@ -1,0 +1,21 @@
+{
+    "key": {},
+    "unusual_particles": [],
+    "warpaints": [],
+    "skins": [],
+    "added_value": {
+        "Festivized": "0;12.66",
+        "Killstreak": {
+            "Pistol": "1;1.33",
+            "Scattergun": "1;1.33"
+        },
+        "Specialized Killstreak": {
+            "Pistol": "1;1.33",
+            "Scattergun": "1;1.33"
+        },
+        "Professional Killstreak": {
+            "Pistol": "1;1.33",
+            "Scattergun": "1;1.33"
+        }
+    }
+}

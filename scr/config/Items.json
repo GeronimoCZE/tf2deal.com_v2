@@ -1,0 +1,42 @@
+{
+    "Quality": 
+    {
+        "Normal": {"color": "B2B2B2", "id": 0},
+        "Genuine": {"color": "4D7455", "id": 1},
+        "Vintage": {"color": "476291", "id": 3},
+        "Unusual": {"color": "8650AC", "id": 5},
+        "Unique": {"color": "FFD700", "id": 6},
+        "Community": {"color": "70B04A", "id": 7},
+        "Valve": {"color": "A50F79", "id": 8},
+        "SelfMade": {"color": "70B04A", "id": 9},
+        "Strange": {"color": "CF6A32", "id": 11},
+        "Haunted": {"color": "38F3AB", "id": 13},
+        "Collector": {"color": "AA0000", "id": 14},
+        "Decorated": {"color": "FAFAFA", "id": 15},
+        "0": {"color": "B2B2B2", "name": "Normal"},
+        "1": {"color": "4D7455", "name": "Genuine"},
+        "3": {"color": "476291", "name": "Vintage"},
+        "5": {"color": "8650AC", "name": "Unusual"},
+        "6": {"color": "FFD700", "name": "Unique"},
+        "7": {"color": "70B04A", "name": "Community"},
+        "8": {"color": "A50F79", "name": "Valve"},
+        "9": {"color": "70B04A", "name": "Self-Made"},
+        "11": {"color": "CF6A32", "name": "Strange"},
+        "13": {"color": "38F3AB", "name": "Haunted"},
+        "14": {"color": "AA0000", "name": "Collector's"},
+        "15": {"color": "FAFAFA", "name": "Decorated Weapon"}
+    },
+
+    "Types": {
+
+    },
+
+    "Grades": {
+        "Civilian": "#B0C3D9",
+        "Freelance": "#5E98D9",
+        "Mercenary": "#4B69FF",
+        "Commando": "#8847FF",
+        "Assassin": "#D32CE6",
+        "Elite": "#EB4B4B"
+    }
+}

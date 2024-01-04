@@ -1,0 +1,26 @@
+{
+    "Key": {
+        "name": "Mann Co. Supply Crate Key",
+        "classid": "101785959",
+        "ref_val": "null",
+        "$": "null"
+    },
+    "Ref": {
+        "name": "Refined Metal",
+        "classid": "2674",
+        "ref_val": "1",
+        "$": "null"
+    },
+    "Rec": {
+        "name": "Reclaimed Metal",
+        "classid": "5564",
+        "ref_val": "0.33",
+        "$": "null"
+    },
+    "Scrap": {
+        "name": "Scrap Metal",
+        "classid": "2675",
+        "ref_val": "0.11",
+        "$": "null"
+    }
+}
