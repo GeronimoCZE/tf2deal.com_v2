@@ -86,6 +86,48 @@ router.post('/particles', async (req, res) => {
   )
 })
 
+router.post('/edit_paricle_tier', async (req, res) => {
+  if(req.body.particle){
+    Unusual_Effect.findOneAndUpdate(
+      { ID: req.body.particle["ID"] }, 
+      { tier: req.body.particle.tier }, 
+      { new: true, useFindAndModify: false },
+
+      ((err, doc) => {
+        if(err == null){
+          res.send('ok')
+        } else {
+          res.send('error')
+        }
+      })
+
+    )
+  } else {
+    res.send('error')
+  }
+})
+
+router.post('/edit_paricle_state', async (req, res) => {
+  if(req.body.particle){
+    Unusual_Effect.findOneAndUpdate(
+      { ID: req.body.particle["ID"] }, 
+      { active: req.body.particle.active }, 
+      { new: true, useFindAndModify: false },
+
+      ((err, doc) => {
+        if(err == null){
+          res.send('ok')
+        } else {
+          res.send('error')
+        }
+      })
+
+    )
+  } else {
+    res.send('error')
+  }
+})
+
 router.get('/suggestions', async (req, res) => {
   res.send( item_suggestions )
 })
@@ -99,6 +141,11 @@ router.post('/suggestions', async (req, res) => {
       res.send({status: "0", updated_items: suggestions_length, type: "suggestions"})
     }
   )
+})
+
+router.get('/scm_item', async (req, res) => {
+  const item_name = req.query['name']
+  res.send( await market_items.find((item) => item.market_hash_name == item_name) )
 })
 
 async function fetch_tf2_items() {
@@ -236,18 +283,22 @@ async function fetch_tf2_items() {
                               }
                           }
                           else if(['primary', 'secondary', 'melee', 'building', 'pda', 'pda2'].includes(bp_item_descs[index].item_slot)){ 
+                              method = 'bp-mixed'
                               if(item_skins.some((skin) => skin.name.includes(bp_items.names[i]))){ 
                                 default_weapons.push({name: bp_items.names[i], image: bp_item_descs[index].image_url, classes: bp_item_descs[index].used_by_classes ,defindex: bp_items.defindexes[i]})
                               }
                               if(bp_item_descs[index].name.endsWith(bp_items.names[i]) && bp_item_descs[index].name.startsWith('The ')){
                                 bp_items.names[i] = bp_item_descs[index].name
                               }
+                              if(['Frying Pan'].includes(bp_items.names[i])){
+                                bp_items.names[i] = "The " + bp_items.names[i]
+                              }
                               if(['Festive Huntsman', 'Festive Backburner', 'Festive Holy Mackerel', 'Festive Axtinguisher', 'Festive Ubersaw', 'Festive Ambassador', 'Festive Buff Banner', 'Festive Sandvich'].includes(bp_items.names[i])){
                                 bp_items.names[i] = 'The ' + bp_items.names[i];
                               }
                               if(
                                 ["Scattergun",	"Shortstop",	"Soda Popper", "Winger", "Sandman","Holy Mackerel", "Rocket Launcher",	"Black Box",	"Air Strike", "Shovel",	"Disciplinary", "Action", "Flame Thrower",	"Degreaser",	"Dragon's Fury", "Detonator",	"Scorch Shot", "Fire Axe",	"Powerjack",	"Back Scratcher", "Grenade Launcher",	"Loch-n-Load",	"Loose Cannon",	"Iron Bomber", "Stickybomb Launcher",	"Scottish Resistance", "Scotsman's Skullcutter",	"Claidheamh Mòr",	"Persian Persuader", "Minigun",	"Natascha","Brass Beast","Tomislav", "Family Business", "Rescue Ranger", "Wrench",	"Jag", "Crusader's Crossbow", "Medi Gun",	"Kritzkrieg	Quick-Fix", "Ubersaw", "Amputator", "Sniper Rifle",	"Bazaar Bargain", "SMG", "Kukri Shahanshah", "Revolver", "Knife","Spy-cicle", "Pistol", "Reserve Shooter", "Shotgun", "Panic Attack"]
-                                .some((weapon) => bp_items.names[i].includes(weapon) && !bp_items.names[i].includes('Australium') && !bp_items.names[i].includes('Festive'))
+                                .some((weapon) => bp_items.names[i].includes(weapon) && !bp_items.names[i].includes('Australium') && !bp_items.names[i].includes('Festive') && !bp_items.names[i].includes('Botkiller'))
                               ){
                                 if(bp_items.names[i].startsWith('The ')){ bp_items.names[i] = bp_items.names[i].replace('The ', '')}
                                 suggestions.push(
@@ -269,25 +320,44 @@ async function fetch_tf2_items() {
                             type = 'taunt'
                           }
                           else if(bp_item_descs[index].item_class == 'tool' || ['Tour of Duty Ticket', 'Squad Surplus Voucher'].includes(bp_item_descs[index].name)){
-                              if(bp_items.names[i].includes('Strange Filter')){ type = 'tool strange filter'; method = 'bp-mixed' }
+                              method = 'bp-mixed'
+                              if(bp_items.names[i].includes('Strange Filter')){ type = 'tool strange filter'; }
                               else if(bp_items.names[i].includes('Strange Part')){ type = 'tool strange part'; method = 'bp' }
-                              else if(bp_items.names[i].includes(' Key')){ type = 'tool key'; method = 'bp-mixed' }
+                              else if(bp_items.names[i].includes(' Key')){ type = 'tool key'; }
                               else if(bp_item_descs[index].name.includes('Paint Can') && bp_item_descs[index].hasOwnProperty("attributes")){
                                 if(bp_item_descs[index].attributes[0]?.name == 'set item tint RGB'){ 
                                   rgb_tint.push(bp_item_descs[index].attributes[0]?.value)
-                                  type = 'tool paint'; method = 'bp'
+                                  type = 'tool paint';
                                 }
                               }
                               else { type = 'tool'; method = 'bp' }
                           }
                           else if(bp_item_descs[index].item_slot == 'action'){
-                            type = 'action'; method = 'bp'
+                            type = 'action'; method = 'bp-mixed'
                           }
                           else if(bp_item_descs[index].item_class == 'supply_crate'){
                             type = 'crate'; method = 'bp-mixed'; 
                           }
                           else{
                             if(type == ''){ break; }
+                          }
+
+                          if(bp_item_descs[index]?.item_type_name == '#TF_Wearable_Hat') {
+                            if(!bp_items.prices[i].qualities.includes('5')){
+                              bp_items.prices[i].qualities.push("5")
+                              bp_items.prices[i].craftability.push(["Craftable"])
+                              bp_items.prices[i].price.push([{val: 21.6, curr: "keys"}])  
+                            }
+                            if(!bp_items.prices[i].qualities.includes('6')){
+                              bp_items.prices[i].qualities.push("6")
+                              bp_items.prices[i].craftability.push(["Craftable"])
+                              bp_items.prices[i].price.push([{val: 1, curr: "keys"}])  
+                            }
+                            if(!bp_items.prices[i].qualities.includes('11')){
+                              bp_items.prices[i].qualities.push("11")
+                              bp_items.prices[i].craftability.push(["Craftable"])
+                              bp_items.prices[i].price.push([{val: 1.6, curr: "keys"}])                                
+                            }  
                           }
 
                           suggestions.push(
@@ -323,6 +393,8 @@ async function fetch_tf2_items() {
                     // remove single class shotguns
 
                     default_weapons =  Array.from(new Set(default_weapons.map(JSON.stringify))).map(JSON.parse);
+                    default_weapons = default_weapons.filter(x => x.name !== 'Wrangler');
+                    default_weapons = default_weapons.filter(x => x.name !== 'Widowmaker');
 
                     if(market_items.length != 0){
                       const australiums = Array.from(new Set(suggestions.map(JSON.stringify))).map(JSON.parse).filter(
@@ -471,6 +543,31 @@ async function fetch_tf2_items() {
                             method: 'bp-mixed'
                           }
                         ) 
+
+                        for (const weapon of default_weapons) {
+                          const warpaint_wep_results = market_items.filter(function(item){
+                            return item.market_hash_name.includes(item_warpaints[i].name + ' ' + weapon.name)
+                          })
+  
+                          let wep_images = []
+                          weapon_wears.forEach(wear => {
+                            let match = warpaint_wep_results.find((res) => res.market_hash_name.includes(wear) && !res.market_hash_name.includes('Festivized') && res.image != null)
+                            if(match == undefined || match == null || match?.image == null){ wep_images.push(weapon.image) }
+                            else { wep_images.push(match.image) }
+                          });
+  
+                          suggestions.push(
+                            {
+                              name: item_warpaints[i].name + ' ' + weapon.name, 
+                              type: 'weapon skin', 
+                              grade: item_warpaints[i].grade,
+                              image: wep_images, 
+                              classes: weapon.classes, 
+                              defindex: weapon.defindex, 
+                              method: 'bp-mixed'
+                            }
+                          ) 
+                        }
                       }
 
                       const festivized_sugs = suggestions.filter((sug) => sug.name.startsWith('Festivized') && sug.type == 'weapon')
