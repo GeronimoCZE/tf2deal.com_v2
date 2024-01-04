@@ -801,7 +801,7 @@ img[src="/img/background.jpg"]{
             @include lt-sm{
                 padding: .3rem .5rem;
             }
-            .filter{
+            .filter-btn{
                 display: block;
                 position: relative;
                 height: 1.5rem;
@@ -818,140 +818,189 @@ img[src="/img/background.jpg"]{
                 color: rgba(255, 255, 255, 0.878);
                 &:hover{
                     background: rgb(43, 26, 140);
-                    .filter-name{
-                        background: rgb(43, 26, 140) !important;
-                    }
                 }
-                .filter-name{
-                    position: relative;
-                    display: block;
-                    transition: 250ms;
-                    pointer-events: none;
-                }
-                .filter-value{
-                    position: relative;
-                    display: block;
-                    pointer-events: none;
-                    color: rgb(205, 203, 203);
+                &.active{
+                    background: rgb(43, 26, 140);
                     .icon{
-                        font-size: 13px !important;
-                        line-height:unset !important;
-                        margin-right: 0 !important;
+                        transform: rotate(180deg);
                     }
                 }
-                .filter-dropdown{
-                    position: absolute;
+                *{ user-select: none; pointer-events: none;}
+                .icon{
+                    font-size: 13px;
+                    transition: 250ms;
+                }
+            }
+            .filter-box{
+                position: absolute;
+                z-index: 2;
+                width: calc(98% - 1rem);
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                min-height: 3rem;
+                padding: 0 .5rem;
+                justify-content: flex-start;
+                align-items: center;
+                background: rgb(100, 53, 229);
+                border-radius: 0 0 .3rem .3rem;
+                &.hidden{
                     display: none;
-                    z-index: 3;
-                    top: calc(100% + 3px);
-                    max-height: 20rem;
-                    overflow-y: auto;
-                    left: 0%;
-                    background: #1f0c46;
-                    box-shadow: 0 6px 14px 1px #00000063;
-                    border-radius: 0 0 .3rem .3rem;
-                    border: 2px solid #3c158b;
-                    cursor: default;
-                    /* width */
-                    &::-webkit-scrollbar {
-                        width: .5rem;
-                    }
-                    /* Track */
-                    &::-webkit-scrollbar-track {
-                        background: transparent;
-                    }
-                    /* Handle */
-                    &::-webkit-scrollbar-thumb {
-                        background: #2d1263;
-                    }
-                    /* Handle on hover */
-                    &::-webkit-scrollbar-thumb:hover {
-                        background: #36147a;
-                    }
-    
-                    .fd-value{
-                        display: flex;
-                        flex-direction: row;
-                        position: relative;
-                        width: auto;
-                        padding: .2rem .75rem;
-                        cursor: pointer;
-                        transition: 200ms;
-                        color: rgb(206, 206, 206);
-                        &:hover{
-                            background: #3c158b;
+                }
+                .filter{
+                    display: block;
+                    position: relative;
+                    height: 1.5rem;
+                    line-height: 1.5rem;
+                    padding: .3rem .7rem;
+                    margin: .4rem;
+                    cursor: pointer;
+                    border-radius: 5px;
+                    background: rgb(56, 35, 173);
+                    font-size: 15px;
+                    letter-spacing: 0.05rem;
+                    transition: 250ms;
+                    white-space: nowrap;
+                    color: rgba(255, 255, 255, 0.878);
+                    &:hover{
+                        background: rgb(43, 26, 140);
+                        .filter-name{
+                            background: rgb(43, 26, 140) !important;
                         }
+                    }
+                    .filter-name{
+                        position: relative;
+                        display: block;
+                        transition: 250ms;
+                        pointer-events: none;
+                    }
+                    .filter-value{
+                        position: relative;
+                        display: block;
+                        pointer-events: none;
+                        color: rgb(205, 203, 203);
                         .icon{
                             font-size: 13px !important;
                             line-height:unset !important;
-                            margin-right: .3rem;
+                            margin-right: 0 !important;
                         }
-                        img{
-                            height: 24px;
-                            display: block;
-                            position: relative;
-                        }
-                        &:hover{
-                            
-                        }
-                    }
-                }
-                &.open{
-                    background: rgb(43, 26, 140);
-                    .filter-name{
-                        background: rgb(43, 26, 140) !important;
                     }
                     .filter-dropdown{
-                        display: block;
-                        animation: drop_animation 200ms ease-in-out forwards;
-                        @keyframes drop_animation {
-                            0%{
-                                opacity: 0;
-                                transform: translateY(5px);
+                        position: absolute;
+                        display: none;
+                        z-index: 3;
+                        top: calc(100% + 3px);
+                        max-height: 20rem;
+                        overflow-y: auto;
+                        left: 0%;
+                        background: #1f0c46;
+                        box-shadow: 0 6px 14px 1px #00000063;
+                        border-radius: 0 0 .3rem .3rem;
+                        border: 2px solid #3c158b;
+                        cursor: default;
+                        /* width */
+                        &::-webkit-scrollbar {
+                            width: .5rem;
+                        }
+                        /* Track */
+                        &::-webkit-scrollbar-track {
+                            background: transparent;
+                        }
+                        /* Handle */
+                        &::-webkit-scrollbar-thumb {
+                            background: #2d1263;
+                        }
+                        /* Handle on hover */
+                        &::-webkit-scrollbar-thumb:hover {
+                            background: #36147a;
+                        }
+        
+                        .fd-value{
+                            display: flex;
+                            flex-direction: row;
+                            position: relative;
+                            width: auto;
+                            padding: .2rem .75rem;
+                            cursor: pointer;
+                            transition: 200ms;
+                            color: rgb(206, 206, 206);
+                            &:hover{
+                                background: #3c158b;
                             }
-                            100%{
-                                opacity: 1;
-                                transform: translateY(0px);
+                            *{pointer-events: none;}
+                            .icon{
+                                font-size: 13px !important;
+                                line-height:unset !important;
+                                margin-right: .3rem;
+                            }
+                            img{
+                                height: 24px;
+                                display: block;
+                                position: relative;
                             }
                         }
                     }
-                }
-                &.selected{
-                    border: 1px solid rgb(109, 109, 109);
-                    background: rgb(43, 26, 140) !important;
-                    .filter-name{
+                    &.open{
+                        background: rgb(43, 26, 140);
+                        .filter-name{
+                            background: rgb(43, 26, 140) !important;
+                        }
+                        .filter-dropdown{
+                            display: block;
+                            animation: drop_animation 200ms ease-in-out forwards;
+                            @keyframes drop_animation {
+                                0%{
+                                    opacity: 0;
+                                    transform: translateY(5px);
+                                }
+                                100%{
+                                    opacity: 1;
+                                    transform: translateY(0px);
+                                }
+                            }
+                        }
+                    }
+                    &.selected{
+                        border: 1px solid rgb(109, 109, 109);
                         background: rgb(43, 26, 140) !important;
-                        color: rgb(239, 239, 239);
-                        position: absolute;
-                        font-size: 10px;
-                        padding: 0 .3rem;
-                        border-radius: 5px 5px 0 0;
-                        line-height: 15px;
-                        top: -.4rem;
-                        left: 0px;
+                        .filter-name{
+                            background: rgb(43, 26, 140) !important;
+                            color: rgb(239, 239, 239);
+                            position: absolute;
+                            font-size: 10px;
+                            padding: 0 .3rem;
+                            border-radius: 5px 5px 0 0;
+                            line-height: 15px;
+                            top: -.4rem;
+                            left: 0px;
+                        }
                     }
                 }
-            }
-            .reset-filters{
-                margin: .3rem;
-                padding: 0 .5rem;
-                line-height: 1.5rem;
-                font-size: 15px;
-                letter-spacing: 0.05rem;
-                transition: 250ms;
-                white-space: nowrap;
-                color: rgba(255, 255, 255, 0.878);
-                cursor: default;
-                opacity: .6;
-                &.show{
-                    opacity: 1;
-                    cursor: pointer;
-                    text-decoration: underline;
-                    text-underline-offset: .2rem;
+                .reset-filters{
+                    margin: .3rem;
+                    padding: 0 .5rem;
+                    line-height: 1.5rem;
+                    font-size: 15px;
+                    letter-spacing: 0.05rem;
+                    transition: 250ms;
+                    white-space: nowrap;
+                    color: rgba(255, 255, 255, 0.878);
+                    cursor: default;
+                    opacity: .6;
+                    &.show{
+                        opacity: 1;
+                        cursor: pointer;
+                        text-decoration: underline;
+                        text-underline-offset: .2rem;
+                    }
+                    *{
+                        pointer-events: none;
+                    }
                 }
-                *{
-                    pointer-events: none;
-                }
+    
             }
             .input-filter{
                 display: flex;
