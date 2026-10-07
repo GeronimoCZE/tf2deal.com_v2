@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('../partials/head.ejs') %>
+    <body>
+        <%- include('../partials/nav.ejs') %>
+
+        <main>
+            <div class="page-section profile-ps">
+                <div class="profile-box">
+                    <div class="heading">
+                        <span class="title"><span class="icon-info"></span> <%= __('profile.my_tickets') %></span>
+                        <a href="<%= lurl('/profile') %>"><span class="icon-user"></span> <%= user.personaname %></a>
+                        <a href="<%= lurl('/profile/trades') %>"><span class="icon-trade1"></span> <%= __('nav.trades') %></a>
+                        <a href="<%= lurl('/profile/wishlist') %>"><span class="icon-drawer"></span> <%= __('nav.wishlist') %></a>
+                        <a href="<%= lurl('/profile/giveaways') %>"><span class="icon-gift"></span> <%= __('nav.giveaways') %></a>
+                    </div>
+                    <div class="body">
+                        <div class="account-tickets">
+                            <a href="<%= lurl('/support') %>" class="new-ticket">+ <%= __('profile.new_ticket') %></a>
+                            <div class="ticket-list" id="profile-tickets">
+                                <div class="content-record skeleton"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script type="module">
+            import { load_tickets } from '/js/plugins/profile.js'
+            load_tickets()
+        </script>
+
+        <%- include('../partials/footer.ejs') %>
+    </body>
+</html>

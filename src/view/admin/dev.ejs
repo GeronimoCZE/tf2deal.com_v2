@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('../partials/head.ejs') %>
+    <body>
+        <%- include('../partials/nav.ejs') %>
+        
+        <main>
+            <!-- interface to add items through users inventory (classid, img, desc) -->
+
+            <!-- Quick stats for current day (Approximate profit, Amount of Trades, Users online) -->
+            <!-- Bot administration (Add, Remove, Edit and View specific bot - active trades, inv space, status) -->
+            <!-- Trade history (with specific day look-up, specific trade details - items, userID, time) -->
+            <!-- Items administration (Add, Remove and Edit tradeble items / item types) -->
+            <!-- Users administration (View User Stats, Ban Users) -->
+
+            <div class="page-section admin-ps">
+                <div class="admin-container">
+                    <nav>
+                        <ul>
+                            <li><a href="#overview" class="active">Overview</a></li>
+                            <li><a href="#items">Items</a></li>
+                            <li><a href="#bots">Bots</a></li>
+                        </ul>
+                    </nav>
+                    <main>
+                        <section id="overview" class="tab-content active">
+                            <h1>Overview</h1>
+                            <div class="statistics">
+                                <div class="stat">
+                                    <h3>Total Items</h3>
+                                    <p>678</p>
+                                </div>
+                                <div class="stat">
+                                    <h3>Available Items</h3>
+                                    <p>456</p>
+                                </div>
+                                <div class="stat">
+                                    <h3>Out of Stock</h3>
+                                    <p>222</p>
+                                </div>
+                            </div>
+                            <div class="content-section">
+                                <h2>Summary</h2>
+                                <div class="content">This is the overview summary content.</div>
+                            </div>
+                            <div class="content-section">
+                                <h2>Statistics</h2>
+                                <div class="content">This is the overview statistics content.</div>
+                            </div>
+                        </section>
+                        <section id="bots" class="tab-content">
+                            <script>
+                                function showBotProfile(botName) {
+                                    // Hide all tab contents
+                                    document.querySelectorAll('.admin-container .tab-content').forEach(content => {
+                                        content.classList.remove('active');
+                                    });
+                                    // Show bot profile tab
+                                    document.getElementById('bot-profile').classList.add('active');
+                                    // Set bot profile content
+                                    document.getElementById('bot-name').textContent = botName;
+                                    document.getElementById('bot-profile-content').textContent = `This is the profile for ${botName}.`;
+                                    // Update page title
+                                    document.title = botName + " Profile - Admin Page";
+                                }
+
+                                function goBackToBots() {
+                                    // Show bots tab
+                                    document.getElementById('bots').classList.add('active');
+                                    // Hide bot profile tab
+                                    document.getElementById('bot-profile').classList.remove('active');
+                                    // Update page title
+                                    document.title = "Bots - Admin Page";
+                                }
+                            </script>
+                            <h1>Bots</h1>
+                            <!-- Bots table -->
+                             <div class="bots-nav" style="display: flex; flex-direction: row; justify-content: flex-end;">
+                                <button id="add-bot">Add Bot</button>
+                             </div>
+                            <div class="bots-table">
+                                <div class="table-header">
+                                    <div class="cell _id">id</div>
+                                    <div class="cell _name">Steam name</div>
+                                    <div class="cell _classifieds">BPTFListings</div>
+                                    <div class="cell _steamid">Steamid</div>
+                                    <div class="cell _trades">Trades</div>
+                                    <div class="cell _items">Items</div>
+                                </div>
+                                <div class="table-content">
+<!-- z -->
+                                </div>
+                            </div>
+            
+                        </section>
+                        <section id="bot-profile" class="tab-content">
+                            <a href="#" class="back-button" onclick="goBackToBots()">Back to Bots</a>
+                            <h1>Bot Profile</h1>
+                            <div class="content-section">
+                                <h2 id="bot-name">Bot Name</h2>
+                                <div class="content" id="bot-profile-content">
+                                    <!-- Dynamic bot profile content will be inserted here -->
+                                </div>
+                            </div>
+                        </section>
+                        <section id="items" class="tab-content">
+                            <h1>Items</h1>
+                            <div class="content-nav">
+                                <div class="cn-item">Items</div>
+                                <div class="cn-item">Effects</div>
+                                <div class="cn-item">Warpaints</div>
+                            </div>
+                            <div class="content-section">
+                                <h2>Item List</h2>
+                                <div class="content">This is the item list content.</div>
+                            </div>
+                            <div class="content-section">
+                                <h2>Item Statistics</h2>
+                                <div class="content">This is the item statistics content.</div>
+                            </div>
+                        </section>
+                    </main>
+                </div>
+            </div>
+            <script type="module" defer>
+                const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+                const particles = JSON.parse(localStorage.getItem('unusual_effects'));
+                const bp_sugs = []
+                const scm_sugs = []
+
+                let new_bot = {
+                    type: null,
+                    id: null,
+                    name: null,
+                    password: null,
+                    identitySecret: null,
+                    sharedSecret: null,
+                    bptf_key: null,
+                    bptf_token: null
+                }
+
+                document.addEventListener('DOMContentLoaded', () => {
+                    const tabs = document.querySelectorAll('.admin-container nav ul li a');
+                    const contents = document.querySelectorAll('.admin-container .tab-content');
+
+                    tabs.forEach(tab => {
+                        if(window.location.hash == tab.getAttribute('href')){
+                            tabs.forEach(item => item.classList.remove('active'));
+                            contents.forEach(content => content.classList.remove('active'));
+
+                            tab.classList.add('active');
+                            document.querySelector(tab.getAttribute('href')).classList.add('active');
+                            window.location.hash = tab.getAttribute('href');
+                            document.title = tab.textContent + " - Admin Page";
+                        }
+                        tab.addEventListener('click', (event) => {
+                            event.preventDefault();
+
+                            tabs.forEach(item => item.classList.remove('active'));
+                            contents.forEach(content => content.classList.remove('active'));
+
+                            tab.classList.add('active');
+                            document.querySelector(tab.getAttribute('href')).classList.add('active');
+                            window.location.hash = tab.getAttribute('href');
+                            document.title = tab.textContent + " - Admin Page";
+                        });
+                    });
+
+                    $('#add-bot').click((e) => {
+                        iziToast.show({
+                        theme: 'dark',
+                        icon: 'icon-steam_rectangle',
+                        title: 'New Bot',
+                        message: 'Add a new steam trading bot!',
+                        position: 'center', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter
+                        maxWidth: '300px',
+                        overlay: true,
+                        progressBar: false,
+                        timeout: false,
+                        inputs: [
+                            ['<input type="text" placeholder="type">', 'input', function (instance, toast, input, e) {
+                                new_bot[e.target.getAttribute('placeholder')] = e.target.value
+                                console.log(new_bot)
+                            }],
+                            ['<input type="text" placeholder="id">', 'input', function (instance, toast, input, e) {
+                                new_bot[e.target.getAttribute('placeholder')] = e.target.value
+                                console.log(new_bot)
+                            }],
+                            ['<input type="text" placeholder="name">', 'input', function (instance, toast, input, e) {
+                                new_bot[e.target.getAttribute('placeholder')] = e.target.value
+                                console.log(new_bot)
+                            }],
+                            ['<input type="text" placeholder="password">', 'input', function (instance, toast, input, e) {
+                                new_bot[e.target.getAttribute('placeholder')] = e.target.value
+                                console.log(new_bot)
+                            }],
+                            ['<input type="text" placeholder="identitySecret">', 'input', function (instance, toast, input, e) {
+                                new_bot[e.target.getAttribute('placeholder')] = e.target.value
+                                console.log(new_bot)
+                            }],
+                            ['<input type="text" placeholder="sharedSecret">', 'input', function (instance, toast, input, e) {
+                                new_bot[e.target.getAttribute('placeholder')] = e.target.value
+                                console.log(new_bot)
+                            }],
+                            ['<input type="text" placeholder="bptf_key">', 'input', function (instance, toast, input, e) {
+                                new_bot[e.target.getAttribute('placeholder')] = e.target.value
+                                console.log(new_bot)
+                            }],
+                            ['<input type="text" placeholder="bptf_token">', 'input', function (instance, toast, input, e) {
+                                new_bot[e.target.getAttribute('placeholder')] = e.target.value
+                                console.log(new_bot)
+                            }]
+                        ],
+                        buttons: [
+                            ['<button>Confirm</button>', function (instance, toast) {
+                                console.log('bot: ', new_bot)
+                                fetch('/api/new_bot', {
+                                    method: 'POST',
+                                    body: JSON.stringify({bot: new_bot}),
+                                    headers:{
+                                        "Content-Type": "application/json",
+                                        "Authorization": "Bearer ",
+                                        "Accept": "*/*",
+                                    }
+                                }).then(async (res) => {  
+                                    if(res.ok){
+                                        return res.json() 
+                                    } else {
+                                        iziToast.error({
+                                            timeout: 3000,
+                                            title: 'Error',
+                                                message: 'json:error?'
+                                        });
+                                        return;
+                                    }
+                                    })
+                                .then(jsonResponse => {
+                                    if(jsonResponse?.status == 'ok'){
+                                        
+                                        instance.hide({
+                                            transitionOut: 'fadeOutUp',
+                                            onClosing: function(instance, toast, closedBy){
+                                                // The return will be: 'closedBy: buttonName'
+                                                iziToast.success({
+                                                    timeout: 3000,
+                                                    title: 'Success',
+                                                        message: 'New bot added.'
+                                                });
+                                                new_bot = {
+                                                    type: null,
+                                                    id: null,
+                                                    password: null,
+                                                    identitySecret: null,
+                                                    sharedSecret: null,
+                                                    bptf_key: null,
+                                                    bptf_token: null
+                                                }
+                                            }
+                                        }, toast, 'buttonName');
+                                    } else {
+                                        iziToast.error({
+                                            timeout: 3000,
+                                            title: 'Error',
+                                                message: 'status:error?'
+                                        });
+                                    }
+                                }).catch(async(e) => {
+                                    iziToast.error({
+                                            timeout: 3000,
+                                            title: 'Error',
+                                                message: 'catch?'
+                                        });
+                                })
+                            }]
+                        ]
+                    });
+
+                    })
+                });
+
+                suggestion_view()
+                async function effect_view(){               
+                    $('.suggestion-results').addClass('hidden')
+                    $('.admin-data').children().remove();
+                    for (const effect of particles) {
+                        let type = '';
+                        if(Number(effect["ID"]) < 3000 && !["701","702","703","704"].includes(effect["ID"])){ type = 'cosmetic' }
+                        else if(Number(effect["ID"]) >= 3000){ type = 'taunt' }
+                        else if(["701","702","703","704"].includes(effect["ID"])){ type = 'weapon' }
+
+                        $('.admin-data').append(`<div class='item-instance'>
+                            <img class='image' src='https://backpack.tf/images/440/particles/${effect["ID"]}_94x94.png' loading="lazy"> 
+                            <span class='type'>${type}</span>
+                            <span class='name'>${effect.name}</span>
+                            ${(effect.active == 'true') ? '<div class="btn remove">Remove</div>':'<div class="btn add">Add</div>'}
+                        </div>`)
+                    }
+                }
+
+                async function suggestion_view(){
+                    $('.suggestion-results').removeClass('hidden')
+                    $('.admin-data').children().remove();
+
+                    const selectedItems = new Map()
+                    var suggestions = []
+
+                    const killstreaks = [' ', ' Killstreak ', ' Specialized Killstreak ', ' Professional Killstreak ']
+                    const particles = {
+                        cosmetic: JSON.parse(localStorage.getItem('unusual_effects')).filter((effect) => Number(effect["ID"]) < 3000 && !["701","702","703","704"].includes(effect["ID"])).map(eff => Object({name: eff.name, id: eff['ID']})),
+                        taunt: JSON.parse(localStorage.getItem('unusual_effects')).filter((effect) => Number(effect["ID"]) >= 3000).map(eff => Object({name: eff.name, id: eff['ID']})),
+                        weapon: JSON.parse(localStorage.getItem('unusual_effects')).filter((effect) => ["701","702","703","704"].includes(effect["ID"])).map(eff => Object({name: eff.name, id: eff['ID']}))
+                    }
+                    const wears = ['Factory New', 'Minimal Wear', 'Field-Tested', 'Well-Worn', 'Battle Scarred'];
+
+                    let suggestion_settings = {
+                        "async": true,
+                        "crossDomain": false,
+                        "url": '/admin/suggestions',
+                        "method": "GET",
+                        "headers": {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer ",
+                            "Accept": "*/*",
+                        }
+                    }
+                    $.ajax(suggestion_settings)
+                    .fail(function( data ) {
+                        if(data.statusText != undefined){
+                            iziToast.error({
+                                title: 'Error!',
+                                message: data.statusText
+                            });
+                        } else {
+                            iziToast.error({
+                                title: 'Error!',
+                                message: `Something has failed`
+                            });
+                        }
+                    })
+                    .done(function( data ) {
+                        suggestions = data;
+                        $('.suggestion-results').children().remove();
+                        
+                        if(suggestions.length == 0){ $('.suggestion-results').append('not created yet... wait'); return false; }
+                        suggestions.forEach((sug, index) => {
+                            // api.backpack_tf.in_use = true
+                            let instances = []
+                            let hide = ''
+                            let classes = ''
+                            let grade = 'none'
+
+                            if(sug.hasOwnProperty('prices')){
+                                for (let i = 0; i < sug.prices.qualities.length; i++) {
+                                    for (let y = 0; y < sug.prices.craftability[i].length; y++) {
+                                        let craft = (sug.prices.craftability[i][y] == 'Craftable') ? '':'Non-Craftable '
+                                        let quality = sug.prices.qualities[i]
+                                        let color = itemAttr.Quality[sug.prices.qualities[i]].color
+                                        let name = craft + sug.name
+                                        
+                                        instances.push(`<div class="inst-row q-${quality}"><span style="color: #${color}">${name}</span> </div>`)
+                                    }
+                                }
+                            }
+
+                            if(sug.type != 'tool'){ classes = (sug.hasOwnProperty('classes') && sug.classes != null) ? sug.classes.join(', '):'All classes' }
+                            if(sug.hasOwnProperty('grade')) { grade = itemAttr.Grades[sug.grade] }
+                            if(index >= 20){ hide = 'hidden'}
+                            $('.suggestion-results').append(
+                                `<div class="result res-${index} ${sug.name.replaceAll(' ', '_').replaceAll('\n', '_').replaceAll(".", 'D').replaceAll("'", 'i').replaceAll(":", 'f').replaceAll("!", 'l').replaceAll("(", 'L').replaceAll(")", 'R').replaceAll("?", 'Q')}">
+                                    <img src="${sug.image[0]}" alt="">
+                                    <div class="result-data">
+                                        <div class="item-name">${sug.name}</div>
+                                        <div class="item-attr">
+                                            <div class="attr type" style='color: ${grade}'>${sug.type}</div>
+                                            <div class="attr classes">${classes}</div>
+                                            <div class="attr method">${sug.method}</div>
+                                        </div>
+                                        <div class="item-instances">
+                                            <div class="instance">...</div>
+                                        </div>
+                                    </div>
+                                    <div class="item-instances-details">
+                                        
+                                    </div>
+                                </div>`
+                            )
+                        });
+                    }).then(
+                        async function(){
+                            $('.admin-data').children().remove();
+
+                            let item_instances = {
+                                "approved": [],
+                                "failed": []
+                            }
+
+                            // weapon skins & australiums ignores 'Festivized ' in name. (-> may add some price bonus)
+                            console.log(particles)
+
+                            function push_instance(sug, i, kt, craft, quality, qualityID, color, australium, effect_id, effect_name){
+                                let name = sug.name
+                                if(sug.name.startsWith('The ')){
+                                    if(sug.prices.qualities[i] != 6 || kt != 0 || craft != ''){ 
+                                        name = name.replace('The ', '')
+                                    }
+                                }
+                                let bp_sku = craft + quality + killstreaks[kt] + name
+                                if(sug.name.startsWith('Festivized ')){ 
+                                    name = name.replace('Festivized ', '')
+                                    bp_sku = craft + quality + ' Festivized ' + killstreaks[kt] + name
+                                }
+
+                                if(qualityID == 5){
+                                    bp_sku = bp_sku.replace(quality, effect_name)
+                                }
+
+                                if(bp_sku.startsWith(' ')){ bp_sku = bp_sku.slice(1) }
+                                bp_sku = bp_sku.replaceAll('  ', ' ')
+                                bp_sku = bp_sku.replaceAll('   ', ' ')
+                                bp_sku = bp_sku.replaceAll('    ', ' ')
+
+                                if(sug.type != 'crate'){
+                                    let steam_sku = bp_sku.replace('Non-Craftable ', '')
+                                    bp_sugs.push({
+                                        name: sug.name,
+                                        bp_sku: bp_sku,
+                                        steam_sku: steam_sku,
+                                        quality: quality,
+                                        qualityID: sug.prices.qualities[i],
+                                        color: color,
+                                        image: sug.image[0],
+                                        defindex: sug.defindex,
+                                        type: sug.type,
+                                        craft: craft,
+                                        australium: australium,
+                                        kt: 0,
+                                        effect_id: 0,
+                                        effect_name: quality,
+                                        method: sug.method
+                                    })
+                                } else {
+                                    for (const serie of sug.series) {
+                                        // scm - crate, cooler, strongbox (has ' Series #66')
+                                        let crate_bp_sku = String(bp_sku + ` #${serie}`)
+                                        let crate_steam_sku = String(bp_sku)
+                                        if(['Crate', 'Cooler', 'Strongbox'].some((crate_type) => bp_sku.includes(crate_type))){
+                                            crate_steam_sku = String(bp_sku  + ` Series #${serie}`)
+                                        }
+                                        if(serie == 0){
+                                            crate_bp_sku = String(bp_sku)
+                                            crate_steam_sku = String(bp_sku)
+                                        }
+                                        bp_sugs.push({
+                                            name: sug.name,
+                                            bp_sku: crate_bp_sku,
+                                            steam_sku: crate_steam_sku,
+                                            quality: quality,
+                                            qualityID: sug.prices.qualities[i],
+                                            color: color,
+                                            image: sug.image[0],
+                                            defindex: sug.defindex,
+                                            type: sug.type,
+                                            craft: craft,
+                                            australium: australium,
+                                            kt: 0,
+                                            effect_id: 0,
+                                            effect_name: quality,
+                                            method: sug.method
+                                        })
+                                    }
+                                }
+                            }
+
+                            function push_instance_scm(sug){
+                                switch (sug.type) {
+                                    case 'weapon skin':
+                                        let qualities = ['15', '11', '5']
+                                        for (const qualityID of qualities) {
+                                            for (const wear of wears) {
+                                                if(qualityID == '5'){
+                                                    for (let p = 0; p < particles.weapon.length; p++) {
+                                                        do_push('', qualityID, 0, ` (${wear})`, particles.weapon[p].id, particles.weapon[p].name)
+                                                    }
+                                                } else {
+                                                    for (let i = 0; i < 4; i++) {
+                                                        do_push('', qualityID, i, ` (${wear})`, 0, '')
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        break;
+                                    case 'war paint':
+                                        let qualitie = ['15', '11', '5']
+                                        for (const qualityID of qualitie) {
+                                            for (const wear of wears) {
+                                                if(qualityID == '5'){
+                                                    for (let p = 0; p < particles.weapon.length; p++) {
+                                                        do_push('', qualityID, 0, ` (${wear})`, particles.weapon[p].id, particles.weapon[p].name)
+                                                    }
+                                                } else {
+                                                    do_push('', qualityID, 0, ` (${wear})`, 0, '')
+                                                }
+                                            }
+                                        }
+                                        break;
+                                    case 'tool unusualifier':
+                                        do_push('Non-Craftable ', "5", 0, '', 0, '')
+                                        break;
+                                    case 'tool strangifier':
+                                        do_push('', "6", 0, '', 0, '')
+                                        break;
+                                    case 'tool kit':
+                                        do_push('Non-Craftable ', "6", 0, '', 0, '')
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                function do_push(craft, qualityID, kt, wear, effect_id, effect_name){
+                                    let quality = (["6", "15"].includes(qualityID)) ? '':itemAttr.Quality[qualityID].name + ' ';
+                                    let bp_sku = String(craft + quality + killstreaks[kt] + sug.name + wear).replaceAll('  ', ' ').replaceAll('   ', ' ').replaceAll('    ', ' ');
+                                    let steam_sku = String(quality + killstreaks[kt] + sug.name + wear).replaceAll('  ', ' ').replaceAll('   ', ' ').replaceAll('    ', ' ');
+
+                                    if(bp_sku.startsWith(' ')){ bp_sku = bp_sku.slice(1) }
+                                    if(steam_sku.startsWith(' ')){ steam_sku = steam_sku.slice(1) }
+                                    if(quality == 'Unusual ' && effect_name != ''){ bp_sku = bp_sku.replace('Unusual', effect_name)}
+                                    if(quality == 'Unusual ' && sug.name.endsWith('Unusualifier')){ 
+                                        bp_sku = bp_sku.replace('Unusual ', '')
+                                        steam_sku = steam_sku.replace('Unusual ', '')
+                                    }
+
+                                    scm_sugs.push({
+                                        name: sug.name,
+                                        bp_sku: bp_sku,
+                                        steam_sku: steam_sku,
+                                        quality: quality,
+                                        qualityID: qualityID,
+                                        color: itemAttr.Quality[qualityID].color,
+                                        craft: craft,
+                                        australium: "-1",
+                                        image: sug.image[0],
+                                        defindex: sug.defindex,
+                                        type: sug.type,
+                                        kt: kt,
+                                        effect_id: effect_id,
+                                        effect_name: effect_name,
+                                        method: sug.method
+                                    })
+                                }
+                            }
+
+                            for (const [ii,sug] of suggestions.entries()) {
+                                if(['bp', 'bp-mixed'].includes(sug?.method) && sug.hasOwnProperty('prices')){
+                                    for (let i = 0; i < sug.prices.qualities.length; i++) {
+                                        for (let y = 0; y < sug.prices.craftability[i].length; y++) {
+                                            // need to use promise based loop!
+                                            let craft = (sug.prices.craftability[i][y] == 'Craftable') ? '':'Non-Craftable '
+                                            let australium = (sug.name.includes('Australium') && sug.prices.qualities[i] == '11') ? '1':'-1'
+                                            let quality = (["6", "15"].includes(sug.prices.qualities[i])) ? '':itemAttr.Quality[sug.prices.qualities[i]].name + ' '
+                                            let color = itemAttr.Quality[sug.prices.qualities[i]].color
+                                            
+                                            push_instance(sug, i, 0, craft, quality, sug.prices.qualities[i], color, australium, 0, quality)
+                                            
+                                            if(sug.type == 'weapon'){
+                                                for (let k = 1; k < 4; k++) {
+                                                    push_instance(sug, i, k, craft, quality, sug.prices.qualities[i], color, australium, 0, quality)
+                                                }
+                                            }
+                                            if(sug.type == 'cosmetic' && sug.prices.qualities[i] == 5){
+                                                for (let p = 0; p < particles.cosmetic.length; p++) {
+                                                    push_instance(sug, i, 0, craft, quality, sug.prices.qualities[i], color, australium, particles.cosmetic[p].id, particles.cosmetic[p].name)
+                                                }
+                                            }
+                                            if(sug.type == 'taunt' && sug.prices.qualities[i] == 5){
+                                                for (let p = 0; p < particles.taunt.length; p++) {
+                                                    push_instance(sug, i, 0, craft, quality, sug.prices.qualities[i], color, australium, particles.taunt[p].id, particles.taunt[p].name)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else{
+                                    push_instance_scm(sug)
+                                }
+                            }
+                            console.log(bp_sugs, scm_sugs)
+                            $('.suggestions-done .total').text((bp_sugs.length + scm_sugs.length).toLocaleString())
+
+                                /* $.ajax({
+                                    "async": true,
+                                    "crossDomain": true,
+                                    "url": `http://46.101.135.110/search?sku=${sku}`,
+                                    "method": "GET",
+                                    "headers": {
+                                        "Content-Type": "application/json",
+                                        "Authorization": "Bearer ",
+                                        "Accept": "/*",
+                                    }
+                                })
+                                .fail(async function (response){})
+                                .done(async function (res){
+                                    console.log(res)
+                                    let status = 'ok'
+                                    
+                                    if(res.hasOwnProperty('message')){ 
+                                        status = 'error'
+                                    } else {                                                    
+                                        const buyListings = new Map()
+                                        const sellListings = new Map()
+                                        // filter listings
+                                        if(res.hasOwnProperty('listings')){
+                                            //filter_listings(listings.buy.items)
+                                            
+                                            
+                                        }
+
+                                        async function filter_listings(bp_listings){
+                                            let ii = 0;
+                                            for (const listing of bp_listings) {
+                                                if(listing.item.attributes == undefined){
+                                                    push_price(listing)
+                                                } else {
+                                                    let forbidden_attr = listing.item.attributes.some((attr) => { return ["142","1004","1005","1006","1007","1008","1009"].includes(attr.defindex.toString())})
+                                                    if(forbidden_attr == false){
+                                                        push_price(listing)
+                                                    } else if(listing.intent == 1){
+                                                        if(sellListings.has(listing.item.name)){
+                                                            sellListings.set(listing.item.name, {quality: listing.item.quality, prices: [...sellListings.get(listing.item.name).prices, listing.currencies]})
+                                                        } else {
+                                                            sellListings.set(listing.item.name, {quality: listing.item.quality, prices: [listing.currencies]})
+                                                        }
+                                                    }
+                                                }
+                                                ii++
+                                            }
+
+                                            function push_price(listing){
+                                                if(listing.intent == 0){
+                                                    if(buyListings.has(listing.item.name)){
+                                                        buyListings.set(listing.item.name, {quality: listing.item.quality, prices: [...buyListings.get(listing.item.name).prices, listing.currencies]})
+                                                    } else {
+                                                        buyListings.set(listing.item.name, {quality: listing.item.quality, prices: [listing.currencies]})
+                                                    }
+                                                } else {
+                                                    if(sellListings.has(listing.item.name)){
+                                                        sellListings.set(listing.item.name, {quality: listing.item.quality, prices: [...sellListings.get(listing.item.name).prices, listing.currencies]})
+                                                    } else {
+                                                        sellListings.set(listing.item.name, {quality: listing.item.quality, prices: [listing.currencies]})
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // discard item if:
+                                    // details include spell/paint && has spell/paint attribute 
+
+                                    // Attributes 
+                                    //   di:2025=killstreak_applied(float_value=ks_id)
+                                    //   di:142=paint used(float_value=set_item_tint_rgb)
+                                    //   di:1004=paint_spell
+                                    //   di:1005=footsteps_spell
+                                    //   di:1006=voices_spell
+                                    //   di:1007=pumpkin_bombs_spell
+                                    //   di:1008=halloween_fire_spell
+                                    //   di:1009=exorcism_spell
+                                    
+                                })
+
+                                await delay(3000) */
+
+                        },
+                        function(){}
+                    )
+
+                    $('.suggestion-results').on('scroll', (e) => {
+                        var scrollTop = $(e.target).scrollTop();
+                        if(scrollTop + $(e.target).innerHeight() >= e.target.scrollHeight) {
+                            revealeSuggestions(20)
+                        }
+                    })
+
+                    function revealeSuggestions(amount) {
+                        for (let i = 0; i < amount; i++) {
+                            if($('.suggestion-results').children('.hidden')[i]){
+                                $('.suggestion-results').children('.hidden')[i].classList.remove('hidden')
+                            }
+                        }
+                    }
+
+                    $('.suggestion-result-filter .filter')[0].addEventListener('click', function(e){
+                        if(e.target.classList.contains('fd-value')){
+                            const filter = e.target.parentElement.parentElement.getAttribute('filter')
+                            const value = e.target.textContent.trim()
+                            if(suggestions.length == 0){ return false; }
+
+                            let count = 0;
+                            for(let i=0; i < suggestions.length; i++) {
+                                let element = $(`.suggestion-results .res-${i}`)[0]
+                                if(value == 'None'){
+                                    element.classList.remove('hidden')
+                                    element.classList.remove('f-hidden')
+                                    if(i >= 20){ element.classList.add('hidden') }
+                                    continue;
+                                }
+
+                                element.classList.remove('hidden')
+                                element.classList.remove('f-hidden')
+                                // if(count >= 20){ element.classList.add('hidden') }
+
+                                if(element.querySelector('.attr.type').textContent.toLowerCase().includes(value.toLowerCase())){
+                                    count ++;
+                                } else {
+                                    element.classList.add('f-hidden')
+                                }
+                            };
+                        }
+                    })
+
+                    document.querySelectorAll('form.add-items .update-btn').forEach(element => {
+                        element.addEventListener('click', async function(e){
+                            element.setAttribute('disabled', '')
+                            if(element.classList.contains('upt-warpaints')){
+                                update_dev_items( "/admin/warpaints", element )
+                            }
+                            if(element.classList.contains('upt-skins')){
+                                update_dev_items( "/admin/skins", element )
+                            }
+                            if(element.classList.contains('upt-particles')){
+                                update_dev_items( "/admin/particles", element )
+                            }
+                            if(element.classList.contains('upt-suggestions')){
+                                update_dev_items( "/admin/suggestions", element )
+                            }
+                        })
+                    });
+
+                    $('.suggestion-result-filter .input-filter button').on('click', function(e){
+                        e.preventDefault()
+
+                        const val = $(this).siblings("input").val();
+                        let count = 0;
+                        for(let i=0; i < suggestions.length; i++) {
+                            let element = $(`.suggestion-results .res-${i}`)[0]
+                            if(val == ''){
+                                element.classList.remove('hidden')
+                                element.classList.remove('s-hidden')
+                                if(count >= 20){ element.classList.add('hidden') }
+                                continue;
+                            }
+
+                            element.classList.remove('hidden')
+                            element.classList.remove('s-hidden')
+                            if(count >= 20){ element.classList.add('hidden') }
+
+                            if(element.querySelector('.result-data .item-name').textContent.toLowerCase().includes(val.toLowerCase())){
+                                count ++;
+                            } else {
+                                element.classList.add('s-hidden')
+                            }
+                        };
+                    })
+
+                    $('.suggestion-results').on('click', async function(e){
+                        
+                        if(e.target.classList.contains('instance')){
+                            let sugID = e.target.parentElement.parentElement.parentElement.classList[1].replace('res-', '')
+                            const sugNAME = e.target.parentElement.parentElement.parentElement.querySelector('.result-data .item-name').textContent
+                            const method = e.target.parentElement.parentElement.parentElement.querySelector('.result-data .item-attr .method').textContent
+                            let selected = (e.target.classList.contains('selected')) ? true:false
+                            let prices = (e.target.parentElement.parentElement.classList.contains('prices')) ? true:false
+                            if(selected == false){
+                                for (let i = 1; i < e.target.parentElement.children.length; i++) {
+                                    const element = e.target.parentElement.children[i];
+                                    element.classList.add('hidden')
+                                }
+                            } else {
+                                if(e.target.parentElement.children.length == 1){
+                                    let sug_name = ''
+                                    switch (true) {
+                                        case (method == 'bp' || method == 'bp-mixed'):
+                                            for (const bp_sug of [bp_sugs, scm_sugs].flat(Infinity).filter((sug) => sug.name == sugNAME)) {
+                                                const listings = { // = array of prices in format {key: x, metal: xx} !!
+                                                    bp: { sell: [], buy: [] },
+                                                    scm: { sell: [], buy: [] }
+                                                }
+
+                                                let sug_name = bp_sug.name
+                                                if(method == 'bp-mixed'){
+
+                                                }
+
+                                                $(`.suggestion-results .result.${sug_name.replaceAll(' ', '_').replaceAll('\n', '_').replaceAll(".", 'D').replaceAll("'", 'i').replaceAll(":", 'f').replaceAll("!", 'l').replaceAll("(", 'L').replaceAll(")", 'R').replaceAll("?", 'Q')} .result-data .item-instances`).append(
+                                                    `<a href="https://backpack.tf/classifieds?&tradable=1&craftable=${(bp_sug.craft == '')?'1':'-1'}&australium=${bp_sug.australium}&quality=${bp_sug.qualityID}&item=${bp_sug.name}&page=1" target='_blank' class='instance hidden'>
+                                                        <span class='name ${bp_sug.craft}' style='color: #${bp_sug.color}'>${bp_sug.bp_sku}</span>
+                                                        <span class='price'></span>
+                                                    </a>`
+                                                )
+                                            }
+                                            break;
+                                        case (method == 'scm' || method == 'scm-mixed'):
+                                            for (const bp_sug of scm_sugs.filter((sug) => sug.name == sugNAME)) {
+                                                const listings = { // = array of prices in format {key: x, metal: xx} !!
+                                                    bp: { sell: [], buy: [] },
+                                                    scm: { sell: [], buy: [] }
+                                                }
+
+                                                let sug_name = bp_sug.name
+                                                if(method == 'scm-mixed'){
+
+                                                }
+
+                                                $(`.suggestion-results .result.${sug_name.replaceAll(' ', '_').replaceAll('\n', '_').replaceAll(".", 'D').replaceAll("'", 'i').replaceAll(":", 'f').replaceAll("!", 'l').replaceAll("(", 'L').replaceAll(")", 'R').replaceAll("?", 'Q')} .result-data .item-instances`).append(
+                                                    `<a href="https://backpack.tf/classifieds?&tradable=1&craftable=${(bp_sug.craft == '')?'1':'-1'}&australium=${bp_sug.australium}&quality=${bp_sug.qualityID}&item=${bp_sug.name}&page=1" target='_blank' class='instance hidden'>
+                                                        <span class='name ${bp_sug.craft}' style='color: #${bp_sug.color}'>${bp_sug.bp_sku}</span>
+                                                        <span class='price'></span>
+                                                    </a>`
+                                                )
+                                            }
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+
+                                for (let i = 1; i < e.target.parentElement.children.length; i++) {
+                                    const element = e.target.parentElement.children[i];
+                                    element.classList.remove('hidden')
+                                }
+                                for (let i = 1; i < e.target.parentElement.children.length; i++) {
+                                    const element = e.target.parentElement.children[i];
+                                    if(prices == false){
+                                        $.ajax({
+                                            "async": true,
+                                            "crossDomain": true,
+                                            "url": `http://46.101.135.110/search?sku=${encodeURIComponent(element.querySelector('.name').textContent)}`,
+                                            "method": "GET",
+                                            "headers": {
+                                                "Content-Type": "application/json",
+                                                "Authorization": "Bearer ",
+                                                "Accept": "/*",
+                                            }
+                                        })
+                                        .fail(async function (response){})
+                                        .done(async function (res){
+                                            console.log(res)
+
+                                            if(res.hasOwnProperty('message')){ 
+                                                element.querySelector('.price').textContent = '(err)'
+                                            } else {                                                    
+                                                const buyListings = new Map()
+                                                const sellListings = new Map()
+                                                // filter listings
+                                                if(res.hasOwnProperty('listings')){
+
+                                                } else {
+                                                    element.querySelector('.price').textContent = '(N/A)'
+                                                }
+                                            }
+                                        })
+
+                                        if(i == e.target.parentElement.children.length - 1){
+                                            $(`.suggestion-results .result.${sugNAME.replaceAll(' ', '_').replaceAll('\n', '_').replaceAll(".", 'D').replaceAll("'", 'i').replaceAll(":", 'f').replaceAll("!", 'l').replaceAll("(", 'L').replaceAll(")", 'R').replaceAll("?", 'Q')} .result-data .item-name`).append(` <span class='icon-checkmark'></span>`)
+                                            e.target.parentElement.parentElement.classList.add('prices')
+                                        }
+                                        await delay(2000)
+                                    }
+                                }
+                            }
+                        }
+
+                    })
+
+                    async function get_suggestion_instances(  ){
+                        // get also prices
+                        return new Promise((resolve, reject) => {
+                            // for skins and warpaints use data from both scm & bp
+
+                        })
+                    }
+
+                    async function update_dev_items( endpoint, element ){
+                        return new Promise((resolve, reject) => {
+                            let Settings = {
+                                "async": true,
+                                "crossDomain": true,
+                                "url": endpoint,
+                                "method": "POST",
+                                "headers": {
+                                    "Content-Type": "application/json",
+                                    "Authorization": "Bearer ",
+                                    "Accept": "*/*",
+                                }
+                            }
+
+                            $.ajax(Settings)
+                            .fail(async function (response){
+                                iziToast.error({
+                                    title: 'Error!',
+                                    message: `Something has failed`
+                                });
+                                element.removeAttribute('disabled')
+                            })
+                            .done(async function (response) {
+                                if(response.status == "1"){
+                                    iziToast.success({
+                                        title: 'Success!',
+                                        message: `Added ${response.updated_items} ${response.type}`
+                                    });
+                                }
+                                else{
+                                    iziToast.error({
+                                        title: 'Error!',
+                                        message: `Added ${response.updated_items} ${response.type}`
+                                    });
+                                }
+                                element.removeAttribute('disabled')
+                            });
+                        })
+                    }
+                }
+            </script>
+            <script>
+                const modal = document.querySelector("form.add-items")
+
+                document.querySelector('button#add-items').addEventListener('click', () => {
+                    modal.classList.toggle('hidden')
+                })
+    
+                const effects = JSON.parse(localStorage.getItem('unusual_effects'))
+                effects.forEach(effect => {
+                    $('.params #E').append(`<option value="${effect.name}">${effect.name}</option>`)
+                });
+    
+                $('.suggestion-results').click((e) => {
+                    if(e.target.classList.contains('result-checkbox')){
+                        if(e.target.parentElement.classList.contains('selected')){
+                            e.target.parentElement.classList.remove('selected')
+                        } else {
+                            e.target.parentElement.classList.add('selected')
+                        }
+                    }
+                    if(e.target.classList.contains('instance')){
+                        if(e.target.classList.contains('selected')){
+                            e.target.classList.remove('selected')
+                        } else {
+                            e.target.classList.add('selected')
+                        }
+                    }
+                })
+    
+                document.addEventListener('click', function(e){
+                    var filterR;
+                    try {
+                        filterR = document.querySelector('.filter.open');
+                        document.querySelector('.filter.open').classList.remove('open')
+                    } catch (error) {}
+                    let el = e.target;
+                    if(el.classList[0] == 'filter'){
+                        document.querySelectorAll('.filter').forEach((ele) => {
+                            if(ele == el){
+                                if(filterR == el){
+    
+                                } else {
+                                    el.classList.toggle('open')
+                                }
+                            } else {
+                                ele.classList.remove('open')
+                            }
+                        })
+                    }
+                    if(el.classList.contains('fd-value')){
+                        if(el.textContent.trim() == 'None'){
+                            el.parentElement.parentElement.classList.remove('selected');
+                            el.parentElement.parentElement.querySelector('.filter-value').innerHTML = '';
+                        }
+                        if(el.textContent.trim() != 'None'){
+                            el.parentElement.parentElement.classList.add('selected');
+                            el.parentElement.parentElement.querySelector('.filter-value').innerHTML = el.innerHTML;
+                            el.parentElement.parentElement.querySelector('.filter-value').setAttribute('style', el.getAttribute('style'))
+                        }
+                        el.parentElement.parentElement.classList.remove('open');
+    
+                        // filter function
+                    }
+                })
+    
+            </script>
+        </main>
+        
+        <%- include('../partials/footer.ejs') %>
+    </body>
+</html>

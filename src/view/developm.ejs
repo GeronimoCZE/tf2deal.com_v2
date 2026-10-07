@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body class="<%- info?.season %>">
+        
+        <main>
+            <div class="page-section ps-developm">
+                <div class="bg-block">
+                    <div class="color-image"></div>
+                    <img class="home-background1" src="/img/cabin-bw.webp" alt="team fortress 2 cabin">
+                </div> 
+                <h1>
+                    <img src="/img/logotype.png" alt="logotype" class="logotype">
+                    <span><%= __('dev.in_development') %></span>
+                </h1>
+                <p><%= __('dev.follow') %></p>
+
+                <div class="btns">
+                    <div id="get-steambots">Show active <span class="icon icon-steam_circle"></span> bots</div>
+                    <div class="update"></div>
+                </div>
+                <div class="steam-bots false" id="steam-bots">
+                    <div class="bot-nav">
+                        <div class="steamid">SteamID</div>
+                        <div class="name">Steam Name</div>
+                        <div class="pending-trades">Pending Trades</div>
+                        <div class="items">Inventory</div>
+                        <div class="classifieds">Listings</div>
+                        <div class="status">Status</div>
+                    </div>
+                    <div class="rows">
+
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer>
+            <div class="foo-content">
+                <div class="foo-credits" style="flex-direction: row; margin: 0;">
+                    <a href="/">
+                        <img src="/img/logotype.png" alt="logotype" class="logotype">
+                    </a>
+                    <span class="text-block copyright">©</span>
+                    <div class="social-media" style="margin-left: 1rem;">
+                        <a rel="nofollow" href="https://steamcommunity.com/groups/tf2dealgroup" target="_blank">
+                            <span class="icon icon-steam_circle"></span>
+                        </a>
+                        <a rel="nofollow" href="https://discord.gg/br3WvWaW5y" target="_blank">
+                            <span class="icon icon-discord"></span>
+                        </a>
+                        <a rel="nofollow" href="https://www.facebook.com/groups/1952662985090434" target="_blank">
+                            <span class="icon icon-facebook"></span>
+                        </a>
+                    </div>
+                </div>
+                <div class="copyrights" style="margin-top: 0 !important;">
+                    <span class="text-block"><span>Powered by <a rel="nofollow" href="https://steampowered.com" target="_blank" nofollow>Steam</a></span> </span>
+                    <span class="creator-credit">Created &amp; Owned by <a rel="nofollow" href="https://www.linkedin.com/in/nikolas-mal%C3%ADk-8169911b4/" target="_blank" nofollow>Nikolas Malík</a></span>
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>

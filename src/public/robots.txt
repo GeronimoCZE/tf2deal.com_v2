@@ -1,0 +1,35 @@
+User-agent: *
+# account, admin and login-only pages (they only redirect to the Steam login for crawlers)
+Disallow: /admin
+Disallow: /login
+Disallow: /profile
+Disallow: /support
+Disallow: /buy/
+Disallow: /auth/
+Disallow: /logout
+Disallow: /get_userDB_
+# the same pages in the other languages (/de/profile, ...)
+Disallow: /cs/profile
+Disallow: /cs/support
+Disallow: /cs/buy/
+Disallow: /de/profile
+Disallow: /de/support
+Disallow: /de/buy/
+Disallow: /es/profile
+Disallow: /es/support
+Disallow: /es/buy/
+Disallow: /fr/profile
+Disallow: /fr/support
+Disallow: /fr/buy/
+Disallow: /pt/profile
+Disallow: /pt/support
+Disallow: /pt/buy/
+Disallow: /ru/profile
+Disallow: /ru/support
+Disallow: /ru/buy/
+Disallow: /zh/profile
+Disallow: /zh/support
+Disallow: /zh/buy/
+
+Host: tf2deal.com
+Sitemap: https://tf2deal.com/sitemap.xml

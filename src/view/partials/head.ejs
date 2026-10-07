@@ -1,0 +1,312 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // texts for the page scripts: __('trade.max_items'), lurl('/items') -> /de/items (see src/i18n.js)
+        window.TD_LANG = '<%= lang %>';
+        window.TD_I18N = <%- locals.client_i18n || '{}' %>;
+        window.TD_PATH = location.pathname.replace(/^\/(<%= langs.filter((l) => l != 'en').join('|') %>)(?=\/|$)/, '') || '/';
+        window.__ = function (key, vars) {
+            var text = key.split('.').reduce(function (o, k) { return o != null ? o[k] : undefined }, window.TD_I18N);
+            if (typeof text != 'string') return key;
+            return vars ? text.replace(/\{(\w+)\}/g, function (m, k) { return vars[k] != null ? vars[k] : m }) : text;
+        };
+        window.lurl = function (p) { return window.TD_LANG == 'en' ? p : '/' + window.TD_LANG + (p == '/' ? '' : p) };
+    </script>
+<%
+    // text for a JS template literal (`...`): escapes the characters that could end it or open a <script> tag
+    const tl = (v) => String(v ?? '').replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${').replace(/</g, '\\u003c')
+
+    // SEO values for this page. A route can override them through `info`:
+    //   description, path (the page path without language), canonical (full URL), alternates ([{hreflang, href}]), no_hreflang, noindex, image, og_type, json_ld
+    const seo_site = locals.site_url || 'https://tf2deal.com'
+    const seo_title = (title == 'Home') ? __('title.home') : title
+    const seo_description = info?.description || __('desc.default')
+    const seo_path = info?.path || locals.page_path || '/'
+    const seo_url = info?.canonical || (info?.path ? seo_site + lurl(info.path) : locals.canonical) || seo_site + '/'
+    const seo_image = info?.image || seo_site + '/img/og-image.png'
+    const seo_index = !(locals.noindex || info?.noindex)
+%>
+    <meta name="description" content="<%= seo_description %>">
+    <meta name="keywords" content="TF2 Trade Site, TF2 Item Trading, Team Fortress 2 Bots">
+    <meta name="author" content="Nikolas Malik"> 
+   <link rel="icon" href="/img/icon96x96.png">
+    <title><%= seo_title %></title>
+    <link rel="canonical" href="<%= seo_url %>">
+<% if (!seo_index) { %>
+    <meta name="robots" content="noindex">
+<% } else if (!info?.no_hreflang) { for (const alt of (info?.alternates || alternates(seo_site, seo_path))) { %>
+    <link rel="alternate" hreflang="<%= alt.hreflang %>" href="<%= alt.href %>">
+<% } } %>
+    <meta property="og:type" content="<%= info?.og_type || 'website' %>">
+    <meta property="og:site_name" content="TF2Deal.com">
+    <meta property="og:locale" content="<%= locals.og_locale || 'en_US' %>">
+    <meta property="og:title" content="<%= seo_title %>">
+    <meta property="og:description" content="<%= seo_description %>">
+    <meta property="og:url" content="<%= seo_url %>">
+    <meta property="og:image" content="<%= seo_image %>">
+    <meta name="twitter:card" content="<%= info?.image ? 'summary' : 'summary_large_image' %>">
+    <meta name="theme-color" content="#3f2a77">
+    <meta name="trustpilot-one-time-domain-verification-id" content="52e55ef4-45c6-4737-9d51-05ac93a6f222"/>
+    <meta name="msvalidate.01" content="9195A6F398D088FC940A29A7FBEC7B6C" />
+
+    <link rel="stylesheet" href="/iziToast-master/dist/css/iziToast.min.css">
+    <style>
+        .iziToast{
+            min-height: unset !important;
+        }
+    </style>
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "tf2deal.com",
+  "url": "https://tf2deal.com/",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://tf2deal.com/items?name={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+    </script>
+<% if (info?.json_ld) { %>
+    <script type="application/ld+json"><%- JSON.stringify(info.json_ld).replace(/</g, '\\u003c') %></script>
+<% } %>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/micromodal/dist/micromodal.min.js"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="preload" href="/font/rubik-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/css/style.css?v=1.6.0">
+
+    <script defer>
+        const view = `<%- tl(info.view) %>`;
+
+        const post_trade = <%- JSON.stringify(info.create_trade || false).replace(/</g, '\\u003c') %>;
+
+        const itemAttr = {
+            "Quality": 
+            {
+                "Normal": {"color": "B2B2B2", "id": 0},
+                "Genuine": {"color": "4D7455", "id": 1},
+                "Vintage": {"color": "476291", "id": 3},
+                "Unusual": {"color": "8650AC", "id": 5},
+                "Unique": {"color": "FFD700", "id": 6},
+                "Community": {"color": "70B04A", "id": 7},
+                "Valve": {"color": "A50F79", "id": 8},
+                "Self-Made": {"color": "70B04A", "id": 9},
+                "Strange": {"color": "CF6A32", "id": 11},
+                "Haunted": {"color": "38F3AB", "id": 13},
+                "Collector's": {"color": "AA0000", "id": 14},
+                "Decorated": {"color": "FAFAFA", "id": 15},
+                "0": {"color": "B2B2B2", "name": "Normal"},
+                "1": {"color": "4D7455", "name": "Genuine"},
+                "3": {"color": "476291", "name": "Vintage"},
+                "5": {"color": "8650AC", "name": "Unusual"},
+                "6": {"color": "FFD700", "name": "Unique"},
+                "7": {"color": "70B04A", "name": "Community"},
+                "8": {"color": "A50F79", "name": "Valve"},
+                "9": {"color": "70B04A", "name": "Self-Made"},
+                "11": {"color": "CF6A32", "name": "Strange"},
+                "13": {"color": "38F3AB", "name": "Haunted"},
+                "14": {"color": "AA0000", "name": "Collector's"},
+                "15": {"color": "FAFAFA", "name": "Decorated Weapon"}
+            },
+        
+            "Types": {
+                "cosmetic": <%- JSON.stringify(__('item_types.cosmetic')) %>,
+                "taunt": <%- JSON.stringify(__('item_types.taunt')) %>,
+                "weapon primary": <%- JSON.stringify(__('item_types.primary_weapon')) %>,
+                "weapon secondary": <%- JSON.stringify(__('item_types.secondary_weapon')) %>,
+                "weapon melee": <%- JSON.stringify(__('item_types.melee_weapon')) %>,
+                "weapon pda": <%- JSON.stringify(__('item_types.pda_weapon')) %>,
+                "weapon pda2": <%- JSON.stringify(__('item_types.pda2_weapon')) %>,
+                "weapon building": <%- JSON.stringify(__('item_types.building_weapon')) %>,
+                "australium weapon primary": <%- JSON.stringify(__('item_types.primary_weapon')) %>,
+                "australium weapon secondary": <%- JSON.stringify(__('item_types.secondary_weapon')) %>,
+                "australium weapon melee": <%- JSON.stringify(__('item_types.melee_weapon')) %>,
+                "weapon primary skin": <%- JSON.stringify(__('item_types.primary_weapon_skin')) %>,
+                "weapon secondary skin": <%- JSON.stringify(__('item_types.secondary_weapon_skin')) %>,
+                "weapon melee skin": <%- JSON.stringify(__('item_types.melee_weapon_skin')) %>,
+                "weapon primary skin warpaint": <%- JSON.stringify(__('item_types.primary_weapon_skin')) %>,
+                "weapon secondary skin warpaint": <%- JSON.stringify(__('item_types.secondary_weapon_skin')) %>,
+                "weapon melee skin warpaint": <%- JSON.stringify(__('item_types.melee_weapon_skin')) %>,
+                "warpaint": <%- JSON.stringify(__('item_types.war_paint')) %>,
+                "action": <%- JSON.stringify(__('item_types.action')) %>,
+                "crate": <%- JSON.stringify(__('item_types.crate')) %>,
+                "tool": <%- JSON.stringify(__('item_types.tool')) %>,
+                "tool unusualifier": <%- JSON.stringify(__('item_types.unusualifier')) %>,
+                "tool strangifier": <%- JSON.stringify(__('item_types.strangifier')) %>,
+                "tool key": <%- JSON.stringify(__('item_types.key')) %>,
+                "tool strange filter": <%- JSON.stringify(__('item_types.strange_filter')) %>,
+                'tool strange part': <%- JSON.stringify(__('item_types.strange_part')) %>,
+                'tool paint': <%- JSON.stringify(__('item_types.paint')) %>,
+                'tool kit': <%- JSON.stringify(__('item_types.kit')) %>
+            },
+        
+            "Types-Icons": {
+                "cosmetic": "Cosmetic",
+                "taunt": "Taunt",
+                "weapon primary": "Primary Weapon",
+                "weapon secondary": "Secondary Weapon",
+                "weapon melee": "Melee Weapon",
+                "weapon pda": "PDA Weapon",
+                "weapon pda2": "PDA2 Weapon",
+                "weapon building": "Building Weapon",
+                "australium weapon primary": "Primary Weapon",
+                "australium weapon secondary": "Secondary Weapon",
+                "australium weapon melee": "Melee Weapon",
+                "weapon primary skin": "Weapon Skin",
+                "weapon secondary skin": "Weapon Skin",
+                "weapon melee skin": "Weapon Skin",
+                "weapon primary skin warpaint": "War Paint Skin",
+                "weapon secondary skin warpaint": "War Paint Skin",
+                "weapon melee skin warpaint": "War Paint Skin",
+                "war paint": "War Paint",
+                "action": "Action",
+                "crate": "Crate",
+                "tool": "Tool",
+                "tool unusualifier": "Unusualifier",
+                "tool strangifier": "Strangifier",
+                "tool key": "Key",
+                "tool strange filter": "Strange Filter",
+                'tool strange part': 'Strange Part',
+                'tool paint': 'Paint',
+                'tool kit': 'Kit'
+            },
+
+            "Grades": {
+                "Civilian": "#B0C3D9",
+                "Freelance": "#5E98D9",
+                "Mercenary": "#4B69FF",
+                "Commando": "#8847FF",
+                "Assassin": "#D32CE6",
+                "Elite": "#EB4B4B"
+            },
+            "killstreaks": ["", "Killstreak ", "Specialized Killstreak ", "Professional Killstreak "]
+        }
+
+        if(localStorage.getItem('unusual_effects') == null){
+            get_particles()
+        } else {
+            try{ 
+                if(JSON.parse(localStorage.getItem('unusual_update')) < (Date.now())){
+                    get_particles()
+                }
+            } catch{}
+        }
+        async function get_particles(){
+            $.ajax({
+                "async": true,
+                "crossDomain": true,
+                "url": '../api/unusual_effects',
+                "method": "GET",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer ",
+                    "Accept": "*/*",
+                }
+            }).done(async function (response) {
+                localStorage.setItem('unusual_effects', JSON.stringify(response))
+                localStorage.setItem('unusual_update', Date.now() + 1000*60*60*24)
+            });
+        }
+
+        if(localStorage.getItem('names') == null){
+            get_itemNames()
+        } else {
+            try{ 
+                if(JSON.parse(localStorage.getItem('names_update')) < (Date.now())){
+                    get_itemNames()
+                }
+            } catch{}
+        }
+
+        if(localStorage.getItem('warpaints') == null){
+            get_warpaints()
+        } else {
+            try{ 
+                if(JSON.parse(localStorage.getItem('warpaints_update')) < (Date.now())){
+                    get_warpaints()
+                }
+            } catch{}
+        }
+
+        async function get_itemNames(){
+            $.ajax({
+                "async": true,
+                "crossDomain": true,
+                "url": '../api/item_names',
+                "method": "GET",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer ",
+                    "Accept": "*/*",
+                }
+            }).done(async function (response) {
+                if(Array.isArray(response?.item_names)){
+                    if(response?.item_names.length > 0){
+                        localStorage.setItem('names', JSON.stringify(response))
+                        localStorage.setItem('names_update', Date.now() + 1000*60*60*6)
+                    }
+                }
+            });
+        }
+
+        async function get_warpaints(){
+            $.ajax({
+                "async": true,
+                "crossDomain": true,
+                "url": '../api/warpaints_all',
+                "method": "GET",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer ",
+                    "Accept": "*/*",
+                }
+            }).done(async function (response) {
+                localStorage.setItem('warpaints', JSON.stringify(response))
+                localStorage.setItem('warpaints_update', Date.now() + 1000*60*60*24)
+            });
+        }
+        const session = `<%- tl(info?.season) %>`;
+        const user_id = `<%- tl(user?.hash?.hex) %>`;
+        const promtLogin = `<%- tl(info?.promtLogin) %>`
+        const server = `<%- tl(trading) %>`
+        const bots = `<%- tl(bots) %>`
+        const data_ = <%- JSON.stringify(data || {}).replace(/</g, '\\u003c') %>;
+        const key_price = <%- JSON.stringify(info?.key_price || null).replace(/</g, '\\u003c') %>;
+        var site_settings = <%- JSON.stringify(typeof site_settings != 'undefined' ? site_settings : { trading: true, announcement: null }).replace(/</g, '\\u003c') %>;
+    </script>
+<% if(user){ %>
+    <script>
+        const user = `<%- tl(user.steamid) %>`;
+        const user_accountid = `<%- tl(user_db.user.accountid) %>`;
+        const user_role = `<%- tl(user_db.user.role) %>`;
+        const user_tradeurl = `<%- tl((user_db.user.tradelink == 'null') ? '' : user_db.user.tradelink) %>`;
+        const user_email = `<%- tl((user_db.user.email == 'null') ? '' : user_db.user.email) %>`;
+        const wishlist = `<%- tl((user_db.user?.wishlist.length == 0) ? '[]' : user_db.user?.wishlist) %>`;
+        const user_firstlogin = `<%- tl(user_db.user.firstlogin) %>`;
+        const trade_offer = `<%- tl(trade) %>`;
+    </script>
+<% } else { %>
+    <script>
+        const user = 'no_session';
+        const trade_offer = `<%- tl(trade) %>`;
+    </script>
+<% } %>
+    <script async type="application/javascript">
+        let init_query = {}
+        if(user != 'no_session'){ init_query = Object.assign(init_query, { auth: { steamid: user } })}
+        const socket = io( init_query );
+    </script>
+    <script src="/js/main.js" type="module"></script>
+    <script src="/js/motion.js?v=1.2.0" defer></script>
+    <script src="/js/window.js" type="application/javascript"></script>
+</head>
+
+<script src="/iziToast-master/dist/js/iziToast.min.js" type="text/javascript" defer></script>
+

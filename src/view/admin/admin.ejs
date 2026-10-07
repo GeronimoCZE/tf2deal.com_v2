@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('../partials/head.ejs') %>
+    <body>
+        <%- include('../partials/nav.ejs') %>
+        <main>
+            <div class="page-section admin">
+                <div class="admin-shell">
+                    <aside class="admin-sidebar">
+                        <div class="admin-brand">
+                            <img src="/img/logo_icon.png" alt="">
+                            <div>
+                                <strong>Admin</strong>
+                                <span class="admin-live" id="admin-live" data-state="connecting"><i></i><span>Connecting…</span></span>
+                            </div>
+                        </div>
+                        <nav class="admin-nav" aria-label="Admin sections">
+                            <a href="#overview" data-section="overview">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3zm0 8h8v-6H3zm10 0h8V11h-8zm0-18v6h8V3z"/></svg>
+                                Overview
+                            </a>
+                            <a href="#settings" data-section="settings">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.9a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>
+                                Live settings
+                            </a>
+                            <a href="#users" data-section="users">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-8 0a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm0 2c-2.7 0-8 1.3-8 4v3h8v-3c0-1.1.4-2.1 1.2-3A11 11 0 0 0 8 13zm8 0c-2.7 0-8 1.3-8 4v3h16v-3c0-2.7-5.3-4-8-4z"/></svg>
+                                Users
+                            </a>
+                            <a href="#ratings" data-section="ratings">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3 18.2 21l-1.6-7 5.4-4.7-7.2-.6L12 2 9.2 8.7 2 9.3 7.4 14l-1.6 7z"/></svg>
+                                Ratings
+                            </a>
+                            <a href="#notifications" data-section="notifications">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-1.7 1.7a1 1 0 0 0 .7 1.7h16a1 1 0 0 0 .7-1.7z"/></svg>
+                                Notifications
+                            </a>
+                            <a href="#tickets" data-section="tickets">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>
+                                Tickets
+                                <span class="admin-count" id="nav-tickets-count" hidden></span>
+                            </a>
+                            <a href="#blog" data-section="blog">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.3V21h3.7l11-11-3.7-3.7zM20.7 7a1 1 0 0 0 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.7 3.7z"/></svg>
+                                Blog
+                            </a>
+                            <a href="#giveaways" data-section="giveaways">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-2.2A3 3 0 0 0 12 3.8 3 3 0 0 0 6.2 7H4a2 2 0 0 0-2 2v3h20V9a2 2 0 0 0-2-2zM9 7a1 1 0 1 1 1-1v1zm6 0h-1V6a1 1 0 1 1 1 1zM3 14v6a2 2 0 0 0 2 2h6v-8zm10 8h6a2 2 0 0 0 2-2v-6h-8z"/></svg>
+                                Giveaways
+                            </a>
+                        </nav>
+                        <div class="admin-sidebar-foot">
+                            <span class="muted">Signed in as admin</span>
+                            <a href="/logout">Log out</a>
+                        </div>
+                    </aside>
+
+                    <section class="admin-main">
+                        <div class="content" id="admin-content" aria-live="polite">
+                            <div class="admin-loading"><span class="admin-spinner"></span> Loading…</div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+        <script src="/js/admin.js?v=1.4.1"></script>
+        <%- include('../partials/footer.ejs') %>
+    </body>
+</html>

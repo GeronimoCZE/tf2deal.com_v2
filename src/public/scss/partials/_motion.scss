@@ -1,0 +1,47 @@
+// Subtle page motion (js/motion.js). Short, small movements; switched off for prefers-reduced-motion.
+
+$motion-ease: cubic-bezier(.2, .7, .2, 1);
+
+// moving between pages: the old page fades out quickly, the new one comes in with the main fade below
+// (Chrome/Edge/Safari 18+; other browsers just load the page as before)
+@view-transition { navigation: auto; }
+::view-transition-old(root){ animation: motionFadeOut 160ms ease-in both; }
+::view-transition-new(root){ animation: none; }
+nav.nav-main{ view-transition-name: site-nav; } // the menu stays put
+::view-transition-group(site-nav){ animation: none; }
+
+// page content on load
+// "backwards", not "both": a transform left on <main> after the animation would make it the box that
+// position:fixed children (the item tooltip) are placed against, so they would show up in the wrong spot
+main{
+    animation: motionPageIn 480ms $motion-ease backwards;
+}
+
+// scroll reveal (classes added by js/motion.js)
+.reveal{
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 600ms $motion-ease, transform 600ms $motion-ease;
+    transition-delay: var(--reveal-delay, 0ms);
+    &.is-visible{
+        opacity: 1;
+        transform: none;
+    }
+}
+
+html{ scroll-behavior: smooth; }
+
+@keyframes motionPageIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes motionFadeOut {
+    to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce){
+    @view-transition { navigation: none; }
+    main{ animation: none; }
+    .reveal{ opacity: 1; transform: none; transition: none; }
+    html{ scroll-behavior: auto; }
+}

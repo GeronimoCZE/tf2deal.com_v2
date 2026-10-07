@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body class="<%- info?.season %>" style="position: relative;">
+        <%- include('./partials/nav.ejs') %>
+
+        <div class="main-wrapper">
+            <%- include('./partials/chat.ejs') %>
+
+            <main>
+                <div class="page-section new_user-ps">
+                    <h1 class="fade-in"><%- __('new_user.welcome_html', { name: '<div>' + esc(user.personaname) + '</div>' }) %></h1>
+                    <br><p class="fade-in">🥳🎉</p>
+                    <p class="fade-in"><%- __('new_user.intro_html') %></p>
+                    
+                    <form method="POST" action="" id="tradeurl" class="fade-in">
+                        <label for="tradeurl"><%= __('new_user.trade_url_label') %> <a href="https://steamcommunity.com/id/me/tradeoffers/privacy#trade_offer_access_url" target="_blank"><%= __('new_user.get_link') %></a></label>
+                        <input name="tradeurl" type="text" autocomplete="off" placeholder="<%= __('new_user.trade_url_placeholder') %>">
+
+                        <a href="<%= lurl('/terms-of-service') %>" class="tos" target="_blank"><%= __('new_user.read_tos') %></a>
+
+                        <div id="response"></div>
+
+                        <button class="fade-in" type="submit"><%= __('new_user.finish') %></button>
+                    </form>
+                </div>
+            </main>
+        </div>
+
+        <script defer>
+            document.querySelector('form#tradeurl').addEventListener('submit', (e) => {
+                e.preventDefault()
+                const input = document.querySelector('form#tradeurl input').value
+                if(70 < input.length && 80 > input.length && input.includes(`partner=`) && input.includes(`&token`)){
+                    $.ajax({
+                        "async": true,
+                        "crossDomain": true,
+                        "url": '../api/user/update',
+                        "method": "POST",
+                        "data": JSON.stringify({"tradeurl": (input == "") ? 'null' : input}),
+                        "headers": {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer ",
+                            "Accept": "*/*",
+                        }
+                    })
+                    .fail(function(response) {
+                        iziToast.error({
+                            title: <%- JSON.stringify(__('js.common.error')) %>,
+                            message: (response?.message)?response.message:<%- JSON.stringify(__('new_user.invalid_input')) %>
+                        });
+                        setTimeout(() => {
+                            form.querySelector('button').removeAttribute('disabled', '')
+                            form.querySelector('input').removeAttribute('readonly', '')
+                        }, 10000);
+                    })
+                    .done(async function (response) {
+                        if(response.status == 'OK'){
+                            tradeurl = input
+                            iziToast.success({
+                                title: <%- JSON.stringify(__('js.common.success')) %>,
+                                message: <%- JSON.stringify(__('new_user.saved')) %>
+                            });
+
+                            document.querySelector('#response').classList.add('ok')
+                            document.querySelector('#response').classList.add('fade-in')
+                            document.querySelector('#response').textContent = <%- JSON.stringify(__('new_user.thanks')) %>
+
+                            setTimeout(() => {
+                                window.location.href = <%- JSON.stringify(lurl('/')) %> + "?new_user=true"
+                            }, 4500);
+                        } else {
+
+                            document.querySelector('#response').classList.add('error')
+                            document.querySelector('#response').classList.add('fade-in')
+                            document.querySelector('#response').textContent = (response?.message)?response.message:<%- JSON.stringify(__('new_user.update_error')) %>
+
+                            iziToast.error({
+                                title: <%- JSON.stringify(__('js.common.error')) %>,
+                                message: (response?.message)?response.message:<%- JSON.stringify(__('new_user.invalid_input')) %>
+                            });
+                        }
+                    })
+                } else { 
+                    iziToast.warning({
+                        title: <%- JSON.stringify(__('new_user.wrong_input')) %>
+                    });
+                }
+            })
+        </script>
+
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

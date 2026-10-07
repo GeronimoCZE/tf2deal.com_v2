@@ -1,0 +1,42 @@
+<!-- This is trade view -->
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+
+        <!-- place here trade offer notification (full width / ~second nav) -->
+
+        <main>
+            <div class="page-section index-ps" style="flex-direction: column !important; align-items: center !important;">
+                <h2 style="font-weight: bold;"><%= __('trade.timeout_title') %></h2>
+                <br>
+                <p><%= __('trade.timeout_text') %></p>
+                <br>
+                <p><%= __('trade.timeout_ends') %></p>
+                <div id="timeout-expiration" style="font-weight: bold;"></div>
+                <script>
+                    const timeoutExp = Number('<%- info.timeout.expiration %>')
+                    const date = new Date(timeoutExp);
+
+                    document.querySelector('#timeout-expiration').textContent = date.toLocaleString(<%- JSON.stringify(html_lang) %>);
+                </script>
+            </div>
+        </main>
+        
+        <%- include('./partials/footer.ejs') %>
+
+        <script type="application/javascript">
+
+            fetch('http://ip-api.com/json/')
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (payload) {
+                    console.log(payload);
+                });
+    
+            // set language
+        </script>
+    </body>
+</html>

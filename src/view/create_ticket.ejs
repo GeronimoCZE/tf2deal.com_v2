@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        
+        <div class="main-wrapper">
+            <%- include('./partials/chat.ejs') %>
+
+            <main>
+                <div class="page-section ticket-ps">
+                    <h2><%= __('support.title') %></h2>
+
+                    <div class="container">
+                        <a href="<%= lurl('/profile/tickets') %>" class="my-tickets"><%= __('support.my_tickets') %> &rarr;</a>
+                        <form id="ticket-form">
+                            <label for="ticket-title"><%= __('support.topic_label') %></label>
+                            <select name="ticket_title" id="ticket-title" required>
+                                <option value="">-- <%= __('support.choose') %> --</option>
+                                <option value="Login Issue"><%= __('js.tickets.topics.login_issue') %></option>
+                                <option value="Trade Issue"><%= __('js.tickets.topics.trade_issue') %></option>
+                                <option value="Bug Report"><%= __('js.tickets.topics.bug_report') %></option>
+                                <option value="Feature Request"><%= __('js.tickets.topics.feature_request') %></option>
+                                <option value="Other"><%= __('js.tickets.topics.other') %></option>
+                            </select>
+                    
+                            <label for="ticket-details"><%= __('support.details_label') %></label>
+                            <textarea name="ticket_details" id="ticket-details" rows="6" maxlength="2000" placeholder="<%= __('support.details_placeholder') %>"></textarea>
+                    
+                            <input type="submit" value="<%= __('support.submit') %>">
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <script type="module">
+            import { init_ticket_form } from '/js/plugins/profile.js'
+            init_ticket_form()
+        </script>
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

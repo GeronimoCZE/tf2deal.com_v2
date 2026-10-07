@@ -1,0 +1,38 @@
+<aside id="chatRoom" class="closed">
+    <div class="chat">
+        <div class="real-chat">
+            <div class="chat_div">
+
+                <div class="header">
+                    <div class="title"><%= __('chat.title') %></div>
+                    <div class="closeChat" id="closeChat"><%= __('common.close') %></div>
+                </div>
+
+                <div class="messages">
+                    <div class="message">
+                        <div class="username">Craeture sadklm asda #4</div>
+                        <span>:</span>
+                        <div class="text">Hello there! Hello there! Hello there! Hello there! Hello there! Hello there!</div>
+                    </div>
+                    <div class="message">
+                        <div class="username c3">Craeture sadklm asda #4</div>
+                        <span>:</span>
+                        <div class="text">Hello there! Hello there! Hello there! Hello there! Hello there! Hello there!</div>
+                    </div>
+                </div>
+
+                <% if (!user) { %>
+                    <div class="login">
+                        <%- include('./login_btn.ejs') %>
+                        <span><%= __('chat.login_hint') %></span>
+                    </div>
+                <% } else { %>                                  
+                    <div class="input">
+                        <input type="text" placeholder="<%= __('chat.placeholder') %>" autocomplete="off">
+                        <button class="send-btn"><%= __('chat.send') %></button>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</aside>

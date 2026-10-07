@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body class="<%- info?.season %>" style="position: relative;">
+
+        <%- include('./partials/nav.ejs') %>
+        <!-- <img src="/img/background.jpg" alt="background image" style="position: fixed; width: 100%; opacity: .1; top: 0;"> -->
+        <main>
+            <div class="page-section index-ps trade-created-ps">
+
+                <%- include('./partials/item_tooltip.ejs') %>
+
+                <h1><%= __('trade.your_order') %></h1>
+                <p></p>
+
+                <div class="trade-offer active">
+                    <div class="bot-header"></div>
+                    <div class="offer">
+                        <div class="heading">
+                            <div class="trade_id">Xoasd4</div>
+                            <div class="cancel_time">5 minutes ago</div>
+                        </div>
+                        <div class="offer-content">
+                            <div class="user-side"></div>
+                            <div class="trade-icon"><span class="icon icon-trade1"></span></div>
+                            <div class="bot-side"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="trade-offer">
+                    <div class="bot-header"></div>
+                    <div class="offer">
+                        <div class="heading">
+                            <div class="trade_id">Xoasd4</div>
+                            <div class="cancel_time">5 minutes ago</div>
+                        </div>
+                        <div class="offer-content">
+                            <div class="user-side"></div>
+                            <div class="trade-icon"><span class="icon icon-trade1"></span></div>
+                            <div class="bot-side"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

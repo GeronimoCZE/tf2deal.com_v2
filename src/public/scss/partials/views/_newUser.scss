@@ -1,0 +1,111 @@
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.new_user-ps{
+    text-align: center;
+    padding: 3rem 0 1rem 0!important;
+    h1{
+    width: fit-content;
+    max-width: calc(95% - 2rem);
+    padding: 1rem;
+    margin: 0 auto 1rem auto;
+        div{
+            display: inline-block;
+            vertical-align: text-top;
+            width: fit-content;
+            background: rgba(63, 42, 119, 0.575);
+    border: 2px solid rgba(63, 42, 119, 0.575);
+            padding: .2rem .6rem;
+            border-radius: 10px ;
+            max-width: calc(98% - 1.2rem);
+        }
+    }
+
+    form{
+        display: block;
+        margin: 3rem auto 0 auto;
+        width: 800px;
+        padding: 1rem;
+        max-width: calc(98% - 2rem);
+        background: rgba(63, 42, 119, 0.575);
+    border: 2px solid rgba(63, 42, 119, 0.575);
+        border-radius: 7px;
+        *{
+            display: block;
+        }
+        label{
+            width: fit-content;
+                        color: rgb(207, 207, 207);
+
+            a{
+                display: inline-block;
+                vertical-align: text-top;
+                background: #3e8306;
+                border: 2px solid #2d5c06;
+                color: rgb(207, 207, 207);
+                font-size: 14px;
+                border-radius: 5px;
+                transition: .2s;
+                &:hover{
+                    background: #2e5c04;
+                }
+                padding: 5px
+            }
+        }
+        input{
+            width: calc(99% - 1rem);
+            padding: .5rem;
+            font-size: 18px;
+            margin: 10px 0;
+            background: rgba(63, 42, 119, 0.575) !important;
+            border: 2px solid rgba(153, 139, 194, 0.575);
+            color: rgb(207, 207, 207);
+        }
+
+        button{
+            position: relative;
+            padding: 1rem;
+            margin: 1rem 0 0 auto;
+            border-radius: 7px;
+            background: rgba(63, 42, 119, 0.575);
+    border: 2px solid rgba(134, 134, 134, 0.575);
+            color: rgb(207, 207, 207);
+            font-weight: bold;
+            transition: .3s ease;
+            cursor: pointer;
+            &:hover{
+                border-color: rgb(207, 207, 207);
+            }
+        }
+
+        #response{
+            margin: 1rem 0;
+            font-size: 16px;
+            &.ok{
+                color: rgb(73, 212, 73);
+            }
+            &.error{
+                color: rgb(206, 98, 98);
+            }
+        }
+
+        a.tos{
+            width: fit-content;
+            margin: 15px auto  5px auto;
+            transition: .2s;
+            color: rgb(207, 207, 207);
+            font-size: 17px !important;
+            &:hover{
+                text-decoration: underline;
+            }
+        }
+    }
+}

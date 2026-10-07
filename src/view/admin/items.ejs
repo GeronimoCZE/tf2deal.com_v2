@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('../partials/head.ejs') %>
+    <body>
+        <%- include('../partials/nav.ejs') %>
+
+            <div class="page-section admin-ps">
+                <div class="admin-body">
+                    <div class="admin-navbar <%- title %>">
+                        <a href="./stats">Stats</a>
+                        <a href="./items">Items</a>
+                        <a href="./dev">_dev</a>
+                    </div>
+                    <div class="admin-content <%- title %>">
+                        <div class="header">
+                            <div class="title"><%- title %></div>
+                            <button type="submit" data-open-modal class="add-items" id="select-items">Select Items</button>
+                        </div>
+
+                        <div class="filters" id="admin-filters" style="margin-top: 1rem;">
+                            <div class="filter" filter="quality" value="none">
+                                <div class="filter-name">
+                                    <span>Quality</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                    <div class="fd-value" style="color: #FFD700 !important;">Unique</div>
+                                    <div class="fd-value" style="color: #CF6A32 !important;">Strange</div>
+                                </div>
+                            </div>
+                            <div class="filter" filter="type" value="none">
+                                <div class="filter-name">
+                                    <span>Type</span>
+                                </div>
+                                <div class="filter-value"></div>
+                                <div class="filter-dropdown">
+                                    <div class="fd-value"><span class="icon icon-close"></span> None</div>
+                                    <div class="fd-value"><span class="icon icon-hat2"></span> Cosmetic</div>
+                                    <div class="fd-value"><span class="icon icon-pencil"></span> Weapon</div>
+                                    <div class="fd-value"><span class="icon icon-autoselect"></span> War Paint</div>
+                                    <div class="fd-value"><span class="icon icon-group"></span> Taunt</div>
+                                    <div class="fd-value"><span class="icon icon-wrench"></span> Tool</div>
+                                </div>
+                            </div>
+                            <div class="input-filter">
+                                <input type="text" name="" id="" spellcheck="false" placeholder="Search for items ...">
+                                <div class="button" type="submit"><span class="icon icon-search"></span></div>
+                            </div>
+                        </div>
+
+
+                        <div class="admin-data">
+                            <div class="admin-loader">Loading data <img src="/img/trade-icon.jpg" alt=""></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script>
+            const effects = JSON.parse(localStorage.getItem('unusual_effects'))
+            effects.forEach(effect => {
+                $('.params #E').append(`<option value="${effect.name}">${effect.name}</option>`)
+            });
+
+            document.addEventListener('click', function(e){
+                var filterR;
+                try {
+                    filterR = document.querySelector('.filter.open');
+                    document.querySelector('.filter.open').classList.remove('open')
+                } catch (error) {}
+                let el = e.target;
+                if(el.classList[0] == 'filter'){
+                    document.querySelectorAll('.filter').forEach((ele) => {
+                        if(ele == el){
+                            if(filterR == el){
+
+                            } else {
+                                el.classList.toggle('open')
+                            }
+                        } else {
+                            ele.classList.remove('open')
+                        }
+                    })
+                }
+                if(el.classList.contains('fd-value')){
+                    if(el.textContent.trim() == 'None'){
+                        el.parentElement.parentElement.classList.remove('selected');
+                        el.parentElement.parentElement.querySelector('.filter-value').innerHTML = '';
+                    }
+                    if(el.textContent.trim() != 'None'){
+                        el.parentElement.parentElement.classList.add('selected');
+                        el.parentElement.parentElement.querySelector('.filter-value').innerHTML = el.innerHTML;
+                        el.parentElement.parentElement.querySelector('.filter-value').setAttribute('style', el.getAttribute('style'))
+                    }
+                    el.parentElement.parentElement.classList.remove('open');
+
+                    // filter function
+                }
+            })
+
+        </script>
+        
+        <%- include('../partials/footer.ejs') %>
+    </body>
+</html>

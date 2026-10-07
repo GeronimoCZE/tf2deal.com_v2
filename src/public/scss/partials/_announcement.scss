@@ -1,0 +1,50 @@
+// Announcement banner under the menu (view/partials/nav.ejs). Set in the admin panel (Live settings)
+// or by another app over the /settings socket; js/main.js updates it live.
+.site-announcement{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    max-width: 1280px;
+    margin: 0 auto .6rem auto;
+    padding: .6rem 1rem;
+    box-sizing: border-box !important;
+    width: calc(100% - 2rem);
+    border-radius: var(--r-md);
+    border: 1px solid rgba(124, 108, 255, 0.35);
+    background: rgba(59, 91, 219, 0.18);
+    color: var(--ink);
+    font-size: .95rem;
+    line-height: 1.45;
+    text-align: center;
+    animation: announcementIn 250ms ease-out;
+    &.hidden{ display: none; }
+    .site-announcement-dot{
+        width: 8px;
+        height: 8px;
+        flex: none;
+        border-radius: 50%;
+        background: #7d9bff;
+        box-shadow: 0 0 0 4px rgba(125, 155, 255, 0.18);
+    }
+    &.level-warning{
+        border-color: rgba(240, 163, 44, 0.45);
+        background: rgba(240, 163, 44, 0.14);
+        .site-announcement-dot{ background: #f3b54d; box-shadow: 0 0 0 4px rgba(243, 181, 77, 0.18); }
+    }
+    &.level-danger{
+        border-color: rgba(224, 96, 79, 0.5);
+        background: rgba(224, 96, 79, 0.16);
+        .site-announcement-dot{ background: #f08277; box-shadow: 0 0 0 4px rgba(240, 130, 119, 0.2); }
+    }
+    @include lt-sm{
+        width: calc(100% - 1rem);
+        font-size: .9rem;
+        text-align: left;
+    }
+}
+
+@keyframes announcementIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+}
