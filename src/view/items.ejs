@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        
+        <div class="main-wrapper">
+            <%- include('./partials/chat.ejs') %>
+
+            <main>
+                <div class="page-section items-ps">
+                    <h1><%= __('items.h1') %></h1>
+                    <div class="h2-info">
+                        <%- __('items.found_html', { count: '<span id="item_count">0</span>' }) %>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="filter" filter="quality" value="none">
+                            <div class="filter-name">
+                                <span><%= __('filters.quality') %></span>
+                            </div>
+                            <div class="filter-value"></div>
+                            <div class="filter-dropdown">
+                                <div class="fd-value none" data-value="None"><span class="icon icon-close"></span> <%= __('filters.none') %></div>
+                                <div class="fd-value" data-value="Unique" style="color: #FFD700 !important;">Unique</div>
+                                <div class="fd-value" data-value="Strange" style="color: #CF6A32 !important;">Strange</div>
+                                <div class="fd-value" data-value="Unusual" style="color: #8650AC !important;">Unusual</div>
+                                <div class="fd-value" data-value="Vintage" style="color: #476291 !important;">Vintage</div>
+                                <div class="fd-value" data-value="Genuine" style="color: #4D7455 !important;">Genuine</div>
+                                <div class="fd-value" data-value="Haunted" style="color: #38F3AB !important;">Haunted</div>
+                                <div class="fd-value" data-value="Collector's" style="color: #AA0000 !important;">Collector's</div>
+                                <div class="fd-value" data-value="Decorated" style="color: #FAFAFA !important;">Decorated</div>
+                            </div>
+                        </div>
+                        <div class="filter" filter="type" value="none">
+                            <div class="filter-name">
+                                <span><%= __('filters.type') %></span>
+                            </div>
+                            <div class="filter-value"></div>
+                            <div class="filter-dropdown">
+                                <div class="fd-value none" data-value="None"><span class="icon icon-close"></span> <%= __('filters.none') %></div>
+                                <div class="fd-value" data-value="Cosmetic"><span class="icon icon-hat2"></span> <%= __('item_types.cosmetic') %></div>
+                                <div class="fd-value" data-value="Taunt"><span class="icon icon-group"></span> <%= __('item_types.taunt') %></div>
+                                <div class="fd-value" data-value="Weapon Primary"><span class="icon icon-pencil"></span> <%= __('item_types.primary_weapon') %></div>
+                                <div class="fd-value" data-value="Weapon Secondary"><span class="icon icon-pencil"></span> <%= __('item_types.secondary_weapon') %></div>
+                                <div class="fd-value" data-value="Weapon Melee"><span class="icon icon-pencil"></span> <%= __('item_types.melee_weapon') %></div>
+                                <div class="fd-value" data-value="Weapon PDA2"><span class="icon icon-pencil"></span> <%= __('item_types.pda2_weapon') %></div>
+                                <div class="fd-value" data-value="Weapon Building"><span class="icon icon-pencil"></span> <%= __('item_types.building_weapon') %></div>
+                                <div class="fd-value" data-value="Action"><span class="icon icon-gift"></span> <%= __('item_types.action') %></div>
+                                <div class="fd-value" data-value="War Paint"><span class="icon icon-autoselect"></span> <%= __('item_types.war_paint') %></div>
+                                <div class="fd-value" data-value="Tool"><span class="icon icon-wrench"></span> <%= __('item_types.tool') %></div>
+                                <div class="fd-value" data-value="Crate"><span class="icon icon-box"></span> <%= __('item_types.crate') %></div>
+                            </div>
+                        </div>
+                        <div class="filter" filter="particle" value="none">
+                            <div class="filter-name">
+                                <span><%= __('filters.particle') %></span>
+                            </div>
+                            <div class="filter-value"></div>
+                            <div class="filter-dropdown">
+                                <div class="fd-search"><input type="text" placeholder="<%= __('filters.search_options') %>" class="dropdown-filter-input" style="pointer-events: all !important;"><span class="icon icon-search"></span></div>
+                            </div>
+                        </div>
+                        <div class="filter" filter="warpaint" value="none">
+                            <div class="filter-name">
+                                <span><%= __('filters.warpaint') %></span>
+                            </div>
+                            <div class="filter-value"></div>
+                            <div class="filter-dropdown">
+                                <div class="fd-search"><input type="text" placeholder="<%= __('filters.search_options') %>" class="dropdown-filter-input" style="pointer-events: all !important;"><span class="icon icon-search"></span></div>
+                            </div>
+                        </div>
+                        <div class="filter" filter="sort" value="none">
+                            <div class="filter-name">
+                                <span><%= __('filters.sort') %></span>
+                            </div>
+                            <div class="filter-value"></div>
+                            <div class="filter-dropdown">
+                                <div class="fd-value none" data-value="None"><span class="icon icon-close"></span> <%= __('filters.none') %></div>
+                                <div class="fd-value" data-value="Price (desc)"><span class="icon icon-desc"></span> <%= __('filters.price_desc') %></div>
+                                <div class="fd-value" data-value="Price (asc)"><span class="icon icon-asc"></span> <%= __('filters.price_asc') %></div>
+                                <div class="fd-value" data-value="Popular (desc)"><span class="icon icon-desc"></span> <%= __('filters.popular_desc') %></div>
+                            </div>
+                        </div>
+                        <div class="filter" filter="class" value="none">
+                            <div class="filter-name">
+                                <span><%= __('filters.class') %></span>
+                            </div>
+                            <div class="filter-value"></div>
+                            <div class="filter-dropdown">
+                                <div class="fd-value none" data-value="None"><span class="icon icon-close"></span> <%= __('filters.none') %></div>
+                                <div class="fd-value" data-value="All Classes"><%= __('classes.all') %></div>
+                                <div class="fd-value" data-value="Scout"><%= __('classes.scout') %></div>
+                                <div class="fd-value" data-value="Soldier"><%= __('classes.soldier') %></div>
+                                <div class="fd-value" data-value="Pyro"><%= __('classes.pyro') %></div>
+                                <div class="fd-value" data-value="Demoman"><%= __('classes.demoman') %></div>
+                                <div class="fd-value" data-value="Heavy"><%= __('classes.heavy') %></div>
+                                <div class="fd-value" data-value="Engineer"><%= __('classes.engineer') %></div>
+                                <div class="fd-value" data-value="Medic"><%= __('classes.medic') %></div>
+                                <div class="fd-value" data-value="Sniper"><%= __('classes.sniper') %></div>
+                                <div class="fd-value" data-value="Spy"><%= __('classes.spy') %></div>
+                            </div>
+                        </div>
+                        <div class="filter" filter="stock" value="none">
+                            <div class="filter-name">
+                                <span><%= __('filters.stock') %></span>
+                            </div>
+                            <div class="filter-value"></div>
+                            <div class="filter-dropdown">
+                                <div class="fd-value none" data-value="None"><span class="icon icon-close"></span> <%= __('filters.none') %></div>
+                                <div class="fd-value" data-value="Can buy"><%= __('filters.can_buy') %></div>
+                                <div class="fd-value" data-value="Can sell"><%= __('filters.can_sell') %></div>
+                            </div>
+                        </div>
+
+                        <div class="resetFilters" id="resetFilters"><%= __('filters.reset_filters') %></div>
+                        
+                        <form action="" method="post" class="input-filter" id="user-input-filter">
+                            <input type="text" id="itemInput" spellcheck="false" placeholder="<%= __('items.search_placeholder') %>" autocomplete="off">
+                            <button type="submit"><span class="icon icon-search"></span></button>
+                        </form>
+                    </div>
+
+                    <div class="item-content">
+                        <div class="items"></div>
+                        <div class="item-loader"><img src="/img/trade-icon.jpg" alt=""></div>
+                        <div class="end"><span class="icon icon-info"></span> <%= __('items.end') %></div>
+                        <div class="none"><%= __('items.none') %></div>
+                    </div>
+                </div>
+            </main>    
+        </div>
+        <script defer>
+            const effect_dropdown = $('.filter[filter="particle"] .filter-dropdown')
+            fillParticleFilter(JSON.parse(localStorage.getItem('unusual_effects')))
+            const checkEffectFilter = setInterval(() => {
+                if(effect_dropdown.children().length != 0){ clearInterval(checkEffectFilter) }
+                fillParticleFilter(JSON.parse(localStorage.getItem('unusual_effects')))
+            }
+            , 2000
+            );
+    
+            async function fillParticleFilter(eff_arr){
+                if(eff_arr != undefined && effect_dropdown.children('.fd-value').length == 0){
+                    console.log(eff_arr);
+                    
+                    effect_dropdown.append(`<div class="fd-value none" data-value="None"><span class="icon icon-close"></span> <%= __('filters.none') %></div>`)
+                    eff_arr.forEach(effect => {
+                        effect_dropdown.append(`<div class="fd-value" effectID="${effect.ID}">${effect.name}</div>`)
+                    });
+                }
+            }
+
+            const warpaint_dropdown = $('.filter[filter="warpaint"] .filter-dropdown')
+            fillWarpaintFilter(JSON.parse(localStorage.getItem('warpaints')))
+            const checkWarpaintFilter = setInterval(() => {
+                if(warpaint_dropdown.children('.fd-value').length != 0){ clearInterval(checkWarpaintFilter) }
+                fillWarpaintFilter(JSON.parse(localStorage.getItem('warpaints')))
+            }
+            , 2000
+            );
+    
+            async function fillWarpaintFilter(warpaint_arr){
+                if(warpaint_arr != undefined && warpaint_dropdown.children('.fd-value').length == 0){
+                    warpaint_dropdown.append(`<div class="fd-value none" data-value="None"><span class="icon icon-close"></span> <%= __('filters.none') %></div>`)
+                    warpaint_arr?.warpaints.forEach(warpaint => {
+                        warpaint_dropdown.append(`<div class="fd-value" data-value="${warpaint.name}" style="color: ${itemAttr.Grades[warpaint.grade]};">${warpaint.name}</div>`)
+                    });
+                    warpaint_arr?.skins.forEach(skin => {
+                        warpaint_dropdown.append(`<div class="fd-value" data-value="${skin.name}" style="color: ${itemAttr.Grades[skin.grade]};">${skin.name}</div>`)
+                    });
+                }
+            }
+        </script>
+        
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

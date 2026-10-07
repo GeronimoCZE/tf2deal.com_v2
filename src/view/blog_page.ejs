@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        
+        <main>
+            <div class="page-section blog blog-post">
+                <a href="<%= lurl('/blog') %>" class="back">&larr; <%= __('blog.all_posts') %></a>
+                <% if (!info.post.published) { %>
+                    <div class="draft-note"><%= __('blog.draft_note') %></div>
+                <% } %>
+                <% if (info.shown.translated) { %>
+                    <div class="legal-english-note ai-note"><%= __('common.ai_translated') %> <a href="<%= info.original_url %>" rel="nofollow"><%= __('blog.show_original', { lang: lang_names[info.source] }) %></a></div>
+                <% } else if (info.shown.lang != lang && info.translation_ready) { %>
+                    <div class="legal-english-note ai-note"><%= __('blog.reading_original', { lang: lang_names[info.source] }) %> <a href="<%= info.translation_url %>"><%= __('blog.show_translation') %></a></div>
+                <% } else if (info.shown.lang != lang) { %>
+                    <div class="legal-english-note"><%= __('blog.original_only', { lang: lang_names[info.source] }) %></div>
+                <% } %>
+                <article lang="<%= lang_tags[info.shown.lang] %>">
+                    <h1><%= info.shown.title %></h1>
+                    <div class="date"><%= new Date(info.post.created).toLocaleDateString(html_lang, { day: 'numeric', month: 'long', year: 'numeric' }) %></div>
+                    <% if (info.post.cover) { %>
+                        <img class="cover" src="<%= info.post.cover %>" alt="">
+                    <% } %>
+                    <div class="post-content">
+                        <%- info.html %>
+                    </div>
+                </article>
+            </div>
+        </main>
+        
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

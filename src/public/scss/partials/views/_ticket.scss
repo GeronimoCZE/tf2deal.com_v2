@@ -1,0 +1,114 @@
+.ticket-ps{
+    max-width: 50rem;
+    margin: 0 auto;
+    /* h1{
+        margin-top: 2.5rem;
+        margin-bottom: .5rem;
+        font-weight: bold;
+    }
+
+    p{
+        padding: .5rem .7rem;
+        letter-spacing: normal;
+        width: 88%;
+        background: rgb(12, 12, 12);
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 18px;
+        border-radius: 5px;
+        span{
+            color: rgba(255, 255, 255, 0.658);
+            display: block;
+            padding: .2rem .4rem;
+        }
+    }
+
+    form{
+        display: block;
+        label{
+            display: block;
+            color: rgba(255, 255, 255, 0.658);
+            letter-spacing: 0rem;
+        }
+        input,
+        textarea{
+            width: 90%;
+            letter-spacing: 0rem;
+            color: rgb(230, 229, 229);
+            background: rgba(123, 35, 237, 0.498);
+            display: block;
+            padding: .35rem .5rem;
+            margin: .3rem 0 1rem 0;
+            outline: none;
+            border: none;
+            border-radius: 5px;
+            &:hover{
+                
+            }
+        }
+        textarea{
+            min-height: 10rem;
+        }
+        button{
+            display: block;
+            position: relative;
+            outline: none;
+            border: none;
+            padding: .4rem 1rem;
+            margin-left: auto;
+            margin-right: 8%;
+            background: orange;
+            transition: 200ms;
+            border-radius: 5px;
+            &:hover{
+                background: rgb(207, 135, 2);
+            }
+        }
+    } */
+    .container {
+        max-width: 500px;
+        margin: 1.5rem auto 2rem auto;
+        @include panel(1.5rem);
+    }
+    h2 {
+        @include page-title;
+        text-align: center;
+        margin: 3rem auto 0 auto;
+    }
+    label {
+        display: block;
+        margin-bottom: .5rem;
+        font-size: 1.05rem;
+        color: var(--ink-2);
+    }
+    select, textarea {
+        @include input;
+        width: calc(100% - 1.5rem - 2px);
+        margin-bottom: 1.25rem;
+    }
+    select{
+        color-scheme: dark;
+    }
+    textarea {
+        resize: vertical;
+    }
+    input[type="submit"] {
+        @include button(primary);
+        display: flex;
+        width: calc(100% - 2rem - 2px);
+        padding: .7rem 1rem;
+        &:disabled{
+            opacity: .6;
+            cursor: default;
+        }
+    }
+}
+
+.ticket-ps .container{
+    .my-tickets{
+        display: block;
+        width: fit-content;
+        margin: 0 0 1rem auto;
+        color: var(--violet);
+        font-size: 16px;
+    }
+}

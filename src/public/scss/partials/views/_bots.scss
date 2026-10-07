@@ -1,0 +1,231 @@
+    .bots-table{
+        display: block;
+        @include panel(.7rem);
+        padding-bottom: 1rem !important;
+        height: 25rem;
+        max-width: 56rem;
+        margin: 1rem auto 2rem auto;
+        overflow-x: scroll;
+        overflow-y: hidden;
+        font-size: 1.05rem !important;
+        &::-webkit-scrollbar {
+            height: 10px;
+          }
+          
+          /* Track */
+          &::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          
+          /* Handle */
+          &::-webkit-scrollbar-thumb {
+            background: rgba(124, 108, 255, 0.35);
+            border-radius: 5px;
+          }
+          &::-webkit-scrollbar-thumb:hover {
+            background: rgba(124, 108, 255, 0.5);
+          }
+          
+        .table-header{
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            width: fit-content;
+            min-width: 100%;
+            padding: .2rem 0;
+            border-bottom: 1px solid var(--line);
+            .cell{
+                position: relative;
+                display: block;
+                white-space: nowrap;
+                padding: 0 .75rem;
+                color: var(--ink-3);
+                text-align: center;
+                &._id{
+                    width: 2rem;
+                }
+                &._name{
+                    width: 14rem;
+                }
+                &._avatar{
+                    width: 4rem;
+                    text-align: center;
+                }
+                &._steamid{
+                    width: 11rem;
+                    text-align: center;
+                }
+                &._items{
+                    width: 6.3rem;
+                    text-align: right;
+                }
+                &._slots{
+                    width: 3rem;
+                }
+                &._trades{
+                    width: 5rem;
+                    text-align: center;
+                }
+            }
+        }
+        .table-content{
+            display: block;
+            overflow-y: scroll;
+            width: fit-content;
+            height: 100%;
+            min-width: 100%;
+            margin: .5rem 0 .4rem 0;
+            padding: 0 0 .4rem 0;
+            color: rgb(215, 215, 215);
+            &::-webkit-scrollbar {
+                width: 12px !important;
+              }
+              
+              /* Track */
+              &::-webkit-scrollbar-track {
+                background: transparent;
+              }
+              
+              /* Handle */
+              &::-webkit-scrollbar-thumb {
+                background: rgba(124, 108, 255, 0.35);
+              }
+              &::-webkit-scrollbar-thumb:hover {
+                background: rgba(124, 108, 255, 0.5);
+              }
+
+            .info{
+                display: block;
+                width: fit-content;
+                padding: .5rem 1rem;
+                background: var(--surface-2);
+                border-radius: var(--r-md);
+                color: var(--ink-2) !important;
+                font-size: 17px;
+                margin-bottom: .5rem;
+            }
+
+            .table-row{
+                position: relative;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                width: 54rem;
+                padding: .35rem 0;
+                margin: .5rem 0;
+                color: var(--ink-2) !important;
+                border-radius: var(--r-md);
+                font-size: 17px;
+                background: var(--surface-2);
+                border: 1px solid var(--line);
+                &:last-of-type{
+                    margin-bottom: 3rem;
+                }
+                .cell{
+                    position: relative;
+                    display: block;
+                    white-space: nowrap;
+                    padding: 0 .75rem;
+                    letter-spacing: 0.05rem;
+                    overflow: hidden;
+                    text-align: center;
+                    &._id{
+                        width: 2rem;
+                    }
+                    &._name{
+                        width: 14rem;
+                    }
+                    &._avatar{
+                        width: 4rem;
+                        height: fit-content;
+                        text-align: center;
+                        img{
+                            width: 2.15rem;
+                            border-radius: 5px;
+                        }
+                    }
+                    &._steamid{
+                        width: 11rem;
+                        text-align: center;
+                        a{
+                            color: rgb(184, 184, 184) !important;;
+                            font-size: 14px !important;
+                            background: rgba(252, 252, 252, 0);
+                            backdrop-filter: blur(6px);
+                            border: 1px solid rgba(252, 252, 252, 0.664);
+                            border-radius: .6rem;
+                            padding: 3px 0;
+                            transition: 200ms;
+                            &:hover, &:target{
+                                color: #1a1919 !important;
+                                background: rgba(252, 252, 252, 0.87);
+                            }
+                        }
+                    }
+                    &._items{
+                        width: 8rem;
+                        text-align: right;
+                    }
+                    &._slots{
+                        width: 3rem;
+                        text-align: right;
+                    }
+                    &._trades{
+                        width: 5rem;
+                        text-align: center;
+                    }
+                    &._show{
+                        width: 2.5rem;
+                        text-align: center;
+                        text-decoration: underline;
+                        text-underline-offset: .2rem;
+                        font-weight: bold;
+                        letter-spacing: 0.05rem;
+                        cursor: pointer;
+                        transition: 100ms ease-in-out;
+                        &::after{
+                            display: none !important;
+                        }
+                        &.hide{
+                            color: rgb(174, 45, 22) !important;
+                            text-decoration: none;
+                        }
+                        &:hover{
+                            opacity: .8 !important;
+                        }
+                    }
+                    &::after{
+                        display: block;
+                        content: "";
+                        width: 3px;
+                        height: 100%;
+                        position: absolute;
+                        top: 0;
+                        right: -1px;
+                        background: rgba(63, 42, 119, 0.575);
+                    }
+                    &:last-of-type{
+                        &::after{
+                            display: none !important;
+                        }
+                    }
+                }
+                .bot-details{
+                    position: relative;
+                    display: flex;
+                    width: 100%;
+                    height: 0rem;
+                    padding: 0;
+                    background: #272727;
+                    bottom: -0.35rem;
+                    border-radius: 0 0 5px 5px;
+                    transition: 250ms;
+                    &.show{
+                        padding: .5rem 0;
+                        height: 4rem;
+                    }
+                }
+            }
+        }
+    }

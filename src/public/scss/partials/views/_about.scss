@@ -1,0 +1,63 @@
+.about-ps{
+    max-width: 920px !important;
+    margin: 0 auto;
+    h1{
+        @include page-title;
+        margin: 1.5rem 0 1rem 0;
+    }
+    h2{
+        @include section-title;
+        margin: 2.5rem 0 .5rem 0;
+    }
+    .content{
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: var(--ink-2);
+        ol, ul{
+            margin: .75rem 0;
+            @include panel(.5rem 1.25rem .5rem 2.75rem);
+        }
+        a{
+            display: inline-block;
+            color: var(--violet);
+            code{
+                color: var(--violet);
+                background: var(--brand-muted);
+                padding: 0 .35rem;
+                border-radius: var(--r-sm);
+            }
+        }
+        li{
+            margin: .5rem 0;
+            a{
+                color: var(--violet);
+                font-weight: bold;
+            }
+        }
+    }
+    .info-div{
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.72);
+        background: rgba(18, 4, 32, 0.907);
+        border: 2px solid rgba(70, 34, 105, 0.907);
+        border-left: none;
+        border-top: none;
+        width: fit-content;
+        width: calc(100% - 2.5rem - 2px);
+        display: block;
+        margin: 0 auto;
+        margin-top: 1rem;
+        padding: .75rem 1.25rem;
+        border-radius: var(--r-md);
+        text-align: left;
+        color: rgb(255, 214, 210);
+        background: rgba(163, 58, 51, 0.28);
+        border: 1px solid rgba(163, 58, 51, 0.7);
+    }
+
+    .bots-header{
+        padding: 0;
+        margin: 1rem 0;
+        padding-top: 1rem;
+    }
+}

@@ -1,0 +1,615 @@
+// Site modals (markup in view/partials/footer.ejs, opened by toggleModal() in js/main.js):
+//   .searchbar               item search (Ctrl+K)
+//   .modal  + .trade_offer   trade offer progress (js/plugins/trade.js -> tradeOfferConnection)
+//   .modal  + .select_items  how many items of a stack to add/remove (js/plugins/trade.js -> open_qty_picker)
+
+$modal-ease: cubic-bezier(.2, .8, .2, 1);
+
+.modal_overlay{
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    padding: 24px 16px;
+    box-sizing: border-box !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: rgba(3, 6, 24, 0.62);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+
+    &.active{
+        display: flex;
+        flex-direction: column;
+        animation: overlayIn 180ms ease-out;
+    }
+    &.searchbar .searchbar,
+    &.modal .modal{
+        display: flex;
+    }
+    &.active.lock .closeModal{
+        display: none;
+    }
+
+    // ---------- shared dialog card ----------
+    .searchbar, .modal{
+        display: none;
+        flex-direction: column;
+        position: relative;
+        width: 100%;
+        min-width: 0;
+        margin: auto;
+        box-sizing: border-box !important;
+        color: var(--ink-2);
+        background: linear-gradient(180deg, #0f1946 0%, #090f35 100%);
+        border: 1px solid rgba(124, 108, 255, 0.28);
+        border-radius: 18px;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+        animation: dialogIn 220ms $modal-ease;
+    }
+
+    .closeModal{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+        cursor: pointer;
+        border: none;
+        font-family: inherit;
+        color: var(--ink-3);
+        background: rgba(255, 255, 255, 0.06);
+        transition: background 150ms ease, color 150ms ease;
+        &:hover{ background: rgba(255, 255, 255, 0.12); color: var(--ink); }
+        &:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
+    }
+
+    // ---------- item search ----------
+    .searchbar{
+        max-width: 640px;
+        margin-top: 10vh;
+        @include lt-sm{ margin-top: 0; }
+
+        .search{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            height: 62px;
+            padding: 0 14px 0 20px;
+            border-bottom: 1px solid rgba(124, 108, 255, 0.16);
+            .icon{
+                font-size: 18px;
+                color: var(--violet);
+            }
+            input{
+                flex: 1;
+                min-width: 0;
+                height: 100%;
+                padding: 0;
+                border: none;
+                outline: none;
+                background: transparent;
+                color: var(--ink);
+                font-family: inherit;
+                font-size: 1.1rem !important;
+                &::placeholder{ color: var(--ink-3); }
+            }
+        }
+        .search-close{
+            height: 26px;
+            padding: 0 8px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .suggestions{
+            display: block;
+            max-height: min(52vh, 460px);
+            overflow-y: auto;
+            margin: 0;
+            padding: 8px;
+            list-style: none;
+            li{
+                padding: 22px 12px;
+                text-align: center;
+                font-size: 15px;
+                color: var(--ink-3);
+            }
+            a{
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 11px 12px;
+                border-radius: 10px;
+                color: var(--ink-2);
+                font-size: 15px;
+                text-decoration: none;
+                transition: background 100ms ease, color 100ms ease;
+                .icon{ font-size: 13px; color: var(--ink-3); }
+                .sug-name{ flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                mark{ background: none; color: #fff; font-weight: 700; }
+                .sug-go{ opacity: 0; color: var(--ink-3); font-size: 13px; transition: opacity 100ms ease; }
+                &:hover, &.active{
+                    background: rgba(124, 108, 255, 0.16);
+                    color: var(--ink);
+                    .sug-go{ opacity: 1; }
+                    .icon{ color: var(--violet); }
+                }
+                &.active{ box-shadow: inset 2px 0 0 var(--violet); }
+            }
+        }
+
+        .searchbar-foot{
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 18px;
+            border-top: 1px solid rgba(124, 108, 255, 0.16);
+            background: rgba(2, 6, 26, 0.45);
+            font-size: 12px;
+            color: var(--ink-3);
+            span{ display: inline-flex; align-items: center; gap: 5px; }
+            .searchbar-brand{ margin-left: auto; font-weight: 600; letter-spacing: .02em; }
+            @include lt-sm{ span:first-child{ display: none; } }
+        }
+    }
+
+    kbd{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 5px;
+        box-sizing: border-box !important;
+        border-radius: 5px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-bottom-width: 2px;
+        background: rgba(255, 255, 255, 0.06);
+        font-family: inherit;
+        font-size: 11px;
+        color: var(--ink-2);
+    }
+
+    // ---------- modal shell (trade offer + quantity picker) ----------
+    .modal{
+        --accent: #7c6cff;
+        max-width: 480px;
+
+        &::before{ // thin status line on top
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), transparent 85%);
+        }
+
+        .modal_header{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 18px 16px 20px;
+            background: transparent;
+            border-bottom: 1px solid rgba(124, 108, 255, 0.14);
+        }
+        .modal_icon{
+            width: 10px;
+            height: 10px;
+            flex: none;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
+        }
+        .modal_name{
+            flex: 1;
+            min-width: 0;
+            font-family: var(--font-heading);
+            font-size: 1.08rem;
+            font-weight: 700;
+            letter-spacing: 0;
+            color: var(--ink);
+            &::before{ display: none; }
+        }
+        .closeModal{
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .modal_content{
+            display: block;
+            max-height: min(70vh, 600px);
+            overflow-y: auto;
+            padding: 24px;
+            @include lt-sm{ padding: 20px 18px; }
+        }
+
+        // status colors (class set by tradeOfferConnection)
+        &.status-loading, &.status-creating, &.status-pending{
+            .modal_icon{ animation: statusPulse 1.6s ease-in-out infinite; }
+        }
+        &.status-waitingApproval{ --accent: #f0a32c; }
+        &.status-sent{ --accent: #3fbf57; }
+        &.status-accepted{ --accent: #3fbf57; }
+        &.status-canceled, &.status-declined, &.status-expired{ --accent: #8b90a8; }
+        &.status-error, &.status-invalid{ --accent: #e0604f; }
+    }
+    // the quantity picker uses the same shell: no trade status colors there
+    &.select_items .modal{
+        --accent: var(--brand-hover) !important;
+        max-width: 400px;
+        .modal_icon{ animation: none !important; }
+    }
+
+    // ---------- trade offer states ----------
+    .offer_content{
+        display: block;
+        padding: 0;
+    }
+    .offer-state{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 0 4px 0;
+        text-align: center;
+    }
+    .offer-visual{
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 72px;
+        height: 72px;
+        margin-bottom: 6px;
+        border-radius: 50%;
+        svg{ width: 34px; height: 34px; fill: currentColor; }
+        &.is-busy{
+            img{ width: 46px; height: 46px; border-radius: 50%; object-fit: cover; opacity: .9; }
+        }
+        &.is-success{ color: #62d777; background: rgba(63, 191, 87, 0.14); box-shadow: 0 0 0 8px rgba(63, 191, 87, 0.06); animation: popIn 380ms $modal-ease; }
+        &.is-warning{ color: #f3b54d; background: rgba(240, 163, 44, 0.14); box-shadow: 0 0 0 8px rgba(240, 163, 44, 0.06); animation: popIn 380ms $modal-ease; }
+        &.is-error{ color: #f08277; background: rgba(224, 96, 79, 0.14); box-shadow: 0 0 0 8px rgba(224, 96, 79, 0.06); animation: popIn 380ms $modal-ease; }
+        &.is-neutral{ color: #aeb3c9; background: rgba(174, 179, 201, 0.1); box-shadow: 0 0 0 8px rgba(174, 179, 201, 0.04); animation: popIn 380ms $modal-ease; }
+    }
+    .offer-spinner{
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 3px solid rgba(124, 108, 255, 0.18);
+        border-top-color: var(--accent);
+        border-right-color: var(--accent);
+        animation: modalSpin 900ms linear infinite;
+    }
+    .offer-heading{
+        margin: 0;
+        font-size: 1.12rem;
+        font-weight: 700;
+        line-height: 1.35;
+        color: var(--ink);
+    }
+    .offer-text{
+        margin: 0;
+        max-width: 36ch;
+        font-size: .95rem;
+        line-height: 1.5;
+        color: var(--ink-2);
+        &.small{ font-size: .88rem; color: var(--ink-3); }
+    }
+    .changes{
+        width: 100%;
+        max-height: 10rem;
+        overflow-y: auto;
+        box-sizing: border-box !important;
+        border-radius: 12px;
+        background: rgba(2, 8, 30, 0.6);
+        border: 1px solid rgba(124, 108, 255, 0.14);
+        &:empty{ display: none; }
+        padding: 10px 12px;
+    }
+    .offer-actions{
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        margin-top: 8px;
+    }
+    .offer-btn{
+        flex: 1;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        font-family: inherit;
+        font-size: .95rem;
+        font-weight: 700;
+        cursor: pointer;
+        color: var(--ink);
+        transition: background 150ms ease, transform 100ms ease;
+        &:active{ transform: translateY(1px); }
+        &.primary{ background: var(--brand); &:hover{ background: var(--brand-hover); } }
+        &.ghost{ background: transparent; border-color: rgba(124, 108, 255, 0.3); &:hover{ background: rgba(124, 108, 255, 0.12); } }
+    }
+
+    // offer sent: bot card, notes, big button
+    .offer-sent{
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        .offer-label{
+            margin: 0;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--ink-3);
+        }
+    }
+    .bot-info{
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px;
+        border-radius: 14px;
+        background: rgba(124, 108, 255, 0.08);
+        border: 1px solid rgba(124, 108, 255, 0.16);
+        .bot-avatar{
+            width: 52px;
+            height: 52px;
+            flex: none;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 0 0 2px rgba(63, 191, 87, 0.6);
+        }
+        .bot-data{ display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .bot-name{ font-size: 1rem; font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .bot-meta{ display: flex; flex-wrap: wrap; gap: 4px 12px; }
+        .bot-level, .bot-created{ font-size: 12.5px; color: var(--ink-3); }
+    }
+    .offer-callout{
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 11px 13px;
+        border-radius: 12px;
+        text-align: left;
+        svg{ width: 18px; height: 18px; flex: none; margin-top: 1px; fill: currentColor; }
+        p{ margin: 0; font-size: .88rem; line-height: 1.5; color: var(--ink-2); }
+        strong{ color: var(--ink); }
+        &.info{ background: rgba(124, 108, 255, 0.1); color: #a99dff; }
+        &.warning{ background: rgba(240, 163, 44, 0.1); color: #f3b54d; }
+    }
+    .offer-sent .buttons{ display: block; margin: 4px 0 0 0; }
+    .open-trade{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        box-sizing: border-box !important;
+        padding: 14px 18px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #34b04c 0%, #2a9a40 100%);
+        box-shadow: 0 8px 22px rgba(52, 176, 76, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: .02em;
+        text-decoration: none;
+        transition: filter 150ms ease, transform 100ms ease;
+        .stat-icon{ font-size: 20px; }
+        svg{ width: 16px; height: 16px; fill: currentColor; opacity: .85; }
+        &:hover{ filter: brightness(1.08); }
+        &:active{ transform: translateY(1px); }
+    }
+
+    // accepted: review box
+    .trustpilot-wrapper{
+        width: 100%;
+        margin: 6px 0 0 0;
+        padding: 14px;
+        box-sizing: border-box !important;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        .trustpilot-widget{
+            a{ color: #8fe08a; font-weight: 600; }
+        }
+    }
+
+    // ---------- quantity picker (stacked items) ----------
+    .qty-picker{
+        display: flex;
+        flex-direction: column;
+    }
+    .qty-item{
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 10px;
+        border-radius: 14px;
+        background: rgba(124, 108, 255, 0.07);
+        border: 1px solid rgba(124, 108, 255, 0.14);
+    }
+    .qty-thumb{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        flex: none;
+        border-radius: 12px;
+        background: var(--tile);
+        border-bottom: 3px solid rgba(124, 108, 255, 0.35);
+        img{ width: 86%; height: 86%; object-fit: contain; }
+        &.q-6{ border-bottom-color: $unique_c; }
+        &.q-11{ border-bottom-color: $strange_c; }
+        &.q-5{ border-bottom-color: $unusual_c; }
+        &.q-1{ border-bottom-color: $genuine_c; }
+        &.q-3{ border-bottom-color: $vintage_c; }
+        &.q-13{ border-bottom-color: $haunted_c; }
+        &.q-14{ border-bottom-color: $collectors_c; }
+        &.q-15{ border-bottom-color: $decorated_c; }
+    }
+    .qty-item-text{
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+        strong{ color: var(--ink); font-size: 1rem; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        span{ font-size: 13px; color: var(--ink-3); }
+    }
+    .qty-question{
+        margin: 20px 0 10px 0;
+        font-size: .92rem;
+        color: var(--ink-2);
+    }
+    .qty-stepper{
+        display: grid;
+        grid-template-columns: 52px 1fr 52px;
+        gap: 8px;
+        height: 54px;
+    }
+    .qty-step{
+        border: 1px solid rgba(124, 108, 255, 0.22);
+        border-radius: 12px;
+        background: rgba(124, 108, 255, 0.12);
+        color: var(--ink);
+        font-family: inherit;
+        font-size: 22px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 150ms ease;
+        &:hover:not(:disabled){ background: rgba(124, 108, 255, 0.24); }
+        &:disabled{ opacity: .35; cursor: not-allowed; }
+    }
+    .qty-input{
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box !important;
+        border-radius: 12px;
+        border: 1px solid rgba(124, 108, 255, 0.22);
+        background: rgba(2, 8, 30, 0.6);
+        color: var(--ink);
+        font-family: var(--font-heading);
+        font-size: 1.6rem;
+        font-weight: 700;
+        text-align: center;
+        outline: none;
+        -moz-appearance: textfield;
+        appearance: textfield;
+        &::-webkit-outer-spin-button, &::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
+        &:focus{ border-color: var(--brand-hover); box-shadow: 0 0 0 3px rgba(79, 53, 229, 0.3); }
+    }
+    .qty-range{
+        --fill: 0%;
+        width: 100%;
+        height: 6px;
+        margin: 18px 0 4px 0;
+        border-radius: 999px;
+        background: linear-gradient(to right, var(--brand-hover) var(--fill), rgba(255, 255, 255, 0.1) var(--fill));
+        -webkit-appearance: none;
+        appearance: none;
+        outline: none;
+        cursor: pointer;
+        &::-webkit-slider-thumb{
+            -webkit-appearance: none;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            border: 4px solid var(--brand-hover);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        }
+        &::-moz-range-thumb{
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            border: 4px solid var(--brand-hover);
+        }
+    }
+    .qty-presets{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    .qty-preset{
+        padding: 7px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(124, 108, 255, 0.25);
+        background: transparent;
+        color: var(--ink-2);
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 150ms ease, color 150ms ease;
+        &:hover{ background: rgba(124, 108, 255, 0.14); color: var(--ink); }
+        &.active{ background: var(--brand); border-color: var(--brand); color: #fff; }
+    }
+    .qty-actions{
+        display: grid;
+        grid-template-columns: 1fr 1.6fr;
+        gap: 10px;
+        margin-top: 22px;
+        button{
+            padding: 13px 16px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            font-family: inherit;
+            font-size: .95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: filter 150ms ease, background 150ms ease, transform 100ms ease;
+            &:active{ transform: translateY(1px); }
+        }
+        .qty-cancel{
+            background: transparent;
+            border-color: rgba(124, 108, 255, 0.25);
+            color: var(--ink-2);
+            &:hover{ background: rgba(124, 108, 255, 0.12); color: var(--ink); }
+        }
+        .qty-confirm{
+            color: #fff;
+            background: linear-gradient(135deg, #34b04c 0%, #2a9a40 100%);
+            box-shadow: 0 8px 20px rgba(52, 176, 76, 0.25);
+            &:hover{ filter: brightness(1.08); }
+        }
+    }
+    .qty-picker.is-remove .qty-confirm{
+        background: linear-gradient(135deg, #d0503f 0%, #b23b2c 100%);
+        box-shadow: 0 8px 20px rgba(208, 80, 63, 0.25);
+    }
+
+    @include lt-sm{
+        padding: 12px;
+        .modal{ border-radius: 16px; }
+    }
+}
+
+@keyframes overlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes dialogIn {
+    from { opacity: 0; transform: translateY(10px) scale(.97); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes popIn {
+    0% { transform: scale(.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .35; }
+}
+@keyframes modalSpin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce){
+    .modal_overlay, .modal_overlay .searchbar, .modal_overlay .modal, .offer-visual{ animation: none !important; }
+    .offer-spinner{ animation-duration: 2s !important; }
+}

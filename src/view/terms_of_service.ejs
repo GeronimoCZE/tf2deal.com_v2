@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        
+        <div class="main-wrapper">
+            <%- include('./partials/chat.ejs') %>
+
+            <main>
+            <div class="page-section tos-ps">
+                <h1>Terms of Service</h1>
+                <% if (lang != 'en') { %>
+                    <div class="legal-english-note"><%= __('legal.english_only') %></div>
+                <% } %>
+
+                <div class="section" id="acceptance-of-terms">
+                    <h2>1. Acceptance of Terms</h2>
+                    <p>By using <strong>TF2Deal.com</strong> ("the Site"), you agree to comply with and be bound by these Terms of Service ("TOS"). If you do not agree to these terms, you should not use the Site.</p>
+                </div>
+            
+                <div class="section" id="eligibility">
+                    <h2>2. Eligibility</h2>
+                    <p>You must be at least 13 years old to use this Site. By using the Site, you represent that you meet this age requirement.</p>
+                </div>
+            
+                <div class="section" id="trading-process">
+                    <h2>3. Trading Process</h2>
+                    <ul>
+                        <li>All trades are conducted via automated bots. By engaging in a trade, you agree to transfer ownership of your Steam items to the Site’s bot in exchange for the items offered by the bot.</li>
+                        <li>Trades are final and cannot be reversed once completed. Double-check the items in the trade window before confirming the transaction.</li>
+                    </ul>
+                </div>
+            
+                <div class="section" id="account-responsibility">
+                    <h2>4. Account Responsibility</h2>
+                    <p>You are responsible for maintaining the security of your Steam account and any activities that occur under your account. <strong>TF2Deal.com</strong> is not responsible for any loss or damage resulting from unauthorized access to your account.</p>
+                </div>
+            
+                <div class="section" id="prohibited-activities">
+                    <h2>5. Prohibited Activities</h2>
+                    <p>Users are prohibited from engaging in any activity that:</p>
+                    <ul>
+                        <li>Involves fraud, scam, or other illegal activities.</li>
+                        <li>Attempts to exploit or manipulate the trading system, including but not limited to item duplication, price manipulation, or use of third-party software.</li>
+                        <li>Violates Valve’s Steam Subscriber Agreement or Steam’s trading policies.</li>
+                    </ul>
+                    <p>Violation of these rules may result in suspension or termination of your account and access to the Site.</p>
+                </div>
+            
+                <div class="section" id="refunds-and-reversals">
+                    <h2>6. Refunds and Reversals</h2>
+                    <p>As all trades are final, <strong>TF2Deal.com</strong> does not offer refunds or trade reversals under any circumstances. Ensure you understand the terms of each trade before completing it.</p>
+                </div>
+            
+                <div class="section" id="item-ownership">
+                    <h2>7. Item Ownership and Transfer</h2>
+                    <p>Upon completing a trade, ownership of the traded items is immediately transferred to the Site’s bot or the user as applicable. <strong>TF2Deal.com</strong> is not responsible for the subsequent actions of users or the use of items after a trade is completed.</p>
+                </div>
+            
+                <div class="section" id="bot-availability">
+                    <h2>8. Bot Availability and Downtime</h2>
+                    <p><strong>TF2Deal.com</strong> does not guarantee continuous availability of its trading bots. The Site may experience downtime or maintenance, during which trading may be unavailable.</p>
+                    <p><strong>TF2Deal.com</strong> is not responsible for any losses or damages resulting from bot unavailability.</p>
+                </div>
+            
+                <div class="section" id="liability-disclaimer">
+                    <h2>9. Liability Disclaimer</h2>
+                    <p><strong>TF2Deal.com</strong> provides the Site and services on an "as is" and "as available" basis without any warranties of any kind, express or implied.</p>
+                    <p><strong>TF2Deal.com</strong> is not liable for any direct, indirect, incidental, or consequential damages arising from your use of the Site, including but not limited to loss of items, account bans, or trading losses.</p>
+                </div>
+            
+                <div class="section" id="changes-to-tos">
+                    <h2>10. Changes to the TOS</h2>
+                    <p><strong>TF2Deal.com</strong> reserves the right to modify these TOS at any time. Users will be notified of significant changes through the Site or via email. Continued use of the Site after any changes indicates acceptance of the new terms.</p>
+                </div>
+            
+                <div class="section" id="governing-law">
+                    <h2>11. Governing Law</h2>
+                    <p>These TOS are governed by the laws of <strong>Czechia</strong>. Any disputes arising from these terms or your use of the Site will be resolved in the courts of <strong>Czechia</strong>.</p>
+                </div>
+            
+                <div class="section" id="contact-information">
+                    <h2>12. Contact Information</h2>
+                    <p>If you have any questions or concerns about these TOS, please visit <strong><a href="<%= lurl('/support') %>">Support</a></strong> page.</p>
+                </div>
+            
+            </div>
+            </main>
+        </div>
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

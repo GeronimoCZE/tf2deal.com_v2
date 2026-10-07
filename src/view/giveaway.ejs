@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        
+        <main>
+            <div class="page-section giveaway-ps">
+              <% const g = info?.giveaway; %>
+              <section class="gw-hero<%= g ? '' : ' is-empty' %>">
+                <% if (g) { %>
+                  <div class="gw-showcase">
+                    <span class="gw-live"><i></i><%= __('giveaway.live') %></span>
+                    <div class="gw-image">
+                      <img class="item-image q-<%= g.item.qualityID %>" src="<%= g.item.image %>" style="background-image: <%= g.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${g.item.effectID}_94x94.png)` : 'none' %>;" alt="<%= g.item.bp_sku %>">
+                    </div>
+                  </div>
+
+                  <div class="gw-info">
+                    <h1><%= __('giveaway.current') %></h1>
+                    <h2 translate="no"><a href="<%= lurl('/items/' + encodeURIComponent(g.item.bp_sku)) %>"><%= g.item.bp_sku %></a></h2>
+                    <% if (g.description) { %><p class="description" lang="<%= lang_tags[g.description_lang] %>"><%= g.description_shown %><% if (g.description_translated) { %> <span class="ai-note"><%= __('common.ai_translated') %></span><% } %></p><% } %>
+
+                    <div class="gw-stats">
+                      <div class="gw-countdown" id="giveaway-countdown" data-end="<%= g.end %>" aria-label="<%= __('giveaway.ends_in') %>">
+                        <span class="gw-label"><%= __('giveaway.ends_in') %></span>
+                        <div class="gw-units">
+                          <div><strong data-unit="d">–</strong><span><%= __('giveaway.days') %></span></div>
+                          <div><strong data-unit="h">–</strong><span><%= __('giveaway.hours') %></span></div>
+                          <div><strong data-unit="m">–</strong><span><%= __('giveaway.minutes') %></span></div>
+                          <div><strong data-unit="s">–</strong><span><%= __('giveaway.seconds') %></span></div>
+                        </div>
+                        <div class="gw-drawing" hidden><%= __('giveaway.drawing') %></div>
+                        <noscript><%= new Date(g.end).toUTCString() %></noscript>
+                      </div>
+                      <div class="gw-entries">
+                        <span class="gw-label"><%= __('giveaway.entries') %></span>
+                        <strong id="giveaway-entries"><%= g.entry_count %></strong>
+                      </div>
+                    </div>
+
+                    <h3 class="gw-subtitle"><%= __('giveaway.how_to_enter') %></h3>
+                    <ul class="requirements">
+                      <li data-req="login" class="<%= locals.user?.steamid ? 'met' : '' %>"><span class="gw-check" aria-hidden="true"></span><span><%= __('giveaway.req_login') %></span></li>
+                      <% if (g.requirements?.steam_group) { %><li data-req="steam_group"><span class="gw-check" aria-hidden="true"></span><span><%- __('giveaway.req_group_html', { link: '<a href="https://steamcommunity.com/groups/tradetf2deal" target="_blank" rel="nofollow">' + __('giveaway.steam_group') + '</a>' }) %></span></li><% } %>
+                      <% if (g.requirements?.trade) { %><li data-req="trade"><span class="gw-check" aria-hidden="true"></span><span><%= __('giveaway.req_trade') %></span></li><% } %>
+                    </ul>
+
+                    <% if (!user) { %>
+                      <a class="enter-btn" rel="nofollow" href="/auth/steam"><%= __('giveaway.sign_in_to_enter') %></a>
+                    <% } else if (info.entered) { %>
+                      <button class="enter-btn entered" disabled><%= __('giveaway.entered') %> &#10003;</button>
+                    <% } else { %>
+                      <button class="enter-btn" id="giveaway-enter"><%= __('giveaway.enter') %></button>
+                    <% } %>
+                    <div class="enter-result" id="giveaway-result" role="status"></div>
+                  </div>
+                <% } else { %>
+                  <div class="gw-empty">
+                    <span class="gw-empty-icon icon-gift" aria-hidden="true"></span>
+                    <h1><%= __('giveaway.none_title') %></h1>
+                    <p><%= __('giveaway.none_text') %></p>
+                  </div>
+                <% } %>
+              </section>
+
+              <section class="giveaway-history">
+                <h2><%= __('giveaway.previous') %></h2>
+                <div class="giveaways">
+                  <% if (!info?.history?.length) { %>
+                    <div class="none"><%= __('giveaway.no_history') %></div>
+                  <% } %>
+                  <% for (const old of (info?.history || [])) { %>
+                    <article class="old-giveaway">
+                      <div class="gw-thumb">
+                        <img class="q-<%= old.item.qualityID %>" src="<%= old.item.image %>" style="background-image: <%= old.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${old.item.effectID}_94x94.png)` : 'none' %>;" loading="lazy" alt="">
+                      </div>
+                      <div class="name" translate="no"><%= old.item.bp_sku %></div>
+                      <div class="winner">
+                        <% if (old.winner?.steamid) { %>
+                          <img src="<%= old.winner.avatar || '/img/new_user.jpg' %>" alt="" loading="lazy">
+                          <span class="winner-text">
+                            <small><%= __('giveaway.winner') %></small>
+                            <a href="https://steamcommunity.com/profiles/<%= old.winner.steamid %>" target="_blank" rel="nofollow"><%= old.winner.name || __('giveaway.winner') %></a>
+                          </span>
+                        <% } else { %>
+                          <span class="winner-text"><small><%= __('giveaway.no_entries') %></small></span>
+                        <% } %>
+                      </div>
+                      <div class="date"><%= new Date(old.end).toLocaleDateString(html_lang) %></div>
+                    </article>
+                  <% } %>
+                </div>
+              </section>
+            </div>
+        </main>
+
+        <script>
+            // countdown
+            const countdown = document.getElementById('giveaway-countdown')
+            if (countdown) {
+                const end = Number(countdown.dataset.end)
+                const units = Object.fromEntries([...countdown.querySelectorAll('[data-unit]')].map((el) => [el.dataset.unit, el]))
+                const pad = (n) => String(n).padStart(2, '0')
+                let timer = null
+                const tick = () => {
+                    const left = Math.max(0, end - Date.now())
+                    units.d.textContent = Math.floor(left / 86400000)
+                    units.h.textContent = pad(Math.floor(left / 3600000) % 24)
+                    units.m.textContent = pad(Math.floor(left / 60000) % 60)
+                    units.s.textContent = pad(Math.floor(left / 1000) % 60)
+                    if (left == 0) {
+                        countdown.classList.add('is-done')
+                        countdown.querySelector('.gw-drawing').hidden = false
+                        clearInterval(timer)
+                    }
+                }
+                tick()
+                timer = setInterval(tick, 1000)
+            }
+
+            // enter
+            const enterBtn = document.getElementById('giveaway-enter')
+            if (enterBtn) {
+                enterBtn.addEventListener('click', async () => {
+                    enterBtn.disabled = true
+                    enterBtn.textContent = <%- JSON.stringify(__('giveaway.checking')) %>
+                    const result = document.getElementById('giveaway-result')
+                    let res
+                    try {
+                        res = await (await fetch('/api/user/giveaway/enter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })).json()
+                    } catch (e) {
+                        res = { status: 'error', message: <%- JSON.stringify(__('giveaway.server_error')) %> }
+                    }
+
+                    // tick / cross next to each requirement
+                    for (const [key, value] of Object.entries(res.requirements || {})) {
+                        const li = document.querySelector(`.requirements li[data-req="${key}"]`)
+                        if (li) { li.classList.toggle('met', value === true); li.classList.toggle('unmet', value !== true) }
+                    }
+
+                    result.textContent = res.message || ''
+                    result.className = 'enter-result ' + (res.status == 'ok' ? 'ok' : 'error')
+
+                    if (res.entered) {
+                        enterBtn.textContent = <%- JSON.stringify(__('giveaway.entered')) %> + " \u2713"
+                        enterBtn.classList.add('entered')
+                        const entries = document.getElementById('giveaway-entries')
+                        if (!res.already) entries.textContent = Number(entries.textContent) + 1
+                    } else {
+                        enterBtn.disabled = false
+                        enterBtn.textContent = <%- JSON.stringify(__('giveaway.try_again')) %>
+                    }
+                })
+            }
+        </script>
+        
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

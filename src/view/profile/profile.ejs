@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('../partials/head.ejs') %>
+    <body>
+        <%- include('../partials/nav.ejs') %>
+        
+        <main>
+            <div class="page-section profile-ps">
+                <style>
+                    #widget-box {
+                        position: relative;
+                        max-width: 50rem;
+                        margin: 2rem auto 0rem auto !important;
+                        background-color: #2c2c2c;
+                        padding: 10px;
+                        border: 1px solid #ccc;
+                        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+                    }
+                    #widget-box.hidden{
+                        display: none;
+                    }
+                </style>
+                <div class="profile-box">
+                    <div class="heading">
+                        <span class="title"><span class="icon-user"></span> <%= user.personaname %></span>
+                        <a href="<%= lurl('/profile/trades') %>"><span class="icon-trade1"></span> <%= __('nav.trades') %></a>
+                        <a href="<%= lurl('/profile/wishlist') %>"><span class="icon-drawer"></span> <%= __('nav.wishlist') %></a>
+                        <a href="<%= lurl('/profile/giveaways') %>"><span class="icon-gift"></span> <%= __('nav.giveaways') %></a>
+                        <a href="<%= lurl('/profile/tickets') %>"><span class="icon-info"></span> <%= __('profile.tickets') %></a>
+                    </div>
+                    <div class="body">
+                        <div class="account-card">
+                            <img src="<%- user.avatarfull %>" alt="" class="account-avatar">
+                            <div class="account-details">
+                                <div class="account-name"></div>
+                                <div class="detail">
+                                    <div class="name"><%= __('profile.first_login') %></div>
+                                    <div class="value" id="firstlogin"></div>
+                                </div>
+
+                                <div class="detail">
+                                    <div class="name"><%= __('profile.role') %></div>
+                                    <div class="value" id="role">
+
+                                    </div>
+                                </div>
+
+                                <div class="detail">
+                                    <div class="name"><%= __('nav.trades') %></div>
+                                    <div class="value"><a href="<%= lurl('/profile/trades') %>"><%= info.stats?.trades ?? 0 %></a></div>
+                                </div>
+
+                                <div class="detail">
+                                    <div class="name"><%= __('nav.wishlist') %></div>
+                                    <div class="value"><a href="<%= lurl('/profile/wishlist') %>"><%= info.stats?.wishlist ?? 0 %> / 10</a></div>
+                                </div>
+
+                                <div class="detail">
+                                    <div class="name"><%= __('nav.giveaways') %></div>
+                                    <div class="value"><a href="<%= lurl('/profile/giveaways') %>"><%= __('profile.giveaway_stats', { entered: info.stats?.giveaway_entries ?? 0, won: info.stats?.giveaway_wins ?? 0 }) %></a></div>
+                                </div>
+
+                                <div class="detail">
+                                    <div class="name"><%= __('profile.open_tickets') %></div>
+                                    <div class="value"><a href="<%= lurl('/profile/tickets') %>"><%= info.stats?.open_tickets ?? 0 %></a></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="account-links">
+                            <div class="link">
+                                <div class="header"><%= __('profile.trade_url') %> (<a href="https://steamcommunity.com/id/me/tradeoffers/privacy#trade_offer_access_url" target="_blank"><%= __('profile.get_link') %></a>)</div>
+                                <form action="/api/update_user" method="post" id="form-tradeurl">
+                                    <input type="text" spellcheck="false">
+                                    <button type="submit"><span class="icon icon-checkmark"></span><span class="icon icon-pencil"></span></button>
+                                </form>
+                            </div>
+                            <div class="link">
+                                <div class="header"><%= __('profile.email') %></div>
+                                <form action="/api/update_user" method="post" id="form-email">
+                                    <input type="email" spellcheck="false" value="<%= info.email %>" placeholder="you@example.com">
+                                    <button type="submit"><span class="icon icon-checkmark"></span><span class="icon icon-pencil"></span></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script type="module" defer>
+                    const role = <%- JSON.stringify(String(user_db.user.role ?? '')) %>
+                    let tradeurl = <%- JSON.stringify(String((user_db.user.tradelink == 'null') ? '' : (user_db.user.tradelink ?? ''))).replace(/</g, '\\u003c') %>
+
+                    switch (role) {
+                        case "0":
+                            $('#role').text(<%- JSON.stringify(__('profile.role_banned')) %>)
+                            break;
+                        case "1":
+                            $('#role').text(<%- JSON.stringify(__('profile.role_user')) %>)
+                            break;
+                        case "2":
+                            $('#role').text(<%- JSON.stringify(__('profile.role_premium')) %>)
+                            break;
+                        case "3":
+                            $('#role').text(<%- JSON.stringify(__('profile.role_admin')) %>)
+                            break;
+                    
+                        default:
+                            $('#role').text(<%- JSON.stringify(__('profile.role_unknown')) %>)
+                            break;
+                    }
+
+                    if(window.location.search.includes('new_user=true') && tradeurl == ''){
+                        $('#widget-box').removeClass('hidden')
+                    }
+
+                    if(tradeurl == '' ){ 
+                        iziToast.info({
+                            title: <%- JSON.stringify(__('profile.info')) %>,
+                            message: <%- JSON.stringify(__('profile.submit_trade_url')) %>,
+                            timeout: 10000
+                        });
+                    }
+                    else { 
+                        if(sessionStorage.getItem('profile-greating') == null){
+                            
+                            sessionStorage.setItem('profile-greating', '1')
+                        }
+                     }
+
+                    if(user_firstlogin != ``){
+                        let logon = new Date(Number(<%- JSON.stringify(String(user_db.user.firstlogin ?? '')).replace(/</g, '\\u003c') %>))
+                        $('#firstlogin').append(logon.toLocaleDateString(<%- JSON.stringify(html_lang) %>))
+                    } else { $('#firstlogin').append('?') }
+
+                    if(user_tradeurl != ``){
+                        document.querySelector('.profile-box #form-tradeurl input').value = tradeurl
+                    }
+
+                    document.querySelectorAll('.account-links form').forEach(form => {
+                        form.addEventListener('submit', function(e){
+                            e.preventDefault()
+                            const input = form.querySelector('input').value;
+
+                            if(form.querySelector('button').classList.contains('edit')){
+                                form.querySelector('input').removeAttribute('readonly')
+                                form.querySelector('button').classList.remove('edit')
+                                form.querySelector('input').focus()
+                                form.querySelector('input').select()
+                            } else {
+                                form.querySelector('button').setAttribute('disabled', '')
+                                form.querySelector('input').setAttribute('readonly', '')
+                                if(form.id == 'form-tradeurl'){
+                                    if(input == tradeurl){ 
+                                        setTimeout(() => {
+                                            form.querySelector('button').removeAttribute('disabled', '')
+                                            form.querySelector('button').classList.add('edit')
+                                        }, 3000);
+                                        return false;
+                                    }
+                                    if(input == "" || 70 < input.length && 80 > input.length && input.includes(`partner=`) && input.includes(`&token`)){
+                                        $.ajax({
+                                            "async": true,
+                                            "crossDomain": true,
+                                            "url": '../api/user/update',
+                                            "method": "POST",
+                                            "data": JSON.stringify({"tradeurl": (input == "") ? 'null' : input}),
+                                            "headers": {
+                                                "Content-Type": "application/json",
+                                                "Authorization": "Bearer ",
+                                                "Accept": "*/*",
+                                            }
+                                        })
+                                        .fail(function(response) {
+                                            iziToast.error({
+                                                title: <%- JSON.stringify(__('js.common.error')) %>,
+                                                message: (response?.message)?response.message:<%- JSON.stringify(__('new_user.invalid_input')) %>
+                                            });
+                                            setTimeout(() => {
+                                                form.querySelector('button').removeAttribute('disabled', '')
+                                                form.querySelector('input').removeAttribute('readonly', '')
+                                            }, 10000);
+                                        })
+                                        .done(async function (response) {
+                                            if(response.status == 'OK'){
+                                                tradeurl = input
+                                                iziToast.success({
+                                                    title: <%- JSON.stringify(__('js.common.success')) %>,
+                                                    message: <%- JSON.stringify(__('new_user.saved')) %>
+                                                });
+                                                setTimeout(() => {
+                                                    form.querySelector('button').removeAttribute('disabled', '')
+                                                    form.querySelector('button').classList.add('edit')
+                                                }, 3000);
+                                            } else {
+                                                iziToast.error({
+                                                    title: <%- JSON.stringify(__('js.common.error')) %>,
+                                                    message: (response?.message)?response.message:<%- JSON.stringify(__('new_user.invalid_input')) %>
+                                                });
+                                                setTimeout(() => {
+                                                    form.querySelector('button').removeAttribute('disabled', '')
+                                                    form.querySelector('input').removeAttribute('readonly', '')
+                                                }, 3000);
+                                            }
+                                        })
+                                    } else { 
+                                        iziToast.warning({
+                                            title: <%- JSON.stringify(__('new_user.wrong_input')) %>
+                                        });
+                                        setTimeout(() => {
+                                            form.querySelector('button').removeAttribute('disabled', '')
+                                            form.querySelector('input').removeAttribute('readonly', '')
+                                        }, 3000);
+                                    }
+                                }
+                                if(form.id == 'form-email'){
+                                    fetch('/api/user/update', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ email: (input == '') ? 'null' : input })
+                                    })
+                                    .then((res) => res.json())
+                                    .then((res) => {
+                                        if(res.status == 'OK'){
+                                            iziToast.success({ title: <%- JSON.stringify(__('js.common.success')) %>, message: <%- JSON.stringify(__('profile.email_saved')) %> });
+                                            form.querySelector('button').classList.add('edit')
+                                        } else {
+                                            iziToast.error({ title: <%- JSON.stringify(__('js.common.error')) %>, message: res?.message || <%- JSON.stringify(__('profile.invalid_email')) %> });
+                                            form.querySelector('input').removeAttribute('readonly')
+                                        }
+                                    })
+                                    .catch(() => {
+                                        iziToast.error({ title: <%- JSON.stringify(__('js.common.error')) %>, message: <%- JSON.stringify(__('profile.save_failed')) %> });
+                                        form.querySelector('input').removeAttribute('readonly')
+                                    })
+                                    .finally(() => {
+                                        setTimeout(() => form.querySelector('button').removeAttribute('disabled'), 3000)
+                                    })
+                                }
+                            }
+                        })
+
+                        if(form.querySelector('input').value != ""){
+                            form.querySelector('input').setAttribute('readonly', '')
+                            form.querySelector('button').classList.add('edit')
+                        }
+                    })
+                </script>
+            </div>
+        </main>
+        
+        <%- include('../partials/footer.ejs') %>
+    </body>
+</html>

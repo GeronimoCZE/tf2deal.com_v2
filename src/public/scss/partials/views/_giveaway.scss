@@ -1,0 +1,337 @@
+// Giveaway page (view/giveaway.ejs): the current giveaway as one card (item on the left, details and entry on
+// the right), then the previous giveaways as a grid of cards.
+
+.giveaway-ps{
+    max-width: 1180px !important;
+    margin: 1rem auto !important;
+    padding: 0 1.25rem;
+    box-sizing: border-box !important;
+    @include lt-sm{ padding: 0 .75rem; }
+
+    .gw-hero{
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        gap: 2.5rem;
+        align-items: stretch;
+        @include panel(2rem);
+        box-sizing: border-box !important;
+        @media (max-width: 900px){ grid-template-columns: 1fr; gap: 1.5rem; padding: 1.5rem; }
+        @include lt-sm{ padding: 1.1rem; border-radius: var(--r-lg); }
+        &.is-empty{ display: block; }
+    }
+
+    // item showcase
+    .gw-showcase{
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 20rem;
+        border-radius: var(--r-lg);
+        background: radial-gradient(circle at 50% 45%, rgba(124, 108, 255, 0.16), rgba(124, 108, 255, 0.03) 65%);
+        border: 1px solid var(--line);
+        @include lt-sm{ min-height: 15rem; }
+        .gw-image{
+            display: flex;
+            .item-image{
+                width: 15rem;
+                height: 15rem;
+                background-size: cover;
+                background-position: center;
+                object-fit: contain;
+                filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.45));
+                @include lt-sm{ width: 11rem; height: 11rem; }
+            }
+        }
+    }
+    .gw-live{
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 11px;
+        border-radius: 999px;
+        background: rgba(4, 13, 46, 0.85);
+        border: 1px solid var(--line);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        color: var(--ink);
+        i{
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ad66d;
+            box-shadow: 0 0 0 0 rgba(74, 214, 109, 0.6);
+            animation: gwPulse 2s ease-out infinite;
+        }
+    }
+
+    // details
+    .gw-info{
+        min-width: 0;
+        h1{
+            margin: 0 0 .35rem 0;
+            padding: 0;
+            font-size: 13px !important;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            text-align: left;
+        }
+        h2{
+            margin: 0 0 .9rem 0;
+            padding: 0;
+            font-family: var(--font-heading);
+            font-size: clamp(1.6rem, 3vw, 2.2rem) !important;
+            font-weight: 700;
+            line-height: 1.2;
+            text-align: left;
+            a{ display: inline; color: var(--ink); text-decoration: none; &:hover{ color: var(--violet); } }
+        }
+        .description{
+            margin: 0 0 1.25rem 0;
+            color: var(--ink-2);
+            font-size: 16px;
+            line-height: 1.6;
+            .ai-note{ display: block; margin-top: .3rem; color: var(--ink-3); font-size: 13px; }
+        }
+    }
+    .gw-label{
+        display: block;
+        margin-bottom: .45rem;
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+    }
+    .gw-stats{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem 1.1rem;
+        border-radius: var(--r-md);
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+    }
+    .gw-units{
+        display: flex;
+        gap: .45rem;
+        div{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 3.4rem;
+            padding: .45rem .3rem;
+            border-radius: var(--r-sm);
+            background: rgba(4, 13, 46, 0.7);
+            border: 1px solid var(--line);
+            strong{ font-size: 1.45rem; font-weight: 700; line-height: 1.1; color: var(--ink); font-variant-numeric: tabular-nums; }
+            span{ font-size: 11px; color: var(--ink-3); text-transform: lowercase; }
+        }
+        @include lt-sm{ div{ min-width: 2.9rem; strong{ font-size: 1.2rem; } } }
+    }
+    .gw-countdown.is-done .gw-units{ opacity: .45; }
+    .gw-drawing{ margin-top: .5rem; font-size: 14px; color: var(--ink-2); &[hidden]{ display: none; } }
+    .gw-entries{
+        margin-left: auto;
+        text-align: right;
+        strong{ display: block; font-size: 1.9rem; font-weight: 700; line-height: 1.15; color: var(--ink); font-variant-numeric: tabular-nums; }
+        @include lt-sm{ margin-left: 0; text-align: left; }
+    }
+
+    .gw-subtitle{
+        margin: 0 0 .6rem 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--ink);
+    }
+    .requirements{
+        display: flex;
+        flex-direction: column;
+        gap: .45rem;
+        margin: 0 0 1.4rem 0;
+        padding: 0;
+        list-style: none;
+        li{
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .65rem .8rem;
+            border-radius: var(--r-md);
+            border: 1px solid var(--line);
+            background: rgba(4, 13, 46, 0.45);
+            font-size: 15.5px;
+            color: var(--ink-2);
+            transition: border-color 200ms ease, background 200ms ease;
+            a{ display: inline; color: var(--violet); }
+            .gw-check{
+                flex: none;
+                position: relative;
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                border: 2px solid rgba(255, 255, 255, 0.22);
+                box-sizing: border-box !important;
+            }
+            &.met{
+                color: var(--ink);
+                .gw-check{
+                    border-color: #3fb85a;
+                    background: #3fb85a;
+                    &::after{
+                        content: "";
+                        position: absolute;
+                        left: 6px;
+                        top: 2px;
+                        width: 5px;
+                        height: 10px;
+                        border-right: 2px solid #fff;
+                        border-bottom: 2px solid #fff;
+                        transform: rotate(45deg);
+                    }
+                }
+            }
+            &.unmet{
+                border-color: rgba(229, 72, 77, 0.45);
+                .gw-check{
+                    border-color: #e5484d;
+                    &::before, &::after{
+                        content: "";
+                        position: absolute;
+                        left: 8px;
+                        top: 3px;
+                        width: 2px;
+                        height: 12px;
+                        background: #e5484d;
+                        transform: rotate(45deg);
+                    }
+                    &::after{ transform: rotate(-45deg); }
+                }
+            }
+        }
+    }
+
+    .enter-btn{
+        @include button(primary);
+        width: 100%;
+        box-sizing: border-box !important;
+        padding: .85rem 1.6rem;
+        font-size: 1.1rem;
+        &:disabled{ cursor: default; }
+        &.entered{
+            background: rgba(63, 184, 90, 0.16);
+            border-color: rgba(63, 184, 90, 0.5);
+            color: #8ee0a2;
+        }
+    }
+    .enter-result{
+        margin-top: .6rem;
+        font-size: 15px;
+        &:empty{ display: none; }
+        &.ok{ color: #6fd58a; }
+        &.error{ color: #f08a8d; }
+    }
+
+    // no giveaway running
+    .gw-empty{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .5rem;
+        padding: 3rem 1rem;
+        text-align: center;
+        .gw-empty-icon{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 4rem;
+            height: 4rem;
+            margin-bottom: .5rem;
+            border-radius: 50%;
+            background: var(--surface-2);
+            border: 1px solid var(--line);
+            font-size: 1.7rem;
+            color: var(--ink-2);
+        }
+        h1{ @include page-title; margin: 0; text-align: center; }
+        p{ margin: 0; color: var(--ink-2); font-size: 17px; }
+    }
+
+    // previous giveaways
+    .giveaway-history{
+        margin-top: 2.5rem;
+        h2{ @include section-title; margin-bottom: 1rem; }
+        .giveaways{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+            gap: .9rem;
+            @include lt-sm{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+            .none{
+                grid-column: 1 / -1;
+                padding: 1.5rem;
+                border-radius: var(--r-lg);
+                border: 1px dashed var(--line);
+                color: var(--ink-3);
+                text-align: center;
+            }
+        }
+        .old-giveaway{
+            display: flex;
+            flex-direction: column;
+            @include panel(.8rem);
+            box-sizing: border-box !important;
+            transition: border-color 150ms ease, transform 200ms ease;
+            &:hover{ border-color: rgba(124, 108, 255, 0.35); transform: translateY(-2px); }
+            .gw-thumb{
+                display: flex;
+                justify-content: center;
+                padding: .6rem 0;
+                border-radius: var(--r-md);
+                background: var(--surface-2);
+                img{ width: 6.5rem; height: 6.5rem; background-size: cover; object-fit: contain; @include lt-sm{ width: 5rem; height: 5rem; } }
+            }
+            .name{
+                margin: .7rem 0 .6rem 0;
+                font-size: 15px;
+                font-weight: 600;
+                line-height: 1.3;
+                color: var(--ink);
+                overflow-wrap: anywhere;
+            }
+            .winner{
+                display: flex;
+                align-items: center;
+                gap: .55rem;
+                margin-top: auto;
+                padding-top: .6rem;
+                border-top: 1px solid var(--line);
+                img{ width: 1.9rem; height: 1.9rem; border-radius: 50%; flex: none; }
+                .winner-text{
+                    display: flex;
+                    flex-direction: column;
+                    min-width: 0;
+                    small{ font-size: 11.5px; color: var(--ink-3); }
+                    a{ display: block; font-size: 14px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; &:hover{ color: var(--violet); } }
+                }
+            }
+            .date{ margin-top: .45rem; font-size: 12.5px; color: var(--ink-3); }
+        }
+    }
+}
+
+@keyframes gwPulse {
+    0% { box-shadow: 0 0 0 0 rgba(74, 214, 109, 0.55); }
+    70% { box-shadow: 0 0 0 8px rgba(74, 214, 109, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(74, 214, 109, 0); }
+}
+@media (prefers-reduced-motion: reduce){
+    .giveaway-ps .gw-live i{ animation: none; }
+    .giveaway-ps .giveaway-history .old-giveaway:hover{ transform: none; }
+}

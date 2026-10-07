@@ -1,0 +1,8 @@
+# secrets: never commit the real settings file
+.env
+src/config/.env
+src/api/routes/config/.env
+
+node_modules/
+npm-debug.log*
+.DS_Store

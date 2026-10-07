@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body class="<%- info?.season %>">
+        <%- include('./partials/nav.ejs') %>
+
+        <div class="main-wrapper">
+            <%- include('./partials/chat.ejs') %>
+
+            <main>
+                <div class="page-section e404">
+                    <!-- randomly alternate btw images (JS) -->
+                    <!-- <img class="e404_img" src="/img/sfm/sfm404_2.png" alt="" style="width: 19rem; margin-left: -10rem; -webkit-filter: drop-shadow(30px 30px 40px #4b0fc3);; filter: drop-shadow(30px 30px 40px #4b0fc3);"> -->
+                    <div class="e404-text" style="margin-right: 2rem; margin-bottom: 8rem; margin-top: 7.5rem; padding: .5rem 1rem .5rem 2rem; display: flex; flex-direction: column;">
+                        <span class="e404-heading">404</span>
+                        <span class="e404-description"><%= __('errors.not_found') %></span>
+                        <a href="<%= lurl('/') %>"><%= __('errors.home') %></a>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

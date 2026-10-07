@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+
+        <div class="main-wrapper">
+            <%- include('./partials/chat.ejs') %>
+
+            <main>
+            <div class="page-section tos-ps cookies-ps">
+                <h1>Cookie Policy</h1>
+                <% if (lang != 'en') { %>
+                    <div class="legal-english-note"><%= __('legal.english_only') %></div>
+                <% } %>
+                <p class="updated">Last updated: 2 October 2026</p>
+
+                <div class="section" id="summary">
+                    <h2>1. Summary</h2>
+                    <p><strong>TF2Deal.com</strong> ("the Site") uses only the cookies it needs to work: to sign you in with Steam, keep the site secure, run your trades, remember the language you pick and remember that you've seen the cookie notice. We don't use analytics or advertising cookies and we don't sell or share your data for tracking.</p>
+                    <p>You can change your choice at any time: <a href="#cookie-settings" data-cookie-settings><strong>open cookie settings</strong></a> (the same link is at the bottom of every page).</p>
+                </div>
+
+                <div class="section" id="what-are-cookies">
+                    <h2>2. What cookies and browser storage are</h2>
+                    <p>Cookies are small text files a website saves in your browser. The Site also uses your browser's local storage and session storage, which work in a similar way. "Necessary" items are required to provide the service you ask for, such as signing in or trading, and don't need your consent. Everything else is only used if you allow it.</p>
+                </div>
+
+                <div class="section" id="necessary">
+                    <h2>3. Necessary cookies</h2>
+                    <div class="cookie-table">
+                        <div class="row head"><div>Name</div><div>Purpose</div><div>Duration</div></div>
+                        <div class="row"><div><code>session_id</code></div><div>Keeps you signed in after you log in with Steam.</div><div>12 hours</div></div>
+                        <div class="row"><div><code>td_&lt;your SteamID&gt;</code></div><div>Your account settings (trade URL, email if you added one, wishlist) so the Site can serve your pages. Only readable by our server.</div><div>1 year</div></div>
+                        <div class="row"><div><code>td_current_url</code></div><div>The page you were on, so we can bring you back to it after signing in.</div><div>1 day</div></div>
+                        <div class="row"><div><code>td_lang</code></div><div>The language you picked in the language menu (or the "also available in" bar), so the Site opens in it next time. Only set when you pick a language yourself.</div><div>1 year</div></div>
+                        <div class="row"><div><code>td_consent</code></div><div>That you've seen the cookie notice, and your cookie choices if the Site uses optional cookies.</div><div>12 months</div></div>
+                        <div class="row"><div><code>authenticated</code></div><div>Only set for the site administrator in the admin panel.</div><div>1 hour</div></div>
+                        <div class="row"><div><code>__cf_bm</code>, <code>cf_clearance</code></div><div>Set by Cloudflare, our hosting and security provider, to tell people apart from bots and block attacks.</div><div>30 minutes / up to 1 year</div></div>
+                    </div>
+                </div>
+
+                <div class="section" id="language">
+                    <h2>4. Your language</h2>
+                    <p>The first time you open the Site, it is shown in the language your browser asks for (every browser sends its language settings with each request). Nothing is stored for this.</p>
+                    <p>If you pick a language yourself in the language menu, or in the "This page is also available in …" bar, the Site saves that choice in the <code>td_lang</code> cookie and opens in that language on your next visit. You can change it at any time by picking another language. Because it is only set when you ask for it, it is a necessary cookie and doesn't need consent. The language is also part of the page address (for example <code>/de/items</code>), so links always open in the language they point to.</p>
+                </div>
+
+                <div class="section" id="storage">
+                    <h2>5. Browser storage (necessary)</h2>
+                    <div class="cookie-table">
+                        <div class="row head"><div>Name</div><div>Purpose</div><div>Duration</div></div>
+                        <div class="row"><div><code>names</code>, <code>unusual_effects</code>, <code>warpaints</code> (+ <code>_update</code>)</div><div>A cached copy of public item lists for the search and item pages, so they load quickly. No personal data.</div><div>Refreshed every 6–24 hours</div></div>
+                        <div class="row"><div><code>tradeoffer&lt;your SteamID&gt;</code></div><div>The state of your current trade offer, so it survives a page reload.</div><div>Until the trade is finished</div></div>
+                        <div class="row"><div><code>tf2deal-home-animation</code>, <code>profile-greating</code>, <code>td-lang-suggest-closed</code></div><div>Small display settings for the current browser tab (animations already shown, language hint closed).</div><div>Until you close the tab</div></div>
+                    </div>
+                </div>
+
+                <div class="section" id="analytics">
+                    <h2>6. Analytics and advertising</h2>
+                    <p>The Site doesn't use analytics or advertising cookies. If we add analytics in the future, it will only run after you allow it in the cookie settings, and this policy will be updated first.</p>
+                </div>
+
+                <div class="section" id="third-parties">
+                    <h2>7. Third-party services</h2>
+                    <p>When you sign in, you do so on <strong>steamcommunity.com</strong>. Steam sets its own cookies there under <a href="https://store.steampowered.com/privacy_agreement/" target="_blank" rel="nofollow noopener">Valve's privacy policy</a>. Item images are loaded from Steam's image servers and backpack.tf, and some page libraries from code.jquery.com and cdn.jsdelivr.net. These services receive your IP address when your browser loads the files, as with any website, but the Site doesn't use them to track you.</p>
+                </div>
+
+                <div class="section" id="control">
+                    <h2>8. How to change your choice</h2>
+                    <p>Use <a href="#cookie-settings" data-cookie-settings>cookie settings</a> at any time. To change your language, pick another one in the language menu. You can also delete or block cookies in your browser settings, but signing in and trading won't work without the necessary ones.</p>
+                </div>
+
+                <div class="section" id="contact">
+                    <h2>9. Contact</h2>
+                    <p>TF2Deal.com is run by Nikolas Malík. If you have questions about this policy, contact us through the <strong><a href="<%= lurl('/support') %>">Support</a></strong> page.</p>
+                </div>
+            </div>
+            </main>
+        </div>
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <script>
+        const item = <%- JSON.stringify(info.item ?? null).replace(/</g, '\\u003c') %>;
+        const itemClasses = <%- JSON.stringify(info.item?.classes ?? null).replace(/</g, '\\u003c') %>;
+        const itemKey = <%- JSON.stringify(info.item?.bptf_data?.update_key_price ?? null).replace(/</g, '\\u003c') %>;
+        const itemBuy = <%- JSON.stringify(info.item?.buy ?? null).replace(/</g, '\\u003c') %>;
+        const itemSell = <%- JSON.stringify(info.item?.sell ?? null).replace(/</g, '\\u003c') %>;
+        const itemStock = <%- JSON.stringify(info.item?.stock ?? null).replace(/</g, '\\u003c') %>;
+
+        const similarNames = <%- info.result.sameName.length %>
+        const similarEffects = <%- info.result.sameEffect.length %>
+        const similarTypes = <%- info.result.sameTypeQuality.length %>
+    </script>
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        
+        <div class="main-wrapper">
+            <%- include('./partials/chat.ejs') %>
+        
+            <main>
+                <div class="page-section item-page">
+                    <%- include('./partials/item_tooltip.ejs') %>
+                    <!-- users can report bad sell / buy price => reports save to db (show in admin panel) -->
+                        <div class="navigation">
+                            <a href="<%= lurl('/items') %>"><%= __('nav.items') %></a>
+                            <span class="spoiler">/</span>
+                            <span class="current-item"><a href="#"><%= info.item?.bp_sku %></a></span>
+                        </div>
+
+                        <% if(info.item?.status == 0){ %>
+                            <div class="inactive-item">
+                                <h4><%= __('item.inactive') %></h4>
+                                <span><%= __('item.inactive_hint') %></span>
+                            </div>
+                        <% } %>
+
+                        <div class="item-view active fade-in">
+                            <div class="item-body">
+                                <!-- <div class="item-header">
+                                    Item Overview
+                                </div> -->
+                                <div class="image-box q-<%= info.item?.qualityID %>">
+                                    <img src="<%= info.item?.image_large %>" alt="<%= info.item?.bp_sku %>" class="image lazy-fade" onload="this.classList.add('loaded')" fetchpriority="high" effect-id="<%= info.item?.effectID %>">
+                                    <div class="btns">
+                                        <button id="wishlist-btn"><%= __('item.wishlist') %></button>
+                                    </div>
+                                </div>
+                                <div class="item-details">
+                                    <h1 class="item-name" id="item-name" translate="no"><%= info.item?.bp_sku %></h1>
+                                    <div class="item-desc">
+                                        <div class="desc">
+                                            <div class="name"><%= __('filters.quality') %></div>
+                                            <div class="val quality q-<%= info.item?.qualityID %>"><%= info.item?.qualityID %></div>
+                                        </div>
+                                        <div class="desc">
+                                            <div class="name"><%= __('filters.type') %></div>
+                                            <div class="val type"><%= info.item?.type %></div>
+                                        </div>
+                                        <div class="desc classes">
+                                            <div class="name"><%= __('item.classes') %></div>
+                                            <div class="val class"></div>
+                                        </div>           
+            <!--                             <% if (info.item?.effectID) { %>
+                                            <div class="desc effect">
+                                                <div class="name">EffectID</div>
+                                                <div class="val"><%= info.item?.effectID %></div>
+                                            </div>
+                                        <% } %> -->
+                                        <% if (info.item?.bptf_data.price > 0 || info.item?.type === "tool kit" || info.item?.type == "warpaint" || info.item?.type.includes('skin')) { %>
+                                            <div class="desc bptf" value="<%= info.item?.bptf_data?.price %>" key_price="<%= info.item?.bptf_data?.update_key_price %>">
+                                                <a href="" class="val" target="_blank">backpack.tf</a>
+                                            </div>
+                                        <% } %>
+                                        <% if (info.item?.bptf_data.price > 0) { %>
+                                            <div class="desc tf2wiki" value="<%= info.item?.bptf_data?.price %>" key_price="<%= info.item?.bptf_data?.update_key_price %>">
+                                                <a href="https://wiki.teamfortress.com/wiki/<%= info.item?.name %>" class="val" target="_blank">TF2 Wiki</a>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                    <div class="item-btns">
+                                        <% const ks_list = Array.isArray(info.item?.killstreak) ? info.item.killstreak : (info.item?.killstreak?.killstreaks || []) %>
+                                        <% if(ks_list.length > 0){ %>
+                                            <%# options (tier names) are filled in by public/js/main.js from the item's killstreak prices %>
+                                            <label class="killstreak__select" for="ks-select">
+                                                <span><%= __('item.killstreak_tier') %></span>
+                                                <select id="ks-select">
+                                                    <option value="0"><%= __('filters.none') %></option>
+                                                </select>
+                                            </label>
+                                        <% } %>
+                                        <% if(info.item?.status == 1){ %>
+                                            <div class="item__trade sell">
+                                                <button class="item__btn <% if(info.item?.stock?.cur < info.item?.stock?.limit){ %> active <% } %>" id="sell"><span class="icon icon-credit"></span> <%= __('item.sell') %></button>
+                                                <span class="price" id="sell-price">? key ? ref</span>
+                                                <span class="stock"><%- __('item.can_buy_html', { count: '<span>0</span>' }) %></span>
+                                            </div>
+                                        <% } %>
+                                        <div class="item__trade buy">
+                                            <button class="item__btn <% if(info.item?.stock?.cur > 0){ %> active <% } %>" id="buy"><span class="icon icon-credit"></span> <%= __('item.buy') %></button>
+                                            <span class="price" id="buy-price">? key ? ref</span>
+                                            <span class="stock"><%- __('item.in_stock_html', { count: '<span>0</span>' }) %></span>
+                                        </div>
+                                    </div>
+                                    <!-- 
+                                        Unique, Strange, Vintage, Genuine weapons can't buy ks weapons for Non-KS price 
+                                        if given ks is overstocked & there is stock space for Non-KS version
+                                        ! This doesn't apply for skins and australiums !
+                                    -->
+                                </div>
+                            </div>
+
+                            <div class="item-header history" style="margin-top: 2rem">
+                                <%= __('item.price_history') %>
+                            </div>
+                            <div class="item_content">
+                                <div class="change_table">
+                                    <div class="row main">
+                                        <div class="cell buy"><%= __('item.buy') %></div>
+                                        <div class="cell sell"><%= __('item.sell') %></div>
+                                        <div class="cell time"><%= __('item.date') %></div>
+                                    </div>
+                                    <div class="row more"><%= __('item.older_prices') %></div>
+                                </div>
+                            </div>
+
+                            <div class="item-header similarName" style="margin-top: 2rem">
+                                <%= __('item.similar_names') %>
+                            </div>
+                            <div class="item_content sim similarName">
+                                <div class="container">
+                                    <div class="similar_items">
+                                        <% info.result.sameName.forEach((item) => { %>
+                                            <a href="<%= lurl('/items/' + encodeURIComponent(item.bp_sku)) %>" class="item_card q-<%= item.qualityID %>">
+                                                <div class="item-name" translate="no"><%= item.bp_sku %></div>
+                                                <img src="<%= item.image %>" alt="<%= item.bp_sku %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
+                                                <div class="item-data">
+                                                    <div class="stock"><%= __('item.in_stock', { count: item.stock.cur }) %></div>
+                                                    <div class="price"><%= item.sell %>/<%= item.bptf_data.update_key_price %></div>
+                                                    <div class="quality q-<%= item.qualityID %>"></div>
+                                                </div>
+                                            </a>
+                                        <% }) %>
+                                    </div>                        
+                                </div>
+                            </div>
+
+                            <div class="item-header similarEffect" style="margin-top: 2rem">
+                                <%= __('item.similar_effect') %>
+                            </div>
+                            <div class="item_content sim similarEffect">
+                                <div class="container">
+                                    <div class="similar_items">
+                                        <% info.result.sameEffect.forEach((item) => { %>
+                                            <a href="<%= lurl('/items/' + encodeURIComponent(item.bp_sku)) %>" class="item_card q-<%= item.qualityID %>">
+                                                <div class="item-name" translate="no"><%= item.bp_sku %></div>
+                                                <img src="<%= item.image %>" alt="<%= item.bp_sku %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
+                                                <div class="item-data">
+                                                    <div class="stock"><%= __('item.in_stock', { count: item.stock.cur }) %></div>
+                                                    <div class="price"><%= item.sell %>/<%= item.bptf_data.update_key_price %></div>
+                                                    <div class="quality q-<%= item.qualityID %>"></div>
+                                                </div>
+                                            </a>
+                                        <% }) %>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="item-header similarType" style="margin-top: 2rem">
+                                <%= __('item.similar_type') %>
+                            </div>
+                            <div class="item_content sim similarType">
+                                <div class="container">
+                                    <div class="similar_items">
+                                        <% info.result.sameTypeQuality.forEach((item) => { %>
+                                            <a href="<%= lurl('/items/' + encodeURIComponent(item.bp_sku)) %>" class="item_card q-<%= item.qualityID %>">
+                                                <div class="item-name" translate="no"><%= item.bp_sku %></div>
+                                                <img src="<%= item.image %>" alt="<%= item.bp_sku %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
+                                                <div class="item-data">
+                                                    <div class="stock"><%= __('item.in_stock', { count: item.stock.cur }) %></div>
+                                                    <div class="price"><%= item.sell %>/<%= item.bptf_data.update_key_price %></div>
+                                                    <div class="quality q-<%= item.qualityID %>"></div>
+                                                </div>
+                                            </a>
+                                        <% }) %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="trade_item-view">
+                            <div class="item-body">
+                                <div class="trade-inv-window">
+                                    <div class="trade-nav">
+                                        <%# the item being sold / bought and its price (filled in by public/js/main.js) %>
+                                        <div class="trade-item">
+                                            <img src="<%= info.item?.image %>" alt="" class="trade-item-img">
+                                            <div class="trade-item-text">
+                                                <div class="trade-item-name" id="trade-item-name" translate="no"><%= info.item?.bp_sku %></div>
+                                                <div class="trade-item-price"><span id="trade-mode" class="trade-mode"></span> <span id="trade-item-price"></span></div>
+                                            </div>
+                                        </div>
+                                        <div class="trade-info">
+                                            <div class="filter-btn" id="reload-trade-inv" title="<%= __('item.reload_inventory') %>"><span class="icon icon-spinner1"></span></div>
+                                            <button id="remove-iit" title="<%= __('item.remove_selected_title') %>"><%= __('item.remove_selected') %></button>
+                                        </div>
+                                        <div class="trade-stats">
+                                            <div class="trade-count">
+                                                <span id="trade-count">0</span> <span><%= __('item.items') %></span>
+                                            </div>
+                                            <div class="trade-total">
+                                                <div class="key-section">
+                                                    <div class="amount" id="trade-key-total">0</div>
+                                                    <span class="icon icon-key"></span>
+                                                </div>
+                                                <div class="ref-section">
+                                                    <div class="amount" id="trade-ref-total">0.00</div>
+                                                    <span class="icon icon-refined_metal"></span>
+                                                </div>
+                                            </div>
+                                            <button id="trade-btn">
+                                                <i class="icon icon-close"></i>
+                                                <i class="icon icon-checkmark"></i>
+                                                <span><%= __('trade.trade_btn') %></span>
+                                                <div class="create-trade-animation">
+                                                    <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <%# filters for the copies in the grid (bot, paint, spells, ...), built by public/js/plugins/item_filters.js %>
+                                    <div class="item-filters" id="item-filters" hidden></div>
+                                    <div class="items">
+                                        <div class="loading-items" id="trade-loading">
+                                            <span class="loader"></span>
+                                            <span class="loader-text"><%= __('trade.loading_inventory') %></span>
+                                            <span class="loader-text-small"><%= __('trade.loading_hint') %></span>
+                                        </div>
+                                        <div class="item-grid" id="trade-item-grid">
+                                            <!-- load items here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            </main>
+        </div>
+        <script type="application/javascript">
+            function round_ref (refs, direction) {
+                let ref = Math.trunc(refs);
+                let ref_float = refs - ref;
+                ref_float = parseFloat(ref_float.toFixed(5));
+
+                const steps = [0, 0.11, 0.22, 0.33, 0.44, 0.55, 0.66, 0.77, 0.88, 1];
+                let float;
+
+                if (direction === "up") {
+                    float = steps.find(s => s >= ref_float) ?? 1;
+                } else if (direction === "down") {
+                    for (let i = steps.length - 1; i >= 0; i--) {
+                        if (steps[i] <= ref_float) {
+                            float = steps[i];
+                            break;
+                        }
+                    }
+                    if (float === undefined) float = 0;
+                } else {
+                    float = steps.reduce((a, b) =>
+                        Math.abs(b - ref_float) < Math.abs(a - ref_float) ? b : a
+                    );
+                }
+
+                if (ref + ref_float === 0.05) {
+                    return 0.05;
+                }
+
+                return parseFloat((ref + float).toFixed(2));
+            }
+
+            const updateNavigation = (navigation) => {
+                const hash = location.hash;
+
+                if(hash === "#sell_item"){
+                    navigation.html(`
+                    <a href="<%= lurl('/items') %>"><%= __('nav.items') %></a>
+                    <span class="spoiler">/</span>
+                    <span class="current-item"><a href="#"><%= info.item?.bp_sku %></a></span>
+                    <span class="spoiler">/</span>
+                    <span class="current-item"><%= __('item.sell') %></span>
+                    `)
+                } else if (hash === "#buy_item"){
+                    navigation.html(`
+                    <a href="<%= lurl('/items') %>"><%= __('nav.items') %></a>
+                    <span class="spoiler">/</span>
+                    <span class="current-item"><a href="#"><%= info.item?.bp_sku %></a></span>
+                    <span class="spoiler">/</span>
+                    <span class="current-item"><%= __('item.buy') %></span>
+                    `)
+                } else {
+                    navigation.html(`
+                    <a href="<%= lurl('/items') %>"><%= __('nav.items') %></a>
+                    <span class="spoiler">/</span>
+                    <span class="current-item"><a href="#" class="current-item"><%= info.item?.bp_sku %></a></span>
+                    `)
+                }
+            }
+
+            if(itemStock?.limit === 0){
+                $('.item-btns').append(`<div class="stock-limit"><%= __('item.cant_trade_now') %></div>`)
+            }
+
+            if(itemAttr.Quality[$('.val.quality').text()] != undefined){
+                $('.val.quality').text(itemAttr.Quality[$('.val.quality').text()].name)
+            }
+            if(itemAttr.Types[$('.val.type').text()] != undefined){
+                $('.val.type').text(itemAttr.Types[$('.val.type').text()])
+            }
+            if($('img.image').attr('effect-id') != "0"){
+                $('img.image').attr('style', `background-image: url(https://api.backpack.tf/images/440/particles/${$('img.image').attr('effect-id')}_188x188.png);`)
+            }
+
+            const bptf_stats = $('.desc.bptf .val')
+            let bptf_url = 'https://backpack.tf/stats/';
+            const type = item?.type
+
+            const price_raw = bptf_stats.parent().attr('value') / bptf_stats.parent().attr('key_price')
+
+            const price_string = (price_raw >= 1) ? `${Number(price_raw).toFixed(1)} keys` : `${round_ref(price_raw * bptf_stats.parent().attr('key_price'))} ref`
+
+            if(['tool unusualifier', 'tool strangifier', 'crate'].includes(type)){
+                if(type == "crate" && !item.bp_sku.includes(' #')){
+                    bptf_stats.attr('href', bptf_url + `${encodeURIComponent(itemAttr.Quality[item.qualityID].name)}/${encodeURIComponent(item.name)}/Tradable/${item.craftable}`)
+                }
+                else {
+                    bptf_stats.attr('href', bptf_url + `${encodeURIComponent(itemAttr.Quality[item.qualityID].name)}/${encodeURIComponent(item.name)}/Tradable/${item.craftable}/${item.priceindex}`)
+                }
+            } else if (type.includes("skin") || type.includes("warpaint")){
+                let wear = ' ' + item.bp_sku.match(/\([^)]*\)/g)
+                let name = String(item.name + wear).replace(' War Paint', ' %7C War Paint')
+
+                let weapons = ['Grenade Launcher','Shotgun','Revolver','Wrench','Sniper Rifle','Scattergun','Knife','Minigun','SMG','Rocket Launcher','Pistol','Medi Gun','Stickybomb Launcher','Flame Thrower']
+                const match = weapons.find(w => item.name.includes(w));
+
+                if (match) {
+                    name = String(item.name + wear).replace(` ${match} `, ` %7C ${match} `)
+                }                
+
+                bptf_stats.attr('href', bptf_url + `${encodeURIComponent(itemAttr.Quality[item.qualityID].name)}/${name}/Tradable/${item.craftable}${item.qualityID == "5" ? '/'+item.priceindex : ''}`)
+            } else if (type == "tool kit"){
+                let prefix = "0-"
+
+                if(item.name.includes('Professional Killstreak ')){ prefix = "3-" }
+                else if(item.name.includes('Specialized Killstreak ')){ prefix = "2-" }
+                else if(item.name.includes('Killstreak ')){ prefix = "1-" }
+
+                bptf_stats.attr('href', bptf_url + `${encodeURIComponent(itemAttr.Quality[item.qualityID].name)}/Killstreak Kit/Tradable/${item.craftable}/${prefix + item.priceindex}`)
+            } else {
+                bptf_stats.attr('href', bptf_url + `${encodeURIComponent(itemAttr.Quality[item.qualityID].name)}/${encodeURIComponent(item.name)}/Tradable/${item.craftable}${item.qualityID == "5" ? '/'+item.priceindex : ''}`)
+            }
+
+
+            const buy_raw = item?.buy / item?.bptf_data?.update_key_price;
+            const sell_raw = item?.sell / item?.bptf_data?.update_key_price;
+            const buy = { key: Math.floor(buy_raw), metal: round_ref((buy_raw - Math.floor(buy_raw)) * item?.bptf_data?.update_key_price) }
+            const sell = { key: Math.floor(sell_raw), metal: round_ref((sell_raw - Math.floor(sell_raw)) * item?.bptf_data?.update_key_price) }
+
+            if(buy.key > 0){ $('#sell-price').text(`${buy.key} key ${buy.metal} ref`) }
+            else { $('#sell-price').text(`${buy.metal} ref`) }
+            if(sell.key > 0){ $('#buy-price').text(`${sell.key} key ${sell.metal} ref`) }
+            else { $('#buy-price').text(`${sell.metal} ref`) }
+
+            const price_history = typeof item?.price_history === "object" ? item?.price_history : [];     
+            
+            let prev_val = { sell: "", buy: "", time: "" }
+
+            const show_rows = 3;
+
+            let same_date_count = 0;
+            let i = 0;
+
+            [...price_history].reverse().forEach((val, i) => {                
+                const [buy, sell, key, time] = val.split("|").map(Number);
+
+                const buy_str = (buy / key >= 1) ? `${Number(buy / key).toFixed(2)} keys` : `${round_ref(buy)} ref`;
+                const sell_str = (sell / key >= 1) ? `${Number(sell / key).toFixed(2)} keys` : `${round_ref(sell)} ref`;
+                const date = new Date(time).toLocaleDateString().replaceAll(' ', '');
+ 
+                if(date != prev_val.time) { same_date_count = 0; }
+
+                if((buy_str != prev_val.buy || sell_str != prev_val.sell) && same_date_count <= 0){
+                    i += 1;
+                    prev_val = { buy: buy_str, sell: sell_str, time: date };
+                    if(date == prev_val.time){ same_date_count += 1; }
+                    const visibility = (i <= show_rows) ? "" : "hidden";
+                    const row = `<div class="row ${visibility}"> <div class="cell buy">${buy_str}</div><div class="cell sell">${sell_str}</div><div class="cell time">${date}</div></div>`
+                    $('.change_table').append(row);   
+
+                    if(visibility == "hidden"){
+                        $('.change_table .row.more').addClass('visible');
+                    }
+                }
+            })
+
+            $('.change_table .row.more.visible').on('click', function(){
+                $('.change_table .row.hidden').slice(0, show_rows).removeClass('hidden');
+                if($('.change_table .row.hidden').length == 0){
+                    $('.change_table .row.more').removeClass('visible')
+                }
+            })
+
+            try {
+                const stock = parseFloat(<%- JSON.stringify(String(info.item?.stock?.cur ?? '')).replace(/</g, '\\u003c') %>)
+                const stock_limit = parseFloat(<%- JSON.stringify(String(info.item?.stock?.limit ?? '')).replace(/</g, '\\u003c') %>)
+                const sell = (stock_limit - stock > 0)?true:false;
+                const buy = (stock > 0)?true:false;
+                const classes = <%- JSON.stringify(String(info.item?.classes ?? '')).replace(/</g, '\\u003c') %>.split(',')
+                
+                $('.item__trade.sell .stock span').text((stock_limit - stock >= 0) ? stock_limit - stock : 0)
+                $('.item__trade.sell .stock').addClass((stock_limit - stock > 0)?'yes':'no')
+                $('.item__trade.buy .stock span').text(stock)
+                $('.item__trade.buy .stock').addClass((stock > 0)?'yes':'no')
+
+                if(typeof classes == "object" && classes[0] != ""){
+                    if(classes.length == 9){
+                        $('.val.class').append(`<span class="class-el"><%= __('classes.all') %></span>`)
+                    } else {
+                        const class_names = <%- JSON.stringify(Object.fromEntries(['Scout', 'Soldier', 'Pyro', 'Demoman', 'Heavy', 'Engineer', 'Medic', 'Sniper', 'Spy'].map((c) => [c, __('classes.' + c.toLowerCase())]))) %>
+                        classes.forEach((cls) => {
+                            $('.val.class').append(`<span class="class-el">${class_names[cls] || cls}</span>`)
+                        })
+                    }
+                } else {
+                    $('.val.class').parent().remove()
+                }
+            } catch (error) {
+                $('.val.class').parent().remove()
+            }
+
+            if(similarNames == 0){
+                $('.similarName').each((i, el) => {                    
+                    $(el).addClass('hidden')
+                })
+            } else {
+                $('.similarName .similar_items a').each((i, el) => {                    
+                    const [item_price, key_value] = el.querySelector('.item-data .price').innerText.split('/')
+                    const key = Math.floor(item_price / key_value)
+                    const metal = round_ref(((item_price / key_value) - key) * key_value)
+                    const price_string = (key > 0) ? `${key} key ${metal} ref` : `${metal} ref`
+                    el.querySelector('.item-data .price').innerText = price_string
+                })
+            }
+            
+            if(similarEffects == 0){
+                $('.similarEffect').each((i, el) => {                    
+                    $(el).addClass('hidden')
+                })
+            } else {
+                $('.similarEffect .similar_items a').each((i, el) => {                    
+                    const [item_price, key_value] = el.querySelector('.item-data .price').innerText.split('/')
+                    const key = Math.floor(item_price / key_value)
+                    const metal = round_ref(((item_price / key_value) - key) * key_value)
+                    const price_string = (key > 0) ? `${key} key ${metal} ref` : `${metal} ref`
+                    el.querySelector('.item-data .price').innerText = price_string
+                })
+            }
+
+            if(similarTypes == 0){
+                $('.similarType').each((i, el) => {                    
+                    $(el).addClass('hidden')
+                })
+            } else {
+                $('.similarType .similar_items a').each((i, el) => {                    
+                    const [item_price, key_value] = el.querySelector('.item-data .price').innerText.split('/')
+                    const key = Math.floor(item_price / key_value)
+                    const metal = round_ref(((item_price / key_value) - key) * key_value)
+                    const price_string = (key > 0) ? `${key} key ${metal} ref` : `${metal} ref`
+                    el.querySelector('.item-data .price').innerText = price_string
+                })
+            }
+        </script>
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

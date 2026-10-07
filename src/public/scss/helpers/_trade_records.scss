@@ -1,0 +1,268 @@
+// Finished trade records: the home page "Latest trades" and Profile -> Trades (shared with @extend, so the CSS is written once).
+// Markup comes from public/js/plugins/trades_render.js
+%trade-records {
+    display: block;
+    position: relative;
+    min-height: 7rem;
+    .info   {
+        display: block;
+        position: relative;
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+        border-radius: var(--r-md);
+        color: var(--ink-2);
+        width: calc(100% - 2rem);
+        margin: 1rem 0;
+        padding: 1rem;
+        text-align: center;
+        font-size: 1rem;
+    }
+    .trade{
+        display: block;
+        position: relative;
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+        border-radius: var(--r-md);
+        width: calc(100% - 2rem);
+        margin: 1.25rem 0 1.5rem 0;
+        padding: 1rem;
+        &:last-child{
+            margin-bottom: 0;
+        }
+        &.skeleton {
+            background: linear-gradient(
+                90deg,
+                rgba(124, 108, 255, 0.05) 25%,
+                rgba(124, 108, 255, 0.16) 50%,
+                rgba(124, 108, 255, 0.05) 75%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 1.8s infinite linear;
+            .user-side,
+            .bot-side{
+                vertical-align: middle !important;
+            }
+        }
+        &.skeleton:nth-child(1) { animation-delay: 0s; }
+        &.skeleton:nth-child(2) { animation-delay: 0.2s; }
+        &.skeleton:nth-child(3) { animation-delay: 0.4s; }
+        &.skeleton:nth-child(4) { animation-delay: 0.6s; }
+        @keyframes shimmer {
+            100% {
+                background-position: -200% 0;
+            }
+        }
+        .heading{
+            display: block;
+            position: absolute;
+            font-size: 1rem;
+            top: -11.5px;
+            left: 30px;
+            width: 100%;
+            z-index: 1;
+            .time-ago,
+            .trade-value{
+                display: block;
+                width: fit-content;
+                background: #1d1a52; // solid, it sits on the record's border
+                border: 1px solid var(--line);
+                border-radius: var(--r-sm);
+                color: var(--ink-2);
+                font-size: .9rem;
+                padding: 0 .5rem;
+                &:empty{
+                    display: none;
+                }
+            }
+        }
+        .content{
+            display: block;
+            position: relative;
+            width: 100%;
+            height: fit-content;
+            .user-side,
+            .bot-side{
+                display: inline-block;
+                vertical-align: top;
+                position: relative;
+                width: calc(45% - 0.5rem);
+                height: fit-content;
+                padding: .5rem;
+                border-radius: var(--r-md);
+                background: rgba(2, 8, 30, 0.45);
+                @media screen and (max-width: 1000px) {
+                   display: block;
+                   width: calc(100% - 1rem);
+                }
+                .grid{
+            display: grid;
+            height: auto;
+            flex-basis: calc(100% - 10px);
+            padding: 5px;
+            justify-content: left;
+            grid-template-columns: repeat(auto-fill , 5.3rem);
+            grid-auto-rows: 5.3rem; 
+            column-gap: .5rem;
+            row-gap: .5rem;
+
+            .pure{
+                display: block;
+                position: relative;
+                background: rgba(124, 108, 255, 0.08);
+                border: 2px solid rgba(124, 108, 255, 0.14);
+                border-radius: 5px;
+                cursor: default;
+                transition: 150ms ease-in-out;
+
+                &:hover{
+                }
+                &[class*="hdn"]{
+                    display: none;
+                }
+                *{
+                    pointer-events: none;
+                }
+                img{
+                    position: relative;
+                    display: block;
+                    width: 80%;
+                    margin: 10% auto;
+                }
+                .pure-count{
+                    display: block;
+                    position: absolute;
+                    font-size: 14px !important;
+                    bottom: 1px;
+                    left: 5px;
+                }
+            }
+            .item{
+                display: block;
+                position: relative;
+                background: rgba(124, 108, 255, 0.08);
+                border: 2px solid rgba(124, 108, 255, 0.14);
+                border-radius: 5px;
+                border-bottom: 2px solid black;
+                cursor: default;
+                background-size: contain;
+                background-repeat: no-repeat;
+                transition: 150ms ease-in-out;
+                &:hover{
+                    background: rgba(124, 108, 255, 0.16);
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                }
+                &.false{
+                    cursor: default;
+                    opacity: .5;
+                }
+                &.invisible-item{
+                    display: block;
+                    pointer-events: none !important;
+                    border: none !important;
+                    background: none !important;
+                    opacity: 1;
+                    cursor: default !important;
+                    border-radius: 50% 50% 50% 50% !important;
+                    img{
+                        width: 50%;
+                        margin: 25% auto;
+                        display: block;
+                        animation: rotate 2.5s linear forwards infinite !important;
+                        filter: opacity(.6) drop-shadow(0 0 rgba(182, 25, 230, 0.986)) !important;
+                        @keyframes rotate {
+                            0%{
+                                transform: rotate(0);
+                            }
+                            100%{
+                                transform: rotate(360deg);
+                            }
+                        }
+                    }
+                }
+                &.c-0{
+                    border-style: dashed !important;
+                    border-bottom: 2px solid black !important;
+                }
+                &[class*="hdn"]{
+                    display: none;
+                }
+                &[class*="over-stocked"]{
+                    cursor: default;
+                    opacity: .45;
+                }
+                *{
+                    pointer-events: none;
+                }
+                img{
+                    position: relative;
+                    display: block;
+                    width: 64.63px;
+                    height: 64.63px;
+                    margin: 10% auto;
+                }
+                &.non-craftable{
+                    /* border-style: dashed !important; */
+                }
+                &.q-6{
+                    border-bottom-color:orange;
+                    border-bottom-color: var(--q-unique) !important;
+                }
+                &.q-11{
+                    border-bottom-color: rgb(214, 93, 37) !important;
+                    border-bottom-color: var(--q-strange) !important;
+                }
+                &.q-5{
+                    border-bottom-color: rgb(127, 50, 235) !important;
+                    border-bottom-color: var(--q-unusual) !important;
+                }
+                &.q-15{
+                    border-bottom-color: var(--q-decorated) !important;
+                }
+                &.q-13{
+                    border-bottom-color: var(--q-haunted) !important;
+                }
+                &.q-1{
+                    border-bottom-color: var(--q-genuine) !important;
+                }
+                &.q-3{
+                    border-bottom-color: var(--q-vintage) !important;
+                }
+                &[class*="q-14"]{
+                    border-bottom-color: var(--q-collectors) !important;
+                }
+                &.q-9{
+                    border-bottom-color: var(--q-self-made) !important;
+                }
+                &.q-7{
+                    border-bottom-color: var(--q-community) !important;
+                }
+                &[class*="in-trade"]{
+                    cursor: default;
+                    opacity: .65;
+                    box-shadow: 0px 0px 10px #a751f240;
+                    border: 2px solid #a751f2 !important;
+                }
+            }}
+            }
+            .trade-icon{
+                display: inline-block;
+                vertical-align: middle !important;
+                position: relative;
+                width: 7%;
+                height: 100%;
+                padding: 1rem 0;
+                margin: auto 0;
+                text-align: center;
+                @media screen and (max-width: 1000px) {
+                    display: block;
+                    width: 100%
+                }
+                span{
+                    display: block;
+                    font-size: 2rem !important;
+                }
+            }
+        }
+    }
+}

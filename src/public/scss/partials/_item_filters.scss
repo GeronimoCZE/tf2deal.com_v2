@@ -1,0 +1,152 @@
+// Item page: filters above the Sell / Buy grid (js/plugins/item_filters.js).
+// Same chip + dropdown idea as the trade window's filter bar, in the item page's card style.
+
+.item-page .item-filters{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    max-width: calc(100% - 2rem - 2px);
+    margin: .75rem auto 0 auto;
+    padding: .6rem 1rem; // same box model as .trade-nav, so the edges line up
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg, 14px);
+    position: relative;
+    z-index: 4; // dropdowns above the grid
+    animation: itemFiltersIn 220ms cubic-bezier(.2, .8, .2, 1);
+    &[hidden]{ display: none; }
+    @include lt-sm{ max-width: calc(100% - 1.5rem - 2px); padding: .55rem .75rem; }
+
+    .item-filters-title{
+        margin: 0 .25rem 0 .2rem;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        @include lt-sm{ width: 100%; margin-bottom: .1rem; }
+    }
+
+    .if-chip{
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        height: 36px;
+        padding: 0 .75rem;
+        box-sizing: border-box !important;
+        border-radius: 10px;
+        border: 1px solid rgba(124, 108, 255, .22);
+        background: rgba(124, 108, 255, .1);
+        color: var(--ink-2);
+        font-size: 14px;
+        white-space: nowrap;
+        cursor: pointer;
+        user-select: none;
+        transition: background 150ms ease, border-color 150ms ease;
+        &:hover, &.open{ background: rgba(124, 108, 255, .18); }
+        &:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
+        .if-name{ color: var(--ink-3); pointer-events: none; }
+        .if-value{
+            max-width: 11rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--ink);
+            font-weight: 600;
+            pointer-events: none;
+        }
+        .if-chevron{
+            width: 6px;
+            height: 6px;
+            margin: -3px 0 0 .1rem;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            transform: rotate(45deg);
+            opacity: .7;
+            transition: transform 150ms ease;
+            pointer-events: none;
+        }
+        &.open .if-chevron{ transform: translateY(3px) rotate(225deg); }
+        &.selected{
+            background: var(--brand);
+            border-color: var(--brand);
+            .if-name{ color: rgba(255, 255, 255, .75); }
+            .if-value{ color: #fff; }
+            .if-chevron{ color: #fff; }
+        }
+
+        .if-menu{
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            display: none;
+            min-width: 100%;
+            max-width: min(20rem, calc(100vw - 2rem));
+            max-height: 18rem;
+            overflow-y: auto;
+            padding: 6px;
+            box-sizing: border-box !important;
+            border-radius: 12px;
+            border: 1px solid rgba(124, 108, 255, .24);
+            background: linear-gradient(180deg, rgba(27, 24, 74, .98), rgba(11, 13, 40, .98));
+            box-shadow: 0 16px 36px rgba(0, 0, 0, .45);
+            cursor: default;
+            z-index: 5;
+        }
+        &.open .if-menu{ display: block; animation: itemFiltersIn 160ms cubic-bezier(.2, .8, .2, 1); }
+
+        .if-option{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: .5rem .65rem;
+            border-radius: 8px;
+            color: var(--ink-2);
+            cursor: pointer;
+            white-space: nowrap;
+            span{ overflow: hidden; text-overflow: ellipsis; }
+            em{ font-style: normal; font-size: 12px; color: var(--ink-3); }
+            &:hover{ background: rgba(124, 108, 255, .14); color: var(--ink); }
+            &.active{ background: rgba(124, 108, 255, .22); color: #fff; font-weight: 600; }
+            &.none{ color: var(--ink-3); }
+            &.empty{ opacity: .45; }
+        }
+    }
+
+    .item-filters-count{ margin-left: auto; font-size: 13px; color: var(--ink-3); &:empty{ display: none; } }
+    .item-filters-reset{
+        padding: .4rem .7rem;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--violet);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        &:hover{ background: rgba(124, 108, 255, .12); }
+        &[hidden]{ display: none; }
+    }
+    .item-filters-count:empty + .item-filters-reset{ margin-left: auto; }
+
+    // phones: the open list becomes a full-width sheet under the bar
+    @include lt-sm{
+        .if-chip{ position: static; }
+        .if-chip .if-menu{ left: .55rem; right: .55rem; max-width: none; }
+    }
+}
+
+.item-page #trade-item-grid{
+    .item.filtered-out{ display: none !important; }
+    .inventory-message.filters-empty{ grid-column: 1 / -1; }
+}
+
+@keyframes itemFiltersIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce){
+    .item-page .item-filters, .item-page .item-filters .if-chip.open .if-menu{ animation: none; }
+}

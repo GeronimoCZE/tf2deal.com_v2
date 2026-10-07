@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body>
+        <%- include('./partials/nav.ejs') %>
+        
+        <main>
+            <div class="page-section blog">
+                <h1><%= __('blog.h1') %></h1>
+                <% if (!info.posts?.length) { %>
+                    <div class="blog-empty"><%= __('blog.empty') %></div>
+                <% } %>
+                <div class="blog-list">
+                    <% for (const post of (info.posts || [])) { %>
+                        <a class="blog-card" href="<%= lurl('/blog/' + post.slug) %>" lang="<%= lang_tags[post.shown_lang] || html_lang %>">
+                            <% if (post.cover) { %>
+                                <img class="cover" src="<%= post.cover %>" alt="" loading="lazy">
+                            <% } %>
+                            <div class="text">
+                                <div class="date"><%= new Date(post.created).toLocaleDateString(html_lang, { day: 'numeric', month: 'long', year: 'numeric' }) %></div>
+                                <h2><%= post.title %></h2>
+                                <% if (post.excerpt) { %><p><%= post.excerpt %></p><% } %>
+                                <span class="read-more"><%= __('blog.read_more') %></span>
+                            </div>
+                        </a>
+                    <% } %>
+                </div>
+                <div class="blog-pages">
+                    <% if (info.page > 0) { %><a href="<%= lurl('/blog') %>?page=<%= info.page - 1 %>">&larr; <%= __('blog.newer') %></a><% } %>
+                    <% if (info.more) { %><a href="<%= lurl('/blog') %>?page=<%= info.page + 1 %>"><%= __('blog.older') %> &rarr;</a><% } %>
+                </div>
+            </div>
+        </main>
+        
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>

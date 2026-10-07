@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('../partials/head.ejs') %>
+    <body>
+        <%- include('../partials/nav.ejs') %>
+
+        <main>
+            <div class="page-section profile-ps">
+                <div class="profile-box">
+                    <div class="heading">
+                        <span class="title"><span class="icon-trade1"></span> <%= __('profile.my_trades') %></span>
+                        <a href="<%= lurl('/profile') %>"><span class="icon-user"></span> <%= user.personaname %></a>
+                        <a href="<%= lurl('/profile/wishlist') %>"><span class="icon-drawer"></span> <%= __('nav.wishlist') %></a>
+                        <a href="<%= lurl('/profile/giveaways') %>"><span class="icon-gift"></span> <%= __('nav.giveaways') %></a>
+                        <a href="<%= lurl('/profile/tickets') %>"><span class="icon-info"></span> <%= __('profile.tickets') %></a>
+                    </div>
+                    <div class="body">
+                        <div class="account-trades">
+                            <%- include('../partials/item_tooltip.ejs') %>
+                            <div class="trades" id="profile-trades">
+                                <div class="trade skeleton"><div class="content"><div class="user-side"></div><div class="trade-icon"><span class="icon icon-trade1"></span></div><div class="bot-side"></div></div></div>
+                            </div>
+                            <button class="load-more hidden" id="trades-more"><%= __('profile.load_older') %></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script type="module">
+            import { load_trades } from '/js/plugins/profile.js'
+            load_trades()
+        </script>
+
+        <%- include('../partials/footer.ejs') %>
+    </body>
+</html>

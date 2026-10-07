@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('../partials/head.ejs') %>
+    <body>
+        <%- include('../partials/nav.ejs') %>
+
+        <main>
+            <div class="page-section profile-ps">
+                <div class="profile-box">
+                    <div class="heading">
+                        <span class="title"><span class="icon-gift"></span> <%= __('profile.my_giveaways') %></span>
+                        <a href="<%= lurl('/profile') %>"><span class="icon-user"></span> <%= user.personaname %></a>
+                        <a href="<%= lurl('/profile/trades') %>"><span class="icon-trade1"></span> <%= __('nav.trades') %></a>
+                        <a href="<%= lurl('/profile/wishlist') %>"><span class="icon-drawer"></span> <%= __('nav.wishlist') %></a>
+                        <a href="<%= lurl('/profile/tickets') %>"><span class="icon-info"></span> <%= __('profile.tickets') %></a>
+                    </div>
+                    <div class="body">
+                        <div class="account-giveaways">
+                            <div class="giveaway-list" id="profile-giveaways">
+                                <div class="content-record skeleton"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script type="module">
+            import { load_giveaways } from '/js/plugins/profile.js'
+            load_giveaways()
+        </script>
+
+        <%- include('../partials/footer.ejs') %>
+    </body>
+</html>

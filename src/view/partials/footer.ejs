@@ -1,0 +1,127 @@
+<div class="modal_overlay" id="modal_overlay">
+    <div class="searchbar" id="searchbar" role="dialog" aria-modal="true" aria-labelledby="searchbar-title">
+        <h2 class="sr-only" id="searchbar-title"><%= __('search.title') %></h2>
+        <form id="search_modal_form" class="search" role="search">
+            <span class="icon icon-search" aria-hidden="true"></span>
+            <input type="text" id="searchbarItems" placeholder="<%= __('search.placeholder') %>" autocomplete="off" spellcheck="false" aria-label="<%= __('search.title') %>" aria-controls="searchbar-results">
+            <button type="button" class="closeModal search-close" title="<%= __('search.close') %>" aria-label="<%= __('search.close') %>">Esc</button>
+        </form>
+        <ul class="suggestions" id="searchbar-results" role="listbox">
+            <li><%= __('search.results_here') %></li>
+        </ul>
+        <div class="searchbar-foot" aria-hidden="true">
+            <span><kbd>↑</kbd><kbd>↓</kbd></span>
+            <span><kbd>↵</kbd> <%= __('search.hint_search') %></span>
+            <span><kbd>Esc</kbd> <%= __('search.hint_close') %></span>
+            <span class="searchbar-brand"><%= __('search.title') %></span>
+        </div>
+    </div>
+
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal_header">
+            <span class="modal_icon" aria-hidden="true"></span>
+            <div class="modal_name" id="modal-title"></div>
+            <button type="button" class="closeModal" title="<%= __('search.close') %>" aria-label="<%= __('search.close') %>">&times;</button>
+        </div>
+        <div class="modal_content"></div>
+    </div>
+</div>
+
+<footer>
+    <div class="foo-content">
+        <div class="foo-links">
+            <div class="foo-links-column">
+                <div class="foo-col-heading"><%= __('footer.site_content') %></div>
+                <a href="<%= lurl('/') %>" class="foo-col-link">
+                    <span><%= __('footer.home') %></span>
+                </a>
+                <a href="<%= lurl('/trade') %>" class="foo-col-link">
+                    <span><%= __('nav.trade') %></span>
+                </a>
+                <a href="<%= lurl('/items') %>" class="foo-col-link">
+                    <span><%= __('nav.items') %></span>
+                </a>
+                <a href="<%= lurl('/about') %>" class="foo-col-link">
+                    <span><%= __('nav.about') %></span>
+                </a>
+            </div>
+            <div class="foo-links-column">
+                <div class="foo-col-heading"><%= __('footer.technical') %></div>
+                <a href="<%= lurl('/about') %>#how-to-trade" class="foo-col-link">
+                    <span><%= __('footer.how_to_trade') %></span>
+                </a>
+                <a href="<%= lurl('/terms-of-service') %>" class="foo-col-link">
+                    <span><%= __('footer.tos') %></span>
+                </a>
+                <a href="<%= lurl('/about') %>#bots-table" class="foo-col-link">
+                    <span><%= __('footer.bots') %></span>
+                </a>
+                <a href="<%= lurl('/cookies') %>" class="foo-col-link">
+                    <span><%= __('footer.cookie_policy') %></span>
+                </a>
+                <a href="#cookie-settings" class="foo-col-link" data-cookie-settings>
+                    <span><%= __('footer.cookie_settings') %></span>
+                </a>
+            </div>
+            <div class="foo-links-column">
+                <div class="foo-col-heading"><%= __('footer.support_help') %></div>
+                <a href="<%= lurl('/support') %>" class="foo-col-link">
+                    <span><%= __('footer.support') %></span>
+                </a>
+                <a href="<%= lurl('/') %>#faq" class="foo-col-link">
+                    <span><%= __('footer.faq') %></span>
+                </a>
+            </div>
+            <div class="foo-links-column">
+                <div class="foo-col-heading"><%= __('footer.other') %></div>
+                <!-- <a href="/premium" class="foo-col-link">
+                    <span>Premium</span>
+                </a> -->
+                <a href="<%= lurl('/giveaway') %>" class="foo-col-link">
+                    <span><%= __('nav.giveaway') %></span>
+                </a>               
+                <a href="<%= lurl('/blog') %>" class="foo-col-link">
+                    <span><%= __('nav.blog') %></span>
+                </a>
+                <!-- <a href="https://bazaar.tf2deal.com" class="foo-col-link">
+                    <span class="lang lang-en">Bazaar</span>
+                </a> -->
+                <!-- <a href="/posts" class="foo-col-link">
+                    <span>Posts</span>
+                </a>
+                <a href="/updates" class="foo-col-link">
+                    <span>Updates</span>
+                </a> -->
+            </div>
+        </div>
+        <div class="foo-credits">
+            <a href="<%= lurl('/') %>" class="foo-logo">
+                <img src="/img/logotype.png" alt="logotype" class="logotype">
+            </a>
+            <span class="text-block copyright">© <span id="current_year"></span></span>
+            <div class="social-media">
+                <a rel="nofollow" href="https://steamcommunity.com/groups/tradetf2deal" target="_blank">
+                    <span class="icon icon-steam_circle"></span>
+                </a>
+                <a rel="nofollow" href="https://discord.gg/br3WvWaW5y" target="_blank">
+                    <span class="icon icon-discord"></span>
+                </a>
+            </div>
+        </div>
+        <div class="copyrights">
+            <span class="text-block"><span><%- __('footer.powered_by', { steam: '<a rel="nofollow" href="https://steampowered.com" target="_blank">Steam</a>' }) %></span> <span class="between">-</span> <span><%- __('footer.particles_from', { bptf: '<a rel="nofollow" href="https://backpack.tf" target="_blank">backpack.tf</a>' }) %></span></span>
+            <span class="creator-credit"><%- __('footer.created_by', { author: '<a rel="nofollow" href="https://malikweb.eu/" target="_blank">Nikolas Malík</a>' }) %></span>
+        </div>
+    </div>
+
+    <script type="application/javascript">
+        socket.on('trade_update', (data) => {
+            if(TD_PATH == '/trade'){
+
+            } else {
+                // use iziToast notif
+            }
+        })
+    </script>
+    <%- include('./cookie_banner.ejs') %>
+</footer>

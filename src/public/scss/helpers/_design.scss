@@ -1,0 +1,159 @@
+// Shared look for every page: colors, headings, panels, buttons and inputs.
+// The pages use these instead of their own one-off greys/blacks, so the site looks the same everywhere.
+// Colors are the site's own: the navy background/nav, the logo purple and the quality colors.
+
+// Headings: Rubik Bold (OFL, /font/rubik-OFL.txt). Only the needed subset is downloaded; Chinese falls back to the system font.
+@each $subset, $range in (
+    latin: "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
+    latin-ext: "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF",
+    cyrillic: "U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116",
+    cyrillic-ext: "U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F"
+) {
+    @font-face {
+        font-family: 'Rubik';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url(/font/rubik-700-#{$subset}.woff2) format('woff2');
+        unicode-range: #{$range};
+    }
+}
+
+:root{
+    // text
+    --ink: #ececf6;                         // headings, values
+    --ink-2: rgba(226, 226, 244, 0.78);     // body text
+    --ink-3: rgba(226, 226, 244, 0.55);     // labels, dates, hints
+    // surfaces (navy of the nav bar, slightly see-through so the page gradient shows)
+    --surface: rgba(4, 13, 46, 0.78);
+    --surface-2: rgba(124, 108, 255, 0.07); // rows / wells inside a panel
+    --surface-3: rgba(124, 108, 255, 0.13); // hover
+    --line: rgba(124, 108, 255, 0.18);
+    // item tiles (item cards, inventory slots)
+    --tile: rgba(36, 42, 100, 0.55);
+    --tile-hover: rgba(46, 52, 122, 0.75);
+    --tile-line: rgba(124, 108, 255, 0.16);
+    // actions
+    --brand: #4f35e5;                       // the logo / filter-bar purple: primary buttons, focus
+    --brand-hover: #5d45ef;
+    --brand-muted: rgba(63, 42, 119, 0.58); // secondary buttons, chips
+    --brand-muted-hover: rgba(63, 42, 119, 0.9);
+    --violet: #b88ef7;                      // links
+    --violet-2: #9d4ed6;                    // small accents (FAQ chevrons, footer headings)
+    --green: rgb(46, 168, 38);              // trade / buy
+    --green-muted: rgba(46, 168, 38, 0.55);
+    --danger: rgb(163, 58, 51);
+    // shape
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 14px;
+    --font-heading: Rubik, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+}
+
+// h1 of a page (Item Database, Blog, About Us, ...)
+@mixin page-title {
+    display: block;
+    width: auto;
+    padding: 0;
+    margin: 0 0 1.25rem 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 2.25rem;
+    line-height: 1.15;
+    letter-spacing: 0;
+    color: var(--ink);
+    -webkit-text-fill-color: currentColor;
+    @include lt-sm{
+        font-size: 1.75rem;
+    }
+}
+
+// h2 of a section inside a page (Latest trades, Price History, How to trade?, ...)
+@mixin section-title {
+    display: block;
+    width: auto;
+    padding: 0;
+    margin: 0 0 .75rem 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.5rem;
+    line-height: 1.25;
+    letter-spacing: 0;
+    color: var(--ink);
+    @include lt-sm{
+        font-size: 1.3rem;
+    }
+}
+
+// a box that holds content
+@mixin panel($padding: 1.25rem) {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: $padding;
+}
+
+// buttons: primary (purple), secondary (muted purple), success (green)
+@mixin button($kind: secondary) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    width: fit-content;
+    padding: .55rem 1.1rem;
+    border-radius: var(--r-md);
+    border: 1px solid transparent;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease;
+    @if $kind == primary {
+        background: var(--brand);
+        &:hover{ background: var(--brand-hover); }
+    } @else if $kind == success {
+        background: var(--green-muted);
+        border-color: rgba(46, 168, 38, 0.75);
+        &:hover{ background: rgba(46, 168, 38, 0.85); }
+    } @else {
+        background: var(--brand-muted);
+        border-color: rgba(124, 108, 255, 0.28);
+        &:hover{ background: var(--brand-muted-hover); }
+    }
+    &:focus-visible{
+        outline: 2px solid var(--violet);
+        outline-offset: 2px;
+    }
+}
+
+// text inputs, selects, textareas
+@mixin input {
+    display: block;
+    padding: .6rem .75rem;
+    background: rgba(2, 8, 30, 0.6);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.4;
+    outline: none;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+    &::placeholder{
+        color: var(--ink-3);
+        font-family: inherit;
+    }
+    &:focus{
+        border-color: var(--brand-hover);
+        box-shadow: 0 0 0 3px rgba(79, 53, 229, 0.3);
+    }
+}

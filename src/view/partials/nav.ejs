@@ -1,0 +1,227 @@
+<header>
+    <div class="nav-placeholder"></div>
+    <nav class="nav-main" id="site-nav">
+        <div class="nav-wrapper">
+          <div class="nav-section left">
+            <a href="<%= lurl('/') %>" id="nav_logotype">
+                <img src="/img/logotype.png" alt="logotype" class="logotype">
+            </a>
+            <div class="nav-mobile-actions">
+            <% if(user){ %><button type="button" class="nav-bell nav-bell-mobile" data-notif-bell title="<%= __('nav.notifications') %>" aria-label="<%= __('nav.notifications') %>" aria-haspopup="dialog" aria-expanded="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-1.7 1.7a1 1 0 0 0 .7 1.7h16a1 1 0 0 0 .7-1.7z"/></svg>
+                <span class="nav-bell-count" hidden></span>
+            </button><% } %>
+            <button type="button" class="nav-search-btn" id="searchBarMobile" title="<%= __('nav.search_title') %>" aria-label="<%= __('nav.search_title') %>">
+                <span class="icon icon-search" aria-hidden="true"></span>
+            </button>
+            <div class="toggleButton" id="collapseNavLinks" role="button" tabindex="0" aria-label="Menu" aria-controls="site-nav-menu" aria-expanded="false">
+                <div id="nav-hamburger" class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            	</div>
+            </div>
+            </div>
+            <!-- <span class="page-moto"><span class="tf2-color">Team Fortress 2</span> trading!</span> -->
+        </div>
+        <div class="nav-section right" id="site-nav-menu">
+            <div class="site-navigation">
+                <% const nav_section = { trade: 'Trade', items: 'Items', item_page: 'Items', giveaway: 'Community Giveaway', blog: 'Community', blog_page: 'Community', posts: 'Community' }[info?.view] || '' %>
+                <ul class="nav-links <%= nav_section %>">
+                    
+                    <a href="<%= lurl('/trade') %>" class="link <%= nav_section == 'Trade' ? 'active' : '' %>"><%= __('nav.trade') %></a>
+                    <a href="<%= lurl('/items') %>" class="link <%= nav_section == 'Items' ? 'active' : '' %>"><%= __('nav.items') %></a>
+                    <div class="link dropdown community <%= nav_section.includes('Community') ? 'active' : '' %>">
+                      <span class="community-label"><%= __('nav.community') %><span class="nav-chevron" aria-hidden="true"></span></span>
+                      <div class="dropdown">
+                        <a href="<%= lurl('/giveaway') %>" class="link <%- giveaway %>">
+                          <%= __('nav.giveaway') %>
+                          <div class="desc">
+                            <%= __('nav.giveaway_desc') %>
+                          </div>
+                        </a>
+                        <a href="<%= lurl('/blog') %>" class="link">
+                          <%= __('nav.blog') %>
+                          <div class="desc">
+                            <%= __('nav.blog_desc') %>
+                          </div>
+                        </a>
+                        <!-- <a href="https://bazaar.tf2deal.com" class="link">
+                          <span class="lang lang-en">Bazaar</span>
+                          <div class="desc">
+                            Post P2P TF2 trade ads.
+                          </div>
+                        </a> -->
+                      </div>
+                    </div>
+                    <a href="<%= lurl('/about') %>" class="link <%= info?.view == 'about' ? 'active' : '' %>"><%= __('nav.about') %></a>
+                </ul>
+            </div>
+            <div class="bottom-nav-items">
+                <div class="searchBar" id="searchBar" title="<%= __('nav.search_title') %>">
+                    <div class="search">_____</div>
+                    <span class="icon icon-search"></span>
+                    <div class="key_shortcut">[CTRL + K]</div>
+                    <span class="search-label"><%= __('search.placeholder') %></span>
+                </div>
+
+                <div class="dropdown-container dc-langSelect">
+                    <div class="langSelect" id="langSelect" title="<%= __('nav.language') %>">
+                        <div class="currentLang" id="currentLang">
+                            <img src="/img/flags/<%= lang %>_96x96.png" alt="<%= lang_names[lang] %>">
+                        </div>
+                        <span class="lang-current-name"><%= lang_names[lang] %></span>
+                        <span class="icon icon-arrow_down"></span>
+                    </div>
+                    <div class="dropdown dropdown-item">
+                        <% for (const code of langs) { %>
+                        <a class="lang-option <%= code %><%= code == lang ? ' active' : '' %>" href="<%= locals.lang_urls?.[code] || '/' %>" data-lang="<%= code %>" hreflang="<%= lang_tags[code] %>" lang="<%= lang_tags[code] %>">
+                            <img src="/img/flags/<%= code %>_96x96.png" alt="">
+                            <span class="lang-name"><%= lang_names[code] %></span>
+                        </a>
+                        <% } %>
+                    </div>
+                </div>
+                <% if(user){ %><button type="button" class="nav-bell nav-bell-desktop" data-notif-bell title="<%= __('nav.notifications') %>" aria-label="<%= __('nav.notifications') %>" aria-haspopup="dialog" aria-expanded="false">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-1.7 1.7a1 1 0 0 0 .7 1.7h16a1 1 0 0 0 .7-1.7z"/></svg>
+                <span class="nav-bell-count" hidden></span>
+            </button><% } %>
+                <% if(user){ %>
+                    
+                    <div class="user-section">
+                        <div class="dropdown-container dc-avatar">
+                            <div class="user-avatar">
+                                <img src="<%= user.avatarmedium %>" alt="user's steam image">
+                                <span class="user-meta">
+                                    <strong><%= user.personaname || __('nav.profile') %></strong>
+                                    <small>Steam</small>
+                                </span>
+                                <span class="icon icon-arrow_down"></span>
+                            </div>
+                            <div class="dropdown">
+                                <ul>
+                                    <a href="<%= lurl('/profile') %>" nofollow><span class="icon-user"></span> <span><%= __('nav.profile') %></span></a>
+        				            <a href="<%= lurl('/profile/trades') %>" nofollow><span class="icon-trade1"></span> <span><%= __('nav.trades') %></span></a>
+                                    <a href="<%= lurl('/profile/wishlist') %>" nofollow><span class="icon-drawer"></span> <span><%= __('nav.wishlist') %></span></a>
+                                    <a href="<%= lurl('/profile/giveaways') %>" nofollow><span class="icon-gift"></span> <span><%= __('nav.giveaways') %></span></a>
+
+                                    <% if(user.steamid === '76561198124728984'){%> 
+                                      <div class="section-devider"></div>
+                                      <a href="../admin"><span class="icon-stats-bars"></span> <span>Admin</span></a> 
+                                      <% }%>
+
+                                    <div class="section-devider"></div>
+                                    <a href="#settings"><span class="icon-refined_metal"></span> <span><%= __('nav.settings') %></span></a>
+
+				                            <div class="section-devider"></div>
+                                    <a href="/logout" nofollow><span class="icon-logout"></span> <span><%= __('nav.sign_out') %></span></a>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <a href="/auth/steam" class="nav-signin" nofollow>
+                        <span class="icon icon-steam_circle"></span>
+                        <span><%= __('common.sign_in_steam') %></span>
+                    </a>
+                <% } %>
+            </div>
+        </div>
+
+        </div>
+    </nav>
+
+    <%# notification panel for both bells (js/plugins/notifications.js fills it), signed-in users only %>
+    <% if(user){ %>
+    <div class="notif-panel" id="notif-panel" role="dialog" aria-label="<%= __('nav.notifications') %>" hidden>
+        <div class="notif-head">
+            <strong><%= __('nav.notifications') %></strong>
+        </div>
+        <div class="notif-list" id="notif-list"></div>
+    </div>
+    <% } %>
+
+    <%# announcement banner from the admin panel / /settings socket; main.js keeps it live %>
+    <% const site_ann = locals.site_settings?.announcement %>
+    <div class="site-announcement <%= site_ann ? 'level-' + site_ann.level : 'hidden' %>" id="site-announcement" role="status" aria-live="polite">
+        <span class="site-announcement-dot"></span>
+        <span class="site-announcement-text"><%= site_ann ? site_ann.text : '' %></span>
+    </div>
+
+    <% if (locals.lang_suggest && locals.lang_suggest != lang) { const s = locals.lang_suggest %>
+      <div class="lang-suggest hidden" id="lang-suggest" lang="<%= lang_tags[s] %>">
+        <img src="/img/flags/<%= s %>_96x96.png" alt="">
+        <span><%= __for(s, 'lang_suggest.text') %></span>
+        <a href="<%= locals.lang_urls?.[s] %>" data-lang="<%= s %>"><%= __for(s, 'lang_suggest.switch') %></a>
+        <button type="button" class="lang-suggest-close" aria-label="<%= __('common.close') %>">&times;</button>
+      </div>
+    <% } %>
+
+    <a class="trade-offer-bar" href="#" >
+       <span> <%= __('status.open_trade_offer') %></span>
+    </a>
+    <div class="trade-status-bar <%- trading %>">
+        <%= __('status.bots_connection_lost') %>
+    </div>
+    <div class="bots-status-bar <%- trading %> <%- bots %>">
+        <%= __('status.bots_down') %>
+    </div>
+    <% if (!user && info?.promtLogin) { %>
+      <div class="trade-status-bar login">
+        <%= __('status.login_required') %>
+      </div>
+    <% } %>
+
+    <!-- <button id="openChat" class="active">
+        <span class="icon icon-chat"></span>
+    </button> -->
+
+    <script>
+        if(user != 'no_session'){
+            if(user_tradeurl == ''){
+                /* MicroModal.show('modal-newuser',{
+                    awaitCloseAnimation: true,
+                    closeTrigger: 'data-custom-close',
+                    onShow: function(modal){
+                    // do something
+
+                    },
+                    onClose: function(modal){
+
+                    }
+                }); */
+            }
+        }
+    </script>
+    <script>
+      let lastScrollY = window.scrollY;
+        const nav = document.querySelector("nav");
+
+        window.addEventListener("scroll", () => {
+            let currentScrollY = window.scrollY;
+
+            if(currentScrollY >= 75){
+              nav.classList.add('fixed')
+            } else {
+              nav.classList.remove('fixed')
+            }
+            if (currentScrollY > lastScrollY && currentScrollY >= 75) {
+                // Scrolling down → Hide nav
+                nav.classList.add("hidden");
+
+                document.querySelectorAll('.nav-section.right .bottom-nav-items .dropdown-container').forEach(container => {
+                    container.querySelector('div').classList.remove('open')
+                });
+            } else {
+                // Scrolling up → Show nav
+                if(currentScrollY >= 75){
+                } else {
+                }
+                nav.classList.remove("hidden");
+            }
+
+            lastScrollY = currentScrollY;
+        });
+</script>
+</header>

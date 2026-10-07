@@ -1,0 +1,61 @@
+<%# Cookie banner + settings dialog. Logic: public/js/consent.js, policy: /cookies
+    Only necessary cookies -> a short notice with "OK". Once optional cookies exist (app.locals.analytics_enabled = true),
+    the banner asks: Accept all / Reject optional / Settings. %>
+<% const cookie_optional = Boolean(locals.analytics_enabled) %>
+<% const cookie_policy = '<a href="' + lurl('/cookies') + '">' + esc(__('cookies.policy_link')) + '</a>' %>
+<div class="cookie-banner<%= locals.consent ? ' cookie-hidden' : '' %>" id="cookie-banner" role="region" aria-label="<%= __('cookies.banner_title') %>">
+    <div class="cookie-text">
+        <strong><%= __('cookies.banner_title') %></strong>
+        <% if (cookie_optional) { %>
+        <p><%- __('cookies.banner_text_html', { policy: cookie_policy }) %></p>
+        <% } else { %>
+        <p><%- __('cookies.notice_text_html', { policy: cookie_policy }) %></p>
+        <% } %>
+    </div>
+    <div class="cookie-actions">
+        <% if (cookie_optional) { %>
+        <button type="button" data-consent-action="settings"><%= __('cookies.settings') %></button>
+        <button type="button" data-consent-action="reject"><%= __('cookies.reject') %></button>
+        <button type="button" data-consent-action="accept" class="primary"><%= __('cookies.accept') %></button>
+        <% } else { %>
+        <button type="button" data-consent-action="ok" class="primary"><%= __('cookies.ok') %></button>
+        <% } %>
+    </div>
+</div>
+
+<div class="cookie-modal cookie-hidden" id="cookie-settings" role="dialog" aria-modal="true" aria-labelledby="cookie-settings-title">
+    <div class="cookie-modal-box">
+        <button type="button" class="cookie-close" data-consent-action="close" aria-label="<%= __('common.close') %>">&times;</button>
+        <h2 id="cookie-settings-title"><%= __('cookies.settings_title') %></h2>
+        <p><%- __('cookies.settings_intro_html', { policy: cookie_policy }) %></p>
+
+        <div class="cookie-category">
+            <div>
+                <strong><%= __('cookies.cat_necessary') %></strong>
+                <p><%= __('cookies.cat_necessary_desc') %></p>
+            </div>
+            <span class="cookie-always"><%= __('cookies.always_on') %></span>
+        </div>
+        <% if (locals.analytics_enabled) { %>
+        <label class="cookie-category" for="consent-analytics">
+            <div>
+                <strong><%= __('cookies.cat_analytics') %></strong>
+                <p><%= __('cookies.cat_analytics_desc') %></p>
+            </div>
+            <input type="checkbox" id="consent-analytics" class="cookie-switch">
+        </label>
+        <% } else { %>
+        <p class="cookie-none"><%= __('cookies.no_optional') %></p>
+        <% } %>
+
+        <div class="cookie-actions">
+            <% if (cookie_optional) { %>
+            <button type="button" data-consent-action="reject"><%= __('cookies.reject') %></button>
+            <button type="button" data-consent-action="save" class="primary"><%= __('cookies.save') %></button>
+            <% } else { %>
+            <button type="button" data-consent-action="ok" class="primary"><%= __('cookies.ok') %></button>
+            <% } %>
+        </div>
+    </div>
+</div>
+<script src="/js/consent.js?v=2" defer></script>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body class="<%- info?.season %>">
+        <%- include('./partials/nav.ejs') %>
+        
+        <div class="main-wrapper">
+            <%- include('./partials/chat.ejs') %>
+
+            <main>
+                <div class="page-section about-ps">
+
+                    <h1><%= __('about.h1') %></h1>
+
+                    <div class="content">
+                        <%= __('about.intro') %>
+                    </div>
+                    <br>
+
+                    <div class="how-header" id="how-to-trade">
+                        <h2><%= __('about.how_title') %></h2>
+                        <div class="content">
+                            <p><%= __('about.how_intro') %></p>
+                            <ul>
+                                <li><a href="<%= lurl('/trade') %>"><code>/trade</code></a> <%= __('about.how_trade') %></li>
+                                <li><a href="<%= lurl('/items') %>"><code>/items</code></a> <%= __('about.how_items') %></li>
+                                <li><%= __('about.how_bptf') %></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="community" id="community">
+                        <h2><%= __('nav.community') %></h2>
+                        <div class="content">
+                            <p><%= __('about.community_intro') %></p>
+                            <ul>
+                                <li> <%= __('about.join_giveaways') %> ~ <a href="<%= lurl('/giveaway') %>"><%= __('about.here') %></a></li>
+                                <li> <%= __('about.read_blog') %> ~ <a href="<%= lurl('/blog') %>"><%= __('about.here') %></a></li>
+                                <li> <%= __('about.post_ads') %></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bots-header" id="bots-table">
+                        <h2><%= __('about.bots_title') %> &#128203;</h2>
+                        <div class="content">
+                            <p><%= __('about.bots_intro') %></p>
+                        </div>
+                        <div class="info-div"><strong><%= __('about.beware') %></strong> <%= __('about.beware_text') %></div>
+                    </div>
+                    <div class="bots-table">
+                        <div class="table-header">
+                            <div class="cell _avatar"></div>
+                            <div class="cell _id">id</div>
+                            <div class="cell _name"><%= __('about.col_name') %></div>
+                            <div class="cell _steamid">steamid64</div>
+                            <div class="cell _trades"><%= __('about.col_level') %></div>
+                            <div class="cell _items"><%= __('about.col_items') %></div>
+                        </div>
+                        <div class="table-content">
+                            
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+        <script defer>
+            fetch('/api/bots')
+                .then((res) => {
+                    return res.json()
+                })
+                .then((res) => {
+                    $('.bots-table .table-content').empty()
+                    if(res?.bots instanceof Array){
+                        for (const [index, bot] of res.bots.entries()) {
+                            $('.bots-table .table-content').append(
+                                `<div class="table-row">
+                                    <div class="cell _avatar"><img src="${bot?.avatar_url || '???'}"></div>
+                                    <div class="cell _id">${index + 1 || '???'}</div>
+                                    <div class="cell _name">${bot?.personaname || '???'}</div>
+                                    <div class="cell _steamid"><a href="https://steamcommunity.com/profiles/${bot?.steamid}" rel="nofollow" target="_blank">${bot?.steamid || '???'}</a></div>
+                                    <div class="cell _trades">${bot?.level || '?'}</div>
+                                    <div class="cell _items">${bot?.inventory || '0'} / ${bot?.inventory_slots || '???'}</div>
+                                </div>`
+                            )
+                        }
+                    } else {
+                        $('.bots-table .table-content').empty()
+                        $('.bots-table .table-content').append( 
+                            `<div class="info"><%= __('about.bots_error') %></div>`
+                        )
+                    }
+                })
+                .catch(() => {
+                    $('.bots-table .table-content').empty()
+                    $('.bots-table .table-content').append( 
+                        `<div class="info"><%= __('about.bots_error') %></div>`
+                    )
+                })
+        </script>
+
+        <%- include('./partials/footer.ejs') %>
+    </body>
+</html>
