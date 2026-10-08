@@ -210,7 +210,10 @@ app.use(express.static(path.join(__dirname,'public')));
 app.locals.site_url = fn.site_url
 Object.assign(app.locals, i18n.default_locals) // English for pages rendered before the language middleware
 app.set('view engine','ejs');
-app.set('trust proxy', false)
+// Behind Nginx or Cloudflare, set TRUST_PROXY in .env (1 = Nginx only, 2 = Cloudflare + Nginx) so the rate limits
+// see each visitor's own IP instead of the proxy's (otherwise everyone shares one limit).
+const trust_proxy = String(process.env.TRUST_PROXY || '').trim()
+app.set('trust proxy', /^\d+$/.test(trust_proxy) ? Number(trust_proxy) : false)
 
 // 1. Setup serialization
 passport.serializeUser((user, done) => {

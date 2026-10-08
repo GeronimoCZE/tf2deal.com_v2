@@ -111,6 +111,7 @@ offer in seconds.
 The site needs Node.js, a MongoDB database, a Steam Web API key and the tf2deal bot server.
 
 Installation, settings and the admin login are explained in **[docs/SETUP.md](docs/SETUP.md)**.
+Putting it on an Ubuntu server straight from GitHub is in **[docs/UBUNTU.md](docs/UBUNTU.md)**.
 Everything that changed, round by round, is in **[CHANGES.md](CHANGES.md)**.
 
 <br/>
