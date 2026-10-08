@@ -16,7 +16,7 @@ $notif-line: rgba(255, 255, 255, 0.08);
     padding: 0 !important;
     box-sizing: border-box !important;
     border-radius: 12px !important;
-    border: 1px solid rgba(124, 108, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(124, 108, 255, 0.1);
     color: var(--ink);
     cursor: pointer;
@@ -65,7 +65,7 @@ $notif-line: rgba(255, 255, 255, 0.08);
     border-radius: 14px;
     border: 1px solid $notif-line;
     background: $notif-bg;
-    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
     overflow: hidden;
     &[hidden]{ display: none; }
     &.is-open{ animation: notifIn 180ms cubic-bezier(.2, .8, .2, 1); }

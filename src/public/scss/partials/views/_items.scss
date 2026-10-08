@@ -54,8 +54,6 @@
         border-radius: 5px;
         transition: all 300ms ease-in-out;
         white-space: nowrap;
-        border-right: 1px solid rgb(87, 45, 126);
-        border-bottom: 1px solid rgb(87, 45, 126);
         &:hover{
             background: rgb(74, 37, 109);
             /* box-shadow: 0px 0px 0px 0px rgb(103, 38, 164); */
@@ -136,7 +134,7 @@
                 overflow-y: auto;
                 left: 0%;
                 background: #1f0c46;
-                box-shadow: 0 6px 14px 1px #00000063;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
                 border-radius: 0 0 .3rem .3rem;
                 border: 2px solid #3c158b;
                 cursor: default;
@@ -1184,7 +1182,7 @@
                             cursor: pointer;
                             opacity: 1;
                             background-color: var(--tile-hover);
-                            box-shadow: 0 0 0 2px var(--violet), 0 0 16px rgba(184, 142, 247, 0.35);
+                            box-shadow: 0 0 0 2px var(--violet);
                         }
                     }
                 }
@@ -1276,7 +1274,7 @@
                 #wishlist-btn{
                     color: var(--ink-2);
                     background: var(--brand-muted);
-                    border: 1px solid rgba(124, 108, 255, 0.28);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
                     outline: none;
                     padding: .4rem .7rem;
                     border-radius: var(--r-sm);
@@ -1525,7 +1523,7 @@
                         }
                         &#sell{
                             background: var(--brand-muted);
-                            border: 1px solid rgba(124, 108, 255, 0.35);
+                            border: 1px solid rgba(255, 255, 255, 0.08);
                         }
                         &.active{
                             pointer-events: all;
@@ -1565,7 +1563,7 @@
                 }
                 &.tf2wiki{
                     background: var(--brand-muted) !important;
-                    border: 1px solid rgba(124, 108, 255, 0.28) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.08) !important;
                     padding: 3px 6px !important;
                     border-radius: var(--r-sm);
                     cursor: pointer;
@@ -1884,7 +1882,7 @@
                 
             }
             &:disabled{
-                box-shadow:  0 0 10px rgb(20, 20, 20), 0 0 3px rgb(34, 34, 34);
+                box-shadow: none;
                 opacity: .6;
             }
         }

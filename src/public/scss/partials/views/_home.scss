@@ -135,12 +135,10 @@
             &.online{
                 color: rgb(74, 222, 74);
                 background: rgba(46, 168, 38, 0.14);
-                border: 1px solid rgba(46, 168, 38, 0.4);
             }
             &.offline{
                 color: rgb(240, 120, 110);
                 background: rgba(163, 58, 51, 0.16);
-                border: 1px solid rgba(163, 58, 51, 0.5);
             }
         }
         .buttons{
@@ -378,17 +376,8 @@
             grid-row: 1 / span 2;
             width: 210px;
             height: auto;
-            animation: glow 12s infinite alternate;
             @include lt-sm{
                 display: none;
-            }
-        }
-        @keyframes glow {
-            from {
-                filter: drop-shadow(0 0 14px rgba(0, 255, 174, 0.55));
-            }
-            to {
-                filter: drop-shadow(0 0 24px rgba(225, 0, 255, 0.55));
             }
         }
         h2{
@@ -498,10 +487,7 @@
             display: flex;
             flex-direction: column;
             @include panel(1.5rem);
-            border-top: 3px solid var(--accent);
-            transition: border-color 200ms ease;
             &:has(a:hover) {
-                border-color: var(--accent);
                 img{
                     translate: 0 -4px;
                 }

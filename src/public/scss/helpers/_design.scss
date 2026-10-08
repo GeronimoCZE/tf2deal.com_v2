@@ -28,11 +28,11 @@
     --surface: rgba(4, 13, 46, 0.78);
     --surface-2: rgba(124, 108, 255, 0.07); // rows / wells inside a panel
     --surface-3: rgba(124, 108, 255, 0.13); // hover
-    --line: rgba(124, 108, 255, 0.18);
+    --line: rgba(255, 255, 255, 0.07);
     // item tiles (item cards, inventory slots)
     --tile: rgba(36, 42, 100, 0.55);
     --tile-hover: rgba(46, 52, 122, 0.75);
-    --tile-line: rgba(124, 108, 255, 0.16);
+    --tile-line: rgba(255, 255, 255, 0.06);
     // actions
     --brand: #4f35e5;                       // the logo / filter-bar purple: primary buttons, focus
     --brand-hover: #5d45ef;
@@ -122,11 +122,9 @@
         &:hover{ background: var(--brand-hover); }
     } @else if $kind == success {
         background: var(--green-muted);
-        border-color: rgba(46, 168, 38, 0.75);
         &:hover{ background: rgba(46, 168, 38, 0.85); }
     } @else {
         background: var(--brand-muted);
-        border-color: rgba(124, 108, 255, 0.28);
         &:hover{ background: var(--brand-muted-hover); }
     }
     &:focus-visible{

@@ -24,7 +24,7 @@
         color: var(--ink);
         transition: border-color 200ms;
         &:hover{
-            border-color: rgba(124, 108, 255, 0.5);
+            border-color: rgba(255, 255, 255, 0.18);
             .read-more{ color: #c7a6ff; }
         }
         .cover{

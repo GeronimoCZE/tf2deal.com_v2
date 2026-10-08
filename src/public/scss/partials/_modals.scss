@@ -42,9 +42,9 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
         box-sizing: border-box !important;
         color: var(--ink-2);
         background: linear-gradient(180deg, #0f1946 0%, #090f35 100%);
-        border: 1px solid rgba(124, 108, 255, 0.28);
+        border: 1px solid var(--line);
         border-radius: 18px;
-        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
         overflow: hidden;
         animation: dialogIn 220ms $modal-ease;
     }
@@ -271,10 +271,10 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
         &.is-busy{
             img{ width: 46px; height: 46px; border-radius: 50%; object-fit: cover; opacity: .9; }
         }
-        &.is-success{ color: #62d777; background: rgba(63, 191, 87, 0.14); box-shadow: 0 0 0 8px rgba(63, 191, 87, 0.06); animation: popIn 380ms $modal-ease; }
-        &.is-warning{ color: #f3b54d; background: rgba(240, 163, 44, 0.14); box-shadow: 0 0 0 8px rgba(240, 163, 44, 0.06); animation: popIn 380ms $modal-ease; }
-        &.is-error{ color: #f08277; background: rgba(224, 96, 79, 0.14); box-shadow: 0 0 0 8px rgba(224, 96, 79, 0.06); animation: popIn 380ms $modal-ease; }
-        &.is-neutral{ color: #aeb3c9; background: rgba(174, 179, 201, 0.1); box-shadow: 0 0 0 8px rgba(174, 179, 201, 0.04); animation: popIn 380ms $modal-ease; }
+        &.is-success{ color: #62d777; background: rgba(63, 191, 87, 0.14); animation: popIn 380ms $modal-ease; }
+        &.is-warning{ color: #f3b54d; background: rgba(240, 163, 44, 0.14); animation: popIn 380ms $modal-ease; }
+        &.is-error{ color: #f08277; background: rgba(224, 96, 79, 0.14); animation: popIn 380ms $modal-ease; }
+        &.is-neutral{ color: #aeb3c9; background: rgba(174, 179, 201, 0.1); animation: popIn 380ms $modal-ease; }
     }
     .offer-spinner{
         position: absolute;
@@ -330,7 +330,7 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
         transition: background 150ms ease, transform 100ms ease;
         &:active{ transform: translateY(1px); }
         &.primary{ background: var(--brand); &:hover{ background: var(--brand-hover); } }
-        &.ghost{ background: transparent; border-color: rgba(124, 108, 255, 0.3); &:hover{ background: rgba(124, 108, 255, 0.12); } }
+        &.ghost{ background: transparent; border-color: rgba(255, 255, 255, 0.08); &:hover{ background: rgba(124, 108, 255, 0.12); } }
     }
 
     // offer sent: bot card, notes, big button
@@ -392,7 +392,6 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
         padding: 14px 18px;
         border-radius: 12px;
         background: linear-gradient(135deg, #34b04c 0%, #2a9a40 100%);
-        box-shadow: 0 8px 22px rgba(52, 176, 76, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         color: #fff;
         font-size: 1rem;
         font-weight: 700;
@@ -442,7 +441,7 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
         flex: none;
         border-radius: 12px;
         background: var(--tile);
-        border-bottom: 3px solid rgba(124, 108, 255, 0.35);
+        border-bottom: 3px solid rgba(255, 255, 255, 0.08);
         img{ width: 86%; height: 86%; object-fit: contain; }
         &.q-6{ border-bottom-color: $unique_c; }
         &.q-11{ border-bottom-color: $strange_c; }
@@ -473,7 +472,7 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
         height: 54px;
     }
     .qty-step{
-        border: 1px solid rgba(124, 108, 255, 0.22);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 12px;
         background: rgba(124, 108, 255, 0.12);
         color: var(--ink);
@@ -490,7 +489,7 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
         min-width: 0;
         box-sizing: border-box !important;
         border-radius: 12px;
-        border: 1px solid rgba(124, 108, 255, 0.22);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         background: rgba(2, 8, 30, 0.6);
         color: var(--ink);
         font-family: var(--font-heading);
@@ -538,7 +537,7 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
     .qty-preset{
         padding: 7px 14px;
         border-radius: 999px;
-        border: 1px solid rgba(124, 108, 255, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         background: transparent;
         color: var(--ink-2);
         font-family: inherit;
@@ -567,20 +566,18 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
         }
         .qty-cancel{
             background: transparent;
-            border-color: rgba(124, 108, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.08);
             color: var(--ink-2);
             &:hover{ background: rgba(124, 108, 255, 0.12); color: var(--ink); }
         }
         .qty-confirm{
             color: #fff;
             background: linear-gradient(135deg, #34b04c 0%, #2a9a40 100%);
-            box-shadow: 0 8px 20px rgba(52, 176, 76, 0.25);
             &:hover{ filter: brightness(1.08); }
         }
     }
     .qty-picker.is-remove .qty-confirm{
         background: linear-gradient(135deg, #d0503f 0%, #b23b2c 100%);
-        box-shadow: 0 8px 20px rgba(208, 80, 63, 0.25);
     }
 
     @include lt-sm{
