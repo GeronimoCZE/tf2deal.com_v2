@@ -39,7 +39,7 @@
                 background-size: cover;
                 background-position: center;
                 object-fit: contain;
-                filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.45));
+                filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.35));
                 @include lt-sm{ width: 11rem; height: 11rem; }
             }
         }
@@ -66,7 +66,6 @@
             border-radius: 50%;
             background: #4ad66d;
             box-shadow: 0 0 0 0 rgba(74, 214, 109, 0.6);
-            animation: gwPulse 2s ease-out infinite;
         }
     }
 
@@ -288,7 +287,7 @@
             @include panel(.8rem);
             box-sizing: border-box !important;
             transition: border-color 150ms ease, transform 200ms ease;
-            &:hover{ border-color: rgba(124, 108, 255, 0.35); transform: translateY(-2px); }
+            &:hover{ border-color: rgba(255, 255, 255, 0.08); transform: translateY(-2px); }
             .gw-thumb{
                 display: flex;
                 justify-content: center;
@@ -326,11 +325,6 @@
     }
 }
 
-@keyframes gwPulse {
-    0% { box-shadow: 0 0 0 0 rgba(74, 214, 109, 0.55); }
-    70% { box-shadow: 0 0 0 8px rgba(74, 214, 109, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(74, 214, 109, 0); }
-}
 @media (prefers-reduced-motion: reduce){
     .giveaway-ps .gw-live i{ animation: none; }
     .giveaway-ps .giveaway-history .old-giveaway:hover{ transform: none; }

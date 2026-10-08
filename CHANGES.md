@@ -1,8 +1,10 @@
 # Changes
 
-Fifteen rounds of edits to your existing files. The structure and code style stay the same. The full line-by-line
+Sixteen rounds of edits to your existing files. The structure and code style stay the same. The full line-by-line
 diff against your original upload is in `fixes.diff`.
 
+- **Round 16** shows tooltip prices as "keys" and "ref", makes the tooltip purple with smaller corners and
+  tones down borders, coloured highlights and shadows across the site.
 - **Round 15** (below) is a security pass.
 - **Round 14** adds a notification bell, restyles the giveaway page and simplifies the item tooltip.
 - **Round 13** adds Buy and Sell filters on the item page.

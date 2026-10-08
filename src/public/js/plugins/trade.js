@@ -3019,6 +3019,10 @@ const item_tooltip = async (state, item, party) => {
                             tooltip.querySelector('.item-desc .desc_price .key_price').style.display = 'none';
                             tooltip.querySelector('.item-desc .desc_price .ref_price #ref_amount').textContent = __('trade.price_not_found');
                         }
+                        // prices read "2 keys, 15.33 ref"; no unit when the price is missing
+                        const key_count = Number(tooltip.querySelector('.item-desc .desc_price .key_price #key_amount').textContent)
+                        tooltip.querySelector('.item-desc .desc_price .key_price .unit').textContent = key_count == 1 ? 'key' : 'keys'
+                        tooltip.querySelector('.item-desc .desc_price .ref_price').classList.toggle('no-unit', isNaN(Number(tooltip.querySelector('.item-desc .desc_price .ref_price #ref_amount').textContent)))
 
                         if(party.includes('show-') && itemDesc.qualityID == "5" && itemDesc.effectID > 0){
                             const effect = JSON.parse(unusual_effects)?.find(eff => eff["ID"] == itemDesc.effectID)

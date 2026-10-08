@@ -125,7 +125,7 @@ header{
         font-size: 17px;
         color: #c9c8c8;
         background: var(--brand-muted);
-        border: 1px solid rgba(124, 108, 255, 0.28);
+        border: 1px solid transparent;
         border-radius: var(--r-md);
         text-align: center;
         transition: .3s;
@@ -139,7 +139,7 @@ header{
             max-width: calc(1348px - 0.5rem);
             color: rgb(255, 214, 210);
             background: rgba(163, 58, 51, 0.24);
-            border: 1px solid rgba(163, 58, 51, 0.65);
+            border: 1px solid transparent;
             @include lt-md{
                 max-width: calc(95% - 0.5rem - 4px);
             }
@@ -603,7 +603,7 @@ header{
                         background: rgb(39, 26, 48);
                         border: 1px solid #170c31;
                         border-radius: .3rem;
-                        box-shadow: 0 6px 14px 1px #00000063;
+                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
                         overflow: hidden;
                         pointer-events: all;
                         @include lt-sm{
@@ -755,7 +755,7 @@ header{
                                 background: rgb(39, 26, 48);
                                 border: 1px solid #170c31;
                                 border-radius: .3rem;
-                                box-shadow: 0 6px 14px 1px #00000063;
+                                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
                                 @include lt-sm{
                                     width: 100%;
                                     position: relative;
@@ -1014,8 +1014,6 @@ header{
                     border-radius: 5px;
                     transition: all 300ms ease-in-out;
                     white-space: nowrap;
-                    border-right: 2px solid rgb(87, 45, 126);
-                    border-bottom: 2px solid rgb(87, 45, 126);
                     &:hover{
                         background: rgb(74, 37, 109);
                         /* box-shadow: 0px 0px 0px 0px rgb(103, 38, 164); */
@@ -1125,7 +1123,7 @@ header{
                                 padding: .2rem 0 0 0;
                                 background: rgb(39, 26, 48);
                                 border: 1px solid #170c31;
-                                box-shadow: 0 6px 14px 1px #00000063;
+                                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
                                 @include lt-sm{
                                     position: relative;
                                     top: 0;
@@ -1207,7 +1205,7 @@ header{
                                 width: 300px;
                                 padding: 0;
                                 background: rgb(39, 26, 48);
-                                box-shadow: 0 6px 14px 1px #00000063;
+                                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
                                 white-space: nowrap;
                                 @include lt-md{
                                     right: 50%;

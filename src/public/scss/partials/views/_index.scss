@@ -492,9 +492,8 @@ img[src="/img/background.jpg"]{
                     cursor: default;
                     min-height: 9rem;
                     width: 85%;
-                    box-shadow:  0 0 10px rgb(20, 20, 20), 0 0 3px rgb(34, 34, 34);
                     background: rgba(46, 168, 38, 0.555);
-                    border: 2px solid rgba(46, 168, 38, 0.575); 
+                    border: 2px solid transparent;
                     border-radius: .3rem;
                     @include lt-lg{
                         width: 15rem;
@@ -587,10 +586,8 @@ img[src="/img/background.jpg"]{
                         background: rgba(46, 168, 38, 0.65);
                     
                         cursor: pointer;
-                        box-shadow: 1px 1px 1px $greenGrad_c_2, 0 0 10px $greenGrad_c_1, 0 0 3px $greenGrad_c_2;
                         &:hover{
                             background: rgba(46, 168, 38, 0.897);
-                            border: 2px solid rgba(46, 168, 38, 0.575);
                         }
                         &.processing{
                             pointer-events: none;
@@ -619,8 +616,6 @@ img[src="/img/background.jpg"]{
                             pointer-events: none;
                             cursor: default;
                             @include backgroundGrad($deg: $greenGrad_deg, $firstColor: rgb(255 89 0), $secondColor: rgb(201, 62, 11));
-                            box-shadow: 1px 1px 1px rgb(201, 62, 11), 0 0 10px rgb(255, 179, 0), 0 0 3px rgb(201, 62, 11);
-                            border: 2px solid orangered;
                             color: whitesmoke !important;
                             .create-trade-animation{
                                 display: none;
@@ -645,7 +640,7 @@ img[src="/img/background.jpg"]{
                     padding: 0.12rem .5rem;
                     border-radius: .3rem;
                     opacity: .6;
-                    border: 2px solid rgba(124, 108, 255, 0.28) !important;
+                    border: 2px solid transparent !important;
                     background: var(--brand-muted);
                     line-height: 20px;
                     i{
@@ -810,7 +805,7 @@ img[src="/img/background.jpg"]{
                         overflow-y: auto;
                         left: 0%;
                         background: #1f0c46;
-                        box-shadow: 0 6px 14px 1px #00000063;
+                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
                         border-radius: 0 0 .3rem .3rem;
                         border: 2px solid #3c158b;
                         cursor: default;
@@ -1022,8 +1017,7 @@ img[src="/img/background.jpg"]{
                     margin: .2rem auto .45rem auto ;
                 }
                 &:focus-within{
-                        border-color: #a751f2;
-                         box-shadow: 10px 10px 40px #a751f240;
+                        border-color: var(--brand-hover);
 
                     }
                 &:hover{
@@ -1363,7 +1357,6 @@ img[src="/img/background.jpg"]{
                         &[class*="in-trade"]{
                             cursor: default;
                             opacity: .65;
-                            box-shadow: 0px 0px 10px #a751f240;
                             border: 2px solid #a751f2 !important;
                         }
                     }
