@@ -5,7 +5,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node scripts/check.mjs",
     "update": "npm update steam-user --save && npm update steamcommunity --save && npm update steam-tradeoffer-manager --save && npm update steam-totp --save",
     "dev-app": "node src/app",
     "dev": "concurrently --kill-others \"nodemon src/app\" \"sass --watch --style=compressed src/public/scss:src/public/css\""
