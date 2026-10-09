@@ -500,6 +500,21 @@
       "ticket_reply_title": "Soporte respondió",
       "ticket_reply": "Hay una nueva respuesta en tu ticket de soporte.",
       "announcement_title": "Anuncio"
+    },
+    "buy_link": {
+      "buy_title": "Comprar este objeto",
+      "pick_title": "Elige tu objeto",
+      "pick": "Este enlace coincide con {count} objetos. Elige el que quieres.",
+      "gone_title": "Objeto no disponible",
+      "gone": "Nuestros bots ya no tienen este objeto. Puede que se acabe de vender.",
+      "browse": "Ver objetos",
+      "close": "Cerrar",
+      "request": "Solicitar intercambio",
+      "sending": "Enviando…",
+      "sign_in": "Iniciar sesión con Steam",
+      "sign_in_note": "Inicia sesión para comprar este objeto. Después volverás a esta página.",
+      "note": "Nuestro bot te enviará una oferta de intercambio de Steam por este objeto. Revísala antes de aceptarla.",
+      "from_bot": "De {name}"
     }
   },
   "items": {
@@ -695,7 +710,9 @@
     "ticket_close_failed": "No se pudo cerrar el ticket.",
     "trading_paused": "El comercio está en pausa ahora mismo. Inténtalo de nuevo en un rato.",
     "item_blacklisted": "{name} no se puede intercambiar ahora mismo.",
-    "account_blocked": "Tu cuenta no puede crear intercambios. Abre un ticket de soporte si crees que es un error."
+    "account_blocked": "Tu cuenta no puede crear intercambios. Abre un ticket de soporte si crees que es un error.",
+    "buy_link_gone": "Este objeto ya no está en stock.",
+    "buy_link_pick": "Primero elige qué objeto quieres."
   },
   "cookies": {
     "banner_title": "Cookies en TF2Deal.com",

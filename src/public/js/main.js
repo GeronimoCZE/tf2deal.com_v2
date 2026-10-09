@@ -6,6 +6,7 @@ import * as trade from "./plugins/trade.js";
 import * as items from "./plugins/items.js";
 import {render_trade} from "./plugins/trades_render.js";
 import "./plugins/notifications.js";
+import * as buy_link from "./plugins/buy_link.js";
 
 const particles = JSON.parse(localStorage.getItem('unusual_effects'))
 
@@ -30,7 +31,8 @@ let curModal = { class: "", lock: false };
 const modals = {
     "search": { class: "searchbar", lock: false },
     "select_items": { class: "modal select_items", lock: false },
-    "trade_offer": { class: "modal trade_offer", lock: false }
+    "trade_offer": { class: "modal trade_offer", lock: false },
+    "buy_link": { class: "modal buy_link", lock: false }
 }
 
 const chat = document.querySelector('#chatRoom')
@@ -1454,15 +1456,9 @@ addEventListener('DOMContentLoaded', (event) => {
     }
 
     ( () => {
+        // /buy/<assetid>: show the item (or a picker) first, the trade goes out from the modal's button
         if(post_trade){
-            if(user == 'no_session'){
-                iziToast.error({
-                    title: __('common.error'),
-                    message: __('common.need_login')
-                }); 
-                return false;
-            }
-            trade.create_trade('single_item', post_trade, view)
+            buy_link.open(post_trade)
         }
         
         document.getElementById('current_year').textContent = new Date().getFullYear();
