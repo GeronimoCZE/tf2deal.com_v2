@@ -500,6 +500,21 @@
       "ticket_reply_title": "Der Support hat geantwortet",
       "ticket_reply": "Es gibt eine neue Antwort auf dein Support-Ticket.",
       "announcement_title": "Ankündigung"
+    },
+    "buy_link": {
+      "buy_title": "Diesen Gegenstand kaufen",
+      "pick_title": "Wähle deinen Gegenstand",
+      "pick": "Zu diesem Link passen {count} Gegenstände. Wähle den, den du möchtest.",
+      "gone_title": "Gegenstand nicht verfügbar",
+      "gone": "Unsere Bots haben diesen Gegenstand nicht mehr. Vielleicht wurde er gerade verkauft.",
+      "browse": "Gegenstände ansehen",
+      "close": "Schließen",
+      "request": "Tausch anfragen",
+      "sending": "Wird gesendet…",
+      "sign_in": "Über Steam anmelden",
+      "sign_in_note": "Melde dich an, um diesen Gegenstand zu kaufen. Danach kommst du auf diese Seite zurück.",
+      "note": "Unser Bot schickt dir ein Steam-Tauschangebot für diesen Gegenstand. Prüfe es, bevor du es annimmst.",
+      "from_bot": "Von {name}"
     }
   },
   "items": {
@@ -695,7 +710,9 @@
     "ticket_close_failed": "Das Ticket konnte nicht geschlossen werden.",
     "trading_paused": "Der Handel ist gerade pausiert. Bitte versuche es gleich noch einmal.",
     "item_blacklisted": "{name} kann gerade nicht gehandelt werden.",
-    "account_blocked": "Dein Konto kann keine Trades erstellen. Öffne ein Support-Ticket, wenn du das für einen Fehler hältst."
+    "account_blocked": "Dein Konto kann keine Trades erstellen. Öffne ein Support-Ticket, wenn du das für einen Fehler hältst.",
+    "buy_link_gone": "Dieser Gegenstand ist nicht mehr auf Lager.",
+    "buy_link_pick": "Wähle zuerst, welchen Gegenstand du möchtest."
   },
   "cookies": {
     "banner_title": "Cookies auf TF2Deal.com",

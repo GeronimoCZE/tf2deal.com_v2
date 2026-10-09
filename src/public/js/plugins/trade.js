@@ -3230,7 +3230,9 @@ const item_tooltip = async (state, item, party) => {
     }
 }
 
-const create_trade = async (type, data) => {
+// on_result(ok) is called once the site answers (the buy link modal uses it for its button);
+// false is returned when nothing was sent
+const create_trade = async (type, data, on_result) => {
     if(window.site_settings?.trading === false){
         iziToast.warning({ title: __('site.trading_paused_title'), message: __('site.trading_paused') });
         return false;
@@ -3265,7 +3267,8 @@ const create_trade = async (type, data) => {
 
     switch (type) {
         case "single_item":
-            body = {single_item: true, User: {hash: user_id}, Site: {assetid: data?.assetid, hash: user_id}, key: key_price, partner_steamid: data?.partner_steamid};
+            // direct buy link (js/plugins/buy_link.js): the bot and bp_sku say which copy was picked
+            body = {single_item: true, User: {hash: user_id}, Site: {assetid: data?.assetid, bot: data?.bot, bp_sku: data?.bp_sku, hash: user_id}, key: key_price, partner_steamid: data?.partner_steamid};
             break;
 
         case "item_page":
@@ -3293,6 +3296,7 @@ const create_trade = async (type, data) => {
     $.ajax(new_trade_Settings)
         .fail(function( data ) {
             trade_req = false;
+            if(typeof on_result == 'function'){ on_result(false) }
 
             iziToast.error({
                 title: __('common.error'),
@@ -3303,6 +3307,7 @@ const create_trade = async (type, data) => {
         })
         .done(async function ( data ) {
             trade_req = false;
+            if(typeof on_result == 'function'){ on_result(data.success == 1) }
             if(data.success == 1){
                 if(view == "trade"){
                     document.querySelector('.btn.trade-btn.ready').classList.replace('processing', 'confirmed')
