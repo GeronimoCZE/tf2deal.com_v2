@@ -37,7 +37,7 @@
         padding: 0 .75rem;
         box-sizing: border-box !important;
         border-radius: 10px;
-        border: 1px solid rgba(124, 108, 255, .22);
+        border: 1px solid var(--line);
         background: rgba(124, 108, 255, .1);
         color: var(--ink-2);
         font-size: 14px;
@@ -70,7 +70,7 @@
         &.open .if-chevron{ transform: translateY(3px) rotate(225deg); }
         &.selected{
             background: var(--brand);
-            border-color: var(--brand);
+            border-color: var(--line-strong);
             .if-name{ color: rgba(255, 255, 255, .75); }
             .if-value{ color: #fff; }
             .if-chevron{ color: #fff; }
@@ -88,9 +88,9 @@
             padding: 6px;
             box-sizing: border-box !important;
             border-radius: 12px;
-            border: 1px solid rgba(124, 108, 255, .24);
+            border: 1px solid var(--line);
             background: linear-gradient(180deg, rgba(27, 24, 74, .98), rgba(11, 13, 40, .98));
-            box-shadow: 0 12px 32px rgba(0, 0, 0, .4);
+            box-shadow: none;
             cursor: default;
             z-index: 5;
         }

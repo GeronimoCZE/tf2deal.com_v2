@@ -72,8 +72,8 @@ footer{
                             width: .7rem;
                             left: -1.25rem;
                             top: -1.1rem;
-                            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-                            border-left: 1px solid rgba(255, 255, 255, 0.3);
+                            border-bottom: 1px solid var(--line-strong);
+                            border-left: 1px solid var(--line-strong);
                     }
                     &:first-of-type{
                         &::before{

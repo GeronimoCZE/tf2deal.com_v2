@@ -238,7 +238,7 @@ a{
         font-size: 17px;
         font-weight: bold;
         letter-spacing: 0.1rem;
-        border: 1px solid rgb(27, 131, 45);
+        border: 1px solid var(--line);
         border-top: none;
         transition: 350ms;
         animation: tradeAlertIn 500ms ease-in-out forwards;
@@ -510,9 +510,9 @@ span.lang{
         min-height: 5rem;
         border-radius: 5px;
         padding: .5rem;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        box-shadow: none;
         background: rgb(40, 25, 82);
-                border: 2px solid rgba(63, 42, 119, 0.575);
+                border: 2px solid var(--line);
         overflow: hidden;
         position: fixed;
         z-index: 3;
@@ -769,6 +769,7 @@ span.lang{
 @import './partials/trade_states';
 @import './partials/item_filters';
 @import './partials/notifications';
+@import './partials/seasons';
 
 #openChat {
     position: fixed;
@@ -884,7 +885,7 @@ span.lang{
                         padding: .3rem .5rem;
                         background: rgb(10, 10, 10);
                         border-radius: 5px;
-                        border: 2px solid rgb(70, 70, 70);
+                        border: 1px solid var(--line);
                         font-size: 16px !important;
                         transition: 250ms ease;
                         cursor: pointer;
@@ -965,7 +966,7 @@ span.lang{
                         width: calc(100% - 1rem - 4px);
                         padding: .5rem;
                         background: rgb(22, 22, 22);
-                        border: 2px solid rgb(70, 70, 70);
+                        border: 1px solid var(--line);
                         border-radius: 5px;
                         color: rgb(224, 224, 224);
                         font-size: 16px !important;
@@ -1106,7 +1107,7 @@ span.lang{
         margin: 2rem 0 1rem 1rem;
         color: rgba(255, 255, 255, 0.734);
         background: rgb(28, 28, 28);
-        border: 1px solid rgb(44, 44, 44);
+        border: 1px solid var(--line);
         width: fit-content;
         cursor: pointer;
         transition: 200ms;
@@ -1201,7 +1202,7 @@ span.lang{
                     min-width: 5rem;
                     height: 2rem;
                     padding: .3rem;
-                    border-right: 2px solid rgba(128, 128, 128, 0.541);
+                    border-right: 1px solid var(--line);
                     &:last-of-type{
                         border-right: none;
                     }

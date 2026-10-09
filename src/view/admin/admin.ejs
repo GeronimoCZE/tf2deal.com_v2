@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="<%= html_lang %>">
     <%- include('../partials/head.ejs') %>
-    <body>
+    <body class="<%= info?.season %>">
         <%- include('../partials/nav.ejs') %>
         <main>
             <div class="page-section admin">
@@ -63,7 +63,7 @@
                 </div>
             </div>
         </main>
-        <script src="/js/admin.js?v=1.4.1"></script>
+        <script src="/js/admin.js?v=1.5.0"></script>
         <%- include('../partials/footer.ejs') %>
     </body>
 </html>

@@ -15,6 +15,7 @@ import { setting_model } from '../model/SiteSetting.js'
 const INDEX = () => String(process.env.STEAM_GROUP_ID || '0')
 
 const LEVELS = ['info', 'warning', 'danger']
+const SEASON_CHOICES = ['auto', 'off', 'summer', 'halloween', 'smissmas'] // see service/season.js
 const MAX_BLACKLIST = 2000
 const MAX_EXTRA_BYTES = 16 * 1024
 
@@ -25,6 +26,7 @@ const DEFAULTS = {
   item_blacklist: [],
   announcement: { enabled: false, text: '', level: 'info' },
   reviews: { enabled: true, trustpilot_url: 'https://www.trustpilot.com/review/tf2deal.com' },
+  season: 'auto',
   extra: {}
 }
 
@@ -51,6 +53,7 @@ const normalize = (doc = {}) => {
       enabled: is_object(doc.reviews) ? doc.reviews.enabled !== false : DEFAULTS.reviews.enabled,
       trustpilot_url: is_object(doc.reviews) && typeof doc.reviews.trustpilot_url == 'string' ? doc.reviews.trustpilot_url : DEFAULTS.reviews.trustpilot_url
     },
+    season: SEASON_CHOICES.includes(doc.season) ? doc.season : 'auto',
     extra: is_object(doc.extra) ? doc.extra : {},
     version: Number(doc.version) || 0,
     updated: Number(doc.updated) || 0,
@@ -127,7 +130,7 @@ export const check = (patch, base = current) => {
 
   if(!is_object(patch)){ return { value: null, errors: ['The update must be an object, e.g. { "trading_state": 0 }.'] } }
 
-  const allowed = ['trading_state', 'min_item_key', 'max_item_key', 'item_blacklist', 'announcement', 'reviews', 'extra']
+  const allowed = ['trading_state', 'min_item_key', 'max_item_key', 'item_blacklist', 'announcement', 'reviews', 'season', 'extra']
   const unknown = Object.keys(patch).filter((k) => !allowed.includes(k))
   if(unknown.length){ errors.push(`Unknown setting${unknown.length > 1 ? 's' : ''}: ${unknown.join(', ')}. Put your own values under "extra".`) }
 
@@ -199,6 +202,11 @@ export const check = (patch, base = current) => {
     }
   }
 
+  if('season' in patch){
+    if(SEASON_CHOICES.includes(patch.season)){ next.season = patch.season }
+    else { errors.push(`season must be one of: ${SEASON_CHOICES.join(', ')}.`) }
+  }
+
   if('extra' in patch){
     const v = patch.extra
     if(!is_object(v)){
@@ -217,7 +225,7 @@ export const check = (patch, base = current) => {
   return { value: errors.length ? null : next, errors }
 }
 
-const changed_keys = (a, b) => ['trading_state', 'min_item_key', 'max_item_key', 'item_blacklist', 'announcement', 'reviews', 'extra']
+const changed_keys = (a, b) => ['trading_state', 'min_item_key', 'max_item_key', 'item_blacklist', 'announcement', 'reviews', 'season', 'extra']
   .filter((k) => JSON.stringify(a[k]) !== JSON.stringify(b[k]))
 
 /* ========================= SAVING ========================= */

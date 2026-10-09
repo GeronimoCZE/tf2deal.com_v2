@@ -53,7 +53,7 @@
         }
         &[data-state="online"]{
             color: #8fd88a;
-            i{ background: #4cd964; box-shadow: 0 0 0 0 rgba(76, 217, 100, .6); animation: adminPulse 2s infinite; }
+            i{ background: #4cd964; }
         }
         &[data-state="offline"]{
             color: #f0958b;
@@ -153,6 +153,7 @@
         background: rgba(124, 108, 255, .22);
         color: var(--ink);
         font-size: 12px; font-weight: 700;
+        &[hidden]{ display: none; } // no open tickets
     }
     .admin-pill{
         display: inline-flex; align-items: center; gap: .4rem;
@@ -215,7 +216,7 @@
                 position: absolute; top: 3px; left: 3px;
                 width: 18px; height: 18px; border-radius: 50%;
                 background: #fff;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+                box-shadow: none;
                 transition: transform 180ms ease;
             }
         }
@@ -311,7 +312,7 @@
         strong{ font-family: var(--font-heading); font-size: 1.7rem; color: var(--ink); line-height: 1.2; }
         .sub{ font-size: 13px; color: var(--ink-3); }
     }
-    a.admin-stat:hover{ border-color: rgba(124, 108, 255, .45); transform: translateY(-1px); }
+    a.admin-stat:hover{ border-color: var(--line-strong); transform: translateY(-1px); }
 
     .admin-rows{
         list-style: none;
@@ -322,7 +323,7 @@
             justify-content: space-between;
             gap: 1rem;
             padding: .6rem 0;
-            border-bottom: 1px solid rgba(124, 108, 255, .1);
+            border-bottom: 1px solid var(--line);
             &:last-child{ border-bottom: none; }
             strong{ color: var(--ink); }
         }
@@ -370,7 +371,9 @@
             &.lvl-info[aria-checked="true"]{ background: #3b5bdb; }
             &.lvl-warning[aria-checked="true"]{ background: #b7791f; }
             &.lvl-danger[aria-checked="true"]{ background: #c0392b; }
+            &[data-season][aria-checked="true"]{ background: var(--brand); }
         }
+        &.wrap{ flex-wrap: wrap; }
     }
     .admin-banner-preview{
         margin: 0;
@@ -438,7 +441,7 @@
             align-items: center;
             gap: .6rem;
             padding: .55rem 0;
-            border-bottom: 1px solid rgba(124, 108, 255, .1);
+            border-bottom: 1px solid var(--line);
             &:last-child{ border-bottom: none; }
             &.admin-empty{ display: block; }
         }
@@ -460,7 +463,7 @@
             padding: .65rem .8rem;
             text-align: left;
             border: none;
-            border-bottom: 1px solid rgba(124, 108, 255, .1);
+            border-bottom: 1px solid var(--line);
             vertical-align: middle;
         }
         th{
@@ -542,7 +545,7 @@
             gap: 1rem;
             align-items: center;
             padding: 1rem;
-            border: 1px solid rgba(124, 108, 255, .45);
+            border: 1px solid var(--line);
             border-radius: var(--r-lg);
             background: rgba(124, 108, 255, .08);
             img{ width: 6rem; height: 6rem; object-fit: contain; }
@@ -553,7 +556,7 @@
         .admin-note{
             margin: .6rem 0;
             padding: .6rem .9rem;
-            border-left: 3px solid var(--violet);
+            border-left: 1px solid var(--line);
             background: rgba(124, 108, 255, .1);
             border-radius: var(--r-sm);
         }
@@ -564,11 +567,6 @@
 }
 
 @keyframes adminSpin { to { transform: rotate(360deg); } }
-@keyframes adminPulse {
-    0% { box-shadow: 0 0 0 0 rgba(76, 217, 100, .55); }
-    70% { box-shadow: 0 0 0 7px rgba(76, 217, 100, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(76, 217, 100, 0); }
-}
 
 // old stock tables (view/admin/dev.ejs)
 .admin{

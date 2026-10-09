@@ -11,7 +11,7 @@
     box-sizing: border-box !important;
     width: calc(100% - 2rem);
     border-radius: var(--r-md);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--line);
     background: rgba(59, 91, 219, 0.18);
     color: var(--ink);
     font-size: .95rem;
@@ -27,12 +27,12 @@
         background: #7d9bff;
     }
     &.level-warning{
-        border-color: rgba(240, 163, 44, 0.45);
+        border-color: var(--line);
         background: rgba(240, 163, 44, 0.14);
         .site-announcement-dot{ background: #f3b54d; }
     }
     &.level-danger{
-        border-color: rgba(224, 96, 79, 0.5);
+        border-color: var(--line);
         background: rgba(224, 96, 79, 0.16);
         .site-announcement-dot{ background: #f08277; }
     }

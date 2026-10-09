@@ -500,6 +500,21 @@
       "ticket_reply_title": "Le support a répondu",
       "ticket_reply": "Votre ticket de support a reçu une nouvelle réponse.",
       "announcement_title": "Annonce"
+    },
+    "buy_link": {
+      "buy_title": "Acheter cet objet",
+      "pick_title": "Choisissez votre objet",
+      "pick": "Ce lien correspond à {count} objets. Choisissez celui que vous voulez.",
+      "gone_title": "Objet indisponible",
+      "gone": "Nos bots n'ont plus cet objet. Il vient peut-être d'être vendu.",
+      "browse": "Voir les objets",
+      "close": "Fermer",
+      "request": "Demander l'échange",
+      "sending": "Envoi…",
+      "sign_in": "Se connecter via Steam",
+      "sign_in_note": "Connectez-vous pour acheter cet objet. Vous reviendrez ensuite sur cette page.",
+      "note": "Notre bot vous envoie une offre d'échange Steam pour cet objet. Vérifiez-la avant de l'accepter.",
+      "from_bot": "De {name}"
     }
   },
   "items": {
@@ -695,7 +710,9 @@
     "ticket_close_failed": "Impossible de fermer le ticket.",
     "trading_paused": "Les échanges sont en pause pour le moment. Réessayez dans un instant.",
     "item_blacklisted": "{name} ne peut pas être échangé pour le moment.",
-    "account_blocked": "Votre compte ne peut pas créer d'échanges. Ouvrez un ticket au support si vous pensez que c'est une erreur."
+    "account_blocked": "Votre compte ne peut pas créer d'échanges. Ouvrez un ticket au support si vous pensez que c'est une erreur.",
+    "buy_link_gone": "Cet objet n'est plus en stock.",
+    "buy_link_pick": "Choisissez d'abord l'objet que vous voulez."
   },
   "cookies": {
     "banner_title": "Cookies sur TF2Deal.com",

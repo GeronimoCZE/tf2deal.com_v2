@@ -7,7 +7,7 @@
   background: radial-gradient(circle, rgba(7,8,8,1) 80%, rgba(49,40,200,1) 100%) !important;
   border: 1px solid;
   border-bottom: none;
-  border-color: rgba(49,40,200,1) !important;
+  border-color: var(--line) !important;
   @include lt-sm{
     width: 90% !important;
     border-radius: 5px !important;
@@ -40,7 +40,7 @@
     input{
       background: rgb(203, 203, 203);
       color: #1f1f1f;
-      border-color: #fff !important;
+      border-color: var(--line) !important;
     }
   }
   .iziToast-buttons{
@@ -50,7 +50,7 @@
     button{
       background: rgb(203, 203, 203);
       color: #1f1f1f;
-      border-color: #fff !important;
+      border-color: var(--line) !important;
     }
     span{
       font-weight: bold;
@@ -95,7 +95,7 @@
       width: 90%;
     }
     background-color: #2e2e2e;
-    border: 1px solid grey;
+    border: 1px solid var(--line);
     max-height: 100vh;
     padding: 12px;
     border-radius: 4px;
@@ -260,7 +260,7 @@
             font-size: 1.2rem;
             padding: .75rem;
             border-radius: 5px;
-            border: 1px solid rgb(49, 183, 49);
+            border: 1px solid var(--line);
             &:disabled{
               cursor: default;
               opacity: .6;
@@ -488,7 +488,7 @@
         }
       }
       .modal__container{
-        border: 2px solid #272727 !important;
+        border: 1px solid var(--line) !important;
 
         .trade-header{
           background: rgb(6, 100, 6);
@@ -504,7 +504,7 @@
         }
       }
       .modal__container{
-        border: 2px solid #272727 !important;
+        border: 1px solid var(--line) !important;
 
         .trade-header{
           background: rgb(134, 29, 11);

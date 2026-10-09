@@ -109,7 +109,7 @@
                 display: block;
                 position: relative;
                 background: rgba(124, 108, 255, 0.08);
-                border: 2px solid rgba(124, 108, 255, 0.14);
+                border: 1px solid var(--line);
                 border-radius: 5px;
                 cursor: default;
                 transition: 150ms ease-in-out;
@@ -140,9 +140,9 @@
                 display: block;
                 position: relative;
                 background: rgba(124, 108, 255, 0.08);
-                border: 2px solid rgba(124, 108, 255, 0.14);
+                border: 2px solid var(--line);
                 border-radius: 5px;
-                border-bottom: 2px solid black;
+                border-bottom: 2px solid var(--line);
                 cursor: default;
                 background-size: contain;
                 background-repeat: no-repeat;
@@ -182,7 +182,7 @@
                 }
                 &.c-0{
                     border-style: dashed !important;
-                    border-bottom: 2px solid black !important;
+                    border-bottom: 2px solid var(--line) !important;
                 }
                 &[class*="hdn"]{
                     display: none;
@@ -240,7 +240,7 @@
                 &[class*="in-trade"]{
                     cursor: default;
                     opacity: .65;
-                    border: 2px solid #a751f2 !important;
+                    border: 2px solid var(--line-strong) !important;
                 }
             }}
             }

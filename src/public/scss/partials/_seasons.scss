@@ -1,0 +1,100 @@
+/* ---------- seasonal look during TF2 events (service/season.js puts season-* on <body>) ---------- */
+// Outside an event there is no class and the site keeps its normal look.
+// Each season swaps the home picture, the page background and the accent colours, and main.js swaps
+// the falling snow for summer dust or Halloween ash.
+
+body.season-summer{
+    --hero-color: url("/img/seasons/summer.webp");
+    --brand: #c4621d;                       // TF2 orange
+    --brand-hover: #d8722a;
+    --brand-muted: rgba(150, 78, 28, 0.55);
+    --brand-muted-hover: rgba(150, 78, 28, 0.85);
+    --violet: #f2b45a;                      // links: warm sand
+    --violet-2: #e0954a;
+    --surface: rgba(28, 20, 16, 0.8);
+    --surface-2: rgba(242, 180, 90, 0.06);
+    --surface-3: rgba(242, 180, 90, 0.12);
+    --tile: rgba(70, 48, 30, 0.55);
+    --tile-hover: rgba(92, 62, 38, 0.75);
+    --bar-chip: rgb(140, 66, 18);           // filter bars
+    --bar-chip-strong: rgb(112, 52, 14);
+    --bar-drop: rgb(46, 26, 14);
+    background: linear-gradient(-30deg, rgb(120, 58, 20), rgb(30, 36, 58), rgb(58, 34, 22));
+    background-size: 400% 400%;
+
+    .home-ps-3 .images{
+        img{ display: none; }                // the snowy tree
+        .snow-bottom{ background: rgb(214, 178, 122); } // sand instead of snow
+    }
+}
+
+body.season-halloween{
+    --hero-color: url("/img/seasons/halloween.webp");
+    --brand: #6a2fa3;                       // Scream Fortress purple
+    --brand-hover: #7b3bb8;
+    --brand-muted: rgba(80, 30, 110, 0.6);
+    --brand-muted-hover: rgba(80, 30, 110, 0.9);
+    --violet: #9fe07a;                      // links: haunted green
+    --violet-2: #f08a3c;                    // pumpkin orange
+    --surface: rgba(18, 10, 28, 0.82);
+    --surface-2: rgba(160, 90, 220, 0.06);
+    --surface-3: rgba(160, 90, 220, 0.12);
+    --tile: rgba(48, 26, 70, 0.55);
+    --tile-hover: rgba(64, 34, 92, 0.75);
+    --bar-chip: rgb(78, 32, 122);
+    --bar-chip-strong: rgb(62, 24, 100);
+    --bar-drop: rgb(30, 12, 46);
+    background: linear-gradient(-30deg, rgb(70, 18, 96), rgb(14, 8, 26), rgb(66, 26, 8));
+    background-size: 400% 400%;
+
+    .home-ps-3 .images{
+        img{ display: none; }
+        .snow-bottom{ background: rgb(32, 20, 44); } // dark ground
+    }
+}
+
+body.season-smissmas{
+    // the normal look is already the snowy cabin; Smissmas only adds the red and green
+    --brand: #b0302f;
+    --brand-hover: #c23b39;
+    --brand-muted: rgba(120, 30, 34, 0.6);
+    --brand-muted-hover: rgba(120, 30, 34, 0.9);
+    --violet: #8fd18a;
+    --violet-2: #e05a55;
+    --bar-chip: rgb(132, 30, 32);
+    --bar-chip-strong: rgb(108, 22, 26);
+    --bar-drop: rgb(46, 10, 14);
+}
+
+// menu bar, its dropdowns, sign-in button and footer follow the season (Smissmas keeps the normal navy)
+body.season-summer{ --season-bar: rgb(30, 21, 15); --nav-card: linear-gradient(180deg, rgb(46, 31, 21) 0%, rgb(30, 21, 15) 100%); }
+body.season-halloween{ --season-bar: rgb(17, 9, 26); --nav-card: linear-gradient(180deg, rgb(32, 16, 48) 0%, rgb(17, 9, 26) 100%); }
+body.season-summer, body.season-halloween{
+    header .nav-wrapper{ background: var(--season-bar) !important; }
+    footer{ background-color: var(--season-bar) !important; }
+    .nav-signin, .login-request a[href="/auth/steam"]{ background: var(--brand-muted) !important; }
+}
+
+// the few spots that still carry the normal blue-violet tint
+body.season-summer{ --tint-rgb: 242, 150, 70; }
+body.season-halloween{ --tint-rgb: 176, 104, 232; }
+body.season-summer, body.season-halloween{
+    #site-nav{
+        .nav-bell, .nav-search-btn, .toggleButton{
+            background: rgba(var(--tint-rgb), 0.1);
+            &:hover{ background: rgba(var(--tint-rgb), 0.2); }
+        }
+        .lang-option.active{ background: rgba(var(--tint-rgb), 0.3) !important; }
+        .section-devider{ background: rgba(var(--tint-rgb), 0.16) !important; }
+    }
+    .user-avatar{
+        background: var(--brand-muted) !important;
+        &:hover, &.open{ background: var(--brand-muted-hover) !important; }
+    }
+    .giveaway-ps{
+        .gw-showcase{ background: radial-gradient(circle at 50% 45%, rgba(var(--tint-rgb), 0.16), rgba(var(--tint-rgb), 0.03) 65%); }
+        .gw-live, .gw-units > div, .requirements li{ background: rgba(0, 0, 0, 0.3); }
+    }
+    .admin-stat{ background: linear-gradient(160deg, rgba(var(--tint-rgb), 0.12), rgba(var(--tint-rgb), 0.03)); }
+    button.send-btn{ background: var(--brand-muted) !important; }
+}

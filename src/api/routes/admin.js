@@ -13,6 +13,7 @@ import { LANGS, LANG_NAMES } from '../../i18n.js';
 import { trade_model } from '../../model/Trade.js';
 import { rating_model } from '../../model/Rating.js';
 import * as settings from '../../service/settings.js';
+import * as season from '../../service/season.js';
 import * as notifications from '../../service/notifications.js';
 import { notification_model } from '../../model/Notification.js';
 import { clients as settings_clients } from '../../service/settings_socket.js';
@@ -323,7 +324,8 @@ router.get('/settings', (req, res) => {
     settings: settings.get(),
     public: settings.public_view(),
     socket: { namespace: '/settings', token: settings.admin_token(req.user.steamid) },
-    clients: settings_clients()
+    clients: settings_clients(),
+    season: season.status()
   });
 });
 
