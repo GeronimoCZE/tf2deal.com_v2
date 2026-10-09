@@ -21,6 +21,7 @@ import {router as itemApi} from './routes/items.js'
 import {router as adminApi} from './routes/admin.js'
 import * as settings from '../service/settings.js'
 import * as notifications from '../service/notifications.js'
+import * as buy_link from '../service/buy_link.js'
 import UserModel from '../model/User.js'
 import { log } from 'console';
 
@@ -219,7 +220,22 @@ router.post('/create_trade', mw.isLogged, trade_limiter, async (req, res) => {
   if(!settings.trading_enabled()){
     return res.status(503).json({ success: 0, status: "error", message: req.__('api.trading_paused') })
   }
-  const blacklisted = [...(Array.isArray(User?.items) ? User.items : []), ...(Array.isArray(Site?.items) ? Site.items : [])]
+
+  // direct buy link (/buy/<assetid>, service/buy_link.js): the item is looked up here again, so the bot server
+  // gets the exact copy (assetid + bot + bp_sku) the visitor picked, and only one that is still in stock
+  let site_data = Site
+  const linked = []
+  if(single_item === true){
+    const picked = await buy_link.pick(Site?.assetid, Site?.bot, Site?.bp_sku)
+    if(!picked.copy){
+      return res.status(409).json({ success: 0, status: "error", message: req.__(picked.error == 'pick' ? 'api.buy_link_pick' : 'api.buy_link_gone') })
+    }
+    const { assetid, bot, bp_sku, ks, festivized } = picked.copy
+    site_data = { assetid, hash: Site?.hash, bot, bp_sku, ks, f: festivized ? 1 : 0 }
+    linked.push({ bp_sku })
+  }
+
+  const blacklisted = [...(Array.isArray(User?.items) ? User.items : []), ...(Array.isArray(Site?.items) ? Site.items : []), ...linked]
     .find((item) => settings.is_blacklisted(item?.bp_sku))
   if(blacklisted){
     return res.status(400).json({ success: 0, status: "error", message: req.__('api.item_blacklisted', { name: blacklisted.bp_sku }) })
@@ -247,7 +263,7 @@ router.post('/create_trade', mw.isLogged, trade_limiter, async (req, res) => {
         const data = {
           pass: process.env.PASSWORD,
           admin_password: process.env.ADMIN_PASSWORD,
-          data: { User: User, Site: Site, partner_steamid: String(req.user.steamid), tradeurl: tradeURL, single_item: single_item === true }
+          data: { User: User, Site: site_data, partner_steamid: String(req.user.steamid), tradeurl: tradeURL, single_item: single_item === true }
         }
   
         console.log('sending trade request to bot server', data.data)

@@ -587,7 +587,7 @@ app.get('/', mw.curPath, router.home);
 app.get('/trade', mw.curPath, router.trade);
 app.get('/items', mw.curPath, router.items);
 app.get('/items/:item', mw.curPath, router.item_page);
-app.get('/buy/:itemid', mw.curPath, router.home);
+app.get('/buy/:itemid', mw.curPath, router.buy_link);
 
 app.get('/giveaway', mw.curPath, router.giveaway);
 app.get('/blog', mw.curPath, router.blog);

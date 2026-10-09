@@ -500,6 +500,21 @@
       "ticket_reply_title": "Podpora odpověděla",
       "ticket_reply": "Ve vašem tiketu je nová odpověď.",
       "announcement_title": "Oznámení"
+    },
+    "buy_link": {
+      "buy_title": "Koupit tento předmět",
+      "pick_title": "Vyberte předmět",
+      "pick": "Tomuto odkazu odpovídá více předmětů ({count}). Vyberte ten, který chcete.",
+      "gone_title": "Předmět není dostupný",
+      "gone": "Tento předmět už naši boti nemají. Možná byl právě prodán.",
+      "browse": "Procházet předměty",
+      "close": "Zavřít",
+      "request": "Požádat o výměnu",
+      "sending": "Odesílám…",
+      "sign_in": "Přihlásit se přes Steam",
+      "sign_in_note": "Pro nákup se přihlaste. Potom se vrátíte na tuto stránku.",
+      "note": "Náš bot vám pošle nabídku výměny na Steamu. Před přijetím ji zkontrolujte.",
+      "from_bot": "Od {name}"
     }
   },
   "items": {
@@ -695,7 +710,9 @@
     "ticket_close_failed": "Tiket se nepodařilo uzavřít.",
     "trading_paused": "Obchodování je momentálně pozastavené. Zkuste to prosím za chvíli.",
     "item_blacklisted": "{name} teď nelze obchodovat.",
-    "account_blocked": "Váš účet nemůže vytvářet obchody. Pokud jde podle vás o chybu, otevřete tiket na podpoře."
+    "account_blocked": "Váš účet nemůže vytvářet obchody. Pokud jde podle vás o chybu, otevřete tiket na podpoře.",
+    "buy_link_gone": "Tento předmět už není skladem.",
+    "buy_link_pick": "Nejdřív vyberte, který předmět chcete."
   },
   "cookies": {
     "banner_title": "Cookies na TF2Deal.com",

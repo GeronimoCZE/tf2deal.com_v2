@@ -500,6 +500,21 @@
       "ticket_reply_title": "客服已回复",
       "ticket_reply": "你的客服工单有新回复。",
       "announcement_title": "公告"
+    },
+    "buy_link": {
+      "buy_title": "购买此物品",
+      "pick_title": "选择你的物品",
+      "pick": "此链接对应 {count} 个物品，请选择你想要的那个。",
+      "gone_title": "物品不可用",
+      "gone": "我们的机器人已没有此物品，可能刚刚被售出。",
+      "browse": "浏览物品",
+      "close": "关闭",
+      "request": "请求交易",
+      "sending": "发送中…",
+      "sign_in": "通过 Steam 登录",
+      "sign_in_note": "登录后即可购买此物品，登录后会回到此页面。",
+      "note": "我们的机器人会向你发送此物品的 Steam 交易报价，接受前请先核对。",
+      "from_bot": "来自 {name}"
     }
   },
   "items": {
@@ -695,7 +710,9 @@
     "ticket_close_failed": "关闭工单失败。",
     "trading_paused": "交易目前已暂停，请稍后再试。",
     "item_blacklisted": "{name} 目前无法交易。",
-    "account_blocked": "您的账户无法创建交易。如果您认为这是错误，请提交支持工单。"
+    "account_blocked": "您的账户无法创建交易。如果您认为这是错误，请提交支持工单。",
+    "buy_link_gone": "此物品已无库存。",
+    "buy_link_pick": "请先选择你想要的物品。"
   },
   "cookies": {
     "banner_title": "TF2Deal.com 上的 Cookie",
