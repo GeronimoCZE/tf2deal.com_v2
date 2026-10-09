@@ -39,7 +39,7 @@ $highlight-color: rgba(124, 108, 255, 0.16);
             text-decoration: none;
             color: var(--ink-2);
             background: var(--brand-muted);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--line);
             transition: background 150ms;
             &:hover{
                 color: var(--ink);
@@ -449,7 +449,6 @@ $highlight-color: rgba(124, 108, 255, 0.16);
             background: var(--surface-2);
             border: 1px solid var(--line);
             border-radius: var(--r-md);
-            &.won{ border-color: rgba(237, 179, 65, 0.6); }
             img{
                 width: 4.5rem;
                 height: 4.5rem;
@@ -497,7 +496,6 @@ $highlight-color: rgba(124, 108, 255, 0.16);
             background: var(--surface-2);
             border: 1px solid var(--line);
             border-radius: var(--r-md);
-            &.answered{ border-color: rgba(46, 168, 38, 0.5); }
             &.closed{ opacity: .75; }
         }
         .ticket-head{

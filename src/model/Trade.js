@@ -13,5 +13,6 @@ const Trade = mongoose.Schema({
 })
 
 Trade.index({ partnerSteamID: 1, timestamp: -1 });
+Trade.index({ timestamp: -1 }); // latest trades and the "trades today" count
 
 export const trade_model = mongoose.model('trades', Trade);

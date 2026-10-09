@@ -29,6 +29,7 @@
     --surface-2: rgba(124, 108, 255, 0.07); // rows / wells inside a panel
     --surface-3: rgba(124, 108, 255, 0.13); // hover
     --line: rgba(255, 255, 255, 0.07);
+    --line-strong: rgba(255, 255, 255, 0.18);  // hover / focus / selected: same border, just lighter
     // item tiles (item cards, inventory slots)
     --tile: rgba(36, 42, 100, 0.55);
     --tile-hover: rgba(46, 52, 122, 0.75);
@@ -38,6 +39,9 @@
     --brand-hover: #5d45ef;
     --brand-muted: rgba(63, 42, 119, 0.58); // secondary buttons, chips
     --brand-muted-hover: rgba(63, 42, 119, 0.9);
+    --bar-chip: rgb(56, 35, 173);           // filter bars: chips on the --brand bar, and their dropdowns
+    --bar-chip-strong: rgb(43, 26, 140);
+    --bar-drop: #1f0c46;
     --violet: #b88ef7;                      // links
     --violet-2: #9d4ed6;                    // small accents (FAQ chevrons, footer headings)
     --green: rgb(46, 168, 38);              // trade / buy
@@ -152,6 +156,6 @@
     }
     &:focus{
         border-color: var(--brand-hover);
-        box-shadow: 0 0 0 3px rgba(79, 53, 229, 0.3);
+        box-shadow: none;
     }
 }

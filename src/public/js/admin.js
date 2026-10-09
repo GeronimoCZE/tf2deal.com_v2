@@ -300,7 +300,7 @@
     const pill = (ok, yes = 'Online', no = 'Offline') => `<span class="admin-pill ${ok ? 'ok' : 'bad'}"><i></i>${ok ? yes : no}</span>`
     const by_label = (by) => by ? (by.kind == 'admin' ? 'Admin panel' : esc(by.name || 'app')) : 'unknown'
     const parse_by = (text) => { const [kind, ...rest] = String(text || '').split(':'); return text ? { kind, name: rest.join(':') } : null }
-    const SETTING_NAMES = { trading_state: 'Trading', min_item_key: 'Min. price', max_item_key: 'Max. price', item_blacklist: 'Blacklist', announcement: 'Banner', reviews: 'Ratings', extra: 'App values' }
+    const SETTING_NAMES = { trading_state: 'Trading', min_item_key: 'Min. price', max_item_key: 'Max. price', item_blacklist: 'Blacklist', announcement: 'Banner', reviews: 'Ratings', season: 'Season', extra: 'App values' }
 
     /* ========================= LIVE SETTINGS (socket /settings) ========================= */
 
@@ -444,6 +444,7 @@
     /* ========================= SETTINGS ========================= */
 
     const LEVELS = [['info', 'Info'], ['warning', 'Warning'], ['danger', 'Important']]
+    const SEASON_CHOICES = [['auto', 'Auto'], ['off', 'Off'], ['summer', 'Summer'], ['halloween', 'Scream Fortress'], ['smissmas', 'Smissmas']]
 
     const settings_section = async (root) => {
         if(!live.settings){
@@ -500,6 +501,15 @@
                     </label>
                     <p class="muted small">Leave it empty to only collect ratings on the site.</p>
                     <div class="admin-card-foot"><span class="admin-dirty">Unsaved changes</span><button type="button" data-discard>Discard</button><button type="button" class="primary" data-save>Save link</button></div>
+                </div>
+
+                <div class="admin-card" data-card="season">
+                    <h3>Seasonal theme</h3>
+                    <p class="muted">During TF2 events the site changes its home picture, background, colours and the falling particles. On Auto the dates come from the TF2 update notes on teamfortress.com, with the usual dates as a fallback.</p>
+                    <div class="admin-segment wrap" id="set-season" role="radiogroup" aria-label="Seasonal theme">
+                        ${SEASON_CHOICES.map(([v, t]) => `<button type="button" role="radio" data-season="${v}">${t}</button>`).join('')}
+                    </div>
+                    <p class="muted small" id="set-season-state"></p>
                 </div>
 
                 <div class="admin-card" data-card="clients">
@@ -598,6 +608,19 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
             $('#set-rev-enabled').checked = v.enabled
             $('#set-rev-url').value = v.trustpilot_url
         }
+        const day = (ms) => new Date(ms).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+        const fill_season = async () => {
+            const choice = live.settings.season || 'auto'
+            root.querySelectorAll('#set-season button').forEach((b) => b.setAttribute('aria-checked', b.dataset.season == choice))
+            const r = await api('/api/admin/settings')
+            const st = r?.season
+            if(!st){ $('#set-season-state').textContent = ''; return }
+            const a = st.active, d = st.detected
+            const now = a.id ? `Now showing: <strong>${esc(a.name)}</strong>${a.ends ? ` until ${day(a.ends)}` : ''} (${esc(a.source)}).` : `Now showing: the normal look${a.source ? ` (${esc(a.source)})` : ''}.`
+            const auto = choice != 'auto' ? ` On Auto it would be ${d.id ? `${esc(d.name)}` : 'the normal look'}.` : ''
+            const src = st.source.ok ? `teamfortress.com read ${ago(st.source.fetched)}.` : st.source.error ? `teamfortress.com could not be read (${esc(st.source.error)}), using the usual dates.` : 'teamfortress.com not read yet.'
+            $('#set-season-state').innerHTML = `${now}${auto} ${src}`
+        }
         const fill_extra = () => {
             $('#set-extra').value = JSON.stringify(live.settings.extra || {}, null, 2)
             $('#set-extra-error').hidden = true
@@ -616,8 +639,8 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
                 : live.log.map((l) => `<li><span class="muted">${when(l.time)}</span><span>${by_label(l.by)}</span><span>${l.changed ? l.changed.map((k) => `<span class="admin-tag">${SETTING_NAMES[k] || esc(k)}</span>`).join(' ') : '<span class="muted">last saved change</span>'}</span></li>`).join('')
         }
 
-        const FILL = { trading: fill_trading, announcement: fill_announcement, limits: fill_limits, reviews: fill_reviews, blacklist: fill_blacklist, extra: fill_extra }
-        const KEYS = { trading: ['trading_state'], announcement: ['announcement'], limits: ['min_item_key', 'max_item_key'], reviews: ['reviews'], blacklist: ['item_blacklist'], extra: ['extra'] }
+        const FILL = { trading: fill_trading, announcement: fill_announcement, limits: fill_limits, reviews: fill_reviews, season: fill_season, blacklist: fill_blacklist, extra: fill_extra }
+        const KEYS = { trading: ['trading_state'], announcement: ['announcement'], limits: ['min_item_key', 'max_item_key'], reviews: ['reviews'], season: ['season'], blacklist: ['item_blacklist'], extra: ['extra'] }
         const fill_all = (changed) => {
             for (const [name, fill] of Object.entries(FILL)) {
                 if(changed && !KEYS[name].some((k) => changed.includes(k))){ continue }
@@ -667,6 +690,14 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
         card('reviews').querySelector('[data-save]').addEventListener('click', async () => {
             const r = await save_settings({ reviews: { trustpilot_url: $('#set-rev-url').value.trim() } })
             if(toast(r, 'Trustpilot link saved.')){ mark('reviews', false); fill_reviews() }
+        })
+
+        // seasonal theme
+        $('#set-season').addEventListener('click', async (e) => {
+            const value = e.target.closest('button')?.dataset.season
+            if(!value || value == (live.settings.season || 'auto')){ return }
+            const label = SEASON_CHOICES.find(([v]) => v == value)[1]
+            if(toast(await save_settings({ season: value }), `Seasonal theme: ${label}.`)){ fill_season() }
         })
 
         // blacklist

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="<%= html_lang %>">
     <%- include('../partials/head.ejs') %>
-    <body>
+    <body class="<%= info?.season %>">
         <%- include('../partials/nav.ejs') %>
         
         <main>
@@ -13,8 +13,7 @@
                         margin: 2rem auto 0rem auto !important;
                         background-color: #2c2c2c;
                         padding: 10px;
-                        border: 1px solid #ccc;
-                        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+                        border: 1px solid rgba(255, 255, 255, 0.07);
                     }
                     #widget-box.hidden{
                         display: none;

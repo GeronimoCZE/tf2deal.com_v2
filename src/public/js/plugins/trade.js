@@ -1379,14 +1379,13 @@ const get_removable_ids = (trade, item_el) => {
             box-sizing: border-box;
             text-align: center;
             background: rgba(8, 12, 40, 0.86);
-            border: 1px solid rgba(124, 108, 255, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.18);
             color: #fff;
             font-size: 11px;
             font-weight: 700;
             line-height: 1;
             padding: 3px 6px;
             border-radius: 999px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
             pointer-events: none;
         }
     `;

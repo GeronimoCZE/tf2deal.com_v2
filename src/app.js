@@ -27,10 +27,11 @@ import {router as api} from './api/index.js'
 import {router as profileRoute} from './routes/profile.js'
 
 import { bot_socket, createSocket, item_socket } from './service/socket.js'
+import * as seasons from './service/season.js'
 
 const DOMAIN = 'localhost' 
 const PORT = 8080; // change to 8080
-let season = "winter";
+let season = ''; // body class during a TF2 event, see service/season.js
 
 const app = express()
 const server = http.createServer(app)
@@ -726,30 +727,10 @@ setInterval(async () => {
     bot_socket.socket.emit('get_active_trades')
   }
 
-  const currentMonth = new Date().getMonth();
-
-  // Determine the season
-  if (currentMonth >= 5 && currentMonth <= 7) {
-    season = 'summer'; // June (5) to August (7)
-  } else if (currentMonth >= 9 && currentMonth <= 10) {
-      season = 'halloween'; // October (9) to November (10)
-  } else {
-      season = 'winter'; // December (11) to May (4)
-  }
+  season = seasons.body_class(); // TF2 event look (service/season.js)
 }, 60 * 1000);
 
-setTimeout(() => {
-  const currentMonth = new Date().getMonth();
-
-  // Determine the season
-  if (currentMonth >= 5 && currentMonth <= 7) {
-    season = 'summer'; // June (5) to August (7)
-  } else if (currentMonth >= 9 && currentMonth <= 10) {
-      season = 'halloween'; // October (9) to November (10)
-  } else {
-      season = 'winter'; // December (11) to May (4)
-  }
-}, 5000);
+seasons.start(); // reads this year's TF2 event dates from teamfortress.com
 
 app.use((err, req, res, next) => {
   console.log(err)

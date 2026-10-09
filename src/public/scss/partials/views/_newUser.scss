@@ -22,7 +22,7 @@
             vertical-align: text-top;
             width: fit-content;
             background: rgba(63, 42, 119, 0.575);
-    border: 2px solid rgba(63, 42, 119, 0.575);
+    border: 1px solid var(--line);
             padding: .2rem .6rem;
             border-radius: 10px ;
             max-width: calc(98% - 1.2rem);
@@ -36,7 +36,7 @@
         padding: 1rem;
         max-width: calc(98% - 2rem);
         background: rgba(63, 42, 119, 0.575);
-    border: 2px solid rgba(63, 42, 119, 0.575);
+    border: 1px solid var(--line);
         border-radius: 7px;
         *{
             display: block;
@@ -49,7 +49,7 @@
                 display: inline-block;
                 vertical-align: text-top;
                 background: #3e8306;
-                border: 2px solid #2d5c06;
+                border: 1px solid var(--line);
                 color: rgb(207, 207, 207);
                 font-size: 14px;
                 border-radius: 5px;
@@ -66,7 +66,7 @@
             font-size: 18px;
             margin: 10px 0;
             background: rgba(63, 42, 119, 0.575) !important;
-            border: 2px solid rgba(153, 139, 194, 0.575);
+            border: 1px solid var(--line);
             color: rgb(207, 207, 207);
         }
 
@@ -76,13 +76,13 @@
             margin: 1rem 0 0 auto;
             border-radius: 7px;
             background: rgba(63, 42, 119, 0.575);
-    border: 2px solid rgba(134, 134, 134, 0.575);
+    border: 1px solid var(--line);
             color: rgb(207, 207, 207);
             font-weight: bold;
             transition: .3s ease;
             cursor: pointer;
             &:hover{
-                border-color: rgb(207, 207, 207);
+                border-color: var(--line-strong);
             }
         }
 

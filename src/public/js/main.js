@@ -519,43 +519,45 @@ addEventListener('DOMContentLoaded', (event) => {
         
     })
 
-    if( $("#tsparticles").length ){
-        tsParticles.load("tsparticles", {
-            particles: {
-              color: { value: "#fff" },
-              move: {
-                direction: "bottom",
-                enable: true,
-                outModes: "out",
-                speed: 2
-              },
-              number: {
-                density: {
-                  enable: false,
-                  area: 400
-                },
-                value: 50
-              },
-              opacity: {
-                value: 0.5
-              },
-              shape: {
-                type: "circle"
-              },
-              size: {
-                value: 2
-              },
-              wobble: {
-                enable: true,
-                distance: 10,
-                speed: 10
-              },
-              zIndex: {
-                value: { min: 0, max: 0 }
-              }
-            }
-          });
-    }        
+    // falling snow; during TF2 events (service/season.js) summer gets drifting dust and Scream Fortress rising ash
+    const PARTICLES = {
+        snow: {
+            color: { value: "#fff" },
+            move: { direction: "bottom", enable: true, outModes: "out", speed: 2 },
+            number: { density: { enable: false, area: 400 }, value: 50 },
+            opacity: { value: 0.5 },
+            shape: { type: "circle" },
+            size: { value: 2 },
+            wobble: { enable: true, distance: 10, speed: 10 },
+            zIndex: { value: { min: 0, max: 0 } }
+        },
+        dust: {
+            color: { value: ["#f3d9a8", "#e6c48a", "#fff3dc"] },
+            move: { direction: "right", enable: true, outModes: "out", speed: 0.6, random: true },
+            number: { density: { enable: false, area: 400 }, value: 40 },
+            opacity: { value: 0.35, random: true },
+            shape: { type: "circle" },
+            size: { value: 1.6, random: true },
+            wobble: { enable: true, distance: 6, speed: 4 },
+            zIndex: { value: { min: 0, max: 0 } }
+        },
+        ash: {
+            color: { value: ["#ff8a3d", "#ffb347", "#ff5e2b", "#6b6b6b"] },
+            move: { direction: "top", enable: true, outModes: "out", speed: 1.2, random: true },
+            number: { density: { enable: false, area: 400 }, value: 45 },
+            opacity: { value: 0.6, random: true, animation: { enable: true, speed: 0.8, minimumValue: 0.1, sync: false } },
+            shape: { type: "circle" },
+            size: { value: 2, random: true },
+            wobble: { enable: true, distance: 8, speed: 6 },
+            zIndex: { value: { min: 0, max: 0 } }
+        }
+    }
+    const particle_kind = document.body.classList.contains('season-summer') ? 'dust'
+        : document.body.classList.contains('season-halloween') ? 'ash' : 'snow'
+
+    if( $("#tsparticles").length && typeof tsParticles != 'undefined' ){
+        tsParticles.load("tsparticles", { particles: PARTICLES[particle_kind] });
+    }
 
     if(TD_PATH.startsWith('/items/')){
         $('.nav-links').addClass('Items')

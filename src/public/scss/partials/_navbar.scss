@@ -60,7 +60,7 @@ header{
                 border-color: transparent !important;
 
         animation: pulseBackground 4s ease-in-out infinite;
-        border: 1px solid rgb(46, 162, 31);
+        border: 1px solid var(--line);
         border-left: none;
         border-right: none;
         border-left: none;
@@ -82,7 +82,7 @@ header{
         color: #c9c8c8;
         background: rgb(163, 58, 51);
         background: rgba(48, 153, 80, 0.884);
-        border: 2px solid rgba(22, 82, 25, 0.575);
+        border: 1px solid var(--line);
         border-color: transparent !important;
 
         border-radius: 7px;
@@ -172,7 +172,7 @@ header{
         font-size: 17px;
         color: #c9c8c8;
         background: rgba(63, 42, 119, 0.575);
-        border: 2px solid rgba(63, 42, 119, 0.575);
+        border: 1px solid var(--line);
         border-left: none;
         border-right: none;
         text-align: center;
@@ -197,7 +197,7 @@ header{
         letter-spacing: 0.04rem;
         color: #c9c8c8;
         background: rgb(40, 140, 40);
-        border: 1px solid rgb(16, 115, 16);
+        border: 1px solid var(--line);
         text-align: center;
         animation: lideIn .3s cubic-bezier(0, 0, .2, 1);
         transition: .3s;
@@ -259,7 +259,7 @@ header{
             flex-wrap: wrap;
             max-width: 1480px;
             background: rgb(2, 11, 41);
-            border: 2px solid rgb(2, 11, 41);
+            border: 1px solid var(--line);
             border-top: none !important;
             border-radius: 0 0 1rem 1rem;
             min-height: $nav_height;
@@ -418,9 +418,9 @@ header{
                     transition: 200ms ease-in-out;
                     text-align: left;
                     &.open{
-                        border-top: 1px solid rgb(60, 60, 60);
-                        border-left: 1px solid rgb(60, 60, 60);
-                        border-bottom: 1px solid rgb(60, 60, 60);
+                        border-top: 1px solid var(--line-strong);
+                        border-left: 1px solid var(--line-strong);
+                        border-bottom: 1px solid var(--line-strong);
                         overflow-y: auto;
                         max-width: 300px !important;
                         transform: translate(0);
@@ -451,9 +451,9 @@ header{
                         }
                     }
                     &.open{
-                        border-top: 1px solid rgb(60, 60, 60);
-                        border-left: 1px solid rgb(60, 60, 60);
-                        border-bottom: 1px solid rgb(60, 60, 60);
+                        border-top: 1px solid var(--line-strong);
+                        border-left: 1px solid var(--line-strong);
+                        border-bottom: 1px solid var(--line-strong);
                         overflow-y: auto;
                         max-width: 100% !important;
                         transform: translate(0);
@@ -480,11 +480,11 @@ header{
                     height: 2rem;
                     border-radius: 5px;
                     background: rgba(45, 45, 45, 0.6);
-                    border: 2px solid rgb(46, 46, 46);
+                    border: 1px solid var(--line);
                     cursor: pointer;
                     transition: 220ms;
                     &:hover{
-                        border: 2px solid #5e5d5d;
+                        border: 1px solid var(--line-strong);
                     }
                     @include lt-sm{
                         height: fit-content !important;
@@ -601,9 +601,9 @@ header{
                         right: 0;
                         padding: .2rem 0 0 0;
                         background: rgb(39, 26, 48);
-                        border: 1px solid #170c31;
+                        border: 1px solid var(--line);
                         border-radius: .3rem;
-                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+                        box-shadow: none;
                         overflow: hidden;
                         pointer-events: all;
                         @include lt-sm{
@@ -649,7 +649,7 @@ header{
                 }
                 .site-navigation{
                     @include sm{
-                        border-top: 1px solid grey;
+                        border-top: 1px solid var(--line);
                     }
                     @include lt-md{
                         width: 100%;
@@ -753,9 +753,9 @@ header{
                                 left: 50%;
                                 transform: translateX(-50%);
                                 background: rgb(39, 26, 48);
-                                border: 1px solid #170c31;
+                                border: 1px solid var(--line);
                                 border-radius: .3rem;
-                                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+                                box-shadow: none;
                                 @include lt-sm{
                                     width: 100%;
                                     position: relative;
@@ -828,7 +828,7 @@ header{
                             width: calc(100% - 2rem);
                             padding: 0 1rem;
                             text-align: center;
-                            border-bottom: 1px solid grey;
+                            border-bottom: 1px solid var(--line);
                             border-radius: 0;
                             
                             &[href$="/giveaway"]{
@@ -1063,7 +1063,7 @@ header{
                                 border-radius: .5rem;
                                 pointer-events: all;
                                 background: rgba(63, 42, 119, 0.575);
-    border: 2px solid rgba(63, 42, 119, 0.575);
+    border: 1px solid var(--line);
                                 /* box-shadow: 0 0 3px 1px #563cd3; */
                                 transition: 250ms;
                                 white-space: nowrap;
@@ -1122,8 +1122,8 @@ header{
                                 right: 0;
                                 padding: .2rem 0 0 0;
                                 background: rgb(39, 26, 48);
-                                border: 1px solid #170c31;
-                                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+                                border: 1px solid var(--line);
+                                box-shadow: none;
                                 @include lt-sm{
                                     position: relative;
                                     top: 0;
@@ -1205,7 +1205,7 @@ header{
                                 width: 300px;
                                 padding: 0;
                                 background: rgb(39, 26, 48);
-                                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+                                box-shadow: none;
                                 white-space: nowrap;
                                 @include lt-md{
                                     right: 50%;
@@ -1226,7 +1226,7 @@ header{
                                     .header-nav{
                                         display: flex;
                                         flex-direction: row;
-                                        border: 2px solid rgba(0, 0, 0, 0.631);
+                                        border: 1px solid var(--line);
                                         .header-nav-option{
                                             padding: .4rem 0;
                                             flex: 1;

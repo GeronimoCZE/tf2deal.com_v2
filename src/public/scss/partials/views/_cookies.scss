@@ -17,7 +17,7 @@
     background: rgb(8, 16, 52); // solid: it floats over the page
     border: 1px solid var(--line);
     border-radius: var(--r-lg);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    box-shadow: none;
     color: rgb(214, 214, 214);
     font-size: 15px;
     line-height: 1.45;
@@ -42,7 +42,7 @@
     justify-content: flex-end;
     button{
         padding: .55rem 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--line);
         border-radius: var(--r-md);
         background: var(--brand-muted);
         color: var(--ink);
@@ -54,7 +54,7 @@
         &:hover{ background: var(--brand-muted-hover); }
         &.primary{
             background: var(--brand);
-            border-color: var(--brand);
+            border-color: var(--line);
             color: #fff;
             &:hover{ background: var(--brand-hover); }
         }
@@ -191,7 +191,7 @@
     padding: .45rem .8rem;
     border-radius: var(--r-md);
     background: var(--brand-muted);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--line);
     color: #d6d6d6;
     font-size: 16px;
     &.hidden{ display: none; }
@@ -219,7 +219,7 @@
 .legal-english-note{
     margin: .5rem 0 1rem 0;
     padding: .6rem .9rem;
-    border-left: 3px solid #b88ef7;
+    border-left: 1px solid var(--line);
     border-radius: var(--r-sm);
     background: rgba(63, 42, 119, 0.3);
     color: #d6d6d6;
