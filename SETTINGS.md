@@ -65,6 +65,7 @@ A patch that changes nothing returns `changed: []` and is not broadcast.
   "item_blacklist": ["Team Captain"],
   "announcement": { "enabled": false, "text": "", "level": "info" },
   "reviews": { "enabled": true, "trustpilot_url": "https://www.trustpilot.com/review/tf2deal.com" },
+  "season": "auto",
   "extra": {},
   "version": 12,
   "updated": 1791113400000,
@@ -79,6 +80,7 @@ A patch that changes nothing returns `changed: []` and is not broadcast.
 | `item_blacklist` | a full list `["A", "B"]`, or `{ "add": ["A"], "remove": ["B"] }` | trades containing these items (by `bp_sku`, any case) are refused |
 | `announcement` | any of `{ enabled, text (≤300), level: "info" \| "warning" \| "danger" }` | banner under the menu on every page, updated live |
 | `reviews` | any of `{ enabled, trustpilot_url }` (an `https://` link, or `""`) | the star rating after an accepted trade; 4 and 5 stars get a button to `trustpilot_url` |
+| `season` | `"auto"`, `"off"`, `"summer"`, `"halloween"` or `"smissmas"` | seasonal look; `auto` follows the TF2 events (dates from teamfortress.com, usual dates as a fallback) |
 | `extra` | `{ "key": value }`; `null` removes a key | your own values (≤16 KB), the website ignores them |
 
 `version`, `updated`, `updated_by` are set by the server. Unknown fields are refused, so typos don't go unnoticed.

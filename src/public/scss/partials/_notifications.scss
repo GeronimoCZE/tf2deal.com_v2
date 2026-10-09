@@ -16,7 +16,7 @@ $notif-line: rgba(255, 255, 255, 0.08);
     padding: 0 !important;
     box-sizing: border-box !important;
     border-radius: 12px !important;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--line);
     background: rgba(124, 108, 255, 0.1);
     color: var(--ink);
     cursor: pointer;
@@ -35,7 +35,7 @@ $notif-line: rgba(255, 255, 255, 0.08);
         padding: 0 5px;
         box-sizing: border-box !important;
         border-radius: 999px;
-        border: 2px solid #070d33;
+        border: 2px solid var(--season-bar, #070d33); // cut-out ring in the menu bar colour
         background: #e5484d;
         color: #fff;
         font-size: 11px;
@@ -63,9 +63,9 @@ $notif-line: rgba(255, 255, 255, 0.08);
     flex-direction: column;
     box-sizing: border-box !important;
     border-radius: 14px;
-    border: 1px solid $notif-line;
+    border: 1px solid var(--line);
     background: $notif-bg;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    box-shadow: none;
     overflow: hidden;
     &[hidden]{ display: none; }
     &.is-open{ animation: notifIn 180ms cubic-bezier(.2, .8, .2, 1); }
@@ -76,7 +76,7 @@ $notif-line: rgba(255, 255, 255, 0.08);
         align-items: center;
         justify-content: space-between;
         padding: 14px 16px 10px 16px;
-        border-bottom: 1px solid $notif-line;
+        border-bottom: 1px solid var(--line);
         strong{ font-size: 15px; font-weight: 700; color: var(--ink); }
     }
     .notif-list{

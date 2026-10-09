@@ -74,7 +74,7 @@ $ts-ease: cubic-bezier(.2, .8, .2, 1);
     box-sizing: border-box !important;
     border-radius: 14px;
     background: rgba(124, 108, 255, 0.07);
-    border: 1px solid rgba(124, 108, 255, 0.16);
+    border: 1px solid var(--line);
     text-align: center;
     .rating-q{ margin: 0 0 10px 0; font-weight: 700; font-size: 1rem; color: var(--ink); }
     .rating-hint{ margin: 8px 0 0 0; font-size: 12.5px; color: var(--ink-3); }
@@ -122,13 +122,13 @@ $ts-ease: cubic-bezier(.2, .8, .2, 1);
         box-sizing: border-box !important;
         padding: 10px 12px;
         border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--line);
         background: rgba(2, 8, 30, 0.6);
         color: var(--ink);
         font: inherit;
         font-size: .93rem;
         resize: vertical;
-        &:focus{ outline: none; border-color: rgba(124, 108, 255, 0.6); }
+        &:focus{ outline: none; border-color: var(--brand-hover); }
     }
     .rating-send{ width: 100%; flex: none; box-sizing: border-box !important; }
 }
@@ -159,7 +159,7 @@ body header .trade-offer-bar{
     width: calc(100% - 2rem);
     max-width: 1280px;
     border-radius: var(--r-md, 12px);
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid var(--line) !important;
     background: linear-gradient(135deg, rgba(41, 33, 108, 0.92), rgba(18, 20, 60, 0.92));
     color: var(--ink);
     font-size: 15px;
@@ -189,11 +189,11 @@ body header .trade-offer-bar{
     &:hover{ border-color: rgba(255, 255, 255, 0.18) !important; filter: brightness(1.08); }
     &[data-status="sent"]{
         background: linear-gradient(135deg, rgba(37, 120, 62, 0.92), rgba(24, 74, 44, 0.92));
-        border-color: rgba(63, 191, 87, 0.45) !important;
+        border-color: var(--line) !important;
         &::before{ background: #62d777; }
     }
     &[data-status="waitingApproval"]{
-        border-color: rgba(240, 163, 44, 0.5) !important;
+        border-color: var(--line) !important;
         &::before{ background: #f3b54d; }
     }
 }
@@ -210,9 +210,9 @@ $tt-line: rgba(255, 255, 255, 0.08);
     padding: 0;
     box-sizing: border-box !important;
     border-radius: 6px;
-    border: 1px solid $tt-line !important;
+    border: 1px solid var(--line) !important;
     background: $tt-bg !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    box-shadow: none;
     pointer-events: none;
     > img{ display: none; } // old watermark
     &.show{ animation: tooltipIn 180ms $ts-ease 150ms forwards; }
@@ -291,7 +291,7 @@ $tt-line: rgba(255, 255, 255, 0.08);
                     gap: 12px;
                     padding: 6px 0 !important;
                     border: none !important;
-                    border-top: 1px solid $tt-line !important;
+                    border-top: 1px solid var(--line) !important;
                     background: none !important;
                     .title{ color: var(--ink-3); max-width: 40%; }
                     .value{ color: var(--ink) !important; max-width: 60%; }

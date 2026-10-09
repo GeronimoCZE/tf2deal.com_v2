@@ -13,7 +13,7 @@
         const similarTypes = <%- info.result.sameTypeQuality.length %>
     </script>
     <%- include('./partials/head.ejs') %>
-    <body>
+    <body class="<%= info?.season %>">
         <%- include('./partials/nav.ejs') %>
         
         <div class="main-wrapper">

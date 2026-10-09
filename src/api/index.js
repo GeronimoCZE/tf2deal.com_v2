@@ -76,7 +76,7 @@ router.get('/latest_trades', async (req, res) => {
     if(Date.now() - latest_trades_cache.timestamp < 10 * 1000){
       res.json({trades: latest_trades_cache.data})  
     } else {
-      await trade_model.find({}, { _id: 0, toGive: 1, toReceive: 1, timestamp: 1, key_value: 1 }).sort({timestamp: -1}).limit(3).lean().then((trades) => {
+      await trade_model.find({}, { _id: 0, toGive: 1, toReceive: 1, timestamp: 1, key_value: 1 }).sort({timestamp: -1}).limit(5).lean().then((trades) => {
           latest_trades_cache.data = trades;
           latest_trades_cache.timestamp = Date.now();
           res.json({trades: trades})

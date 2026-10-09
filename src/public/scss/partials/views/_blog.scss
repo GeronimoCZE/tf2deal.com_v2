@@ -24,7 +24,7 @@
         color: var(--ink);
         transition: border-color 200ms;
         &:hover{
-            border-color: rgba(255, 255, 255, 0.18);
+            border-color: var(--line-strong);
             .read-more{ color: #c7a6ff; }
         }
         .cover{
@@ -102,7 +102,7 @@
     }
     blockquote{
         padding: .4rem 1rem;
-        border-left: 4px solid rgba(63, 42, 119, 0.9);
+        border-left: 1px solid var(--line);
         background: rgba(63, 42, 119, 0.2);
     }
 }

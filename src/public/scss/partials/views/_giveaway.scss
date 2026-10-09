@@ -65,7 +65,7 @@
             height: 8px;
             border-radius: 50%;
             background: #4ad66d;
-            box-shadow: 0 0 0 0 rgba(74, 214, 109, 0.6);
+            box-shadow: none;
         }
     }
 
@@ -176,13 +176,13 @@
                 width: 22px;
                 height: 22px;
                 border-radius: 50%;
-                border: 2px solid rgba(255, 255, 255, 0.22);
+                border: 2px solid rgba(255, 255, 255, 0.22); // the empty checkbox circle
                 box-sizing: border-box !important;
             }
             &.met{
                 color: var(--ink);
                 .gw-check{
-                    border-color: #3fb85a;
+                    border-color: var(--line);
                     background: #3fb85a;
                     &::after{
                         content: "";
@@ -191,16 +191,16 @@
                         top: 2px;
                         width: 5px;
                         height: 10px;
-                        border-right: 2px solid #fff;
+                        border-right: 2px solid #fff; // the tick mark itself, not a frame
                         border-bottom: 2px solid #fff;
                         transform: rotate(45deg);
                     }
                 }
             }
             &.unmet{
-                border-color: rgba(229, 72, 77, 0.45);
+                border-color: var(--line);
                 .gw-check{
-                    border-color: #e5484d;
+                    border-color: var(--line);
                     &::before, &::after{
                         content: "";
                         position: absolute;
@@ -226,7 +226,7 @@
         &:disabled{ cursor: default; }
         &.entered{
             background: rgba(63, 184, 90, 0.16);
-            border-color: rgba(63, 184, 90, 0.5);
+            border-color: var(--line);
             color: #8ee0a2;
         }
     }

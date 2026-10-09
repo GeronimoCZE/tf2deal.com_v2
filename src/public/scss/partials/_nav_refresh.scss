@@ -3,16 +3,16 @@
 //   - below 1370px: a floating menu card under the bar, opened with the menu button, with the search button next to it
 // Everything is scoped to #site-nav so it wins over the older nested rules in _navbar.scss.
 
-$nav-card-bg: linear-gradient(180deg, #0f1946 0%, #090f35 100%);
+$nav-card-bg: var(--nav-card, linear-gradient(180deg, #0f1946 0%, #090f35 100%)); // _seasons.scss sets --nav-card during events
 $nav-card-line: rgba(255, 255, 255, 0.08);
 $nav-row-hover: rgba(124, 108, 255, 0.14);
 $nav-ease: cubic-bezier(.2, .8, .2, 1);
 
 @mixin nav-card {
     background: $nav-card-bg;
-    border: 1px solid $nav-card-line;
+    border: 1px solid var(--line);
     border-radius: 14px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    box-shadow: none;
 }
 
 @mixin nav-row {
@@ -132,7 +132,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
             background: rgba(4, 11, 40, 0.92);
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(124, 108, 255, 0.16);
+            border: 1px solid var(--line);
             border-top: none;
         }
         .nav-section.left{
@@ -158,7 +158,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
             margin: 0 !important;
             padding: 0 !important;
             border-radius: 12px !important;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--line);
             background: rgba(124, 108, 255, 0.1);
             color: var(--ink);
             cursor: pointer;
@@ -220,7 +220,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
                 transform: none;
                 pointer-events: all;
                 transition: opacity 180ms ease, transform 220ms $nav-ease, visibility 0s !important;
-                border: 1px solid $nav-card-line !important;
+                border: 1px solid var(--line-strong) !important;
             }
         }
         &.hidden .nav-section.right{ height: auto !important; }
@@ -245,7 +245,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
             margin: 0 0 4px 0 !important;
             padding: 0 14px !important;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid var(--line) !important;
             background: rgba(2, 8, 30, 0.6);
             .search, .key_shortcut{ display: none !important; }
             .icon-search{ order: -1; color: var(--violet); }
@@ -276,7 +276,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
                 &.active{
                     background: rgba(79, 53, 229, 0.28);
                     color: #fff !important;
-                    box-shadow: inset 3px 0 0 var(--violet);
+                    box-shadow: none;
                 }
             }
             // Community opens in place
@@ -296,7 +296,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
                     transform: none !important;
                     background: none;
                     border: none;
-                    border-left: 2px solid rgba(255, 255, 255, 0.08);
+                    border-left: 1px solid var(--line);
                     border-radius: 0;
                     box-shadow: none;
                     animation: none;
@@ -313,7 +313,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
             margin: 6px 0 0 0 !important;
             padding: 8px 0 0 0 !important;
             pointer-events: all !important;
-            border-top: 1px solid rgba(124, 108, 255, 0.16);
+            border-top: 1px solid var(--line);
             .dropdown-container{ display: block !important; height: auto !important; margin: 0 !important; pointer-events: all; }
             .user-avatar{
                 display: flex !important;
@@ -362,7 +362,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
             width: auto !important;
             margin: 6px 0 0 0 !important;
             padding: 8px 0 0 0 !important;
-            border-top: 1px solid rgba(124, 108, 255, 0.16);
+            border-top: 1px solid var(--line);
             pointer-events: all;
             .langSelect{
                 @include nav-row;
@@ -382,7 +382,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
                 margin: 4px 0 0 0;
                 padding: 4px !important;
                 background: rgba(2, 8, 30, 0.45) !important;
-                border: 1px solid rgba(124, 108, 255, 0.14) !important;
+                border: 1px solid var(--line) !important;
                 box-shadow: none !important;
                 border-radius: 12px;
                 .lang-option{ padding: 8px 10px !important; }

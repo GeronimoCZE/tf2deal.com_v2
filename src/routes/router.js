@@ -9,6 +9,7 @@ import { item_model } from '../model/Item.js'
 import { blog_model } from '../model/Blog.js'
 import { giveaway_model } from '../model/Giveaway.js'
 import * as translate from '../service/translate.js'
+import * as stats from '../service/stats.js'
 import { localize_path, LANG_TAGS } from '../i18n.js'
 import { isNumberObject } from 'util/types'
 
@@ -22,14 +23,16 @@ function startsWithBuyAndDigit(str) {
 const home = async (req, res, next) => {
   if(req.path == '/'){
     const fp_data = app.fp_data;
+    const trades_today = await stats.trades_today(fp_data.trades);
 
     if (req.user) {   
       const user_cookie = req.cookies[`td_${req.user.steamid}`]
-      res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', stats: {items: fp_data.items, trades: fp_data.trades, bots: fp_data.bots.length || 0, users: app.users.size} }))
+      res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', stats: {items: fp_data.items, trades: trades_today, bots: fp_data.bots.length || 0, users: app.users.size} }))
     } else {
-      res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', stats: {items: fp_data.items, trades: fp_data.trades, bots: fp_data.bots.length || 0, users: app.users.size} }))
+      res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', stats: {items: fp_data.items, trades: trades_today, bots: fp_data.bots.length || 0, users: app.users.size} }))
     }
   } else if (startsWithBuyAndDigit(req.path)) {
+      const trades_today = await stats.trades_today(app.fp_data.trades);
       if (req.user) {
         const user_cookie = req.cookies[`td_${req.user.steamid}`]
         const itemId = req.path.split('/')[2];
@@ -42,9 +45,9 @@ const home = async (req, res, next) => {
           req.user.hash = { hex: crypto.randomBytes(32).toString('hex'), exp: Date.now() + 12000 }
         }
         
-        res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', create_trade: {assetid: itemId, partner_steamid: String(req.user?.steamid)}, stats: {items: app.fp_data.items, trades: app.fp_data.trades, bots: app.fp_data.bots.length || 0, users: app.users.size} }))
+        res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', create_trade: {assetid: itemId, partner_steamid: String(req.user?.steamid)}, stats: {items: app.fp_data.items, trades: trades_today, bots: app.fp_data.bots.length || 0, users: app.users.size} }))
       } else {
-        res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', create_trade: {assetid: null, partner_steamid: null}, stats: {items: app.fp_data.items, trades: app.fp_data.trades, bots: app.fp_data.bots.length || 0, users: app.users.size} }, { error: 'You must be logged in to perform this action.' }))
+        res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', create_trade: {assetid: null, partner_steamid: null}, stats: {items: app.fp_data.items, trades: trades_today, bots: app.fp_data.bots.length || 0, users: app.users.size} }, { error: 'You must be logged in to perform this action.' }))
       }
   } else {
     next()

@@ -1,8 +1,10 @@
 # Changes
 
-Sixteen rounds of edits to your existing files. The structure and code style stay the same. The full line-by-line
+Seventeen rounds of edits to your existing files. The structure and code style stay the same. The full line-by-line
 diff against your original upload is in `fixes.diff`.
 
+- **Round 17** makes the look plainer (one faint border colour, quality only as a line under items, shadows
+  only on pop-up windows), dresses the site up during the TF2 events and fixes "Trades today".
 - **Round 16** shows tooltip prices as "keys" and "ref", makes the tooltip purple with smaller corners and
   tones down borders, coloured highlights and shadows across the site.
 - **Round 15** (below) is a security pass.
@@ -31,6 +33,49 @@ diff against your original upload is in `fixes.diff`.
 Everything uses `.env` values you already have (`ADMIN_STEAMID`, `ADMIN_PASSWORD`, `API_KEY_STEAM`,
 `STEAM_GROUP_ID`). The new values are optional and only turn on AI translation: `CLOUDFLARE_ACCOUNT_ID` +
 `CLOUDFLARE_AI_TOKEN` (free, see Round 6) or `ANTHROPIC_API_KEY` (paid, see Round 5).
+
+---
+
+# Round 17: plainer look, TF2 event themes, trades today
+
+## Plainer look
+
+- Every panel, menu, button and input uses the same faint grey border, or none. The coloured outlines and
+  highlights are gone; hover and selected states use a slightly lighter grey.
+- Item quality is shown only by the coloured line under each item (item list, trade page, latest trades).
+- Shadows are gone everywhere except pop-up windows. The pulsing dot next to "Live" in the admin panel is now
+  a plain dot.
+- The filter bars on the trade and item pages follow the event colours below.
+
+## TF2 event themes
+
+While a TF2 event runs, the site changes its home picture, background, menu bar, buttons, links and the
+falling particles. Outside an event it looks as usual.
+
+| Event | Look |
+|---|---|
+| Summer event | TF2 orange, a desert picture, warm background, drifting dust instead of snow |
+| Scream Fortress | Purple with green and pumpkin orange, a night picture, rising fire ash instead of snow |
+| Smissmas | The usual snowy cabin and snow, with red and green accents |
+
+The dates come from the official update notes on teamfortress.com (for example "Scream Fortress XVIII runs
+through November 7th, 2026" in the post of October 1). The server reads that page every 6 hours. If it can't
+be read, or this year's event isn't announced yet, it uses the usual dates: summer July 1 to September 15,
+Scream Fortress October 1 to November 10, Smissmas December 1 to January 7.
+
+**Admin panel → Live settings → Seasonal theme** has Auto (default), Off, or one event forced on. It also
+shows which event is on, until when, and when teamfortress.com was last read. Other apps can set it over the
+live settings socket as `season` (see `SETTINGS.md`).
+
+## Trades today
+
+It always said 0 because the number came only from the bot server's `fp_data` report, which sends 0. The site
+now counts the trades in its own database since midnight UTC (refreshed every minute). The bot's number is used
+only if the database can't be reached.
+
+## Latest trades
+
+The home page shows the last 5 trades instead of 3.
 
 ---
 
