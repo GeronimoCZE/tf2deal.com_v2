@@ -1253,16 +1253,20 @@ const single_stock = () => {
     return { cur: Number(stock.cur) || 0, limit: Number(stock.limit) || 0 };
 }
 
-// price in ref of one asset (or of a tier number) on the item page
+// price in ref of one asset (or of a tier number) on the item page, in the same order as trade_price:
+// the tier's price, else the copy's own price when the bot server sent a higher one (the tooltip shows it),
+// else the item's price
 const single_price = (asset_or_tier, selling) => {
-    const tier = (typeof asset_or_tier == 'object') ? (Number(asset_or_tier?.ks) || 0) : (Number(asset_or_tier) || 0);
+    const asset = (typeof asset_or_tier == 'object') ? asset_or_tier : null;
+    const tier = asset ? (Number(asset?.ks) || 0) : (Number(asset_or_tier) || 0);
     const base = selling ? itemBuy : itemSell;
     if(tier > 0){
         const entry = ks_tiers().find(t => t.tier == tier);
         const price = selling ? entry?.buy : entry?.sell;
         if(price > 0) return price;
     }
-    return base;
+    const own = Number(asset?.[selling ? 'buy' : 'sell']) || 0;
+    return (own > base) ? own : base;
 }
 
 // /trade page: price in ref of one copy (asset) of a bot (field 'sell') or user (field 'buy') inventory item.
@@ -3191,7 +3195,8 @@ const item_tooltip = async (state, item, party) => {
                     classes: itemClasses ? itemClasses : [],
                     bptf_data: {update_key_price: itemKey},
                     buy: Number(item.getAttribute('data-price')) || itemBuy,
-                    user_stock: ItemTrade.items
+                    user_stock: ItemTrade.items,
+                    killstreak: page_item()?.killstreak || [] // so the tooltip picks the same tier price as single_price
                 };
                 showTooltip(itemDesc);
             }
@@ -3202,7 +3207,8 @@ const item_tooltip = async (state, item, party) => {
                     classes: itemClasses ? itemClasses : [],
                     bptf_data: {update_key_price: itemKey},
                     sell: Number(item.getAttribute('data-price')) || itemSell,
-                    stock: {items: ItemTrade.items}
+                    stock: {items: ItemTrade.items},
+                    killstreak: page_item()?.killstreak || [] // so the tooltip picks the same tier price as single_price
                 };
                 showTooltip(itemDesc);
             } else if(party == 'show-user'){
