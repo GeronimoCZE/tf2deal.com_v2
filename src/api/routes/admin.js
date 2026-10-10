@@ -15,6 +15,7 @@ import { rating_model } from '../../model/Rating.js';
 import * as settings from '../../service/settings.js';
 import * as season from '../../service/season.js';
 import * as notifications from '../../service/notifications.js';
+import * as stock_limits from '../../service/stock_limits.js';
 import { notification_model } from '../../model/Notification.js';
 import { clients as settings_clients } from '../../service/settings_socket.js';
 import { bot_socket, item_socket } from '../../service/socket.js';
@@ -331,6 +332,38 @@ router.get('/settings', (req, res) => {
 
 router.post('/settings', async (req, res) => {
   const result = await settings.update(req.body?.patch ?? req.body, { kind: 'admin', name: 'admin panel' });
+  res.status(result.status == 'ok' ? 200 : 400).json(result);
+});
+
+/* ========================= STOCK LIMITS (service/stock_limits.js) ========================= */
+
+const db_ready = (req, res, next) => {
+  if(process.db_status?.connected === true){ return next(); }
+  res.status(503).json({ status: 'error', message: 'The database is not connected.' })
+};
+
+router.get('/stock/global', async (req, res) => {
+  const result = await stock_limits.get_global();
+  res.status(result.status == 'ok' ? 200 : 502).json(result);
+});
+
+router.post('/stock/global', async (req, res) => {
+  const result = await stock_limits.set_global(req.body?.patch, 'tf2deal admin panel');
+  res.status(result.status == 'ok' ? 200 : 400).json(result);
+});
+
+router.get('/stock/options', db_ready, async (req, res) => {
+  res.json(await stock_limits.options());
+});
+
+router.post('/stock/items', db_ready, async (req, res) => {
+  res.json(await stock_limits.find_items(req.body?.filters, req.body?.page));
+});
+
+// { filters, target: 'item' | 'killstreak', limit: 0-1000 or null (back to the item server's rules) }
+router.post('/stock/apply', db_ready, async (req, res) => {
+  const limit = (req.body?.limit === null) ? null : Number(req.body?.limit);
+  const result = await stock_limits.apply({ filters: req.body?.filters, target: req.body?.target, limit }, `admin ${req.user?.steamid || ''}`.trim());
   res.status(result.status == 'ok' ? 200 : 400).json(result);
 });
 
