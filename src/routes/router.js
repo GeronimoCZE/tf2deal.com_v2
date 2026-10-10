@@ -9,46 +9,62 @@ import { item_model } from '../model/Item.js'
 import { blog_model } from '../model/Blog.js'
 import { giveaway_model } from '../model/Giveaway.js'
 import * as translate from '../service/translate.js'
+import * as stats from '../service/stats.js'
+import * as buy from '../service/buy_link.js'
 import { localize_path, LANG_TAGS } from '../i18n.js'
 import { isNumberObject } from 'util/types'
 
 const cache = apicache.middleware
 
-function startsWithBuyAndDigit(str) {
-    if (typeof str !== 'string') return false; // Validate input
-    return /^\/buy\/\d/.test(str);
-}
-
 const home = async (req, res, next) => {
   if(req.path == '/'){
     const fp_data = app.fp_data;
+    const trades_today = await stats.trades_today(fp_data.trades);
 
     if (req.user) {   
       const user_cookie = req.cookies[`td_${req.user.steamid}`]
-      res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', stats: {items: fp_data.items, trades: fp_data.trades, bots: fp_data.bots.length || 0, users: app.users.size} }))
+      res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', stats: {items: fp_data.items, trades: trades_today, bots: fp_data.bots.length || 0, users: app.users.size} }))
     } else {
-      res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', stats: {items: fp_data.items, trades: fp_data.trades, bots: fp_data.bots.length || 0, users: app.users.size} }))
+      res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', stats: {items: fp_data.items, trades: trades_today, bots: fp_data.bots.length || 0, users: app.users.size} }))
     }
-  } else if (startsWithBuyAndDigit(req.path)) {
-      if (req.user) {
-        const user_cookie = req.cookies[`td_${req.user.steamid}`]
-        const itemId = req.path.split('/')[2];
-
-        if (typeof req.user?.hash?.exp === 'number') {
-          if (req.user.hash.exp > Date.now()) {
-            req.user.hash = { hex: crypto.randomBytes(32).toString('hex'), exp: Date.now() + 12000 }
-          }
-        } else {
-          req.user.hash = { hex: crypto.randomBytes(32).toString('hex'), exp: Date.now() + 12000 }
-        }
-        
-        res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', create_trade: {assetid: itemId, partner_steamid: String(req.user?.steamid)}, stats: {items: app.fp_data.items, trades: app.fp_data.trades, bots: app.fp_data.bots.length || 0, users: app.users.size} }))
-      } else {
-        res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', create_trade: {assetid: null, partner_steamid: null}, stats: {items: app.fp_data.items, trades: app.fp_data.trades, bots: app.fp_data.bots.length || 0, users: app.users.size} }, { error: 'You must be logged in to perform this action.' }))
-      }
   } else {
     next()
   }
+}
+
+// /buy/<assetid>: a direct buy link (service/buy_link.js). The home page opens with that item in a modal, or a
+// picker when the assetid matches more than one item. Nothing is sent until the visitor confirms
+// (js/plugins/buy_link.js), so opening a link can't start a trade by itself.
+const buy_link = async (req, res) => {
+  const assetid = buy.ASSETID.test(String(req.params.itemid || '')) ? String(req.params.itemid) : ''
+  const copies = assetid ? await buy.find(assetid).catch(() => []) : []
+  const user_cookie = req.user ? req.cookies[`td_${req.user.steamid}`] : undefined
+
+  // same trade hash as the /trade page (checked by /api/create_trade)
+  if (req.user) {
+    if (typeof req.user?.hash?.exp === 'number') {
+      if (req.user.hash.exp > Date.now()) {
+        req.user.hash = { hex: crypto.randomBytes(32).toString('hex'), exp: Date.now() + 12000 }
+      }
+    } else {
+      req.user.hash = { hex: crypto.randomBytes(32).toString('hex'), exp: Date.now() + 12000 }
+    }
+  }
+
+  // one item: the link preview (Discord, Steam chat) shows it
+  const one = copies.length === 1 ? copies[0] : null
+  const seo = one ? {
+    description: one.price ? req.__('desc.item_buy', { name: one.name, buy: one.price }) : req.__('desc.item_trade', { name: one.name }),
+    image: one.image_large
+  } : {}
+
+  res.render('home', fn.res_data(!!req.user, req.user, user_cookie, one ? req.__('title.item', { name: one.name }) : 'Home', {
+    view: 'home',
+    ...seo,
+    key_price: app.key_price,
+    create_trade: { assetid, copies: copies.map(({ image_large, ...copy }) => copy) },
+    stats: { items: app.fp_data.items, trades: await stats.trades_today(app.fp_data.trades), bots: app.fp_data.bots.length || 0, users: app.users.size }
+  }))
 }
 
 const trade = (req, res) => {
@@ -615,6 +631,7 @@ const create_ticket = (req, res) => {
 
 export {
   home,
+  buy_link,
   trade,
   items,
   item_page,

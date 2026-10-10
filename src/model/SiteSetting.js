@@ -28,6 +28,10 @@ const Setting = mongoose.Schema({
         type: Object,
         default: { enabled: true, trustpilot_url: 'https://www.trustpilot.com/review/tf2deal.com' }
     }, // star rating after an accepted trade; 4-5 stars get a link to Trustpilot
+    season: {
+        type: String,
+        default: 'auto'
+    }, // seasonal look: auto (TF2 events), off, summer, halloween or smissmas
     extra: {
         type: Object,
         default: {}

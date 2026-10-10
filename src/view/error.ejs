@@ -5,7 +5,7 @@
         document.title = <%- JSON.stringify(__('errors.error') + ' - TF2deal.com') %>;
         document.querySelector('meta[name="description"]').setAttribute("content", <%- JSON.stringify(__('errors.error_text')) %>);
     </script>
-    <body>
+    <body class="<%= info?.season %>">
         <%- include('./partials/nav.ejs') %>
 
         <div class="main-wrapper">

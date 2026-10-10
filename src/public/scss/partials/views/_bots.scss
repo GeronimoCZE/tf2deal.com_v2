@@ -153,7 +153,7 @@
                             font-size: 14px !important;
                             background: rgba(252, 252, 252, 0);
                             backdrop-filter: blur(6px);
-                            border: 1px solid rgba(252, 252, 252, 0.664);
+                            border: 1px solid var(--line);
                             border-radius: .6rem;
                             padding: 3px 0;
                             transition: 200ms;

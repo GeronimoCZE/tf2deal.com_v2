@@ -91,6 +91,7 @@ offer in seconds.
 - **Tickets, blog and giveaways** managed from one place
 - **Notifications** sent to every signed-in user
 - **Other apps** can change settings live over a socket (see [SETTINGS.md](SETTINGS.md))
+- **Direct buy links**: share `tf2deal.com/buy/<assetid>` for one item in stock (see [docs/BUY_LINKS.md](docs/BUY_LINKS.md))
 
 ## 🧱 Built with
 

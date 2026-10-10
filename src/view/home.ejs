@@ -19,7 +19,7 @@
                 <div class="page-section home-ps-1">
                     <div class="bg-block">
                         <div class="color-image"></div>
-                        <img class="home-background1 lazy-fade" onload="this.classList.add('loaded')" src="/img/cabin-bw.webp" alt="team fortress 2 cabin">
+                        <img class="home-background1 lazy-fade" onload="this.classList.add('loaded')" src="<%= ({ 'season-summer': '/img/seasons/summer-bw.webp', 'season-halloween': '/img/seasons/halloween-bw.webp' })[info?.season] || '/img/cabin-bw.webp' %>" alt="team fortress 2">
                     </div> 
                     <div class="home-text">
                         <h1 class="main-text fade-in">

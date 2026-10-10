@@ -8,6 +8,7 @@ import { localize_path, LANGS, DEFAULT_LANG, t_for } from './i18n.js'
 import { available_langs } from './service/translate.js'
 import { bot_socket } from './service/socket.js'
 import * as settings from './service/settings.js'
+import * as season from './service/season.js'
 import { url } from 'inspector'
 
 /* =======================
@@ -49,10 +50,10 @@ const res_data = (auth, user, user_db, title, info, datas) => {
 
   if (!info) {
     obj.info = { view: undefined, message: '' }
-    obj.info.season = app.season
+    obj.info.season = season.body_class() // '' outside TF2 events, else season-summer / -halloween / -smissmas
   } else {
     if (!obj.info.view) obj.info.view = undefined
-    obj.info.season = app.season
+    obj.info.season = season.body_class() // '' outside TF2 events, else season-summer / -halloween / -smissmas
   }
 
   if (auth === true && user?.steamid) {

@@ -93,5 +93,6 @@ const Instance = mongoose.Schema({
 })
 
 Instance.index({ bp_sku: 1 });
+Instance.index({ 'stock.items.a': 1 }); // direct buy links look items up by assetid (service/buy_link.js)
 
 export const item_model = mongoose.model('item_instances', Instance);    

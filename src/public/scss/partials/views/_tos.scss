@@ -40,8 +40,8 @@
                 width: .7rem;
                 left: 0rem;
                 top: 3rem;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-                border-left: 1px solid rgba(255, 255, 255, 0.5);
+                border-bottom: 1px solid var(--line-strong);
+                border-left: 1px solid var(--line-strong);
                 @media screen and (max-width: 980px) {
                     display: none;
                 }
