@@ -1,4 +1,4 @@
-/* Admin panel: Overview, Live settings, Users, Ratings, Notifications, Tickets, Blog, Giveaways (talk to /api/admin/*).
+/* Admin panel: Overview, Live settings, Stock limits, Users, Ratings, Notifications, Tickets, Blog, Giveaways (talk to /api/admin/*).
    Live settings also listen on the /settings socket, so changes made by other apps show up right away. */
 (() => {
     const esc = (text) => String(text ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -763,6 +763,237 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
         return () => { live.listeners.delete(on_live); clearInterval(ticker) }
     }
 
+    /* ========================= STOCK LIMITS ========================= */
+    // Global limits are the item server's settings (it sets every item's limit when it prices it); limits for single
+    // items are written onto the items and kept by the item server. Server side: src/service/stock_limits.js.
+
+    const QUALITY_NAMES = { 0: 'Normal', 1: 'Genuine', 3: 'Vintage', 5: 'Unusual', 6: 'Unique', 7: 'Community', 8: 'Valve', 9: 'Self-Made', 11: 'Strange', 13: 'Haunted', 14: "Collector's", 15: 'Decorated' }
+    const GLOBAL_LIMITS = [
+        ['stock_limit_default', 'Most items', 'Every item no rule below covers.'],
+        ['stock_limit_unusual', 'Unusuals', 'Unusual cosmetics, taunts and weapons.'],
+        ['stock_limit_unusual_min_pure', 'Unusuals only from', 'Pure the bots need first (the value they report). Below it the Unusual limit is 0.', 'pure'],
+        ['stock_limit_collectors', "Collector's", "Collector's cosmetics, taunts and weapons."],
+        ['stock_limit_collectors_min_pure', "Collector's only from", "Pure the bots need first. Below it the Collector's limit is 0.", 'pure'],
+        ['ks_stock_limit', 'Each killstreak tier', 'Per tier of a weapon (Killstreak, Specialized, Professional).'],
+        ['ks_stock_limit_high_demand', 'Each tier, weapon in demand', 'When the plain weapon has many backpack.tf buy orders.'],
+        ['ks_high_demand_buyorders', 'In demand from', 'backpack.tf buy orders for the plain weapon.', 'orders']
+    ]
+    const MAX_LIMIT = 1000
+
+    const stock_section = async (root) => {
+        root.innerHTML = head('Stock limits', 'How many of an item the bots hold at most. Users can\'t sell an item to the bots once its stock reaches the limit.') + `
+            <div class="admin-settings">
+                <div class="admin-card wide" data-card="stock-global">
+                    <h3>Global limits</h3>
+                    <p class="muted">For every item without a limit of its own. They are settings of the item server, which uses them each time it prices an item. Saving applies them to all items right away.</p>
+                    <div id="stk-global"><div class="admin-loading"><span class="admin-spinner"></span> Loading…</div></div>
+                    <div class="admin-card-foot"><span class="admin-dirty">Unsaved changes</span><button type="button" data-discard>Discard</button><button type="button" class="primary" data-save disabled>Save and apply</button></div>
+                </div>
+
+                <div class="admin-card wide">
+                    <h3>Limits for single items</h3>
+                    <p class="muted">Find items, then set one limit for all of them or change a single row. A limit set here stays when the item is priced again, until you set it back to automatic.</p>
+                    <form class="admin-stock-filters" id="stk-filters">
+                        <label class="admin-field">Name contains <input type="search" name="q" maxlength="100" placeholder="e.g. Kit, Team Captain" autocomplete="off"></label>
+                        <label class="admin-field">Type <select name="type"><option value="">Any type</option></select></label>
+                        <label class="admin-field">Quality <select name="quality"><option value="">Any quality</option></select></label>
+                        <label class="admin-field">Craftable <select name="craftable"><option value="">Any</option><option value="yes">Craftable</option><option value="no">Non-Craftable</option></select></label>
+                        <label class="admin-field">Limit <select name="manual"><option value="">Any</option><option value="yes">Set by hand</option><option value="no">Automatic</option></select></label>
+                        <div class="admin-stock-actions">
+                            <div class="admin-stock-checks">
+                                <label class="check"><input type="checkbox" name="in_stock"> Only items in stock</label>
+                                <label class="check"><input type="checkbox" name="killstreak"> Only weapons with killstreak tiers</label>
+                            </div>
+                            <button type="submit" class="primary">Find items</button>
+                        </div>
+                    </form>
+                    <div id="stk-results"><p class="admin-empty">Pick filters and press Find items. With no filters you get every item.</p></div>
+                </div>
+            </div>`
+
+        const $ = (sel) => root.querySelector(sel)
+        const global_card = $('[data-card="stock-global"]')
+        let global = null // { limits: [{key, value, min, max, desc}], missing }
+
+        /* ---- global limits ---- */
+        const draw_global = () => {
+            const box = $('#stk-global')
+            const save = global_card.querySelector('[data-save]')
+            global_card.classList.remove('is-dirty')
+            if(global?.status != 'ok'){
+                box.innerHTML = `<p class="admin-error">${esc(global?.message || 'Could not load them.')}</p>
+                    <p class="muted small">${global?.offline ? 'Global limits live on the item server. Limits for single items below still work.' : ''}</p>`
+                save.disabled = true
+                return
+            }
+            const known = Object.fromEntries(global.limits.map((l) => [l.key, l]))
+            box.innerHTML = `<div class="admin-stock-global">${GLOBAL_LIMITS.filter(([key]) => known[key]).map(([key, label, help, unit]) => {
+                const l = known[key]
+                return `<label class="admin-field" title="${esc(l.desc || '')}">${esc(label)}
+                    <span class="admin-input-unit"><input type="number" data-key="${key}" value="${esc(l.value)}" min="${esc(l.min ?? 0)}" max="${esc(l.max ?? '')}" step="1" required><em>${unit || 'max'}</em></span>
+                    <span class="admin-help">${esc(help)} Default ${esc(l.default)}.</span></label>`
+            }).join('')}</div>
+            ${global.missing.length ? `<p class="admin-note">This item server only knows ${global.limits.length ? 'the killstreak limits' : 'none of these limits'}. Update item_manager to set the others here.</p>` : ''}`
+            save.disabled = global.limits.length == 0
+        }
+        const load_global = async () => {
+            global = await api('/api/admin/stock/global')
+            draw_global()
+        }
+        global_card.addEventListener('input', () => global_card.classList.add('is-dirty'))
+        global_card.querySelector('[data-discard]').addEventListener('click', draw_global)
+        global_card.querySelector('[data-save]').addEventListener('click', async (e) => {
+            const patch = {}
+            for (const input of global_card.querySelectorAll('input[data-key]')) {
+                if(!input.reportValidity()){ return }
+                patch[input.dataset.key] = Number(input.value)
+            }
+            const btn = e.currentTarget
+            btn.disabled = true
+            btn.textContent = 'Applying to every item…'
+            const res = await api('/api/admin/stock/global', { patch })
+            btn.textContent = 'Save and apply'
+            btn.disabled = false
+            if(!toast(res, res.applied ? `Saved. ${num(res.applied.changed)} of ${num(res.applied.checked)} items got a new limit.` : 'Saved. Each item gets the new limits the next time it is priced.')){ return }
+            await load_global()
+        })
+
+        /* ---- items ---- */
+        const form = $('#stk-filters')
+        const results = $('#stk-results')
+        let filters = {}
+        let page = 0
+        let target = 'item'
+
+        const read_filters = () => ({
+            q: form.q.value.trim(), type: form.type.value, quality: form.quality.value, craftable: form.craftable.value,
+            manual: form.manual.value, in_stock: form.in_stock.checked, killstreak: form.killstreak.checked
+        })
+        const filter_words = () => {
+            const words = []
+            if(filters.q){ words.push(`name has "${filters.q}"`) }
+            if(filters.type){ words.push(filters.type.startsWith('group:') ? `every ${filters.type.slice(6)} type` : `type ${filters.type}`) }
+            if(filters.quality){ words.push(QUALITY_NAMES[filters.quality] || `quality ${filters.quality}`) }
+            if(filters.craftable){ words.push(filters.craftable == 'no' ? 'Non-Craftable' : 'Craftable') }
+            if(filters.manual){ words.push(filters.manual == 'yes' ? 'limit set by hand' : 'automatic limit') }
+            if(filters.in_stock){ words.push('in stock') }
+            if(filters.killstreak){ words.push('with killstreak tiers') }
+            return words.length ? words.join(', ') : 'all items' // plain text: esc() it for HTML
+        }
+        const limit_value = (input) => {
+            const n = Number(input.value)
+            if(input.value.trim() === '' || !Number.isInteger(n) || n < 0 || n > MAX_LIMIT){
+                iziToast.warning({ title: 'Check the limit', message: `A whole number from 0 to ${MAX_LIMIT}.` })
+                input.focus()
+                return null
+            }
+            return n
+        }
+        const tiers_cell = (it) => {
+            if(!it.tiers){ return '<span class="muted">–</span>' }
+            const current = it.tier_limits.length == 1 ? it.tier_limits[0] : (it.tier_limits.length ? 'mixed' : '–')
+            return `<span class="admin-stock-cell"><input type="number" class="stk-row-ks" min="0" max="${MAX_LIMIT}" step="1" value="${it.manual_ks ?? (typeof current == 'number' ? current : '')}" aria-label="Limit per killstreak tier">
+                <button type="button" data-row="killstreak">Set</button>${it.manual_ks != null ? '<button type="button" data-row-auto="killstreak" title="Back to the global limit">Auto</button>' : ''}</span>
+                <span class="muted small">${it.tiers} tier${it.tiers == 1 ? '' : 's'}${current == 'mixed' ? ', mixed limits' : ''}${it.manual_ks != null ? ' · <span class="admin-tag">by hand</span>' : ''}</span>`
+        }
+
+        const draw_items = async () => {
+            results.innerHTML = '<div class="admin-loading"><span class="admin-spinner"></span> Loading…</div>'
+            const res = await api('/api/admin/stock/items', { filters, page })
+            if(res.status != 'ok'){ results.innerHTML = `<p class="admin-error">${esc(res.message)}</p>`; return }
+            if(res.total == 0){ results.innerHTML = `<p class="admin-empty">No items match (${esc(filter_words())}).</p>`; return }
+            const from = res.page * res.per_page
+            const any_ks = res.items.some((it) => it.tiers > 0) || filters.killstreak
+
+            results.innerHTML = `<div class="admin-stock-bulk">
+                    <p><strong>${num(res.total)} item${res.total == 1 ? '' : 's'}</strong> <span class="muted">(${esc(filter_words())})</span></p>
+                    <div class="admin-stock-bulk-row">
+                        <span>Set</span>
+                        <div class="admin-segment" role="radiogroup" aria-label="What to set">
+                            <button type="button" role="radio" data-target="item">the items</button>
+                            <button type="button" role="radio" data-target="killstreak">their killstreak tiers</button>
+                        </div>
+                        <span>to</span>
+                        <span class="admin-input-unit admin-stock-limit"><input type="number" id="stk-bulk-limit" min="0" max="${MAX_LIMIT}" step="1" placeholder="1"><em>max</em></span>
+                        <button type="button" class="primary" id="stk-bulk-set">Set for all ${num(res.total)}</button>
+                        <button type="button" id="stk-bulk-auto" title="Remove limits set by hand; the global limits apply again">Back to automatic</button>
+                    </div>
+                    <p class="muted small" id="stk-target-note"></p>
+                </div>
+                <div class="admin-table-wrap"><table class="admin-table admin-stock-table">
+                    <thead><tr><th>Item</th><th>Type</th><th>In stock</th><th>Limit</th>${any_ks ? '<th>Each killstreak tier</th>' : ''}</tr></thead>
+                    <tbody>${res.items.map((it) => `<tr data-sku="${esc(it.bp_sku)}">
+                        <td><span class="admin-stock-item"><img class="q-${esc(it.qualityID)}" src="${esc(it.image)}" alt="" loading="lazy">
+                            <span><a href="/items/${encodeURIComponent(it.bp_sku)}" target="_blank" translate="no">${esc(it.bp_sku)}</a>
+                            <span class="muted small">${esc(QUALITY_NAMES[it.qualityID] || '')}</span></span></span></td>
+                        <td>${esc(it.type)}</td>
+                        <td>${num(it.cur)}</td>
+                        <td><span class="admin-stock-cell"><input type="number" class="stk-row-limit" min="0" max="${MAX_LIMIT}" step="1" value="${it.limit ?? ''}" aria-label="Limit">
+                            <button type="button" data-row="item">Set</button>${it.manual != null ? '<button type="button" data-row-auto="item" title="Back to the global limit">Auto</button>' : ''}</span>
+                            ${it.manual != null ? '<span class="admin-tag">by hand</span>' : ''}</td>
+                        ${any_ks ? `<td>${tiers_cell(it)}</td>` : ''}
+                    </tr>`).join('')}</tbody>
+                </table></div>
+                ${res.total > res.per_page ? `<div class="admin-pager">
+                    <button type="button" data-page="${res.page - 1}" ${res.page == 0 ? 'disabled' : ''}>Previous</button>
+                    <span class="muted">${num(from + 1)}–${num(Math.min(from + res.per_page, res.total))} of ${num(res.total)}</span>
+                    <button type="button" data-page="${res.page + 1}" ${from + res.per_page >= res.total ? 'disabled' : ''}>Next</button>
+                </div>` : ''}`
+
+            const set_target = (value) => {
+                target = value
+                results.querySelectorAll('[data-target]').forEach((b) => b.setAttribute('aria-checked', b.dataset.target == target))
+                $('#stk-target-note').textContent = target == 'item'
+                    ? 'The limit of each item. Killstreak copies of a weapon have their own tier limits.'
+                    : 'The limit of each killstreak tier (Killstreak, Specialized, Professional). Only weapons with killstreak tiers change.'
+            }
+            set_target(target)
+            results.querySelectorAll('[data-target]').forEach((b) => b.addEventListener('click', () => set_target(b.dataset.target)))
+
+            const what = () => target == 'item' ? 'the limit' : 'the killstreak tier limit'
+            $('#stk-bulk-set').addEventListener('click', async () => {
+                const limit = limit_value($('#stk-bulk-limit'))
+                if(limit === null){ return }
+                if(!confirm(`Set ${what()} to ${limit} for ${num(res.total)} item${res.total == 1 ? '' : 's'} (${filter_words()})?`)){ return }
+                const r = await api('/api/admin/stock/apply', { filters, target, limit })
+                if(toast(r, `${what()[0].toUpperCase()}${what().slice(1)} is now ${limit} for ${num(r.matched)} item${r.matched == 1 ? '' : 's'}.`)){ draw_items() }
+            })
+            $('#stk-bulk-auto').addEventListener('click', async () => {
+                if(!confirm(`Remove ${what()} set by hand from ${num(res.total)} item${res.total == 1 ? '' : 's'}? The global limits apply to them again.`)){ return }
+                const r = await api('/api/admin/stock/apply', { filters, target, limit: null })
+                if(toast(r, r.applied ? 'Back to automatic. The global limits are applied.' : 'Back to automatic. Each item gets its global limit the next time it is priced.')){ draw_items() }
+            })
+        }
+
+        results.addEventListener('click', async (e) => {
+            const pager = e.target.closest('[data-page]')
+            if(pager){ page = Number(pager.dataset.page); draw_items(); return }
+            const row = e.target.closest('tr[data-sku]')
+            const set = e.target.closest('[data-row]')
+            const auto = e.target.closest('[data-row-auto]')
+            if(!row || !(set || auto)){ return }
+            const row_target = (set || auto).dataset.row || (set || auto).dataset.rowAuto
+            const one = { bp_sku: row.dataset.sku }
+            let limit = null
+            if(set){
+                limit = limit_value(row.querySelector(row_target == 'item' ? '.stk-row-limit' : '.stk-row-ks'))
+                if(limit === null){ return }
+            }
+            const r = await api('/api/admin/stock/apply', { filters: one, target: row_target, limit })
+            if(toast(r, set ? `${esc(row.dataset.sku)}: ${row_target == 'item' ? 'limit' : 'killstreak tier limit'} ${limit}.` : `${esc(row.dataset.sku)} is back to automatic.`)){ draw_items() }
+        })
+        form.addEventListener('submit', (e) => { e.preventDefault(); filters = read_filters(); page = 0; draw_items() })
+
+        // filter choices from the items in the database
+        api('/api/admin/stock/options').then((res) => {
+            if(res.status != 'ok'){ return }
+            form.type.insertAdjacentHTML('beforeend', `${res.groups.length ? `<optgroup label="Groups">${res.groups.map((g) => `<option value="group:${esc(g)}">Every ${esc(g)} type</option>`).join('')}</optgroup>` : ''}
+                <optgroup label="Types">${res.types.map((t) => `<option value="${esc(t)}">${esc(t)}</option>`).join('')}</optgroup>`)
+            form.quality.insertAdjacentHTML('beforeend', res.qualities.map((q) => `<option value="${esc(q)}">${esc(QUALITY_NAMES[q] || q)}</option>`).join(''))
+        })
+        await load_global()
+    }
+
     /* ========================= USERS ========================= */
 
     const ROLES = [[0, 'Banned'], [1, 'User'], [2, 'Premium'], [3, 'Admin']]
@@ -914,7 +1145,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
 
     /* ========================= ROUTER ========================= */
 
-    const sections = { overview, settings: settings_section, users, ratings, notifications: notifications_section, tickets: (root) => tickets(root), blog, giveaways }
+    const sections = { overview, settings: settings_section, stock: stock_section, users, ratings, notifications: notifications_section, tickets: (root) => tickets(root), blog, giveaways }
     let route_id = 0
     let cleanup = null
 

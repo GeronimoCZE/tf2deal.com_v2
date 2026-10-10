@@ -32,19 +32,16 @@ const to_ref = (value, key_ref) => {
   return Number(value) > 0 ? Number(value) : 0
 }
 
-// What the visitor pays: the copy's killstreak tier price when it has one, else the item's price
-// (same order as the trade page).
+// What the visitor pays: the highest of the copy's own price, its killstreak tier's price and the item's price
+// (same as the trade page, js/plugins/trade.js -> copy_price).
 const sell_price = (doc, asset, key_ref) => {
   const tier = Number(asset?.ks) || 0
+  let tier_price = 0
   if (tier > 0) {
     const tiers = Array.isArray(doc.killstreak) ? doc.killstreak : (doc.killstreak?.killstreaks || [])
-    const entry = tiers.find((t) => ks_tier(t?.ks_tier ?? t?.kt ?? t?.tier) == tier)
-    const price = to_ref(entry?.sell, key_ref)
-    if (price > 0) return price
+    tier_price = to_ref(tiers.find((t) => ks_tier(t?.ks_tier ?? t?.kt ?? t?.tier) == tier)?.sell, key_ref)
   }
-  const own = Number(asset?.sell) || 0
-  const base = Number(doc.sell) || 0
-  return own > base ? own : base
+  return Math.max(Number(asset?.sell) || 0, tier_price, Number(doc.sell) || 0)
 }
 
 // "Rocket Launcher" + festivized + tier 3 -> "Festivized Professional Killstreak Rocket Launcher",
