@@ -219,7 +219,7 @@ const load_site_inventory = async (page, change, reload) => {
         "crossDomain": true,
         "url": '../api/bots/inventory',
         "method": "POST",
-        "data": JSON.stringify({filters: SiteTrade.filters}),
+        "data": JSON.stringify({filters: server_filters(SiteTrade.filters)}),
         "headers": {
             "Content-Type": "application/json",
             "Authorization": "Bearer ",
@@ -1026,7 +1026,7 @@ const load_user_inventory = async (page, change, reload) => {
         "crossDomain": true,
         "url": '../api/user/inventory',
         "method": "POST",
-        "data": JSON.stringify({filters: UserTrade.filters, inventory: "xdqwe"}),
+        "data": JSON.stringify({filters: server_filters(UserTrade.filters), inventory: "xdqwe"}),
         "headers": {
             "Content-Type": "application/json",
             "Authorization": "Bearer ",
@@ -1205,32 +1205,36 @@ const ks_tier_number = (value) => {
     return 0;
 }
 
+// the item page's item (it isn't defined on the other pages)
+const page_item = () => (typeof item == 'undefined') ? null : item;
+
 // a price in ref; {key, metal} is turned into ref with the item's key price
-const ks_ref = (value) => {
+const ks_ref = (value, key_ref = (typeof itemKey == 'number' ? itemKey : 0)) => {
     if(value === undefined || value === null) return null;
     if(typeof value == 'object'){
-        const ref = (Number(value.key) || 0) * (typeof itemKey == 'number' ? itemKey : 0) + (Number(value.metal) || 0);
+        const ref = (Number(value.key) || 0) * (Number(key_ref) || 0) + (Number(value.metal) || 0);
         return ref > 0 ? ref : null;
     }
     const ref = Number(value);
     return ref > 0 ? ref : null;
 }
 
-const ks_tiers = () => {
-    if(typeof item == 'undefined' || !item) return [];
-    const raw = Array.isArray(item.killstreak) ? item.killstreak : (item.killstreak?.killstreaks || []);
+// the tiers of the item page's item, or of `src` (an item from the /trade inventories, with its key price)
+const ks_tiers = (src = page_item(), key_ref) => {
+    if(!src) return [];
+    const raw = Array.isArray(src.killstreak) ? src.killstreak : (src.killstreak?.killstreaks || []);
     return raw.map(entry => {
         const tier = ks_tier_number(entry?.ks_tier ?? entry?.kt ?? entry?.tier);
         const stock = (typeof entry?.stock == 'object' && entry.stock) ? entry.stock : (entry?.stock !== undefined ? { cur: Number(entry.stock) || 0 } : null);
-        return { tier, buy: ks_ref(entry?.buy), sell: ks_ref(entry?.sell), stock, bp_sku: entry?.bp_sku || ks_name(tier), updated: entry?.updated };
+        return { tier, buy: ks_ref(entry?.buy, key_ref), sell: ks_ref(entry?.sell, key_ref), stock, bp_sku: entry?.bp_sku || ks_name(tier, src), updated: entry?.updated };
     }).filter(entry => entry.tier >= 1 && entry.tier <= 3).sort((a, b) => a.tier - b.tier);
 }
 
 // "Rocket Launcher" + 3 -> "Professional Killstreak Rocket Launcher" (same naming as the trade page)
-const ks_name = (tier) => {
-    if(typeof item == 'undefined' || !item || !(tier > 0)) return item?.bp_sku;
-    const named = create_sku(item.bp_sku, item.qualityID, 0, tier);
-    return (named != item.bp_sku) ? named : itemAttr.killstreaks[tier] + item.bp_sku;
+const ks_name = (tier, src = page_item()) => {
+    if(!src || !(tier > 0)) return src?.bp_sku;
+    const named = create_sku(src.bp_sku, src.qualityID, 0, tier);
+    return (named != src.bp_sku) ? named : itemAttr.killstreaks[tier] + src.bp_sku;
 }
 
 // The tier picked in the item page's select (main.js sets ItemTrade.tier / ItemTrade.stock).
@@ -1249,16 +1253,35 @@ const single_stock = () => {
     return { cur: Number(stock.cur) || 0, limit: Number(stock.limit) || 0 };
 }
 
-// price in ref of one asset (or of a tier number) on the item page
+// price in ref of one asset (or of a tier number) on the item page, in the same order as trade_price:
+// the tier's price, else the copy's own price when the bot server sent a higher one (the tooltip shows it),
+// else the item's price
 const single_price = (asset_or_tier, selling) => {
-    const tier = (typeof asset_or_tier == 'object') ? (Number(asset_or_tier?.ks) || 0) : (Number(asset_or_tier) || 0);
+    const asset = (typeof asset_or_tier == 'object') ? asset_or_tier : null;
+    const tier = asset ? (Number(asset?.ks) || 0) : (Number(asset_or_tier) || 0);
     const base = selling ? itemBuy : itemSell;
     if(tier > 0){
         const entry = ks_tiers().find(t => t.tier == tier);
         const price = selling ? entry?.buy : entry?.sell;
         if(price > 0) return price;
     }
-    return base;
+    const own = Number(asset?.[selling ? 'buy' : 'sell']) || 0;
+    return (own > base) ? own : base;
+}
+
+// /trade page: price in ref of one copy (asset) of a bot (field 'sell') or user (field 'buy') inventory item.
+// Used for the tile, the tooltip and the trade, so the total adds what the tooltip shows.
+// A killstreak copy (asset.ks 1-3) gets its tier's price from item.killstreak, like on the item page.
+// Otherwise the copy's own price when the bot server sent a higher one, else the item's price.
+const trade_price = (item_obj, asset, field) => {
+    const tier = Number(asset?.ks) || 0;
+    if(tier > 0){
+        const entry = ks_tiers(item_obj, item_obj?.bptf_data?.update_key_price).find(t => t.tier == tier);
+        if(entry?.[field] > 0) return entry[field];
+    }
+    const own = Number(asset?.[field]) || 0;
+    const base = Number(item_obj?.[field]) || 0;
+    return (own > base) ? own : base;
 }
 
 // 110.11 ref -> "1 key 50 ref" (the price text used on the item page)
@@ -1756,6 +1779,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
 
                 for (const group of asset_groups.values()) {
                     const rep = group[0];
+                    if(!stack_matches_search(SiteTrade.filters.search, item, rep)){ continue; }
                     const all_ids = group.map(a => a.a);
                     const in_trade_count = all_ids.filter(id => site_iit_assetids.includes(id)).length;
                     const remaining = all_ids.length - in_trade_count;
@@ -1771,7 +1795,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     const bg_style = (item.effectID > 0) ? `style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"` : "";
                     const sig = stack_sig(rep, item.bp_sku);
 
-                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-bot="${rep?.ownerId || ''}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${item?.sell}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy">${badge}</div>`)
+                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-bot="${rep?.ownerId || ''}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'sell')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy">${badge}</div>`)
 
                     if(page < 1){
                         grid.append(item_el)
@@ -1794,6 +1818,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
 
                 for (const group of asset_groups.values()) {
                     const rep = group[0];
+                    if(!stack_matches_search(UserTrade.filters.search, item, rep)){ continue; }
                     const all_ids = group.map(a => a.a);
                     const in_trade_count = all_ids.filter(id => user_iit_assetids.includes(id)).length;
                     const remaining = all_ids.length - in_trade_count;
@@ -1809,7 +1834,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     const bg_style = (item.effectID > 0) ? `style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"` : "";
                     const sig = stack_sig(rep, item.bp_sku);
 
-                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class} ${overstocked}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${item?.buy}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy">${badge}</div>`)
+                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class} ${overstocked}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'buy')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy">${badge}</div>`)
 
                     if(page < 1){
                         grid.append(item_el)
@@ -2117,8 +2142,12 @@ const item_to_trade = async (party, action, item) => {
                             break;
                         }
 
+                        const asset = item_obj.user_stock.find(stk => stk.a == id);
+                        if(!asset){ continue; }
+                        const buy = trade_price(item_obj, asset, 'buy'); // a killstreak copy is priced with its tier
+
                         if(!user_trusted.bptf){
-                            if((UserTrade.iit.total.price - UserTrade.iit.total_pure.price + ((item_obj.buy / item_obj.bptf_data.update_key_price) * key_price.metal)) / key_price.metal > 10 || SiteTrade.iit.total.price / key_price.metal > 10){
+                            if((UserTrade.iit.total.price - UserTrade.iit.total_pure.price + ((buy / item_obj.bptf_data.update_key_price) * key_price.metal)) / key_price.metal > 10 || SiteTrade.iit.total.price / key_price.metal > 10){
                                 iziToast.error({
                                     title: __('trade.bptf_trust_title'),
                                     message: __('trade.bptf_trust')
@@ -2137,10 +2166,7 @@ const item_to_trade = async (party, action, item) => {
                             break;
                         }
 
-                        const asset = item_obj.user_stock.find(stk => stk.a == id);
-                        if(!asset){ continue; }
-
-                        UserTrade.iit.items.push({...asset, bp_sku: item.getAttribute('data-name'), buy: item_obj.buy, stock: item_obj.stock, key: item_obj?.bptf_data?.update_key_price})
+                        UserTrade.iit.items.push({...asset, bp_sku: item.getAttribute('data-name'), buy: buy, stock: item_obj.stock, key: item_obj?.bptf_data?.update_key_price})
                         add_to_trade_panel('user', item, asset);
                         added++;
 
@@ -2234,8 +2260,12 @@ const item_to_trade = async (party, action, item) => {
                             break;
                         }
 
+                        const asset = item_obj.stock.items.find(stk => stk.a == id);
+                        if(!asset){ continue; }
+                        const sell = trade_price(item_obj, asset, 'sell'); // a killstreak copy is priced with its tier
+
                         if(!user_trusted.bptf){
-                            if(UserTrade.iit.total.price / key_price.metal > 10 || (SiteTrade.iit.total.price - SiteTrade.iit.total_pure.price + ((item_obj.sell / item_obj.bptf_data.update_key_price) * key_price.metal)) / key_price.metal > 10){
+                            if(UserTrade.iit.total.price / key_price.metal > 10 || (SiteTrade.iit.total.price - SiteTrade.iit.total_pure.price + ((sell / item_obj.bptf_data.update_key_price) * key_price.metal)) / key_price.metal > 10){
                                 iziToast.error({
                                     title: __('trade.bptf_trust_title'),
                                     message: __('trade.bptf_trust')
@@ -2244,10 +2274,7 @@ const item_to_trade = async (party, action, item) => {
                             }
                         }
 
-                        const asset = item_obj.stock.items.find(stk => stk.a == id);
-                        if(!asset){ continue; }
-
-                        SiteTrade.iit.items.push({...asset, bp_sku: item.getAttribute('data-name'), sell: item_obj.sell, stock: item_obj.stock, key: item_obj?.bptf_data?.update_key_price})
+                        SiteTrade.iit.items.push({...asset, bp_sku: item.getAttribute('data-name'), sell: sell, stock: item_obj.stock, key: item_obj?.bptf_data?.update_key_price})
                         add_to_trade_panel('site', item, asset);
                         added++;
 
@@ -2706,6 +2733,39 @@ const reset_filters = async (party, type, reset) => {
     }
 }
 
+// The bot server searches an item's bp_sku, its base name ("Rocket Launcher"). The killstreak tier and
+// "Festivized" belong to each copy (asset.ks, asset.f) and are only in the name shown on the tile and in
+// the tooltip ("Professional Killstreak Rocket Launcher", see create_sku). So when the search has these
+// words, the bot server only gets the longest run of the other words (a part of the base name, "rocket
+// launcher"), and each stack is matched against the whole search here, by the name it shows.
+const NAME_ONLY_WORDS = ['killstreak', 'specialized', 'professional', 'festivized'];
+const search_words = (search) => String(search ?? '').toLowerCase().trim().split(/\s+/).filter(Boolean);
+const name_only_word = (word) => NAME_ONLY_WORDS.includes(word);
+
+// the search text the bot server gets (unchanged when it has no killstreak words)
+const server_search = (search) => {
+    const words = search_words(search);
+    if(!words.some(name_only_word)){ return search; }
+    const runs = [[]];
+    for (const word of words) {
+        if(name_only_word(word)){ runs.push([]); } else { runs[runs.length - 1].push(word); }
+    }
+    const longest = runs.map(run => run.join(' ')).reduce((a, b) => (b.length > a.length ? b : a));
+    return longest || null;
+}
+
+// the request body filters: the same filters, with the search the bot server can match
+const server_filters = (filters) => ({...filters, search: server_search(filters.search)});
+
+// does a stack (an item and one of its copies) match a search with killstreak words
+const stack_matches_search = (search, item_obj, asset) => {
+    const words = search_words(search);
+    if(!words.some(name_only_word)){ return true; }
+    const ks = Number(asset?.ks) || 0;
+    const name = `${create_sku(item_obj?.bp_sku, item_obj?.qualityID, asset?.f, asset?.ks)} ${KS_NAMES[ks] || ''} ${asset?.f > 0 ? 'Festivized' : ''}`.toLowerCase();
+    return words.every(word => name.includes(word));
+}
+
 const search = async (party, value) => {
     if(party == 'user' && UserTrade.inventory == undefined){ return false; }
     if(party == 'site' && SiteTrade.inventory == undefined){ return false; }
@@ -2985,7 +3045,7 @@ const item_tooltip = async (state, item, party) => {
                         if((typeof itemDesc.buy == "number" || typeof itemDesc.sell == "number") && typeof itemDesc?.bptf_data?.update_key_price == "number"){
                             const key_price = itemDesc.bptf_data.update_key_price;
                             if(party.includes('site')){
-                                const sell = (Item?.sell > 0 && Item?.sell > itemDesc.sell) ? Item?.sell : itemDesc.sell;
+                                const sell = trade_price(itemDesc, Item, 'sell');
                                 let keys_raw = sell / key_price;
                                 let keys = Math.trunc(keys_raw)
                                 let refs = (keys_raw > 0) ? round_ref(sell - (Math.trunc(keys_raw) * key_price)) : round_ref(sell);
@@ -2999,7 +3059,7 @@ const item_tooltip = async (state, item, party) => {
                                     tooltip.querySelector('.item-desc .desc_price .ref_price #ref_amount').textContent = refs;    
                                 }
                             } else if (party.includes('user')){
-                                const buy = (Item?.buy > 0 && Item?.buy > itemDesc.buy) ? Item?.buy : itemDesc.buy;
+                                const buy = trade_price(itemDesc, Item, 'buy');
 
                                 let keys_raw = buy / key_price;
                                 let keys = Math.trunc(keys_raw)
@@ -3135,7 +3195,8 @@ const item_tooltip = async (state, item, party) => {
                     classes: itemClasses ? itemClasses : [],
                     bptf_data: {update_key_price: itemKey},
                     buy: Number(item.getAttribute('data-price')) || itemBuy,
-                    user_stock: ItemTrade.items
+                    user_stock: ItemTrade.items,
+                    killstreak: page_item()?.killstreak || [] // so the tooltip picks the same tier price as single_price
                 };
                 showTooltip(itemDesc);
             }
@@ -3146,7 +3207,8 @@ const item_tooltip = async (state, item, party) => {
                     classes: itemClasses ? itemClasses : [],
                     bptf_data: {update_key_price: itemKey},
                     sell: Number(item.getAttribute('data-price')) || itemSell,
-                    stock: {items: ItemTrade.items}
+                    stock: {items: ItemTrade.items},
+                    killstreak: page_item()?.killstreak || [] // so the tooltip picks the same tier price as single_price
                 };
                 showTooltip(itemDesc);
             } else if(party == 'show-user'){
