@@ -1225,7 +1225,9 @@ const ks_tiers = (src = page_item(), key_ref) => {
     const raw = Array.isArray(src.killstreak) ? src.killstreak : (src.killstreak?.killstreaks || []);
     return raw.map(entry => {
         const tier = ks_tier_number(entry?.ks_tier ?? entry?.kt ?? entry?.tier);
-        const stock = (typeof entry?.stock == 'object' && entry.stock) ? entry.stock : (entry?.stock !== undefined ? { cur: Number(entry.stock) || 0 } : null);
+        let stock = (typeof entry?.stock == 'object' && entry.stock) ? entry.stock : (entry?.stock !== undefined ? { cur: Number(entry.stock) || 0 } : null);
+        // the pricing server keeps each tier's own limit next to its stock ({ stock: 0, limit: 1 })
+        if(typeof entry?.limit == 'number'){ stock = { ...(stock || { cur: 0 }), limit: entry.limit }; }
         return { tier, buy: ks_ref(entry?.buy, key_ref), sell: ks_ref(entry?.sell, key_ref), stock, bp_sku: entry?.bp_sku || ks_name(tier, src), updated: entry?.updated };
     }).filter(entry => entry.tier >= 1 && entry.tier <= 3).sort((a, b) => a.tier - b.tier);
 }
@@ -1253,35 +1255,29 @@ const single_stock = () => {
     return { cur: Number(stock.cur) || 0, limit: Number(stock.limit) || 0 };
 }
 
-// price in ref of one asset (or of a tier number) on the item page, in the same order as trade_price:
-// the tier's price, else the copy's own price when the bot server sent a higher one (the tooltip shows it),
-// else the item's price
+// The price of one copy: the highest of
+//   - its own price, which the bot server sends with each copy (it includes the killstreak, paint, spells, ...),
+//   - its killstreak tier's price from item.killstreak (the pricing server's estimate; for cheap weapons it is
+//     often the plain weapon's price, so it must not win over the copy's own price),
+//   - the item's price.
+const copy_price = (own, tier, base) => Math.max(Number(own) || 0, Number(tier) || 0, Number(base) || 0);
+
+// price in ref of one asset (or of a tier number) on the item page, the same way as trade_price:
+// the highest of the copy's own price (the bot server's price for that exact copy), its killstreak tier's
+// price and the item's price
 const single_price = (asset_or_tier, selling) => {
     const asset = (typeof asset_or_tier == 'object') ? asset_or_tier : null;
     const tier = asset ? (Number(asset?.ks) || 0) : (Number(asset_or_tier) || 0);
-    const base = selling ? itemBuy : itemSell;
-    if(tier > 0){
-        const entry = ks_tiers().find(t => t.tier == tier);
-        const price = selling ? entry?.buy : entry?.sell;
-        if(price > 0) return price;
-    }
-    const own = Number(asset?.[selling ? 'buy' : 'sell']) || 0;
-    return (own > base) ? own : base;
+    const entry = (tier > 0) ? ks_tiers().find(t => t.tier == tier) : null;
+    return copy_price(asset?.[selling ? 'buy' : 'sell'], selling ? entry?.buy : entry?.sell, selling ? itemBuy : itemSell);
 }
 
 // /trade page: price in ref of one copy (asset) of a bot (field 'sell') or user (field 'buy') inventory item.
 // Used for the tile, the tooltip and the trade, so the total adds what the tooltip shows.
-// A killstreak copy (asset.ks 1-3) gets its tier's price from item.killstreak, like on the item page.
-// Otherwise the copy's own price when the bot server sent a higher one, else the item's price.
 const trade_price = (item_obj, asset, field) => {
     const tier = Number(asset?.ks) || 0;
-    if(tier > 0){
-        const entry = ks_tiers(item_obj, item_obj?.bptf_data?.update_key_price).find(t => t.tier == tier);
-        if(entry?.[field] > 0) return entry[field];
-    }
-    const own = Number(asset?.[field]) || 0;
-    const base = Number(item_obj?.[field]) || 0;
-    return (own > base) ? own : base;
+    const entry = (tier > 0) ? ks_tiers(item_obj, item_obj?.bptf_data?.update_key_price).find(t => t.tier == tier) : null;
+    return copy_price(asset?.[field], entry?.[field], item_obj?.[field]);
 }
 
 // 110.11 ref -> "1 key 50 ref" (the price text used on the item page)
