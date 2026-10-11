@@ -3249,11 +3249,14 @@ const item_tooltip = async (state, item, party) => {
                 commodity = 'refs'
             }
 
-            if(party.includes('show-')){
-                tooltip.querySelector('.item_description .pure-desc .desc-automatic').style.display = 'none';
-            }
-
-            tooltip.querySelector('.item_description .pure-desc #pure_stock').textContent = item.getAttribute('data-count') + ' ' + commodity
+            // in a finished trade (home page, profile) the count is what was traded, not the bots' stock
+            const traded = party.includes('show-')
+            const count = item.getAttribute('data-count')
+            tooltip.querySelector('.item_description .pure-desc .desc-automatic').style.display = traded ? 'none' : 'block';
+            tooltip.querySelector('.item_description .pure-desc .pure-label').style.display = traded ? 'none' : '';
+            tooltip.querySelector('.item_description .pure-desc #pure_stock').textContent = traded
+                ? `${count} ${commodity == 'keys' ? (Number(count) == 1 ? 'key' : 'keys') : 'ref'}`
+                : count + ' ' + commodity
             
 
             tooltip.setAttribute('q', item.getAttribute('data-quality'))
