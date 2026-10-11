@@ -50,8 +50,23 @@ const pure_tiles = (side) => {
     return tiles
 }
 
+// pure on one side of a trade, in ref
+const pure_ref = (side, key_value) => num(side?.keys) * num(key_value) + num(side?.ref) + num(side?.rec) / 3 + num(side?.scrap) / 9
+
+// Each item in a trade record keeps the price it had when the trade was requested, but the bot prices the offer
+// again when it sends it, so that price can be off (a taunt recorded at 84.44 ref that the bot paid 91.33 ref for).
+// When only one side has items, the other side's pure minus this side's pure is what the items went for, so the
+// recorded prices are scaled to add up to that. 1 (keep the recorded prices) when the trade doesn't tell.
+const price_factor = (side, other, price_field, key_value) => {
+    if(!(side?.items?.length > 0) || other?.items?.length > 0){ return 1 }
+    if((num(side?.keys) > 0 || num(other?.keys) > 0) && !(num(key_value) > 0)){ return 1 }
+    const recorded = side.items.reduce((sum, item) => sum + (item?.user_stock || []).reduce((s, asset) => s + num(asset?.[price_field] || item?.[price_field]), 0), 0)
+    const paid = pure_ref(other, key_value) - pure_ref(side, key_value)
+    return (recorded > 0 && paid > 0) ? paid / recorded : 1
+}
+
 // price_field: 'buy' for what the user gave us, 'sell' for what the user got
-const item_tiles = (side, price_field, key_value) => {
+const item_tiles = (side, price_field, key_value, factor = 1) => {
     const tiles = []
     for (const item of (side?.items || [])) {
         const craftable = (item?.bp_sku?.includes('Non-Craftable')) ? "non-craftable" : "craftable"
@@ -60,7 +75,8 @@ const item_tiles = (side, price_field, key_value) => {
         for (const group of group_assets(item.user_stock).values()) {
             const rep = group[0]
             const count = group.length
-            const price = rep?.[price_field] ? rep[price_field] : item?.[price_field]
+            const recorded = rep?.[price_field] ? rep[price_field] : item?.[price_field]
+            const price = (num(recorded) > 0) ? num(recorded) * factor : recorded
             const badge = (count > 1) ? `<div class="stack-count">${count}</div>` : ""
 
             tiles.push(`<div class="item q-${esc(item?.qualityID)} ${craftable} ${count > 1 ? 'stacked' : ''}" data-assetids="${esc(group.map(a => a?.a).join(','))}" data-key="${esc(key_value)}" data-quality="${esc(item?.qualityID)}" data-effect="${esc(item?.effectID)}" data-name="${esc(item.bp_sku)}" data-bp_sku="${esc(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks))}" data-type="${esc(item?.type)}" data-price="${esc(price)}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${num(item?.effectID)}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${esc(image)}">${badge}</div>`)
@@ -74,8 +90,9 @@ const render_trade = (trade_o) => {
     if(trade_o?.toReceive?.items?.length > 0 && trade_o.toReceive.items[0]?.user_stock?.length === 0){ return "" }
     if(trade_o?.toGive?.items?.length > 0 && trade_o.toGive.items[0]?.user_stock?.length === 0){ return "" }
 
-    const userItems = [...pure_tiles(trade_o.toReceive), ...item_tiles(trade_o.toReceive, 'buy', trade_o?.key_value)]
-    const siteItems = [...pure_tiles(trade_o.toGive), ...item_tiles(trade_o.toGive, 'sell', trade_o?.key_value)]
+    const key_value = trade_o?.key_value
+    const userItems = [...pure_tiles(trade_o.toReceive), ...item_tiles(trade_o.toReceive, 'buy', key_value, price_factor(trade_o.toReceive, trade_o.toGive, 'buy', key_value))]
+    const siteItems = [...pure_tiles(trade_o.toGive), ...item_tiles(trade_o.toGive, 'sell', key_value, price_factor(trade_o.toGive, trade_o.toReceive, 'sell', key_value))]
 
     const time = (trade_o?.timestamp > 0) ? `<div class="time-ago">${timeAgoTrade(trade_o.timestamp)}</div>` : ""
 
