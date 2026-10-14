@@ -1,9 +1,9 @@
 <div class="modal_overlay" id="modal_overlay">
     <div class="searchbar" id="searchbar" role="dialog" aria-modal="true" aria-labelledby="searchbar-title">
         <h2 class="sr-only" id="searchbar-title"><%= __('search.title') %></h2>
-        <form id="search_modal_form" class="search" role="search">
+        <form id="search_modal_form" class="search" role="search" toolname="search_items" tooldescription="Search the Team Fortress 2 items that tf2deal.com buys and sells, by name. Opens the item list with prices and stock.">
             <span class="icon icon-search" aria-hidden="true"></span>
-            <input type="text" id="searchbarItems" placeholder="<%= __('search.placeholder') %>" autocomplete="off" spellcheck="false" aria-label="<%= __('search.title') %>" aria-controls="searchbar-results">
+            <input type="text" id="searchbarItems" name="name" toolparamdescription="Item name or part of it, for example Team Captain" placeholder="<%= __('search.placeholder') %>" autocomplete="off" spellcheck="false" aria-label="<%= __('search.title') %>" aria-controls="searchbar-results">
             <button type="button" class="closeModal search-close" title="<%= __('search.close') %>" aria-label="<%= __('search.close') %>">Esc</button>
         </form>
         <ul class="suggestions" id="searchbar-results" role="listbox">
@@ -96,15 +96,15 @@
         </div>
         <div class="foo-credits">
             <a href="<%= lurl('/') %>" class="foo-logo">
-                <img src="/img/logotype.png" alt="logotype" class="logotype">
+                <img src="/img/logotype-528.webp" width="528" height="100" loading="lazy" alt="TF2Deal" class="logotype">
             </a>
             <span class="text-block copyright">© <span id="current_year"></span></span>
             <div class="social-media">
-                <a rel="nofollow" href="https://steamcommunity.com/groups/tradetf2deal" target="_blank">
-                    <span class="icon icon-steam_circle"></span>
+                <a rel="nofollow" href="https://steamcommunity.com/groups/tradetf2deal" target="_blank" aria-label="Steam">
+                    <span class="icon icon-steam_circle" aria-hidden="true"></span>
                 </a>
-                <a rel="nofollow" href="https://discord.gg/br3WvWaW5y" target="_blank">
-                    <span class="icon icon-discord"></span>
+                <a rel="nofollow" href="https://discord.gg/br3WvWaW5y" target="_blank" aria-label="Discord">
+                    <span class="icon icon-discord" aria-hidden="true"></span>
                 </a>
             </div>
         </div>
@@ -114,14 +114,5 @@
         </div>
     </div>
 
-    <script type="application/javascript">
-        socket.on('trade_update', (data) => {
-            if(TD_PATH == '/trade'){
-
-            } else {
-                // use iziToast notif
-            }
-        })
-    </script>
     <%- include('./cookie_banner.ejs') %>
 </footer>

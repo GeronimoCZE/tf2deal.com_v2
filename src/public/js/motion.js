@@ -20,15 +20,14 @@
         });
 
         const fold = window.innerHeight * 0.92;
-        const pending = [];
-        targets.forEach((el) => {
+        // measure every block first and only then add classes, so the browser lays the page out once
+        const pending = Array.from(targets).filter((el) => {
             // what's already on screen is covered by the page fade-in; position:fixed/sticky blocks are left alone
             const pos = getComputedStyle(el).position;
-            if (el.getBoundingClientRect().top < fold || pos == 'fixed' || pos == 'sticky' || el.offsetParent === null) return;
-            el.classList.add('reveal');
-            pending.push(el);
+            return !(el.getBoundingClientRect().top < fold || pos == 'fixed' || pos == 'sticky' || el.offsetParent === null);
         });
         if (!pending.length) return;
+        pending.forEach((el) => el.classList.add('reveal'));
 
         const observer = new IntersectionObserver((entries) => {
             // blocks that come into view together appear one after another (max 5 steps)

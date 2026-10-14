@@ -50,7 +50,9 @@
     <meta name="trustpilot-one-time-domain-verification-id" content="52e55ef4-45c6-4737-9d51-05ac93a6f222"/>
     <meta name="msvalidate.01" content="9195A6F398D088FC940A29A7FBEC7B6C" />
 
-    <link rel="stylesheet" href="/iziToast-master/dist/css/iziToast.min.css">
+    <%# toast styles are only needed once a toast shows, so they load without holding up the page %>
+    <link rel="stylesheet" href="<%= asset('/iziToast-master/dist/css/iziToast.min.css') %>" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="<%= asset('/iziToast-master/dist/css/iziToast.min.css') %>"></noscript>
     <style>
         .iziToast{
             min-height: unset !important;
@@ -74,13 +76,13 @@
     <script type="application/ld+json"><%- JSON.stringify(info.json_ld).replace(/</g, '\\u003c') %></script>
 <% } %>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/micromodal/dist/micromodal.min.js"></script>
-
-    <script src="/socket.io/socket.io.js"></script>
+    <%# jQuery stays a normal script: inline scripts in the pages use $ right away %>
+    <script src="<%= vendor.jquery %>"></script>
+    <script src="<%= vendor.micromodal %>" defer></script>
+    <script src="<%= vendor.socket_io %>" defer></script>
+    <script src="<%= asset('/js/socket.js') %>" defer></script>
     <link rel="preload" href="/font/rubik-700-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="/css/style.css?v=1.10.0">
+    <link rel="stylesheet" href="<%= asset('/css/style.css') %>">
 
     <script defer>
         const view = `<%- tl(info.view) %>`;
@@ -298,15 +300,10 @@
         const trade_offer = `<%- tl(trade) %>`;
     </script>
 <% } %>
-    <script async type="application/javascript">
-        let init_query = {}
-        if(user != 'no_session'){ init_query = Object.assign(init_query, { auth: { steamid: user } })}
-        const socket = io( init_query );
-    </script>
     <script src="/js/main.js" type="module"></script>
-    <script src="/js/motion.js?v=1.2.0" defer></script>
-    <script src="/js/window.js" type="application/javascript"></script>
+    <script src="<%= asset('/js/motion.js') %>" defer></script>
+    <script src="<%= asset('/js/window.js') %>" defer></script>
 </head>
 
-<script src="/iziToast-master/dist/js/iziToast.min.js" type="text/javascript" defer></script>
-
+<%# the toast close button gets a name for screen readers and browser agents %>
+<script src="<%= asset('/iziToast-master/dist/js/iziToast.min.js') %>" defer onload="iziToast.settings({ onOpening: (instance, toast) => toast.querySelector('.iziToast-close')?.setAttribute('aria-label', this.dataset.close) })" data-close="<%= __('common.close') %>"></script>

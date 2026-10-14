@@ -113,17 +113,17 @@
                             </div>
                         </div>
 
-                        <div class="resetFilters" id="resetFilters"><%= __('filters.reset_filters') %></div>
+                        <button type="button" class="resetFilters" id="resetFilters" disabled><%= __('filters.reset_filters') %></button>
                         
-                        <form action="" method="post" class="input-filter" id="user-input-filter">
-                            <input type="text" id="itemInput" spellcheck="false" placeholder="<%= __('items.search_placeholder') %>" autocomplete="off">
-                            <button type="submit"><span class="icon icon-search"></span></button>
+                        <form action="" method="post" class="input-filter" id="user-input-filter" toolname="filter_items" tooldescription="Show only the items on this list whose name contains the text. The other filters on the page still apply.">
+                            <input type="text" id="itemInput" name="name" toolparamdescription="Item name or part of it, for example Team Captain" spellcheck="false" placeholder="<%= __('items.search_placeholder') %>" autocomplete="off">
+                            <button type="submit" aria-label="<%= __('search.title') %>"><span class="icon icon-search" aria-hidden="true"></span></button>
                         </form>
                     </div>
 
                     <div class="item-content">
                         <div class="items"></div>
-                        <div class="item-loader"><img src="/img/trade-icon.jpg" alt=""></div>
+                        <div class="item-loader"><img src="/img/trade-icon.jpg" width="40" height="40" alt=""></div>
                         <div class="end"><span class="icon icon-info"></span> <%= __('items.end') %></div>
                         <div class="none"><%= __('items.none') %></div>
                     </div>

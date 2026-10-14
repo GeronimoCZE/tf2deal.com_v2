@@ -247,6 +247,9 @@
             display: block;
             position: relative;
             pointer-events: none;
+            border: none;
+            background: transparent;
+            font-family: inherit;
             height: 1.5rem;
             line-height: 1.5rem;
             padding: .3rem .7rem;
@@ -640,6 +643,7 @@
             img{
                 margin-top: 5px;
                 width: 2.5rem;
+                height: auto;
                 animation: rotate 2.5s linear forwards infinite;
                 filter: opacity(.6) drop-shadow(0 0 rgb(136, 30, 242));
                 @keyframes rotate {
