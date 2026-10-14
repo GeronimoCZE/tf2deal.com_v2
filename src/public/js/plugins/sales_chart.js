@@ -1,8 +1,8 @@
 import { round_ref } from './trade.js'
 
 // Item page "Sales": how many copies the bots sold each day (bars) and the most common price that day (line).
-// The data is the item's trade_history (each killstreak tier has its own), built every night by
-// service/trade_history.js. Drawn as plain SVG, sized to the box, and redrawn when the box changes size.
+// The data is the item's trade_history (each killstreak tier has its own): [{ date, volume, sell, key_price }] per day,
+// written by item_manager after each UTC day. Drawn as plain SVG, sized to the box, and redrawn when the box changes size.
 
 const DAY = 24 * 60 * 60 * 1000
 const NS = 'http://www.w3.org/2000/svg'
@@ -62,7 +62,7 @@ const init_sales_chart = (box, item) => {
         for (let i = range; i >= 1; i--) {
             const date = day_of(today - i * DAY)
             const e = by_date.get(date)
-            days.push({ date, volume: num(e?.volume), price: e ? num(e.price) : null, key: num(e?.key) })
+            days.push({ date, volume: num(e?.volume), price: e ? num(e.sell ?? e.price) : null, key: num(e?.key_price ?? e?.key) })
         }
         return days
     }

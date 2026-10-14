@@ -66,7 +66,8 @@ const Instance = mongoose.Schema({
         type: Array,
         default: []
     },
-    // sales per day: [{ date: "YYYY-MM-DD", volume, price, key }] (service/trade_history.js); each killstreak tier has its own
+    // what the bots sold, one entry per day: [{ date: "YYYY-MM-DD", volume, sell, key_price }], written by item_manager
+    // (services/tradeHistory.js) after each UTC day; each killstreak tier has its own. The item page draws it (sales_chart.js).
     trade_history: {
         type: Array,
         default: []
