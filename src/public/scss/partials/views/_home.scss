@@ -4,10 +4,11 @@
     inherits: false;
   }
 
+// .fade-in / .fade-in-absolute (style.scss): things fade in where they are, nothing slides
 @keyframes fadeInUpCenter {
   from {
     opacity: 0;
-    transform: translate(-50%, calc(-50% + 20px));
+    transform: translate(-50%, -50%);
   }
   to {
     opacity: 1;
@@ -18,22 +19,18 @@
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 @keyframes fadeOutUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
     display: none;
   }
 }
@@ -114,7 +111,6 @@
             line-height: 1.1;
             color: var(--ink);
             -webkit-text-fill-color: currentColor;
-            text-shadow: 0 2px 18px rgba(1, 8, 30, 0.7);
             margin: 0;
             @include lt-sm{
                 font-size: 2.1rem !important;
@@ -203,17 +199,6 @@
             gap: 1rem;
             padding: 1rem 1.25rem;
             position: relative;
-            & + .stat-block{
-                border-left: 1px solid var(--line);
-            }
-            @include lt-md{
-                &:nth-of-type(3){
-                    border-left: none;
-                }
-                &:nth-of-type(n+3){
-                    border-top: 1px solid var(--line);
-                }
-            }
             @include lt-sm{
                 flex-direction: column;
                 align-items: flex-start;
@@ -282,32 +267,6 @@
                 }
             }
         }
-        .stat-block{
-            animation: 400ms appearStatBlock ease-in-out forwards;
-            opacity: 0;
-            transform: translateY(50%);
-            &:nth-of-type(1){
-                animation-delay: 1s;
-            }
-            &:nth-of-type(2){
-                animation-delay: 1.2s;
-            }
-            &:nth-of-type(3){
-                animation-delay: 1.4s;
-            }
-            &:nth-of-type(4){
-                animation-delay: 1.6s;
-            }
-            @keyframes appearStatBlock {
-                0%{
-
-                }
-                100%{
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-        }
         .color-image{
             animation: addColor 1.5s steps(24) forwards 2s;
 
@@ -336,10 +295,6 @@
         .secondary-text{
             animation: none;
             clip-path: inset(0 0 0 0);
-        }
-        .stat-block{
-            opacity: 1;
-            transform: translateY(0);
         }
     }
 }
@@ -408,16 +363,15 @@
             }
         }
         a{
-            display: inline-block;
-            width: fit-content;
-            padding: 0 .35rem;
+            display: inline;
             color: var(--violet);
             font-weight: 600;
-            background: var(--brand-muted);
-            border-radius: var(--r-sm);
-            transition: background 150ms ease;
+            text-decoration: underline;
+            text-decoration-color: transparent;
+            text-underline-offset: 3px;
+            transition: text-decoration-color 150ms ease;
             &:hover{
-                background: var(--brand-muted-hover);
+                text-decoration-color: currentColor;
             }
         }
     }
@@ -426,9 +380,7 @@
         position: relative;
         z-index: 2;
         margin: 0 0 6rem 0;
-        @include panel(1.5rem);
         @include lt-sm{
-            padding: 1rem;
             margin-bottom: 4rem;
         }
         h2{
@@ -436,6 +388,7 @@
         }
         .trades{
             @extend %trade-records;
+            .trade{ background: var(--surface); width: auto; }
             .trade[hidden]{ display: none; }
             // a trade that just happened fades in on top of the list
             .trade.trade-new{ animation: tradeArrive 700ms ease both; }
@@ -500,11 +453,6 @@
             display: flex;
             flex-direction: column;
             @include panel(1.5rem);
-            &:has(a:hover) {
-                img{
-                    translate: 0 -4px;
-                }
-            }
             img{
                 display: block;
                 width: 150px;

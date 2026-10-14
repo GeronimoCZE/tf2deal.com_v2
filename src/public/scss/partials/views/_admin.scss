@@ -307,12 +307,12 @@
         background: linear-gradient(160deg, rgba(124, 108, 255, .12), rgba(124, 108, 255, .03));
         color: inherit;
         text-decoration: none;
-        transition: border-color 150ms ease, transform 150ms ease;
+        transition: border-color 150ms ease;
         .label{ font-size: 12.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
         strong{ font-family: var(--font-heading); font-size: 1.7rem; color: var(--ink); line-height: 1.2; }
         .sub{ font-size: 13px; color: var(--ink-3); }
     }
-    a.admin-stat:hover{ border-color: var(--line-strong); transform: translateY(-1px); }
+    a.admin-stat:hover{ border-color: var(--line-strong); }
 
     .admin-rows{
         list-style: none;

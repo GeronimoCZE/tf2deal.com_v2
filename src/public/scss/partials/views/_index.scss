@@ -157,7 +157,7 @@ img[src="/img/background.jpg"]{
                     min-width: 6rem;
                     height: 100%;
                     line-height: 2rem;
-                    background: var(--brand);
+                    background: var(--surface-3);
                     padding: 0 .3rem;
                     transition: 300ms ease-in-out;
                     @include lt-md{
@@ -292,7 +292,7 @@ img[src="/img/background.jpg"]{
                 height: 12rem;
                 border-radius: 0 .3rem .3rem 0;
                 background: var(--surface);
-                border: 2px solid var(--line);
+                border: 2px solid transparent;
                 &:nth-of-type(1){
                     padding: 1rem .6rem 1rem .3rem !important;
                     border-radius: .3rem 0 0 .3rem;
@@ -487,12 +487,14 @@ img[src="/img/background.jpg"]{
                 user-select: none;
                 transition: 220ms;
                 opacity: .7;
-                border: 1px solid var(--line);
+                // TRADE is the one main button here: quiet until the trade can be sent, then green
                 &.trade-btn{
                     cursor: default;
                     min-height: 9rem;
                     width: 85%;
-                    background: rgba(46, 168, 38, 0.555);
+                    opacity: 1;
+                    color: var(--ink-3);
+                    background: var(--surface-2);
                     border: 2px solid transparent;
                     border-radius: .3rem;
                     @include lt-lg{
@@ -505,14 +507,14 @@ img[src="/img/background.jpg"]{
                     .trade-btn-span{
                         font-size: 2.6rem;
                         font-weight: bold;
-                        color: rgb(18, 18, 18);
+                        color: inherit;
                         @include lt-lg {
                             font-size: 2rem;
                         }
                     }
                     i.icon{
                         font-size: 2.6rem;
-                        color: rgb(18, 18, 18);
+                        color: inherit;
 
                     }
                     .trade-confirmed{
@@ -583,6 +585,7 @@ img[src="/img/background.jpg"]{
                     } 
                     &.ready{
                         opacity: 1;
+                        color: rgb(18, 18, 18);
                         background: rgba(46, 168, 38, 0.65);
                     
                         cursor: pointer;
@@ -641,7 +644,8 @@ img[src="/img/background.jpg"]{
                     border-radius: .3rem;
                     opacity: .6;
                     border: 2px solid transparent !important;
-                    background: var(--brand-muted);
+                    background: none;
+                    color: var(--ink-3);
                     line-height: 20px;
                     i{
                         margin-right: 3px;
@@ -653,7 +657,7 @@ img[src="/img/background.jpg"]{
                         color: var(--ink-2);
                         cursor: pointer;
                         &:hover{
-                            background: var(--brand-muted-hover);
+                            background: var(--surface-2);
                         }
                     }
                     @include lt-lg {
@@ -721,7 +725,10 @@ img[src="/img/background.jpg"]{
             padding: 0 .5rem;
             justify-content: flex-start;
             align-items: center;
-            background: var(--brand);
+            // a quiet toolbar on top of its inventory: what's picked (brand purple) is what stands out
+            background: var(--surface);
+            --bar-chip: var(--surface-3);
+            --bar-chip-strong: rgba(124, 108, 255, 0.22);
             border-radius: .3rem;
             @include lt-sm{
                 padding: .3rem .5rem;
@@ -897,11 +904,9 @@ img[src="/img/background.jpg"]{
                             @keyframes drop_animation {
                                 0%{
                                     opacity: 0;
-                                    transform: translateY(5px);
                                 }
                                 100%{
                                     opacity: 1;
-                                    transform: translateY(0px);
                                 }
                             }
                         }
@@ -1072,7 +1077,7 @@ img[src="/img/background.jpg"]{
             height: 28rem;
             background: var(--surface);
             border-radius: 0 0 .3rem .3rem;
-            border: 2px solid var(--line);
+            border: 2px solid transparent;
             border-bottom-width: 4px;
             border-top: none;
             .loading-items{
@@ -1286,7 +1291,7 @@ img[src="/img/background.jpg"]{
                                 height: fit-content !important;
                                 display: block;
                                 animation: rotate 2.5s linear forwards infinite !important;
-                                filter: opacity(.6) drop-shadow(0 0 rgba(182, 25, 230, 0.986)) !important;
+                                filter: opacity(.6) !important;
                                 @keyframes rotate {
                                     0%{
                                         transform: rotate(0);
@@ -1494,11 +1499,9 @@ img[src="/img/background.jpg"]{
         @keyframes fadeIn {
             0%{
                 opacity: 0;
-                transform: translateY(3rem);
             }
             100%{
                 opacity: 1;
-                transform: translateY(0%);
             }
         }
 
@@ -1513,7 +1516,7 @@ img[src="/img/background.jpg"]{
                     margin: 5px auto 0 auto;
                     width: 2rem;
                     animation: rotate 2.5s linear forwards infinite;
-                    filter: opacity(.6) drop-shadow(0 0 rgb(136, 30, 242));
+                    filter: opacity(.6);
                     @keyframes rotate {
                         0%{
                             transform: rotate(0);
@@ -1532,7 +1535,6 @@ img[src="/img/background.jpg"]{
             text-align: center;
             opacity: 0;
             margin: 3rem 0 0 0;
-            transform: translateY(10%);
             color: #bababa;
             h1{
                 font-weight: bold;
@@ -1545,7 +1547,6 @@ img[src="/img/background.jpg"]{
             margin: .5rem 0 1rem 0;
             border-radius: 5px;
             background: #252525;
-            transform: translateY(10%);
             overflow: hidden;
             text-align: center;
             .title{
@@ -1583,7 +1584,6 @@ img[src="/img/background.jpg"]{
             flex-direction: column;
             width: 100%;
             opacity: 0;
-            transform: translateY(10%);
             .widget-wrapper{
                 margin: 2rem 0 1rem 0;
                 @include lt-md{

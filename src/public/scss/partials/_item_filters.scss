@@ -144,8 +144,8 @@
 }
 
 @keyframes itemFiltersIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to { opacity: 1; transform: none; }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce){
     .item-page .item-filters, .item-page .item-filters .if-chip.open .if-menu{ animation: none; }
