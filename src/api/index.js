@@ -22,6 +22,7 @@ import {router as adminApi} from './routes/admin.js'
 import * as settings from '../service/settings.js'
 import * as notifications from '../service/notifications.js'
 import * as buy_link from '../service/buy_link.js'
+import * as latest_trades from '../service/latest_trades.js'
 import UserModel from '../model/User.js'
 import { log } from 'console';
 
@@ -57,7 +58,6 @@ router.use('/items', itemApi)
 router.use('/admin', adminApi)
 
 let bot_cache = []
-const latest_trades_cache = { data: [], timestamp: 0 }
 
 router.get('/item_names', (req, res) => {
   let data = [];
@@ -73,17 +73,12 @@ router.get('/item_names', (req, res) => {
 });
 
 
+// the newest 15 trades with something on both sides, each once (service/latest_trades.js keeps the list fresh)
 router.get('/latest_trades', async (req, res) => {
-    if(Date.now() - latest_trades_cache.timestamp < 10 * 1000){
-      res.json({trades: latest_trades_cache.data})  
-    } else {
-      await trade_model.find({}, { _id: 0, toGive: 1, toReceive: 1, timestamp: 1, key_value: 1 }).sort({timestamp: -1}).limit(5).lean().then((trades) => {
-          latest_trades_cache.data = trades;
-          latest_trades_cache.timestamp = Date.now();
-          res.json({trades: trades})
-      }).catch((e) => {
-        res.status(500).json({status: 'error', message: 'failed to fetch latest trades'})
-      })
+    try {
+      res.json({trades: await latest_trades.latest()})
+    } catch (e) {
+      res.status(500).json({status: 'error', message: 'failed to fetch latest trades'})
     }
 });
 

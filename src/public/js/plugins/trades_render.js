@@ -94,7 +94,7 @@ const render_trade = (trade_o) => {
     const userItems = [...pure_tiles(trade_o.toReceive), ...item_tiles(trade_o.toReceive, 'buy', key_value, price_factor(trade_o.toReceive, trade_o.toGive, 'buy', key_value))]
     const siteItems = [...pure_tiles(trade_o.toGive), ...item_tiles(trade_o.toGive, 'sell', key_value, price_factor(trade_o.toGive, trade_o.toReceive, 'sell', key_value))]
 
-    const time = (trade_o?.timestamp > 0) ? `<div class="time-ago">${timeAgoTrade(trade_o.timestamp)}</div>` : ""
+    const time = (trade_o?.timestamp > 0) ? `<div class="time-ago" data-time="${num(trade_o.timestamp)}">${timeAgoTrade(trade_o.timestamp)}</div>` : ""
 
     return `<div class="trade fade-in">
         <div class="heading">
