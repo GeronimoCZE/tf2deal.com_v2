@@ -4,7 +4,7 @@ import {create_tooltip, remove_tooltip} from "./plugins/tooltip.js";
 import * as popUp from "./plugins/window_form.js";
 import * as trade from "./plugins/trade.js";
 import * as items from "./plugins/items.js";
-import {render_trade} from "./plugins/trades_render.js";
+import {init_latest_trades} from "./plugins/latest_trades.js";
 import "./plugins/notifications.js";
 import * as buy_link from "./plugins/buy_link.js";
 import {init_sales_chart} from "./plugins/sales_chart.js";
@@ -216,27 +216,7 @@ addEventListener('DOMContentLoaded', (event) => {
             const tradesEL = document.querySelector('.last-trades .trades')
             if (isInViewport(tradesEL) && !last_trades){
                 last_trades = true;
-                await trade.getLatestTrades().then((res) => {
-                    tradesEL.innerHTML = ""
-                    if(res.trades.length > 0){
-                        for (const trade_o of res.trades) {
-                            try {
-                                tradesEL.innerHTML += render_trade(trade_o);
-                            } catch (error) {
-                                
-                            }
-                        }
-
-                        if(tradesEL.innerHTML.length === 0){
-                            tradesEL.innerHTML = `<div class="info fade-in">${__('home.no_trades')}</div>`
-                        }
-                    } else {
-                        tradesEL.innerHTML = `<div class="info fade-in">${__('home.no_trades')}</div>`
-                    }
-                }).catch((e) => {
-                    console.log(e)
-                    tradesEL.innerHTML = `<div class="info fade-in">${__('home.trades_error')}</div>`
-                })
+                init_latest_trades(tradesEL.closest('.last-trades'))
             }
         }
     })

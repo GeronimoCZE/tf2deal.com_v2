@@ -305,7 +305,8 @@
     },
     "home": {
       "no_trades": "Ainda não há registros de trocas... vá fazer algumas!",
-      "trades_error": "Ocorreu um erro ao carregar as trocas. Tente novamente mais tarde."
+      "trades_error": "Ocorreu um erro ao carregar as trocas. Tente novamente mais tarde.",
+      "show_more": "Mostrar mais 5"
     },
     "new_user": {
       "toast_title": "Envie sua URL de troca",

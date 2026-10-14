@@ -3,6 +3,7 @@ import localEmitter from "../emitter.js";
 import * as app from '../app.js'
 import { log } from "console";
 import { createSettingsSocket } from "./settings_socket.js";
+import * as latest_trades from "./latest_trades.js";
 
 
 const bot_socket = { timestamp: 0, socket: null}
@@ -44,6 +45,7 @@ const send_offer_update = (partner, res) => {
 const createSocket = (io) => {
     sio = io;
     createSettingsSocket(io); // namespace /settings: other apps change site settings live (see SETTINGS.md)
+    latest_trades.start(io); // home page "Latest trades": new trades live, duplicate records cleaned up
     
     io.on('connection', async socket => {
         socket = await identify_socket(socket);
