@@ -79,7 +79,10 @@
         margin: 0 auto;
         margin-top: .8rem;
         border-radius: .3rem;
-        background: var(--brand);
+        // a quiet toolbar: the filter that is on (brand purple) is what stands out
+        background: var(--surface);
+        --bar-chip: var(--surface-3);
+        --bar-chip-strong: rgba(124, 108, 255, 0.22);
         @include lt-md{
             max-width: calc(100% - 1rem);
         }
@@ -218,11 +221,9 @@
                     @keyframes drop_animation {
                         0%{
                             opacity: 0;
-                            transform: translateY(5px);
                         }
                         100%{
                             opacity: 1;
-                            transform: translateY(0px);
                         }
                     }
                 }
@@ -247,6 +248,9 @@
             display: block;
             position: relative;
             pointer-events: none;
+            border: none;
+            background: transparent;
+            font-family: inherit;
             height: 1.5rem;
             line-height: 1.5rem;
             padding: .3rem .7rem;
@@ -423,15 +427,8 @@
                     &.s_false{
                         opacity: .9 !important;
                     }
-                    &:hover{
-                        img {
-                            transform: scale(1.1);
-                        }
-                    }
-                    &:target{
-                        img {
-                            transform: scale(1.1);
-                        }
+                    &:hover, &:target{
+                        background: var(--tile-hover);
                     }
                     .item-name{
                         display: flex;
@@ -440,7 +437,6 @@
                         height: 3.5rem;
                         width: 100%;
                         font-size: .9rem;
-                        letter-spacing: .1rem;
                         text-align: center;
                     }
                     img.item-image{
@@ -640,8 +636,9 @@
             img{
                 margin-top: 5px;
                 width: 2.5rem;
+                height: auto;
                 animation: rotate 2.5s linear forwards infinite;
-                filter: opacity(.6) drop-shadow(0 0 rgb(136, 30, 242));
+                filter: opacity(.6);
                 @keyframes rotate {
                     0%{
                         transform: rotate(0);
@@ -673,8 +670,6 @@
         transition: 300ms ease;
         @include lt-sm{
             padding: .4rem 1rem .6rem 1rem;
-            background: var(--surface-2);
-            border: 1px solid var(--line);
         }
         span{
             padding: .3rem 0;
@@ -1107,7 +1102,7 @@
                                 margin: 25% auto;
                                 display: block;
                                 animation: rotate 2.5s linear forwards infinite !important;
-                                filter: opacity(.6) drop-shadow(0 0 rgb(136, 30, 242)) !important;
+                                filter: opacity(.6) !important;
                                 @keyframes rotate {
                                     0%{
                                         transform: rotate(0);
@@ -1274,21 +1269,21 @@
                 transform: translateX(-50%);
                 #wishlist-btn{
                     color: var(--ink-2);
-                    background: var(--brand-muted);
-                    border: 1px solid var(--line);
+                    background: var(--surface-2);
+                    border: none;
                     outline: none;
                     padding: .4rem .7rem;
                     border-radius: var(--r-sm);
                     font-family: inherit;
                     cursor: pointer;
-                    transition: 200ms;
+                    transition: background 150ms ease, color 150ms ease;
                     &:hover{
-                        background: rgba(63, 42, 119, 0.89);
-                    border: 1px solid var(--line-strong);
+                        background: var(--surface-3);
+                        color: var(--ink);
                     }
-                    &.active{
-                        background: rgba(63, 42, 119, 0.555);
-                        border: 1px solid var(--line-strong);
+                    &.active{ // on the wishlist
+                        background: var(--surface-3);
+                        color: var(--violet);
                     }
                 }
             }
@@ -1380,13 +1375,10 @@
                 margin-top: 1rem;
                 font-weight: 500;
                 width: calc(100% - 2.5rem);
-                background: var(--surface-2);
-                border: 1px solid var(--line);
-                border-radius: var(--r-md);
-                padding: .3rem 1.5rem .8rem 1rem;
+                padding: 0 0 .5rem .5rem;
                 @include lt-sm{
                     margin: 1rem auto;
-                    padding: .5rem 1.5rem 1rem 1.5rem;
+                    padding: 0 1rem .5rem 1rem;
                     max-height: none !important;
                 }
                 #ks-desc{
@@ -1428,7 +1420,6 @@
                     padding: 0.2rem .45rem;
                     border-radius: var(--r-sm);
                     background: var(--surface-2);
-                    border: 1px solid var(--line);
                     color: var(--ink-2);
                     font-size: 14px !important;
                     width: fit-content !important;
@@ -1503,9 +1494,10 @@
                             display: inline-block;
                         }
                     }
+                    // Buy / Sell: what can't be done now stays quiet; what can is the green button. When both can,
+                    // Buy is the main one and Sell steps back (see .item-btns:has() below)
                     .item__btn{
                         cursor: default;
-                        opacity: .55;
                         padding: .7rem 1rem;
                         margin: .6rem auto 0.2rem auto;
                         border-radius: var(--r-md);
@@ -1514,24 +1506,18 @@
                         font-family: inherit;
                         font-weight: 600;
                         font-size: 17px !important;
-                        color: var(--ink);
+                        color: var(--ink-3);
+                        background: var(--surface-2);
                         pointer-events: none;
-                        transition: 200ms;
+                        transition: background 150ms ease, color 150ms ease;
                         border: none;
-                        &#buy{
-                            background: var(--green-muted);
-                            border: 1px solid var(--line);
-                        }
-                        &#sell{
-                            background: var(--brand-muted);
-                            border: 1px solid var(--line);
-                        }
                         &.active{
                             pointer-events: all;
                             cursor: pointer;
-                            opacity: .87;
+                            color: var(--ink);
+                            background: var(--green-muted);
                             &:hover{
-                                opacity: 1;
+                                background: rgba(46, 168, 38, 0.85);
                             }
                         }
                         *{
@@ -1542,6 +1528,12 @@
                             margin-right: -5px;
                             margin-top: -2px;
                         }
+                    }
+                }
+                &:has(#buy.active) #sell.active{
+                    background: var(--surface-3);
+                    &:hover{
+                        background: var(--brand-muted);
                     }
                 }
                 .desc{
@@ -1563,8 +1555,7 @@
                     margin-right: 0 !important;
                 }
                 &.tf2wiki{
-                    background: var(--brand-muted) !important;
-                    border: 1px solid var(--line) !important;
+                    background: var(--surface-2) !important;
                     padding: 3px 6px !important;
                     border-radius: var(--r-sm);
                     cursor: pointer;
@@ -1584,8 +1575,7 @@
                     }
                 }
                 &.bptf{
-                    background: rgba(63, 42, 119, 0.555) !important;
-                    border: 1px solid var(--line) !important;
+                    background: var(--surface-2) !important;
                     padding: 3px !important;
                     border-radius: 3px;
                     cursor: pointer;
@@ -2121,10 +2111,6 @@
                     text-align: center;
                     width: 13rem;
                     margin: .2rem .3rem;
-                    &:nth-of-type(2){
-                        border-left: 1px solid var(--line);
-                        border-right: 1px solid var(--line);
-                    }
                     @include lt-sm{
                         margin: .2rem .15rem;
                         width: calc(33% - .3rem - 4px);
@@ -2156,16 +2142,9 @@
                 &:last-of-type{
                     margin-right: 0 !important;
                 }
-                &:hover{
-                        img {
-                            transform: scale(1.1);
-                        }
-                    }
-                    &:target{
-                        img {
-                            transform: scale(1.1);
-                        }
-                    }
+                &:hover, &:target{
+                    background: var(--tile-hover);
+                }
                 .item-name{
                     display: flex;
                     justify-content: center;
@@ -2173,7 +2152,6 @@
                     height: 3.5rem;
                     width: 12rem !important;
                     font-size: .9rem;
-                    letter-spacing: .1rem;
                     text-align: center;
                 }
                 img.item-image{

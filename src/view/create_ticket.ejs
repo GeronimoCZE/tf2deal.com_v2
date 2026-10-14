@@ -13,9 +13,9 @@
 
                     <div class="container">
                         <a href="<%= lurl('/profile/tickets') %>" class="my-tickets"><%= __('support.my_tickets') %> &rarr;</a>
-                        <form id="ticket-form">
+                        <form id="ticket-form" toolname="create_support_ticket" tooldescription="Open a support ticket for the tf2deal.com team about a sign-in, trade or other problem.">
                             <label for="ticket-title"><%= __('support.topic_label') %></label>
-                            <select name="ticket_title" id="ticket-title" required>
+                            <select name="ticket_title" id="ticket-title" required toolparamdescription="Topic of the ticket">
                                 <option value="">-- <%= __('support.choose') %> --</option>
                                 <option value="Login Issue"><%= __('js.tickets.topics.login_issue') %></option>
                                 <option value="Trade Issue"><%= __('js.tickets.topics.trade_issue') %></option>
@@ -25,7 +25,7 @@
                             </select>
                     
                             <label for="ticket-details"><%= __('support.details_label') %></label>
-                            <textarea name="ticket_details" id="ticket-details" rows="6" maxlength="2000" placeholder="<%= __('support.details_placeholder') %>"></textarea>
+                            <textarea name="ticket_details" id="ticket-details" rows="6" maxlength="2000" toolparamdescription="What happened, with trade IDs or item names if they help" placeholder="<%= __('support.details_placeholder') %>"></textarea>
                     
                             <input type="submit" value="<%= __('support.submit') %>">
                         </form>

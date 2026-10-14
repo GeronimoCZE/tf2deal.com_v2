@@ -60,7 +60,7 @@ header{
                 border-color: transparent !important;
 
         animation: pulseBackground 4s ease-in-out infinite;
-        border: 1px solid var(--line);
+        border: 1px solid transparent;
         border-left: none;
         border-right: none;
         border-left: none;
@@ -82,7 +82,7 @@ header{
         color: #c9c8c8;
         background: rgb(163, 58, 51);
         background: rgba(48, 153, 80, 0.884);
-        border: 1px solid var(--line);
+        border: 1px solid transparent;
         border-color: transparent !important;
 
         border-radius: 7px;
@@ -172,7 +172,7 @@ header{
         font-size: 17px;
         color: #c9c8c8;
         background: rgba(63, 42, 119, 0.575);
-        border: 1px solid var(--line);
+        border: 1px solid transparent;
         border-left: none;
         border-right: none;
         text-align: center;
@@ -197,7 +197,7 @@ header{
         letter-spacing: 0.04rem;
         color: #c9c8c8;
         background: rgb(40, 140, 40);
-        border: 1px solid var(--line);
+        border: 1px solid transparent;
         text-align: center;
         animation: lideIn .3s cubic-bezier(0, 0, .2, 1);
         transition: .3s;
@@ -259,7 +259,7 @@ header{
             flex-wrap: wrap;
             max-width: 1480px;
             background: rgb(2, 11, 41);
-            border: 1px solid var(--line);
+            border: 1px solid transparent;
             border-top: none !important;
             border-radius: 0 0 1rem 1rem;
             min-height: $nav_height;
@@ -294,6 +294,7 @@ header{
                 }
                 .logotype{
                     height: 2.3rem;
+                    width: auto;
                     display: block;
                     position: relative;
                     vertical-align: middle;
@@ -561,11 +562,9 @@ header{
                                 @keyframes drop_animation {
                                     0%{
                                         opacity: 0;
-                                        transform: translateY(10px);
                                     }
                                     100%{
                                         opacity: 1;
-                                        transform: translateY(0px);
                                     }
                                 }
                             }
@@ -1082,11 +1081,9 @@ header{
                                         @keyframes drop_animation {
                                             0%{
                                                 opacity: 0;
-                                                transform: translateY(10px);
                                             }
                                             100%{
                                                 opacity: 1;
-                                                transform: translateY(0px);
                                             }
                                         }
                                     }

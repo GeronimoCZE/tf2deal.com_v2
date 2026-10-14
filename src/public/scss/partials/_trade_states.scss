@@ -97,15 +97,13 @@ $ts-ease: cubic-bezier(.2, .8, .2, 1);
         background: transparent;
         cursor: pointer;
         color: rgba(174, 179, 201, 0.35);
-        transition: color 120ms ease, transform 120ms ease, background 120ms ease;
+        transition: color 120ms ease, background 120ms ease;
         svg{ width: 30px; height: 30px; fill: currentColor; }
         &:focus-visible{ outline: 2px solid var(--violet, #a99dff); outline-offset: 1px; }
         &.is-on{ color: #ffc83d; }
     }
     &:hover .rate-star{ color: rgba(174, 179, 201, 0.35); }
     .rate-star:hover, .rate-star:hover ~ .rate-star{ color: #ffd56b; }
-    .rate-star:hover{ transform: scale(1.12); }
-    .rate-star:active{ transform: scale(.95); }
 }
 .modal_overlay .rating-box.is-sending .rating-stars{ opacity: .7; pointer-events: none; }
 .modal_overlay .rating-follow{
@@ -147,10 +145,9 @@ $ts-ease: cubic-bezier(.2, .8, .2, 1);
     line-height: 1.3;
     font-weight: 700;
     text-decoration: none;
-    transition: filter 150ms ease, transform 100ms ease;
+    transition: filter 150ms ease;
     svg{ width: 18px; height: 18px; flex: none; fill: currentColor; }
     &:hover{ filter: brightness(1.08); }
-    &:active{ transform: translateY(1px); }
 }
 
 /* ---------- "open trade offer" bar under the menu ---------- */
@@ -313,16 +310,16 @@ $tt-line: rgba(255, 255, 255, 0.08);
 }
 
 @keyframes offerIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: none; }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 @keyframes stepWait {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(230%); }
 }
 @keyframes tooltipIn {
-    from { visibility: visible; opacity: 0; transform: translateY(4px) scale(.98); }
-    to { visibility: visible; opacity: 1; transform: none; }
+    from { visibility: visible; opacity: 0; }
+    to { visibility: visible; opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce){

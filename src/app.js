@@ -20,6 +20,8 @@ import EventEmitter from 'events'
 import { promisify } from 'util'
 import crypto from 'crypto'
 import { fileURLToPath } from 'url'
+import { createRequire } from 'module'
+import fs from 'fs'
 import { LRUCache } from 'lru-cache'
 import { Server as SocketIOServer } from 'socket.io'
 
@@ -206,7 +208,50 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 })); 
 
 app.set('views', path.join(__dirname, '/view'));
-app.use(express.static(path.join(__dirname,'public')));
+// Browser libraries come from node_modules (no outside CDN to wait for). The installed version is part of the URL,
+// so browsers may keep them for a year and an update still reaches everyone.
+const vendor_require = createRequire(import.meta.url)
+const vendor = (name, dir, file) => {
+  // the package folder: walk up from its main file to its own package.json
+  let root = path.dirname(vendor_require.resolve(name))
+  const pkg_name = (d) => { try { return JSON.parse(fs.readFileSync(path.join(d, 'package.json'), 'utf8')).name } catch (e) { return null } }
+  while (pkg_name(root) != name && path.dirname(root) != root) { root = path.dirname(root) }
+  const { version } = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'))
+  const base = `/vendor/${name}@${version}`
+  app.use(base, express.static(path.join(root, dir), { maxAge: '365d', immutable: true, index: false }))
+  return `${base}/${file}`
+}
+app.locals.vendor = {
+  jquery: vendor('jquery', 'dist', 'jquery.min.js'),
+  micromodal: vendor('micromodal', 'dist', 'micromodal.min.js'),
+  tsparticles: vendor('tsparticles', 'dist', 'tsparticles.min.js'),
+  socket_io: vendor('socket.io', 'client-dist', 'socket.io.min.js'), // same version as the server
+}
+
+// Our own styles and scripts are linked with asset('/css/style.css'), which adds a short hash of the file (?v=…).
+// A new file gets a new address, so browsers may keep each version for a year.
+const asset_versions = new Map()
+app.locals.asset = (file) => {
+  const full = path.join(__dirname, 'public', file)
+  let stat = null
+  try { stat = fs.statSync(full) } catch (e) { return file }
+  const known = asset_versions.get(file)
+  if (known && known.mtime == stat.mtimeMs && known.size == stat.size) { return known.url }
+  const url = `${file}?v=${crypto.createHash('sha1').update(fs.readFileSync(full)).digest('hex').slice(0, 10)}`
+  asset_versions.set(file, { mtime: stat.mtimeMs, size: stat.size, url })
+  return url
+}
+const static_headers = (res) => {
+  const req = res.req
+  if (req?.query?.v && req.originalUrl == app.locals.asset(req.path)) {
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+  }
+}
+
+// Fonts and images rarely change, so browsers keep them for a while; everything else is checked on each visit
+app.use('/font', express.static(path.join(__dirname, 'public/font'), { maxAge: '30d' }))
+app.use('/img', express.static(path.join(__dirname, 'public/img'), { maxAge: '7d' }))
+app.use(express.static(path.join(__dirname,'public'), { setHeaders: static_headers }));
 
 app.locals.site_url = fn.site_url
 Object.assign(app.locals, i18n.default_locals) // English for pages rendered before the language middleware

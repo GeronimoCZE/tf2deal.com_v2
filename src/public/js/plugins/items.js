@@ -30,10 +30,10 @@ const get_items = async (page, validInputs) => {
         paramsObject['client_secret'] = cli_secret
 
         if(urlParams.size > 0){
-            $('#resetFilters').addClass('active')
+            $('#resetFilters').addClass('active').prop('disabled', false)
         } else {
             clear_filter_elements()
-            $('#resetFilters').removeClass('active')
+            $('#resetFilters').removeClass('active').prop('disabled', true)
         }
 
         for (const entry of urlParams.entries()) {            

@@ -1018,7 +1018,7 @@ addEventListener('DOMContentLoaded', (event) => {
                         url.search = '';
                         window.history.replaceState({}, document.title, url.toString());
 
-                        $('#resetFilters').removeClass('active')
+                        $('#resetFilters').removeClass('active').prop('disabled', true)
                         window.location.reload()
                     }
                 })
