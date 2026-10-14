@@ -305,7 +305,8 @@
     },
     "home": {
       "no_trades": "Es gibt noch keine Trades... leg los und mach welche!",
-      "trades_error": "Beim Abrufen der Trades ist ein Fehler aufgetreten. Bitte versuch es später erneut."
+      "trades_error": "Beim Abrufen der Trades ist ein Fehler aufgetreten. Bitte versuch es später erneut.",
+      "show_more": "5 weitere anzeigen"
     },
     "new_user": {
       "toast_title": "Gib deine Tausch-URL an",

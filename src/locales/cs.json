@@ -305,7 +305,8 @@
     },
     "home": {
       "no_trades": "Zatím tu nejsou žádné výměny... tak nějakou udělejte!",
-      "trades_error": "Při načítání výměn došlo k chybě. Zkuste to prosím později."
+      "trades_error": "Při načítání výměn došlo k chybě. Zkuste to prosím později.",
+      "show_more": "Zobrazit dalších 5"
     },
     "new_user": {
       "toast_title": "Zadejte svůj odkaz pro výměnu",

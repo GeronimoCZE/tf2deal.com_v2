@@ -436,6 +436,19 @@
         }
         .trades{
             @extend %trade-records;
+            .trade[hidden]{ display: none; }
+            // a trade that just happened fades in on top of the list
+            .trade.trade-new{ animation: tradeArrive 700ms ease both; }
+        }
+        .trades-more{
+            @include button(secondary);
+            display: flex;
+            margin: 1.5rem auto 0 auto;
+            &[hidden]{ display: none; }
+        }
+        @keyframes tradeArrive {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     }
     .trustpilot-widget{
