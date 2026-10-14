@@ -28,6 +28,7 @@ import {router as profileRoute} from './routes/profile.js'
 
 import { bot_socket, createSocket, item_socket } from './service/socket.js'
 import * as seasons from './service/season.js'
+import * as trade_history from './service/trade_history.js'
 
 const DOMAIN = 'localhost' 
 const PORT = 8080; // change to 8080
@@ -763,5 +764,6 @@ export {
 
 connectDB().then(() => {
   createSocket(io)
+  trade_history.start() // each item's sales per day, built every night from the trades
   server.listen(process.env.PORT || PORT, () => console.log(`running on URL localhost:${PORT}`)); 
 })

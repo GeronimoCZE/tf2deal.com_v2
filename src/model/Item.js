@@ -62,7 +62,12 @@ const Instance = mongoose.Schema({
             items: []
         }
     }, /* global for all ks-versions (every ks has it's limitations) */
-    killstreak: { // used for weapons in form { ks_tier, buy, sell, stock }
+    killstreak: { // used for weapons in form { ks_tier, buy, sell, stock, trade_history }
+        type: Array,
+        default: []
+    },
+    // sales per day: [{ date: "YYYY-MM-DD", volume, price, key }] (service/trade_history.js); each killstreak tier has its own
+    trade_history: {
         type: Array,
         default: []
     },

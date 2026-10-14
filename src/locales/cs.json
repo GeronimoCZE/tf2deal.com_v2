@@ -388,7 +388,16 @@
       "cant_buy": "Tento předmět momentálně nemůžete koupit.",
       "no_items_sell": "Tento předmět ve svém inventáři na Steamu nemáte.",
       "no_items_buy": "Naši boti tento předmět teď nemají.",
-      "price_each": "{price} za kus"
+      "price_each": "{price} za kus",
+      "sales_title": "Prodeje",
+      "sales_hint": "Kolik kusů naši boti každý den prodali a nejčastější cena.",
+      "range_30": "30 dní",
+      "range_90": "90 dní",
+      "range_365": "1 rok",
+      "sales_none": "V tomto období žádné prodeje.",
+      "sales_sold": "Prodáno: {count}",
+      "sales_price": "Nejčastější cena",
+      "sales_total": "Prodáno za toto období: {count}"
     },
     "items": {
       "invalid_input": "Neplatná hodnota filtru.",

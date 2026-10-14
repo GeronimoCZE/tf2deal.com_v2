@@ -7,6 +7,7 @@ import * as items from "./plugins/items.js";
 import {render_trade} from "./plugins/trades_render.js";
 import "./plugins/notifications.js";
 import * as buy_link from "./plugins/buy_link.js";
+import {init_sales_chart} from "./plugins/sales_chart.js";
 
 const particles = JSON.parse(localStorage.getItem('unusual_effects'))
 
@@ -1222,6 +1223,9 @@ addEventListener('DOMContentLoaded', (event) => {
             // Sell / Buy then list only items of that tier (trade.js tier_visible).
             const ks_tiers = trade.ks_tiers()
             const ks_select = document.getElementById('ks-select')
+            // "Sales" chart: follows the picked tier
+            const sales_box = document.getElementById('item-sales')
+            const sales_chart = sales_box ? init_sales_chart(sales_box, item) : null
 
             const show_tier = (tier) => {
                 const entry = ks_tiers.find(t => t.tier == tier)
@@ -1248,6 +1252,7 @@ addEventListener('DOMContentLoaded', (event) => {
 
                 $('#updated-ago').text(timeAgo(entry?.updated || item_update))
                 if(ks_select){ ks_select.value = String(current_tier) }
+                sales_chart?.show_tier(current_tier)
             }
 
             if(ks_select){
