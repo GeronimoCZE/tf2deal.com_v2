@@ -305,7 +305,8 @@
     },
     "home": {
       "no_trades": "Aucun échange enregistré pour l'instant... à vous de jouer !",
-      "trades_error": "Une erreur est survenue lors de la récupération des échanges. Veuillez réessayer plus tard."
+      "trades_error": "Une erreur est survenue lors de la récupération des échanges. Veuillez réessayer plus tard.",
+      "show_more": "Afficher 5 de plus"
     },
     "new_user": {
       "toast_title": "Renseignez votre URL d'échange",

@@ -3442,22 +3442,13 @@ const put_novalue_last = (party) => {
     });
 }
 
-const getLatestTrades = () => {
-    return new Promise((resolve, reject) => {
-        fetch('../api/latest_trades')
-            .then(response => response.json())
-            .then(data => resolve(data))
-            .catch(error => reject(error));
-    }); 
-};
-
 export {
     load_user_inventory, load_user_inventory_single, load_site_inventory, load_site_inventory_single,
     item_tooltip, render_items,
     setBot, set_filter, reset_filters, search, item_to_trade, single_item_to_trade, clear_single_items, clear_items, round_ref,
     group_assets, stack_sig,
     ks_tiers, ks_name, single_price, price_text,
-    create_trade, check_trade, getLatestTrades,
+    create_trade, check_trade,
     UserTrade, SiteTrade, ItemTrade,
     tradeoffer, tradeOfferConnection,
     Trade_Object, Item_Trade_Object,
