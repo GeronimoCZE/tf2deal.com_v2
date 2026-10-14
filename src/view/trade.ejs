@@ -176,9 +176,9 @@
 
                             </div>
                             <div class="filter-btn" id="reload-user-inv"><span class="icon icon-spinner1"></span></div>
-                            <form action="" method="post" class="input-filter" id="user-input-filter">
-                                <input type="text" name="" id="" spellcheck="false" placeholder="<%= __('items.search_placeholder') %>">
-                                <button type="submit"><span class="icon icon-search"></span></button>
+                            <form action="" method="post" class="input-filter" id="user-input-filter" toolname="filter_my_inventory" tooldescription="Show only the items from your Steam inventory whose name contains the text.">
+                                <input type="text" name="name" toolparamdescription="Item name or part of it" spellcheck="false" placeholder="<%= __('items.search_placeholder') %>" aria-label="<%= __('items.search_placeholder') %>">
+                                <button type="submit" aria-label="<%= __('search.title') %>"><span class="icon icon-search" aria-hidden="true"></span></button>
                             </form>
                         </div>
                         <div class="items" items-loaded="false">
@@ -328,9 +328,9 @@
                                     <div class="fd-value none" data-value="None"><span class="icon icon-close"></span> <%= __('filters.none') %></div>
                                 </div>
                             </div>
-                            <form action="" method="post" class="input-filter" id="site-input-filter">
-                                <input type="text" name="" id="" spellcheck="false" placeholder="<%= __('items.search_placeholder') %>">
-                                <button type="submit"><span class="icon icon-search"></span></button>
+                            <form action="" method="post" class="input-filter" id="site-input-filter" toolname="filter_bot_inventory" tooldescription="Show only the items our trade bots have in stock whose name contains the text.">
+                                <input type="text" name="name" toolparamdescription="Item name or part of it" spellcheck="false" placeholder="<%= __('items.search_placeholder') %>" aria-label="<%= __('items.search_placeholder') %>">
+                                <button type="submit" aria-label="<%= __('search.title') %>"><span class="icon icon-search" aria-hidden="true"></span></button>
                             </form>
                         </div>
                         <div class="items" items-loaded="false">

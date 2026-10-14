@@ -13,9 +13,9 @@
                     <br><p class="fade-in">🥳🎉</p>
                     <p class="fade-in"><%- __('new_user.intro_html') %></p>
                     
-                    <form method="POST" action="" id="tradeurl" class="fade-in">
+                    <form method="POST" action="" id="tradeurl" class="fade-in" toolname="save_trade_url" tooldescription="Finish signing up by saving the Steam trade offer URL our bots use to send trade offers.">
                         <label for="tradeurl"><%= __('new_user.trade_url_label') %> <a href="https://steamcommunity.com/id/me/tradeoffers/privacy#trade_offer_access_url" target="_blank"><%= __('new_user.get_link') %></a></label>
-                        <input name="tradeurl" type="text" autocomplete="off" placeholder="<%= __('new_user.trade_url_placeholder') %>">
+                        <input name="tradeurl" type="text" autocomplete="off" toolparamdescription="Steam trade offer URL, like https://steamcommunity.com/tradeoffer/new/?partner=123&amp;token=abc" placeholder="<%= __('new_user.trade_url_placeholder') %>">
 
                         <a href="<%= lurl('/terms-of-service') %>" class="tos" target="_blank"><%= __('new_user.read_tos') %></a>
 

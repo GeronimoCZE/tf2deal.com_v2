@@ -1,0 +1,24 @@
+# TF2Deal.com
+
+> TF2Deal.com is an automated Team Fortress 2 trading site. Visitors sign in with Steam, pick items from their own inventory and from our trade bots, and get a Steam trade offer at a fair price within seconds. Prices are in keys and refined metal.
+
+The site is available in English, Czech, German, Spanish, French, Portuguese, Russian and Chinese. Other languages use a prefix, for example https://tf2deal.com/de/items.
+
+Trading needs a Steam sign-in and a Steam trade offer URL saved on the profile page. Only the bots listed on the About page belong to TF2Deal.com.
+
+## Pages
+
+- [Trade](https://tf2deal.com/trade): pick items from your inventory and from our bots, see the balance, and get a trade offer.
+- [Items](https://tf2deal.com/items): every item we buy and sell, with live prices and stock. Search by name with `?name=`, for example https://tf2deal.com/items?name=Team%20Captain.
+- [Item page](https://tf2deal.com/items/Team%20Captain): one item with its buy and sell price, the copies in stock and their paint, spells, parts and killstreaks. The path is the item name.
+- [About](https://tf2deal.com/about): how trading works and the list of our Steam bots.
+- [Giveaway](https://tf2deal.com/giveaway): the current free item giveaway and past winners.
+- [Blog](https://tf2deal.com/blog): news, guides and updates about TF2 trading.
+
+## Help
+
+- [Support](https://tf2deal.com/support): open a support ticket (needs a Steam sign-in).
+- [Terms of Service](https://tf2deal.com/terms-of-service)
+- [Cookie policy](https://tf2deal.com/cookies)
+- [Steam group](https://steamcommunity.com/groups/tradetf2deal)
+- [Discord](https://discord.gg/br3WvWaW5y)

@@ -33,7 +33,9 @@
     "http": "0.0.1-security",
     "https-proxy-agent": "^7.0.1",
     "izitoast": "^1.4.0",
+    "jquery": "3.6.0",
     "lru-cache": "^11.0.1",
+    "micromodal": "0.4.10",
     "mongodb": "^4.4.1",
     "mongoose": "^5.13.8",
     "node-fetch": "^2.6.8",
@@ -52,6 +54,7 @@
     "steam-user": "^4.29.3",
     "steamcommunity": "^3.48.0",
     "steamid": "^2.1.0",
+    "tsparticles": "1.18.3",
     "util": "^0.12.5",
     "yaml": "^2.3.4"
   },

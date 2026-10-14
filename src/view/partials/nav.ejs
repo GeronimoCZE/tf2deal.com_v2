@@ -4,7 +4,7 @@
         <div class="nav-wrapper">
           <div class="nav-section left">
             <a href="<%= lurl('/') %>" id="nav_logotype">
-                <img src="/img/logotype.png" alt="logotype" class="logotype">
+                <img src="/img/logotype-528.webp" width="528" height="100" alt="TF2Deal" class="logotype">
             </a>
             <div class="nav-mobile-actions">
             <% if(user){ %><button type="button" class="nav-bell nav-bell-mobile" data-notif-bell title="<%= __('nav.notifications') %>" aria-label="<%= __('nav.notifications') %>" aria-haspopup="dialog" aria-expanded="false">
@@ -69,7 +69,7 @@
                 <div class="dropdown-container dc-langSelect">
                     <div class="langSelect" id="langSelect" title="<%= __('nav.language') %>">
                         <div class="currentLang" id="currentLang">
-                            <img src="/img/flags/<%= lang %>_96x96.png" alt="<%= lang_names[lang] %>">
+                            <img src="/img/flags/<%= lang %>_96x96.png" width="32" height="32" alt="<%= lang_names[lang] %>">
                         </div>
                         <span class="lang-current-name"><%= lang_names[lang] %></span>
                         <span class="icon icon-arrow_down"></span>
@@ -77,7 +77,7 @@
                     <div class="dropdown dropdown-item">
                         <% for (const code of langs) { %>
                         <a class="lang-option <%= code %><%= code == lang ? ' active' : '' %>" href="<%= locals.lang_urls?.[code] || '/' %>" data-lang="<%= code %>" hreflang="<%= lang_tags[code] %>" lang="<%= lang_tags[code] %>">
-                            <img src="/img/flags/<%= code %>_96x96.png" alt="">
+                            <img src="/img/flags/<%= code %>_96x96.png" width="24" height="24" loading="lazy" alt="">
                             <span class="lang-name"><%= lang_names[code] %></span>
                         </a>
                         <% } %>
@@ -151,7 +151,7 @@
 
     <% if (locals.lang_suggest && locals.lang_suggest != lang) { const s = locals.lang_suggest %>
       <div class="lang-suggest hidden" id="lang-suggest" lang="<%= lang_tags[s] %>">
-        <img src="/img/flags/<%= s %>_96x96.png" alt="">
+        <img src="/img/flags/<%= s %>_96x96.png" width="24" height="24" loading="lazy" alt="">
         <span><%= __for(s, 'lang_suggest.text') %></span>
         <a href="<%= locals.lang_urls?.[s] %>" data-lang="<%= s %>"><%= __for(s, 'lang_suggest.switch') %></a>
         <button type="button" class="lang-suggest-close" aria-label="<%= __('common.close') %>">&times;</button>

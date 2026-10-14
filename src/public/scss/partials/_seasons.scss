@@ -53,6 +53,13 @@ body.season-halloween{
     }
 }
 
+// phones get the colour picture at half size
+@media screen and (max-width: 960px){
+    body{ --hero-color: url("/img/cabin-960.webp"); }
+    body.season-summer{ --hero-color: url("/img/seasons/summer-960.webp"); }
+    body.season-halloween{ --hero-color: url("/img/seasons/halloween-960.webp"); }
+}
+
 body.season-smissmas{
     // the normal look is already the snowy cabin; Smissmas only adds the red and green
     --brand: #b0302f;

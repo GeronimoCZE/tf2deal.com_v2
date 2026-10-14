@@ -68,15 +68,15 @@
                         <div class="account-links">
                             <div class="link">
                                 <div class="header"><%= __('profile.trade_url') %> (<a href="https://steamcommunity.com/id/me/tradeoffers/privacy#trade_offer_access_url" target="_blank"><%= __('profile.get_link') %></a>)</div>
-                                <form action="/api/update_user" method="post" id="form-tradeurl">
-                                    <input type="text" spellcheck="false">
+                                <form action="/api/update_user" method="post" id="form-tradeurl" toolname="save_trade_url" tooldescription="Save the Steam trade offer URL our bots use to send trade offers. If the field is locked, submit once to unlock it, then submit again to save.">
+                                    <input type="text" name="tradeurl" spellcheck="false" aria-label="<%= __('profile.trade_url') %>" toolparamdescription="Steam trade offer URL, like https://steamcommunity.com/tradeoffer/new/?partner=123&amp;token=abc. Leave empty to remove it.">
                                     <button type="submit"><span class="icon icon-checkmark"></span><span class="icon icon-pencil"></span></button>
                                 </form>
                             </div>
                             <div class="link">
                                 <div class="header"><%= __('profile.email') %></div>
-                                <form action="/api/update_user" method="post" id="form-email">
-                                    <input type="email" spellcheck="false" value="<%= info.email %>" placeholder="you@example.com">
+                                <form action="/api/update_user" method="post" id="form-email" toolname="save_email" tooldescription="Save the email address for trade and giveaway messages. If the field is locked, submit once to unlock it, then submit again to save.">
+                                    <input type="email" name="email" spellcheck="false" aria-label="<%= __('profile.email') %>" toolparamdescription="Email address. Leave empty to remove it." value="<%= info.email %>" placeholder="you@example.com">
                                     <button type="submit"><span class="icon icon-checkmark"></span><span class="icon icon-pencil"></span></button>
                                 </form>
                             </div>
