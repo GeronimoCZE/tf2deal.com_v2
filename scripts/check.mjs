@@ -43,7 +43,13 @@ for (const file of locales) check('language file', file, () => {
 })
 
 const style = path.join(root, 'src/public/scss/style.scss')
-check('stylesheet', style, () => sass.compile(style, { style: 'compressed', logger: sass.Logger.silent }))
+check('stylesheet', style, () => {
+  // the site serves the committed style.css, so it has to be exactly what the SCSS compiles to (a merge can leave it stale or doubled)
+  const css = sass.compile(style, { style: 'compressed', logger: sass.Logger.silent }).css
+  const built = fs.readFileSync(path.join(root, 'src/public/css/style.css'), 'utf8')
+  const plain = (text) => text.replace(/\/\*# sourceMappingURL=[^*]*\*\/\s*$/, '').trim() // `npm run dev` adds a source map line
+  if (plain(built) != plain(css)) throw new Error('src/public/css/style.css is out of date, rebuild it with: npx sass --style=compressed --no-source-map src/public/scss/style.scss src/public/css/style.css')
+})
 
 console.log(`${scripts.length} scripts, ${views.length} templates, ${locales.length} language files, 1 stylesheet checked`)
 if (failed) {
