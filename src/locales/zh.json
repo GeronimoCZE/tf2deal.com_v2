@@ -389,7 +389,16 @@
       "cant_buy": "你目前无法购买此物品。",
       "no_items_sell": "你的 Steam 库存中没有这件物品。",
       "no_items_buy": "我们的机器人目前没有这件物品。",
-      "price_each": "每件 {price}"
+      "price_each": "每件 {price}",
+      "sales_title": "销售记录",
+      "sales_hint": "我们的机器人每天售出的数量和最常见的价格。",
+      "range_30": "30 天",
+      "range_90": "90 天",
+      "range_365": "1 年",
+      "sales_none": "此期间没有销售。",
+      "sales_sold": "售出 {count} 件",
+      "sales_price": "最常见价格",
+      "sales_total": "此期间售出 {count} 件"
     },
     "items": {
       "invalid_input": "筛选值无效。",

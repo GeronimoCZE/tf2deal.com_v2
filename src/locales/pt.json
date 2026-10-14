@@ -389,7 +389,16 @@
       "cant_buy": "No momento, você não pode comprar este item.",
       "no_items_sell": "Você não tem este item no seu inventário da Steam.",
       "no_items_buy": "Nossos bots não têm este item no momento.",
-      "price_each": "{price} cada"
+      "price_each": "{price} cada",
+      "sales_title": "Vendas",
+      "sales_hint": "Quantos os nossos bots venderam por dia e o preço mais comum.",
+      "range_30": "30 dias",
+      "range_90": "90 dias",
+      "range_365": "1 ano",
+      "sales_none": "Sem vendas neste período.",
+      "sales_sold": "{count} vendidos",
+      "sales_price": "Preço mais comum",
+      "sales_total": "{count} vendidos neste período"
     },
     "items": {
       "invalid_input": "Valor de filtro inválido.",
