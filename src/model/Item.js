@@ -70,6 +70,10 @@ const Instance = mongoose.Schema({
         type: Array,
         default: []
     },
+    trade_history: { // what the bots sold, one entry per day: { date: 'YYYY-MM-DD', volume, sell, key_price }; killstreak tiers keep their own in killstreak[i].trade_history (written by item_manager)
+        type: Array,
+        default: []
+    },
     image: {
         type: String,
         required: true
