@@ -42,10 +42,9 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
         margin: auto;
         box-sizing: border-box !important;
         color: var(--ink-2);
-        background: linear-gradient(180deg, #0f1946 0%, #090f35 100%);
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+        background: #0c1440;
+        border: 1px solid var(--line-strong);   // the dialog's edge over the dimmed page
+        border-radius: 14px;
         overflow: hidden;
         animation: dialogIn 220ms $modal-ease;
     }
@@ -334,8 +333,7 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
         font-weight: 700;
         cursor: pointer;
         color: var(--ink);
-        transition: background 150ms ease, transform 100ms ease;
-        &:active{ transform: translateY(1px); }
+        transition: background 150ms ease;
         &.primary{ background: var(--brand); &:hover{ background: var(--brand-hover); } }
         &.ghost{ background: transparent; border-color: rgba(255, 255, 255, 0.08); &:hover{ background: rgba(124, 108, 255, 0.12); } }
     }
@@ -404,11 +402,10 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
         font-weight: 700;
         letter-spacing: .02em;
         text-decoration: none;
-        transition: filter 150ms ease, transform 100ms ease;
+        transition: filter 150ms ease;
         .stat-icon{ font-size: 20px; }
         svg{ width: 16px; height: 16px; fill: currentColor; opacity: .85; }
         &:hover{ filter: brightness(1.08); }
-        &:active{ transform: translateY(1px); }
     }
 
     // accepted: review box
@@ -507,7 +504,7 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
         -moz-appearance: textfield;
         appearance: textfield;
         &::-webkit-outer-spin-button, &::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
-        &:focus{ border-color: var(--brand-hover); box-shadow: 0 0 0 3px rgba(79, 53, 229, 0.3); }
+        &:focus{ border-color: var(--brand-hover); }
     }
     .qty-range{
         --fill: 0%;
@@ -568,8 +565,7 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
             font-size: .95rem;
             font-weight: 700;
             cursor: pointer;
-            transition: filter 150ms ease, background 150ms ease, transform 100ms ease;
-            &:active{ transform: translateY(1px); }
+            transition: filter 150ms ease, background 150ms ease;
         }
         .qty-cancel{
             background: transparent;
@@ -703,8 +699,7 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
             text-align: center;
             text-decoration: none;
             cursor: pointer;
-            transition: filter 150ms ease, background 150ms ease, transform 100ms ease;
-            &:active{ transform: translateY(1px); }
+            transition: filter 150ms ease, background 150ms ease;
         }
         .bl-cancel{
             background: transparent;
@@ -716,7 +711,7 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
             color: #fff;
             background: linear-gradient(135deg, #34b04c 0%, #2a9a40 100%);
             &:hover{ filter: brightness(1.08); }
-            &:disabled{ filter: grayscale(.7); opacity: .5; cursor: not-allowed; transform: none; }
+            &:disabled{ filter: grayscale(.7); opacity: .5; cursor: not-allowed; }
             &.sending{ opacity: .75; cursor: progress; filter: none; }
         }
     }
@@ -734,12 +729,12 @@ $modal-ease: cubic-bezier(.2, .8, .2, 1);
     to { opacity: 1; }
 }
 @keyframes dialogIn {
-    from { opacity: 0; transform: translateY(10px) scale(.97); }
-    to { opacity: 1; transform: none; }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 @keyframes popIn {
-    0% { transform: scale(.6); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }
 @keyframes statusPulse {
     0%, 100% { opacity: 1; }

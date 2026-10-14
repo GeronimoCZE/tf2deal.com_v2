@@ -36,6 +36,20 @@ Everything uses `.env` values you already have (`ADMIN_STEAMID`, `ADMIN_PASSWORD
 
 ---
 
+# Item model: trade history
+
+`src/model/Item.js` gets one new field, `trade_history`, the same as in item_manager and bot_manager (the three apps
+share `item_instances`). Once a day item_manager adds what the bots sold the day before, read from `trades`:
+
+- `item.trade_history`: `[{ date: 'YYYY-MM-DD', volume, sell, key_price }]`, one entry per day the item sold.
+  `volume` is the copies sold, `sell` the most common price they sold for (ref), `key_price` the key price (ref).
+- `item.killstreak[i].trade_history`: the same for each killstreak tier.
+
+Nothing on the site reads it yet. The site only changes `killstreak` in the admin stock limits, and that keeps every
+other key of a tier, so the tier histories stay.
+
+---
+
 # Round 17: plainer look, TF2 event themes, trades today
 
 ## Plainer look

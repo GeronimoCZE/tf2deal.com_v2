@@ -38,12 +38,12 @@ $highlight-color: rgba(124, 108, 255, 0.16);
             font-size: 15px !important;
             text-decoration: none;
             color: var(--ink-2);
-            background: var(--brand-muted);
-            border: 1px solid var(--line);
+            background: var(--surface-2);
+            border: 1px solid transparent;
             transition: background 150ms;
             &:hover{
                 color: var(--ink);
-                background: var(--brand-muted-hover);
+                background: var(--surface-3);
             }
         }
     }
@@ -63,11 +63,9 @@ $highlight-color: rgba(124, 108, 255, 0.16);
         @keyframes body-animation {
             0%{
                 opacity: 0;
-                transform: translateY(-1rem);
             }
             100%{
                 opacity: 1;
-                transform: none;
             }
         }
         .account-card{
@@ -86,7 +84,7 @@ $highlight-color: rgba(124, 108, 255, 0.16);
                 padding: 0rem;
                 margin-bottom: .5rem;
                 border-radius: var(--r-md);
-                border: 1px solid var(--line);
+                border: 1px solid transparent;
                 @include lt-sm{
                     margin: 1rem 0;
                 }
@@ -388,7 +386,7 @@ $highlight-color: rgba(124, 108, 255, 0.16);
         .wish-card{
             position: relative;
             background: var(--surface-2);
-            border: 1px solid var(--line);
+            border: 1px solid transparent;
             border-bottom-width: 3px;
             border-radius: var(--r-md);
             transition: 200ms;
@@ -447,7 +445,7 @@ $highlight-color: rgba(124, 108, 255, 0.16);
             padding: .6rem .8rem;
             margin-bottom: .6rem;
             background: var(--surface-2);
-            border: 1px solid var(--line);
+            border: 1px solid transparent;
             border-radius: var(--r-md);
             img{
                 width: 4.5rem;
@@ -494,7 +492,7 @@ $highlight-color: rgba(124, 108, 255, 0.16);
         .ticket{
             margin-bottom: 1rem;
             background: var(--surface-2);
-            border: 1px solid var(--line);
+            border: 1px solid transparent;
             border-radius: var(--r-md);
             &.closed{ opacity: .75; }
         }

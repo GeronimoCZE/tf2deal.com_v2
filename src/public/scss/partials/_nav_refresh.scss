@@ -132,7 +132,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
             background: rgba(4, 11, 40, 0.92);
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
-            border: 1px solid var(--line);
+            border: 1px solid transparent;
             border-top: none;
         }
         .nav-section.left{
@@ -210,16 +210,13 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
             text-align: left;
             visibility: hidden;
             opacity: 0;
-            transform: translateY(-8px) scale(.98);
-            transform-origin: top right;
             pointer-events: none;
-            transition: opacity 180ms ease, transform 220ms $nav-ease, visibility 0s linear 220ms !important;
+            transition: opacity 180ms ease, visibility 0s linear 180ms !important;
             &.open{
                 visibility: visible;
                 opacity: 1;
-                transform: none;
                 pointer-events: all;
-                transition: opacity 180ms ease, transform 220ms $nav-ease, visibility 0s !important;
+                transition: opacity 180ms ease, visibility 0s !important;
                 border: 1px solid var(--line-strong) !important;
             }
         }
@@ -425,8 +422,8 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
 }
 
 @keyframes navDrop {
-    from { opacity: 0; transform: translateY(-6px); }
-    to { opacity: 1; transform: none; }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 @keyframes navDropCenter {
     from { opacity: 0; transform: translate(-50%, -6px); }
