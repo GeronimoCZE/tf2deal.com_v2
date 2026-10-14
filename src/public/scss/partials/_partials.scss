@@ -515,7 +515,7 @@ dialog{
 @keyframes dialog_in {
     0%{
         opacity: 0;
-        transform: translate(0, -25px);
+        transform: translate(0, 0px);
         visibility: visible;
     }
     100%{
@@ -526,7 +526,7 @@ dialog{
 @keyframes popUp_in {
     0%{
         opacity: 0;
-        transform: translate(-50%, -25px);
+        transform: translate(-50%, 0px);
         visibility: visible;
     }
     100%{
@@ -541,14 +541,14 @@ dialog{
     }
     100%{
         opacity: 0;
-        transform: translate(-50%, -25px);
+        transform: translate(-50%, 0px);
         visibility: hidden;
     }
 }
 @keyframes notif_in {
     0%{
         opacity: 0;
-        transform: translate(0, -25px);
+        transform: translate(0, 0px);
         visibility: visible;
     }
     100%{
@@ -563,7 +563,7 @@ dialog{
     }
     100%{
         opacity: 0;
-        transform: translate(0, -25px);
+        transform: translate(0, 0px);
         visibility: hidden;
     }
 }

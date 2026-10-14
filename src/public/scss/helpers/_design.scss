@@ -33,7 +33,7 @@
     // item tiles (item cards, inventory slots)
     --tile: rgba(36, 42, 100, 0.55);
     --tile-hover: rgba(46, 52, 122, 0.75);
-    --tile-line: rgba(255, 255, 255, 0.06);
+    --tile-line: transparent;               // tiles stand out by their background; selected tiles still get an outline
     // actions
     --brand: #4f35e5;                       // the logo / filter-bar purple: primary buttons, focus
     --brand-hover: #5d45ef;
@@ -95,15 +95,16 @@
     }
 }
 
-// a box that holds content
+// a box that holds content: its background sets it apart, so no outline as well
+// (the transparent border keeps sizes as they were; a clickable panel can still light it on hover)
 @mixin panel($padding: 1.25rem) {
     background: var(--surface);
-    border: 1px solid var(--line);
+    border: 1px solid transparent;
     border-radius: var(--r-lg);
     padding: $padding;
 }
 
-// buttons: primary (purple), secondary (muted purple), success (green)
+// buttons: primary (purple) or success (green) for the one main action of a screen; secondary (quiet) for the rest
 @mixin button($kind: secondary) {
     display: inline-flex;
     align-items: center;
@@ -128,8 +129,9 @@
         background: var(--green-muted);
         &:hover{ background: rgba(46, 168, 38, 0.85); }
     } @else {
-        background: var(--brand-muted);
-        &:hover{ background: var(--brand-muted-hover); }
+        background: var(--surface-2);
+        color: var(--ink-2);
+        &:hover{ background: var(--surface-3); color: var(--ink); }
     }
     &:focus-visible{
         outline: 2px solid var(--violet);
