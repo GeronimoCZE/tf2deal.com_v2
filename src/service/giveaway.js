@@ -6,6 +6,7 @@ import User from '../model/User.js'
 import { trade_model } from '../model/Trade.js'
 import { giveaway_model } from '../model/Giveaway.js'
 import { notify } from './notifications.js'
+import { remove_posts, remove_due } from './giveaway_posts.js'
 
 const STEAM_GROUP_64_BASE = 103582791429521408n
 
@@ -57,10 +58,21 @@ const refresh_state = async () => {
     return active
 }
 
-// picks a random winner and closes the giveaway
+// picks a random winner and closes the giveaway. With the Steam group requirement the winner is checked again:
+// someone who left the group since entering is skipped and another entry drawn (if Steam can't tell, they win).
+// Returns { winner, skipped }: skipped = how many left the group.
 const draw_winner = async (giveaway) => {
-    const entries = giveaway.entries || []
-    const winner = entries.length > 0 ? entries[crypto.randomInt(entries.length)] : null
+    const entries = [...(giveaway.entries || [])]
+    let winner = null, skipped = 0
+    while(!winner && entries.length > 0){
+        const pick = entries.splice(crypto.randomInt(entries.length), 1)[0]
+        if(giveaway.requirements?.steam_group && await in_steam_group(pick.steamid) === false){
+            skipped++
+            User.updateOne({ steamid: pick.steamid }, { $set: { group_member: false } }).catch(() => {})
+            continue
+        }
+        winner = pick
+    }
 
     const result = await giveaway_model.updateOne({ _id: giveaway._id, status: 'active' }, { $set: {
         status: 'ended',
@@ -68,17 +80,25 @@ const draw_winner = async (giveaway) => {
         winner: winner ? { steamid: winner.steamid, name: winner.name, avatar: winner.avatar } : { steamid: null, name: '', avatar: '' }
     } })
 
+    // another call (end button and the minute timer at once) ended it first: its winner stands
+    if((result?.modifiedCount ?? result?.nModified ?? 1) == 0){
+        const ended = await giveaway_model.findById(giveaway._id, { winner: 1 }).lean()
+        return { winner: ended?.winner?.steamid ? ended.winner : null, skipped: 0 }
+    }
+    if(skipped > 0){ console.log(`giveaway: ${skipped} drawn ${skipped == 1 ? 'entry was' : 'entries were'} no longer in the Steam group`) }
+
     if(winner){
         await User.updateOne({ steamid: winner.steamid }, { $inc: { 'giveaways.won': 1 } }).catch(() => {})
     }
 
-    // bell: everyone sees who won, the winner gets their own one (only once, if two calls raced)
-    if((result?.modifiedCount ?? result?.nModified ?? 1) > 0){
-        const item = giveaway.item?.bp_sku || ''
-        notify({ type: 'giveaway_ended', vars: { item, winner: winner?.name || '' }, link: '/giveaway' })
-        if(winner){ notify({ to: winner.steamid, type: 'giveaway_won', vars: { item }, link: '/profile/giveaways' }) }
-    }
-    return winner
+    // bell: everyone sees who won, the winner gets their own one
+    const item = giveaway.item?.bp_sku || ''
+    notify({ type: 'giveaway_ended', vars: { item, winner: winner?.name || '' }, link: '/giveaway' })
+    if(winner){ notify({ to: winner.steamid, type: 'giveaway_won', vars: { item }, link: '/profile/giveaways' }) }
+
+    // Steam group / Facebook announcements (service/giveaway_posts.js)
+    remove_posts(giveaway._id).catch((error) => console.log('giveaway: removing the posts failed', error.message))
+    return { winner, skipped }
 }
 
 // called every minute from app.js
@@ -88,6 +108,9 @@ const finish_due = async () => {
         await draw_winner(giveaway)
     }
     if(due.length > 0){ await refresh_state() }
+
+    // announcements still to remove (removing failed earlier, or the site restarted)
+    await remove_due().catch((error) => console.log('giveaway: removing the posts failed', error.message))
 }
 
 export { in_steam_group, check_requirements, refresh_state, draw_winner, finish_due }

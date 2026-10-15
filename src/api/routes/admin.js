@@ -8,6 +8,7 @@ import { ticket_model } from '../../model/Ticket.js';
 import { giveaway_model } from '../../model/Giveaway.js';
 import User from '../../model/User.js';
 import { refresh_state, draw_winner } from '../../service/giveaway.js';
+import * as giveaway_posts from '../../service/giveaway_posts.js';
 import * as translate from '../../service/translate.js';
 import { LANGS, LANG_NAMES } from '../../i18n.js';
 import { trade_model } from '../../model/Trade.js';
@@ -168,7 +169,7 @@ router.get('/giveaways', async (req, res) => {
   const winner_ids = giveaways.map((g) => g.winner?.steamid).filter(Boolean);
   const winners = await User.find({ steamid: { $in: winner_ids } }, { steamid: 1, tradelink: 1 }).lean();
 
-  res.json({ status: 'ok', giveaways: giveaways.map((g) => ({
+  res.json({ status: 'ok', posts: giveaway_posts.info(), giveaways: giveaways.map((g) => ({
     ...g,
     entries: undefined,
     entry_count: g.entries?.length || 0,
@@ -211,20 +212,23 @@ router.post('/giveaways', async (req, res) => {
 
   await refresh_state();
   notifications.notify({ type: 'giveaway_new', vars: { item: item.bp_sku }, link: '/giveaway' });
+  // Steam group and Facebook announcements, posted in the background (the list shows how it went)
+  await giveaway_posts.announce(giveaway.toObject()).catch((error) => console.log('giveaway: announcing failed', error.message));
   res.json({ status: 'ok', giveaway });
 });
 
 router.post('/giveaways/:id/end', valid_id, async (req, res) => {
   const giveaway = await giveaway_model.findOne({ _id: req.params.id, status: 'active' }).lean();
   if(!giveaway){ return res.status(404).json({ status: 'error', message: 'No active giveaway with this id.' }) }
-  const winner = await draw_winner(giveaway);
+  const { winner, skipped } = await draw_winner(giveaway);
   await refresh_state();
-  res.json({ status: 'ok', winner });
+  res.json({ status: 'ok', winner, skipped });
 });
 
 router.post('/giveaways/:id/cancel', valid_id, async (req, res) => {
   await giveaway_model.updateOne({ _id: req.params.id, status: 'active' }, { $set: { status: 'cancelled', end: Date.now() } });
   await refresh_state();
+  giveaway_posts.remove_posts(req.params.id).catch((error) => console.log('giveaway: removing the posts failed', error.message));
   res.json({ status: 'ok' });
 });
 

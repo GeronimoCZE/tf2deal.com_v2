@@ -7,6 +7,15 @@ const Entry = mongoose.Schema({
     entered: { type: Number, required: true }
 }, { _id: false })
 
+// the giveaway's announcement on one service (service/giveaway_posts.js)
+const Post = mongoose.Schema({
+    state: { type: String, default: '' }, // posting | posted | post_failed | removing | removed | remove_failed
+    id: { type: String, default: '' }, // Steam announcement id / Facebook post id
+    error: { type: String, default: '' },
+    tries: { type: Number, default: 0 }, // failed removals so far
+    updated: { type: Number, default: 0 }
+}, { _id: false })
+
 const Giveaway = mongoose.Schema({
     item: { // copied from item_instances when the giveaway is created
         bp_sku: { type: String, required: true },
@@ -34,6 +43,10 @@ const Giveaway = mongoose.Schema({
         avatar: { type: String, default: '' }
     },
     prize_sent: { type: Boolean, default: false }, // you send the prize manually, then tick it in the admin panel
+    posts: { // announcements on the Steam group and the Facebook Page, removed when the giveaway ends or is cancelled
+        steam: Post,
+        facebook: Post
+    },
     created: { type: Number, required: true }
 })
 
