@@ -550,6 +550,7 @@ app.use((req, res, next) => {
 
   // Set a timeout on the response object
   res.setTimeout(timeout, () => {
+    console.warn(`Timed out after ${timeout / 1000} s: ${req.method} ${req.originalUrl}`) // shows which pages answer 504
     if (!res.headersSent) res.status(504).send({status: "error", message: 'Request timed out'});
   });
 
@@ -781,7 +782,7 @@ setInterval(async () => {
 seasons.start(); // reads this year's TF2 event dates from teamfortress.com
 
 app.use((err, req, res, next) => {
-  console.log(err)
+  console.log(`Error on ${req.method} ${req.originalUrl}:`, err) // the address, so a 500 can be traced back to a page
   if (res.headersSent) return next(err)
   if (req.xhr) return res.status(500).send({ status: "error", error: 'Something failed!' })
   res.status(500)

@@ -993,6 +993,7 @@ addEventListener('DOMContentLoaded', (event) => {
                         el.parentElement.parentElement.classList.remove('open');
 
                         // filter function
+                        urlParams.delete('page')
                         history.replaceState(null, null, "?"+urlParams.toString());
                         let items_page = 0
                         document.querySelector('.item-content').classList.remove('loaded')
@@ -1058,16 +1059,27 @@ addEventListener('DOMContentLoaded', (event) => {
                     document.querySelector('form#user-input-filter input').value = urlParams.get('name')
                 }
 
-                req_reserved = true
-                setTimeout(() => {
-                    items.get_items(items_page, validInputs).then(() => {
-                    },
-                    () => {
-                        
-                    })
-                    next_api_request = Date.now() + 3000
-                    req_reserved = false
-                }, 1000);
+                // The server sent one page of the list as plain HTML (views/items.ejs). Without filters it stays, and
+                // scrolling continues after it. Filters in the URL: load the filtered list instead.
+                const server_list = document.querySelector('.item-content .items')
+                const server_page = Number(server_list?.dataset.page) || 0
+                const server_cards = server_list ? server_list.querySelectorAll('a.item_card').length : 0
+                const has_filters = Array.from(urlParams.keys()).some((key) => key != 'page')
+                if(server_page > 0 && server_cards > 0 && !has_filters){
+                    items.list.page = server_page * (Number(server_list.dataset.perPage) / 15) - 1
+                } else {
+                    document.querySelector('.item-content').classList.remove('loaded')
+                    req_reserved = true
+                    setTimeout(() => {
+                        items.get_items(items_page, validInputs).then(() => {
+                        },
+                        () => {
+                            
+                        })
+                        next_api_request = Date.now() + 3000
+                        req_reserved = false
+                    }, 1000);
+                }
                 
                 document.querySelector('form#user-input-filter').addEventListener('submit', function(e){
                     e.preventDefault()
@@ -1078,6 +1090,7 @@ addEventListener('DOMContentLoaded', (event) => {
                     } else {
                         urlParams.set('name', String(value))
                     }
+                    urlParams.delete('page')
 
                     history.replaceState(null, null, "?"+urlParams.toString());
                     items_page = 0
@@ -1106,15 +1119,13 @@ addEventListener('DOMContentLoaded', (event) => {
                             if(req_reserved == false){
                                 if(next_api_request <= Date.now()){
                                     req_reserved = true
-                                    items_page ++;
-                                    items.get_items(items_page)
+                                    items.get_items(items.list.page + 1).catch(() => {}) // "last page" ends the list
                                     next_api_request = Date.now() + 3000
                                     req_reserved = false                
                                 } else {
                                     req_reserved = true
                                     setTimeout(() => {
-                                        items_page ++;
-                                        items.get_items(items_page)
+                                        items.get_items(items.list.page + 1).catch(() => {}) // "last page" ends the list
                                         next_api_request = Date.now() + 3000
                                         req_reserved = false                    
                                     }, next_api_request - Date.now());

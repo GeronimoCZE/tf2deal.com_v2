@@ -161,82 +161,120 @@ const socketCallback = (onSuccess, onTimeout, timeout) => {
 }
 
 /* =======================
+   ITEMS: WHAT SEARCH ENGINES GET
+======================= */
+
+// An item page is shown when the item has a price and the bots trade it (status 1 or 2) or hold copies of it
+// (routes/router.js find_page_item). It belongs in search results, and in the sitemap, only when the bots really
+// trade the item:
+//   - it is in stock, or
+//   - the bots buy it (status 1) and it is a basic variant, not an unusual effect combination.
+// Unusual effect combinations count only while one is in stock: there are thousands of them, and without stock
+// their pages are the same text with another effect name. The other item pages still work, with `noindex`.
+// SITEMAP_ITEMS_QUERY is the same rule for the database (shown page + this rule); keep the two the same.
+const item_in_stock = (item) => Number(item?.stock?.cur) > 0 || (Array.isArray(item?.stock?.items) && item.stock.items.length > 0)
+const item_indexable = (item, in_stock = item_in_stock(item)) => Boolean(item) &&
+  Number(item.buy) > 0 && Number(item.sell) > 0 &&
+  (Boolean(in_stock) || (Number(item.status) === 1 && !(Number(item.effectID) > 0)))
+
+const SITEMAP_ITEMS_QUERY = {
+  buy: { $gt: 0 },
+  sell: { $gt: 0 },
+  $and: [
+    { $or: [{ status: { $in: [1, 2] } }, { 'stock.items.0': { $exists: true } }] }, // the page is shown
+    { $or: [{ 'stock.cur': { $gt: 0 } }, { 'stock.items.0': { $exists: true } }, { status: 1, effectID: { $not: { $gt: 0 } } }] }
+  ]
+}
+
+// TF2 quality names (item words stay English on every language version, like the item names)
+const QUALITY_NAMES = { 0: 'Normal', 1: 'Genuine', 3: 'Vintage', 5: 'Unusual', 6: 'Unique', 7: 'Community', 8: 'Valve', 9: 'Self-Made', 11: 'Strange', 13: 'Haunted', 14: "Collector's", 15: 'Decorated Weapon' }
+const quality_name = (qualityID) => QUALITY_NAMES[qualityID] || ''
+
+// item type -> translation key under item_types (the same list as itemAttr.Types in partials/head.ejs)
+const TYPE_KEYS = {
+  'cosmetic': 'cosmetic', 'taunt': 'taunt', 'action': 'action', 'crate': 'crate', 'tool': 'tool',
+  'weapon primary': 'primary_weapon', 'weapon secondary': 'secondary_weapon', 'weapon melee': 'melee_weapon',
+  'weapon pda': 'pda_weapon', 'weapon pda2': 'pda2_weapon', 'weapon building': 'building_weapon',
+  'australium weapon primary': 'primary_weapon', 'australium weapon secondary': 'secondary_weapon', 'australium weapon melee': 'melee_weapon',
+  'weapon primary skin': 'primary_weapon_skin', 'weapon secondary skin': 'secondary_weapon_skin', 'weapon melee skin': 'melee_weapon_skin',
+  'weapon primary skin warpaint': 'primary_weapon_skin', 'weapon secondary skin warpaint': 'secondary_weapon_skin', 'weapon melee skin warpaint': 'melee_weapon_skin',
+  'warpaint': 'war_paint', 'tool unusualifier': 'unusualifier', 'tool strangifier': 'strangifier', 'tool key': 'key',
+  'tool strange filter': 'strange_filter', 'tool strange part': 'strange_part', 'tool paint': 'paint', 'tool kit': 'kit'
+}
+// "weapon primary" -> "Primary Weapon" in the page language; an unknown type is shown as it is
+const item_type_text = (type, __) => TYPE_KEYS[String(type || '').toLowerCase()] ? __('item_types.' + TYPE_KEYS[String(type).toLowerCase()]) : String(type || '')
+
+const CLASSES = ['Scout', 'Soldier', 'Pyro', 'Demoman', 'Heavy', 'Engineer', 'Medic', 'Sniper', 'Spy']
+// ['Soldier'] -> ['Soldier'] in the page language; all nine -> ['All classes']
+const class_names = (classes, __) => {
+  const list = (Array.isArray(classes) ? classes : String(classes || '').split(',')).map((c) => String(c).trim()).filter(Boolean)
+  if (list.length === CLASSES.length) return [__('classes.all')]
+  return list.map((c) => CLASSES.includes(c) ? __('classes.' + c.toLowerCase()) : c)
+}
+
+// Price as the item pages and the item list show it: "2 key 10.33 ref" or "10.33 ref" (public/js/plugins/items.js)
+const list_price_text = (ref, key_price) => {
+  const key = Number(key_price) || 0
+  const value = Number(ref) || 0
+  let keys = key > 0 ? Math.floor(value / key) : 0
+  let metal = Number(round_ref(value - keys * key).toFixed(2))
+  if (key > 0 && metal >= key) { metal = Number(round_ref(metal - key).toFixed(2)); keys++ }
+  return keys > 0 ? `${keys} key ${metal} ref` : `${metal} ref`
+}
+
+// The item page's price history, newest first: one row per day (the newest entry of the day), and only when the
+// price changed since the row before (the same rows public/js used to build). Entries are "buy|sell|key|time".
+const price_history_rows = (history, limit = 30) => {
+  const text = (ref, key) => (key > 0 && ref / key >= 1) ? `${(ref / key).toFixed(2)} keys` : `${Number(round_ref(ref).toFixed(2))} ref`
+  const rows = []
+  let last = null
+  for (const entry of [...(Array.isArray(history) ? history : [])].reverse()) {
+    const [buy, sell, key, time] = String(entry).split('|').map(Number)
+    if (!(time > 0) || !Number.isFinite(buy) || !Number.isFinite(sell)) continue
+    const row = { buy: text(buy, key), sell: text(sell, key), time, day: new Date(time).toISOString().slice(0, 10) }
+    if (last && (last.day === row.day || (last.buy === row.buy && last.sell === row.sell))) continue
+    rows.push(row)
+    last = row
+    if (rows.length >= limit) break
+  }
+  return rows
+}
+
+/* =======================
    DB / FILE OPS
 ======================= */
 
+const SITEMAP_FILE_SIZE = 22500 // URLs per item sitemap file (search engines take up to 50,000)
+
 const update_sitemap = async () => {
   try {
-    const baseUrl = `${site_url}/items/`
+    const sitemap_dir = path.join(process.cwd(), '/src/public/sitemaps')
+    const chunks = (list) => Array.from({ length: Math.ceil(list.length / SITEMAP_FILE_SIZE) }, (_, n) => list.slice(n * SITEMAP_FILE_SIZE, (n + 1) * SITEMAP_FILE_SIZE))
 
-  const writeURLs = (itemNames, iteration) =>
-    new Promise((resolve, reject) => {     
-
-      const sitemapPath = path.join(process.cwd(), `/src/public/sitemaps/sitemap_${iteration}.txt`)
-
-      const api_path = path.join(process.cwd(), `/src/api/data/item_names${iteration}.txt`)
-      
-      fs.writeFile(api_path, itemNames.map(name => name).join(','), (err) => {
-        
-        if (err) return reject(err)
-
-        fs.writeFile(sitemapPath, '', (err) => {
-          if (err) return reject(err)
-  
-          fs.writeFile(sitemapPath, itemNames.map(name => `${baseUrl}${encodeURIComponent(name)}`).join('\n'), (err) => {
-            if (err) return reject(err)
-            // the same items in every other language: sitemap_de_1.txt, ...
-            try {
-              for (const lang of LANGS.filter(l => l !== DEFAULT_LANG)) {
-                fs.writeFileSync(
-                  path.join(process.cwd(), `/src/public/sitemaps/sitemap_${lang}_${iteration}.txt`),
-                  itemNames.map(name => `${site_url}${localize_path(lang, '/items/' + encodeURIComponent(name))}`).join('\n')
-                )
-              }
-              resolve()
-            } catch (e) { reject(e) }
-          })
-        })
-      })
+    // item names for the search suggestions (/api/item_names): every active item, as before
+    const active = await Items.find({ status: { $in: [1, 2] } }, { _id: 0, bp_sku: 1 }).lean()
+    chunks(active.map((item) => item.bp_sku)).forEach((names, n) => {
+      fs.writeFileSync(path.join(process.cwd(), `/src/api/data/item_names${n + 1}.txt`), names.join(','))
     })
 
-    const limit = 22500;
-    let skip = 0;
-    let i = 1;
-    let last_file = 0; // number of the last item sitemap written
-
-    while(typeof i === "number"){
-      console.log(i);
-      
-      await Items.find({ status: [1,2] }, { bp_sku: 1 }).lean().limit(limit).skip(skip)
-        .then(async d => 
-          await writeURLs(d.map(i => i.bp_sku), i).then(() => {
-            last_file = i;
-            if(d.length < limit){
-              i = false;
-              return;
-            }
-            skip += limit;
-            i++;
-          }).catch((e) => {  
-            console.log(e);
-          
-            i = false;
-          })
-        )
-        .catch((e) => {
-          console.log(e);
-          
-          i = false;
-        })
-    }
-
-    // remove item sitemaps left over from a run that had more items (they would list old URLs)
-    if (last_file > 0) {
-      for (const file of fs.readdirSync(path.join(process.cwd(), '/src/public/sitemaps'))) {
-        const n = Number(file.match(/^sitemap_(?:[a-z]{2}_)?(\d+)\.txt$/)?.[1])
-        if (n > last_file) fs.unlinkSync(path.join(process.cwd(), '/src/public/sitemaps', file))
+    // item pages for search engines: the items the bots really trade (item_indexable above), each one once,
+    // in every language: sitemap_1.txt (English), sitemap_de_1.txt, ...
+    const indexable = await Items.find(SITEMAP_ITEMS_QUERY, { _id: 0, bp_sku: 1 }).lean()
+    const names = [...new Set(indexable.map((item) => item.bp_sku).filter(Boolean))].sort()
+    const item_files = chunks(names)
+    item_files.forEach((list, n) => {
+      for (const lang of LANGS) {
+        const file = lang === DEFAULT_LANG ? `sitemap_${n + 1}.txt` : `sitemap_${lang}_${n + 1}.txt`
+        fs.writeFileSync(path.join(sitemap_dir, file), list.map((name) => site_url + localize_path(lang, '/items/' + encodeURIComponent(name))).join('\n'))
       }
+    })
+
+    // remove item sitemaps left over from a run that had more items (they would list old URLs; an empty one is an error)
+    for (const file of fs.readdirSync(sitemap_dir)) {
+      const n = Number(file.match(/^sitemap_(?:[a-z]{2}_)?(\d+)\.txt$/)?.[1])
+      if (n > item_files.length) fs.unlinkSync(path.join(sitemap_dir, file))
     }
+    console.log(`Sitemap: ${names.length} item pages (of ${active.length} active items)`)
 
     // main pages in every language; documents that only exist in English once
     const pages = ['/', '/trade', '/items', '/giveaway', '/blog', '/about']
@@ -278,9 +316,10 @@ const update_sitemap = async () => {
 
     fs.writeFileSync(path.join(process.cwd(), '/src/public/', 'sitemap.xml'), xml);
     console.log('Sitemaps generated sucessfully');
-    
+
   } catch (error) {
-    
+    // the sitemaps from the last good run stay in place
+    console.log('Sitemap update failed:', error?.message || error)
   }
 }
 
@@ -395,5 +434,13 @@ export {
   canonical_url,
   price_text,
   item_description,
-  markdown_excerpt
+  markdown_excerpt,
+  item_in_stock,
+  item_indexable,
+  SITEMAP_ITEMS_QUERY,
+  quality_name,
+  item_type_text,
+  class_names,
+  list_price_text,
+  price_history_rows
 }

@@ -7,10 +7,6 @@
         const itemBuy = <%- JSON.stringify(info.item?.buy ?? null).replace(/</g, '\\u003c') %>;
         const itemSell = <%- JSON.stringify(info.item?.sell ?? null).replace(/</g, '\\u003c') %>;
         const itemStock = <%- JSON.stringify(info.item?.stock ?? null).replace(/</g, '\\u003c') %>;
-
-        const similarNames = <%- info.result.sameName.length %>
-        const similarEffects = <%- info.result.sameEffect.length %>
-        const similarTypes = <%- info.result.sameTypeQuality.length %>
     </script>
     <%- include('./partials/head.ejs') %>
     <body class="<%= info?.season %>">
@@ -50,30 +46,33 @@
                                 <div class="item-details">
                                     <h1 class="item-name" id="item-name" translate="no"><%= info.item?.bp_sku %></h1>
                                     <div class="item-desc">
+                                        <%# the item's data is written here by the server (routes/router.js item_page, info.shown) %>
                                         <div class="desc">
                                             <div class="name"><%= __('filters.quality') %></div>
-                                            <div class="val quality q-<%= info.item?.qualityID %>"><%= info.item?.qualityID %></div>
+                                            <div class="val quality q-<%= info.item?.qualityID %>" translate="no"><%= info.shown.quality || info.item?.qualityID %></div>
                                         </div>
                                         <div class="desc">
                                             <div class="name"><%= __('filters.type') %></div>
-                                            <div class="val type"><%= info.item?.type %></div>
+                                            <div class="val type"><%= info.shown.type %></div>
                                         </div>
+                                        <% if (info.shown.classes.length > 0) { %>
                                         <div class="desc classes">
                                             <div class="name"><%= __('item.classes') %></div>
-                                            <div class="val class"></div>
-                                        </div>           
+                                            <div class="val class"><% for (const name of info.shown.classes) { %><span class="class-el"><%= name %></span><% } %></div>
+                                        </div>
+                                        <% } %>
             <!--                             <% if (info.item?.effectID) { %>
                                             <div class="desc effect">
                                                 <div class="name">EffectID</div>
                                                 <div class="val"><%= info.item?.effectID %></div>
                                             </div>
                                         <% } %> -->
-                                        <% if (info.item?.bptf_data.price > 0 || info.item?.type === "tool kit" || info.item?.type == "warpaint" || info.item?.type.includes('skin')) { %>
+                                        <% if (info.item?.bptf_data?.price > 0 || info.item?.type === "tool kit" || info.item?.type == "warpaint" || String(info.item?.type || '').includes('skin')) { %>
                                             <div class="desc bptf" value="<%= info.item?.bptf_data?.price %>" key_price="<%= info.item?.bptf_data?.update_key_price %>">
                                                 <a href="" class="val" target="_blank">backpack.tf</a>
                                             </div>
                                         <% } %>
-                                        <% if (info.item?.bptf_data.price > 0) { %>
+                                        <% if (info.item?.bptf_data?.price > 0) { %>
                                             <div class="desc tf2wiki" value="<%= info.item?.bptf_data?.price %>" key_price="<%= info.item?.bptf_data?.update_key_price %>">
                                                 <a href="https://wiki.teamfortress.com/wiki/<%= info.item?.name %>" class="val" target="_blank">TF2 Wiki</a>
                                             </div>
@@ -93,15 +92,18 @@
                                         <% if(info.item?.status == 1){ %>
                                             <div class="item__trade sell">
                                                 <button class="item__btn <% if(info.item?.stock?.cur < info.item?.stock?.limit){ %> active <% } %>" id="sell"><span class="icon icon-credit"></span> <%= __('item.sell') %></button>
-                                                <span class="price" id="sell-price">? key ? ref</span>
-                                                <span class="stock"><%- __('item.can_buy_html', { count: '<span>0</span>' }) %></span>
+                                                <span class="price" id="sell-price"><%= info.shown.sell_price %></span>
+                                                <span class="stock <%= info.shown.can_sell > 0 ? 'yes' : 'no' %>"><%- __('item.can_buy_html', { count: '<span>' + info.shown.can_sell + '</span>' }) %></span>
                                             </div>
                                         <% } %>
                                         <div class="item__trade buy">
                                             <button class="item__btn <% if(info.item?.stock?.cur > 0){ %> active <% } %>" id="buy"><span class="icon icon-credit"></span> <%= __('item.buy') %></button>
-                                            <span class="price" id="buy-price">? key ? ref</span>
-                                            <span class="stock"><%- __('item.in_stock_html', { count: '<span>0</span>' }) %></span>
+                                            <span class="price" id="buy-price"><%= info.shown.buy_price %></span>
+                                            <span class="stock <%= info.shown.stock > 0 ? 'yes' : 'no' %>"><%- __('item.in_stock_html', { count: '<span>' + info.shown.stock + '</span>' }) %></span>
                                         </div>
+                                        <% if (info.item?.stock?.limit === 0) { %>
+                                            <div class="stock-limit"><%= __('item.cant_trade_now') %></div>
+                                        <% } %>
                                     </div>
                                     <!-- 
                                         Unique, Strange, Vintage, Genuine weapons can't buy ks weapons for Non-KS price 
@@ -140,10 +142,15 @@
                                         <div class="cell sell"><%= __('item.sell') %></div>
                                         <div class="cell time"><%= __('item.date') %></div>
                                     </div>
-                                    <div class="row more"><%= __('item.older_prices') %></div>
+                                    <%# newest first; three rows, the older ones behind "show older prices" %>
+                                    <div class="row more<%= info.shown.price_history.length > 3 ? ' visible' : '' %>"><%= __('item.older_prices') %></div>
+                                    <% info.shown.price_history.forEach((row, i) => { %>
+                                    <div class="row<%= i >= 3 ? ' hidden' : '' %>"><div class="cell buy"><%= row.buy %></div><div class="cell sell"><%= row.sell %></div><div class="cell time"><time datetime="<%= row.day %>"><%= new Date(row.time).toLocaleDateString(html_lang) %></time></div></div>
+                                    <% }) %>
                                 </div>
                             </div>
 
+                            <% if (info.result.sameName.length > 0) { %>
                             <div class="item-header similarName" style="margin-top: 2rem">
                                 <%= __('item.similar_names') %>
                             </div>
@@ -155,8 +162,8 @@
                                                 <div class="item-name" translate="no"><%= item.bp_sku %></div>
                                                 <img src="<%= item.image %>" alt="<%= item.bp_sku %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
                                                 <div class="item-data">
-                                                    <div class="stock"><%= __('item.in_stock', { count: item.stock.cur }) %></div>
-                                                    <div class="price"><%= item.sell %>/<%= item.bptf_data.update_key_price %></div>
+                                                    <div class="stock"><%= __('item.in_stock', { count: item.stock?.cur || 0 }) %></div>
+                                                    <div class="price"><%= item.price %></div>
                                                     <div class="quality q-<%= item.qualityID %>"></div>
                                                 </div>
                                             </a>
@@ -164,7 +171,9 @@
                                     </div>                        
                                 </div>
                             </div>
+                            <% } %>
 
+                            <% if (info.result.sameEffect.length > 0) { %>
                             <div class="item-header similarEffect" style="margin-top: 2rem">
                                 <%= __('item.similar_effect') %>
                             </div>
@@ -176,8 +185,8 @@
                                                 <div class="item-name" translate="no"><%= item.bp_sku %></div>
                                                 <img src="<%= item.image %>" alt="<%= item.bp_sku %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
                                                 <div class="item-data">
-                                                    <div class="stock"><%= __('item.in_stock', { count: item.stock.cur }) %></div>
-                                                    <div class="price"><%= item.sell %>/<%= item.bptf_data.update_key_price %></div>
+                                                    <div class="stock"><%= __('item.in_stock', { count: item.stock?.cur || 0 }) %></div>
+                                                    <div class="price"><%= item.price %></div>
                                                     <div class="quality q-<%= item.qualityID %>"></div>
                                                 </div>
                                             </a>
@@ -185,7 +194,9 @@
                                     </div>
                                 </div>
                             </div>
+                            <% } %>
 
+                            <% if (info.result.sameTypeQuality.length > 0) { %>
                             <div class="item-header similarType" style="margin-top: 2rem">
                                 <%= __('item.similar_type') %>
                             </div>
@@ -197,8 +208,8 @@
                                                 <div class="item-name" translate="no"><%= item.bp_sku %></div>
                                                 <img src="<%= item.image %>" alt="<%= item.bp_sku %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
                                                 <div class="item-data">
-                                                    <div class="stock"><%= __('item.in_stock', { count: item.stock.cur }) %></div>
-                                                    <div class="price"><%= item.sell %>/<%= item.bptf_data.update_key_price %></div>
+                                                    <div class="stock"><%= __('item.in_stock', { count: item.stock?.cur || 0 }) %></div>
+                                                    <div class="price"><%= item.price %></div>
                                                     <div class="quality q-<%= item.qualityID %>"></div>
                                                 </div>
                                             </a>
@@ -206,6 +217,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <% } %>
                         </div>
 
                         <div class="trade_item-view">
@@ -326,23 +338,14 @@
                 }
             }
 
-            if(itemStock?.limit === 0){
-                $('.item-btns').append(`<div class="stock-limit"><%= __('item.cant_trade_now') %></div>`)
-            }
-
-            if(itemAttr.Quality[$('.val.quality').text()] != undefined){
-                $('.val.quality').text(itemAttr.Quality[$('.val.quality').text()].name)
-            }
-            if(itemAttr.Types[$('.val.type').text()] != undefined){
-                $('.val.type').text(itemAttr.Types[$('.val.type').text()])
-            }
+            // quality, type, classes, prices, stock, price history and similar items come from the server
             if($('img.image').attr('effect-id') != "0"){
                 $('img.image').attr('style', `background-image: url(https://api.backpack.tf/images/440/particles/${$('img.image').attr('effect-id')}_188x188.png);`)
             }
 
             const bptf_stats = $('.desc.bptf .val')
             let bptf_url = 'https://backpack.tf/stats/';
-            const type = item?.type
+            const type = item?.type || ''
 
             const price_raw = bptf_stats.parent().attr('value') / bptf_stats.parent().attr('key_price')
 
@@ -380,124 +383,13 @@
             }
 
 
-            const buy_raw = item?.buy / item?.bptf_data?.update_key_price;
-            const sell_raw = item?.sell / item?.bptf_data?.update_key_price;
-            const buy = { key: Math.floor(buy_raw), metal: round_ref((buy_raw - Math.floor(buy_raw)) * item?.bptf_data?.update_key_price) }
-            const sell = { key: Math.floor(sell_raw), metal: round_ref((sell_raw - Math.floor(sell_raw)) * item?.bptf_data?.update_key_price) }
-
-            if(buy.key > 0){ $('#sell-price').text(`${buy.key} key ${buy.metal} ref`) }
-            else { $('#sell-price').text(`${buy.metal} ref`) }
-            if(sell.key > 0){ $('#buy-price').text(`${sell.key} key ${sell.metal} ref`) }
-            else { $('#buy-price').text(`${sell.metal} ref`) }
-
-            const price_history = typeof item?.price_history === "object" ? item?.price_history : [];     
-            
-            let prev_val = { sell: "", buy: "", time: "" }
-
-            const show_rows = 3;
-
-            let same_date_count = 0;
-            let i = 0;
-
-            [...price_history].reverse().forEach((val, i) => {                
-                const [buy, sell, key, time] = val.split("|").map(Number);
-
-                const buy_str = (buy / key >= 1) ? `${Number(buy / key).toFixed(2)} keys` : `${round_ref(buy)} ref`;
-                const sell_str = (sell / key >= 1) ? `${Number(sell / key).toFixed(2)} keys` : `${round_ref(sell)} ref`;
-                const date = new Date(time).toLocaleDateString().replaceAll(' ', '');
- 
-                if(date != prev_val.time) { same_date_count = 0; }
-
-                if((buy_str != prev_val.buy || sell_str != prev_val.sell) && same_date_count <= 0){
-                    i += 1;
-                    prev_val = { buy: buy_str, sell: sell_str, time: date };
-                    if(date == prev_val.time){ same_date_count += 1; }
-                    const visibility = (i <= show_rows) ? "" : "hidden";
-                    const row = `<div class="row ${visibility}"> <div class="cell buy">${buy_str}</div><div class="cell sell">${sell_str}</div><div class="cell time">${date}</div></div>`
-                    $('.change_table').append(row);   
-
-                    if(visibility == "hidden"){
-                        $('.change_table .row.more').addClass('visible');
-                    }
-                }
-            })
-
-            $('.change_table .row.more.visible').on('click', function(){
-                $('.change_table .row.hidden').slice(0, show_rows).removeClass('hidden');
+            // "show older prices": three more rows per click
+            $('.change_table .row.more').on('click', function(){
+                $('.change_table .row.hidden').slice(0, 3).removeClass('hidden');
                 if($('.change_table .row.hidden').length == 0){
                     $('.change_table .row.more').removeClass('visible')
                 }
             })
-
-            try {
-                const stock = parseFloat(<%- JSON.stringify(String(info.item?.stock?.cur ?? '')).replace(/</g, '\\u003c') %>)
-                const stock_limit = parseFloat(<%- JSON.stringify(String(info.item?.stock?.limit ?? '')).replace(/</g, '\\u003c') %>)
-                const sell = (stock_limit - stock > 0)?true:false;
-                const buy = (stock > 0)?true:false;
-                const classes = <%- JSON.stringify(String(info.item?.classes ?? '')).replace(/</g, '\\u003c') %>.split(',')
-                
-                $('.item__trade.sell .stock span').text((stock_limit - stock >= 0) ? stock_limit - stock : 0)
-                $('.item__trade.sell .stock').addClass((stock_limit - stock > 0)?'yes':'no')
-                $('.item__trade.buy .stock span').text(stock)
-                $('.item__trade.buy .stock').addClass((stock > 0)?'yes':'no')
-
-                if(typeof classes == "object" && classes[0] != ""){
-                    if(classes.length == 9){
-                        $('.val.class').append(`<span class="class-el"><%= __('classes.all') %></span>`)
-                    } else {
-                        const class_names = <%- JSON.stringify(Object.fromEntries(['Scout', 'Soldier', 'Pyro', 'Demoman', 'Heavy', 'Engineer', 'Medic', 'Sniper', 'Spy'].map((c) => [c, __('classes.' + c.toLowerCase())]))) %>
-                        classes.forEach((cls) => {
-                            $('.val.class').append(`<span class="class-el">${class_names[cls] || cls}</span>`)
-                        })
-                    }
-                } else {
-                    $('.val.class').parent().remove()
-                }
-            } catch (error) {
-                $('.val.class').parent().remove()
-            }
-
-            if(similarNames == 0){
-                $('.similarName').each((i, el) => {                    
-                    $(el).addClass('hidden')
-                })
-            } else {
-                $('.similarName .similar_items a').each((i, el) => {                    
-                    const [item_price, key_value] = el.querySelector('.item-data .price').innerText.split('/')
-                    const key = Math.floor(item_price / key_value)
-                    const metal = round_ref(((item_price / key_value) - key) * key_value)
-                    const price_string = (key > 0) ? `${key} key ${metal} ref` : `${metal} ref`
-                    el.querySelector('.item-data .price').innerText = price_string
-                })
-            }
-            
-            if(similarEffects == 0){
-                $('.similarEffect').each((i, el) => {                    
-                    $(el).addClass('hidden')
-                })
-            } else {
-                $('.similarEffect .similar_items a').each((i, el) => {                    
-                    const [item_price, key_value] = el.querySelector('.item-data .price').innerText.split('/')
-                    const key = Math.floor(item_price / key_value)
-                    const metal = round_ref(((item_price / key_value) - key) * key_value)
-                    const price_string = (key > 0) ? `${key} key ${metal} ref` : `${metal} ref`
-                    el.querySelector('.item-data .price').innerText = price_string
-                })
-            }
-
-            if(similarTypes == 0){
-                $('.similarType').each((i, el) => {                    
-                    $(el).addClass('hidden')
-                })
-            } else {
-                $('.similarType .similar_items a').each((i, el) => {                    
-                    const [item_price, key_value] = el.querySelector('.item-data .price').innerText.split('/')
-                    const key = Math.floor(item_price / key_value)
-                    const metal = round_ref(((item_price / key_value) - key) * key_value)
-                    const price_string = (key > 0) ? `${key} key ${metal} ref` : `${metal} ref`
-                    el.querySelector('.item-data .price').innerText = price_string
-                })
-            }
         </script>
         <%- include('./partials/footer.ejs') %>
     </body>

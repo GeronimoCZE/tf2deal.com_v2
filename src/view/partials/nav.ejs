@@ -158,15 +158,22 @@
       </div>
     <% } %>
 
+    <%# status bars are only in the page when they apply (a hidden one is still text that search engines read) %>
+    <% if (user) { %>
     <a class="trade-offer-bar" href="#" >
        <span> <%= __('status.open_trade_offer') %></span>
     </a>
+    <% } %>
+    <% if (trading == 'offline') { %>
     <div class="trade-status-bar <%- trading %>">
         <%= __('status.bots_connection_lost') %>
     </div>
+    <% } %>
+    <% if (trading == 'online' && bots == 'false') { %>
     <div class="bots-status-bar <%- trading %> <%- bots %>">
         <%= __('status.bots_down') %>
     </div>
+    <% } %>
     <% if (!user && info?.promtLogin) { %>
       <div class="trade-status-bar login">
         <%= __('status.login_required') %>

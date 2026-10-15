@@ -159,14 +159,9 @@ router.post('/', items_rate_limit, async (req, res) => {
         }),
         ...(stock !== undefined && stock === 'Can sell' && { $expr: { $lt: [{ $size: "$stock.items" }, "$stock.limit"] } }),
         ...(stock !== undefined && stock === 'Can buy' && { $expr: { $gt: [{ $size: "$stock.items" }, 0] } }),
-        "$nor": [
-          { "sell": 0 },
-          { "sell": null },
-          { "sell": NaN },
-          { "buy": null },
-          { "buy": NaN },
-          { "buy": 0 }
-        ]
+        // a real price (not 0, empty or NaN), like the item page needs (the plain-HTML list uses the same: service/item_lists.js)
+        sell: { $gt: 0 },
+        buy: { $gt: 0 }
       };
 
       const project = {

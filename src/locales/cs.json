@@ -63,6 +63,7 @@
     "trade_offer": "TF2Deal.com - Vaše nabídka k výměně",
     "trade": "TF2Deal.com - Výměna TF2 předmětů",
     "items": "TF2Deal.com - Předměty",
+    "items_page": "TF2Deal.com - Předměty (strana {page})",
     "not_found": "404 - Nenalezeno - TF2deal.com",
     "giveaway": "TF2Deal.com - Soutěž 🎁",
     "blog": "TF2Deal.com - Blog",
@@ -532,7 +533,10 @@
     "found_html": "Nalezeno předmětů: {count}",
     "end": "Jste na konci seznamu.",
     "none": "Nenalezeny žádné odpovídající předměty...",
-    "search_placeholder": "Hledat předměty ..."
+    "search_placeholder": "Hledat předměty ...",
+    "pages": "Stránky seznamu předmětů",
+    "prev_page": "Předchozí",
+    "next_page": "Další"
   },
   "item": {
     "inactive": "Neaktivní předmět",
