@@ -38,14 +38,14 @@
         box-sizing: border-box !important;
         border-radius: 10px;
         border: 1px solid var(--line);
-        background: rgba(124, 108, 255, .1);
+        background: rgba(var(--tint-rgb), .1);
         color: var(--ink-2);
         font-size: 14px;
         white-space: nowrap;
         cursor: pointer;
         user-select: none;
         transition: background 150ms ease, border-color 150ms ease;
-        &:hover, &.open{ background: rgba(124, 108, 255, .18); }
+        &:hover, &.open{ background: rgba(var(--tint-rgb), .18); }
         &:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
         .if-name{ color: var(--ink-3); pointer-events: none; }
         .if-value{
@@ -108,8 +108,8 @@
             white-space: nowrap;
             span{ overflow: hidden; text-overflow: ellipsis; }
             em{ font-style: normal; font-size: 12px; color: var(--ink-3); }
-            &:hover{ background: rgba(124, 108, 255, .14); color: var(--ink); }
-            &.active{ background: rgba(124, 108, 255, .22); color: #fff; font-weight: 600; }
+            &:hover{ background: rgba(var(--tint-rgb), .14); color: var(--ink); }
+            &.active{ background: rgba(var(--tint-rgb), .22); color: #fff; font-weight: 600; }
             &.none{ color: var(--ink-3); }
             &.empty{ opacity: .45; }
         }
@@ -126,7 +126,7 @@
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
-        &:hover{ background: rgba(124, 108, 255, .12); }
+        &:hover{ background: rgba(var(--tint-rgb), .12); }
         &[hidden]{ display: none; }
     }
     .item-filters-count:empty + .item-filters-reset{ margin-left: auto; }

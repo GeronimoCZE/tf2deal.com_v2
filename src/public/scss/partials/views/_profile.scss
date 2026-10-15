@@ -1,5 +1,5 @@
-$base-color: rgba(124, 108, 255, 0.05);
-$highlight-color: rgba(124, 108, 255, 0.16);
+$base-color: rgba(var(--tint-rgb), 0.05);
+$highlight-color: rgba(var(--tint-rgb), 0.16);
 
 .profile-box{
     display: block;
@@ -175,7 +175,6 @@ $highlight-color: rgba(124, 108, 255, 0.16);
             flex-direction: column;
             width: auto;
             padding: 1rem;
-            background: var(--surface-2);
             border-top: 1px solid var(--line);
             .link{
                 position: relative;
@@ -216,7 +215,7 @@ $highlight-color: rgba(124, 108, 255, 0.16);
                         width: calc(100% - 1.2rem - 34.78px);
                         outline: none;
                         border: none;
-                        background: rgba(2, 8, 30, 0.6);
+                        background: var(--well);
                         color: var(--ink);
                         font-size: 15px;
                         &:read-only{
@@ -417,7 +416,7 @@ $highlight-color: rgba(124, 108, 255, 0.16);
                 font-size: .85rem;
                 margin-top: .3rem;
                 .stock.yes{ color: #70B04A; }
-                .stock.no{ color: #ac2a44; }
+                .stock.no{ color: #ef7383; }
                 .price{ color: #fff; }
             }
             .wish-remove{
@@ -521,7 +520,7 @@ $highlight-color: rgba(124, 108, 255, 0.16);
                 margin-bottom: .6rem;
                 padding: .45rem .7rem;
                 border-radius: var(--r-md);
-                background: rgba(2, 8, 30, 0.5);
+                background: var(--well);
                 font-size: 16px;
                 &.from-admin{
                     margin-left: auto;
@@ -551,7 +550,7 @@ $highlight-color: rgba(124, 108, 255, 0.16);
                 padding: .5rem;
                 border: 1px solid var(--line);
                 border-radius: var(--r-md);
-                background: rgba(2, 8, 30, 0.5);
+                background: var(--well);
                 color: var(--ink);
                 outline: none;
                 &:focus{ border-color: var(--brand-hover); }

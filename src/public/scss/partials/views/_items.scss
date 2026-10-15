@@ -82,7 +82,7 @@
         // a quiet toolbar: the filter that is on (brand purple) is what stands out
         background: var(--surface);
         --bar-chip: var(--surface-3);
-        --bar-chip-strong: rgba(124, 108, 255, 0.22);
+        --bar-chip-strong: rgba(var(--tint-rgb), 0.22);
         @include lt-md{
             max-width: calc(100% - 1rem);
         }
@@ -117,7 +117,7 @@
                 position: relative;
                 display: block;
                 pointer-events: none;
-                color: rgb(205, 203, 203);
+                color: var(--ink);
                 text-align: center;
                 img{
                     vertical-align: middle;
@@ -136,10 +136,10 @@
                 max-height: 23rem;
                 overflow-y: auto;
                 left: 0%;
-                background: var(--bar-drop);
+                background: var(--dialog);
                 box-shadow: none;
-                border-radius: 0 0 .3rem .3rem;
-                border: 1px solid var(--line);
+                border-radius: var(--r-sm);
+                border: 1px solid var(--line-strong); // it lies over the items
                 cursor: default;
                 /* width */
                 &::-webkit-scrollbar {
@@ -151,11 +151,11 @@
                 }
                 /* Handle */
                 &::-webkit-scrollbar-thumb {
-                    background: #2d1263;
+                    background: rgba(var(--tint-rgb), 0.3);
                 }
                 /* Handle on hover */
                 &::-webkit-scrollbar-thumb:hover {
-                    background: #36147a;
+                    background: rgba(var(--tint-rgb), 0.45);
                 }
                 .fd-search{
                     display: block;
@@ -175,7 +175,7 @@
                         background: transparent ;
                         border: none !important;
                         outline: none !important;
-                        color: rgba(237, 237, 237, 0.754);
+                        color: var(--ink);
                     }
                     .icon{
                         pointer-events: none;
@@ -190,12 +190,13 @@
                     padding: .2rem .75rem;
                     cursor: pointer;
                     transition: 200ms;
-                    color: rgb(206, 206, 206);
+                    color: var(--ink-2);
                     &.none{
-                        color: rgba(206, 206, 206, 0.65);
+                        color: var(--ink-3);
                     }
                     &:hover{
-                        background: #3c158b;
+                        background: rgba(var(--tint-rgb), 0.16);
+                        color: var(--ink);
                     }
                     &.hide{
                         display: none;
@@ -229,11 +230,11 @@
                 }
             }
             &.selected{
-                border: 1px solid var(--line-strong);
-                background: var(--bar-chip-strong) !important;
+                border: 1px solid transparent;
+                background: var(--brand) !important;
                 .filter-name{
-                    background: var(--bar-chip-strong) !important;
-                    color: rgba(239, 239, 239, 0.837);
+                    background: var(--brand) !important;
+                    color: #fff;
                     position: absolute;
                     font-size: 10px;
                     padding: 0 .3rem;
@@ -280,9 +281,9 @@
             margin: .4rem;
             margin-left: auto;
             border-radius: 5px;
-            background: var(--bar-chip-strong);
+            background: var(--well);
             letter-spacing: 0.05rem;
-            border: 1px solid transparent;
+            border: 1px solid var(--line); // a field to type in
             transition: 250ms;
             @include lt-sm{
                 width: 95%;
@@ -291,7 +292,7 @@
             &:hover{
             }
             &:focus-within{
-                //border-color: rgb(109, 109, 109);       
+                border-color: var(--line-strong);
             }
             input{
                 background: transparent;
@@ -494,7 +495,7 @@
                                 color: #70B04A;
                             }
                             &.no{
-                                color: #ac2a44;
+                                color: #ef7383;
                             }
                         }
                         .price{
@@ -857,7 +858,7 @@
                     gap: .6rem;
                     height: 2.4rem;
                     padding: 0 .75rem;
-                    background: rgba(2, 8, 30, 0.6);
+                    background: var(--well);
                     border: 1px solid var(--line);
                     border-radius: var(--r-md);
                     font-weight: 700;
@@ -1072,7 +1073,7 @@
                             right: 3px;
                             padding: 0 .3rem;
                             border-radius: 4px;
-                            background: rgba(2, 8, 30, 0.75);
+                            background: rgba(0, 0, 0, 0.6);
                             color: var(--ink-2);
                             font-size: 11px;
                             line-height: 1.4;
@@ -1488,7 +1489,7 @@
                             color: #70B04A;
                         }
                         &.no{
-                            color: #ac2a44;
+                            color: #ef7383;
                         }
                         span{
                             display: inline-block;
@@ -2032,7 +2033,7 @@
             flex-direction: column;
             gap: .1rem;
             padding: .45rem .6rem;
-            background: var(--bar-drop);
+            background: var(--dialog);
             border: 1px solid var(--line-strong);
             border-radius: var(--r-sm);
             font-size: 13px;

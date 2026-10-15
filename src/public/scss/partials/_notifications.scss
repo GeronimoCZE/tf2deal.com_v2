@@ -17,12 +17,12 @@ $notif-line: rgba(255, 255, 255, 0.08);
     box-sizing: border-box !important;
     border-radius: 12px !important;
     border: 1px solid var(--line);
-    background: rgba(124, 108, 255, 0.1);
+    background: rgba(var(--tint-rgb), 0.1);
     color: var(--ink);
     cursor: pointer;
     transition: background 150ms ease, border-color 150ms ease;
     svg{ width: 19px; height: 19px; fill: currentColor; pointer-events: none; }
-    &:hover, &[aria-expanded="true"]{ background: rgba(124, 108, 255, 0.2); }
+    &:hover, &[aria-expanded="true"]{ background: rgba(var(--tint-rgb), 0.2); }
     &:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
     &.ring svg{ animation: bellRing 700ms ease; transform-origin: 50% 3px; }
 
@@ -95,7 +95,7 @@ $notif-line: rgba(255, 255, 255, 0.08);
         & + .notif-item{ margin-top: 2px; }
         &:is(a):hover{ background: rgba(255, 255, 255, 0.05); }
         &.unread{
-            background: rgba(124, 108, 255, 0.1);
+            background: rgba(var(--tint-rgb), 0.1);
             .notif-body strong::after{
                 content: "";
                 display: inline-block;

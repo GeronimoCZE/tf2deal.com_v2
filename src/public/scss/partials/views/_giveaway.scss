@@ -28,7 +28,7 @@
         align-items: center;
         min-height: 20rem;
         border-radius: var(--r-lg);
-        background: radial-gradient(circle at 50% 45%, rgba(124, 108, 255, 0.16), rgba(124, 108, 255, 0.03) 65%);
+        background: radial-gradient(circle at 50% 45%, rgba(var(--tint-rgb), 0.16), rgba(var(--tint-rgb), 0.03) 65%);
         border: 1px solid transparent;
         @include lt-sm{ min-height: 15rem; }
         .gw-image{

@@ -14,11 +14,11 @@
     max-width: 62rem;
     box-sizing: border-box;
     padding: 1rem 1.2rem;
-    background: rgb(8, 16, 52); // solid: it floats over the page
-    border: 1px solid var(--line);
+    background: var(--dialog); // solid: it floats over the page
+    border: 1px solid var(--line-strong); // and needs an edge where it meets it
     border-radius: var(--r-lg);
     box-shadow: none;
-    color: rgb(214, 214, 214);
+    color: var(--ink-2);
     font-size: 15px;
     line-height: 1.45;
     @media screen and (max-width: 760px) {
@@ -29,9 +29,9 @@
     }
     .cookie-text{
         flex: 1;
-        strong{ display: block; margin-bottom: .2rem; color: #fff; font-size: 16px; }
+        strong{ display: block; margin-bottom: .2rem; color: var(--ink); font-size: 16px; }
         p{ margin: 0; }
-        a{ display: inline; color: #b88ef7; text-decoration: underline; } // links are display:block site-wide
+        a{ display: inline; color: var(--violet); text-decoration: underline; } // links are display:block site-wide
     }
 }
 
@@ -42,19 +42,18 @@
     justify-content: flex-end;
     button{
         padding: .55rem 1rem;
-        border: 1px solid var(--line);
+        border: none;
         border-radius: var(--r-md);
-        background: var(--brand-muted);
-        color: var(--ink);
+        background: var(--surface-2);
+        color: var(--ink-2);
         font-size: 15px;
         font-family: inherit;
         cursor: pointer;
         transition: 200ms;
         white-space: nowrap;
-        &:hover{ background: var(--brand-muted-hover); }
+        &:hover{ background: var(--surface-3); color: var(--ink); }
         &.primary{
             background: var(--brand);
-            border-color: var(--line);
             color: #fff;
             &:hover{ background: var(--brand-hover); }
         }
@@ -71,7 +70,7 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    background: rgba(0, 0, 0, 0.65);
+    background: var(--scrim);
     .cookie-modal-box{
         position: relative;
         width: 100%;
@@ -80,14 +79,14 @@
         overflow: auto;
         box-sizing: border-box;
         padding: 1.4rem 1.4rem 1.2rem 1.4rem;
-        background: rgb(8, 16, 52);
-        border: 1px solid var(--line);
+        background: var(--dialog);
+        border: none;
         border-radius: var(--r-lg);
-        color: rgb(214, 214, 214);
+        color: var(--ink-2);
         font-size: 15px;
         line-height: 1.45;
-        h2{ margin: 0 0 .5rem 0; color: #fff; font-family: var(--font-heading); font-size: 1.35rem; }
-        > p{ margin: 0 0 1rem 0; a{ display: inline; color: #b88ef7; text-decoration: underline; } }
+        h2{ margin: 0 2.2rem .5rem 0; color: var(--ink); font-family: var(--font-heading); font-size: 1.25rem; }
+        > p{ margin: 0 0 1rem 0; a{ display: inline; color: var(--violet); text-decoration: underline; } }
     }
     .cookie-close{
         position: absolute;
@@ -96,13 +95,13 @@
         width: 2rem;
         height: 2rem;
         border: none;
-        border-radius: 6px;
+        border-radius: var(--r-sm);
         background: transparent;
-        color: rgb(200, 200, 200);
+        color: var(--ink-3);
         font-size: 1.5rem;
         line-height: 1;
         cursor: pointer;
-        &:hover{ background: rgba(63, 42, 119, 0.6); }
+        &:hover{ background: var(--surface-3); color: var(--ink); }
     }
     .cookie-category{
         display: flex;
@@ -112,11 +111,11 @@
         padding: .8rem 0;
         border-top: 1px solid var(--line);
         cursor: pointer;
-        strong{ color: #fff; }
-        p{ margin: .2rem 0 0 0; font-size: 14px; color: rgb(178, 178, 178); }
+        strong{ color: var(--ink); }
+        p{ margin: .2rem 0 0 0; font-size: 14px; color: var(--ink-3); }
     }
-    .cookie-always{ color: #70b04a; font-size: 14px; white-space: nowrap; }
-    .cookie-none{ margin: .8rem 0 0 0; color: rgb(170, 170, 170); font-size: 14px; }
+    .cookie-always{ color: var(--ink-3); font-size: 14px; white-space: nowrap; }
+    .cookie-none{ margin: .8rem 0 0 0; color: var(--ink-3); font-size: 14px; }
     .cookie-actions{ margin-top: 1rem; }
 }
 

@@ -25,7 +25,8 @@
     --ink-2: rgba(226, 226, 244, 0.78);     // body text
     --ink-3: rgba(226, 226, 244, 0.55);     // labels, dates, hints
     // surfaces (navy of the nav bar, slightly see-through so the page gradient shows)
-    --surface: rgba(4, 13, 46, 0.78);
+    --surface: rgba(3, 10, 38, 0.85);
+    --tint-rgb: 124, 108, 255;              // the light violet that hover and selected states are tinted with
     --surface-2: rgba(124, 108, 255, 0.07); // rows / wells inside a panel
     --surface-3: rgba(124, 108, 255, 0.13); // hover
     --line: rgba(255, 255, 255, 0.07);
@@ -34,18 +35,21 @@
     --tile: rgba(36, 42, 100, 0.55);
     --tile-hover: rgba(46, 52, 122, 0.75);
     --tile-line: transparent;               // tiles stand out by their background; selected tiles still get an outline
+    --well: rgba(2, 8, 30, 0.55);           // inputs and sunken areas inside a panel
+    // modals: a solid card over the dimmed page
+    --dialog: #0f1946;
+    --scrim: rgba(2, 4, 18, 0.82);
     // actions
     --brand: #4f35e5;                       // the logo / filter-bar purple: primary buttons, focus
     --brand-hover: #5d45ef;
     --brand-muted: rgba(63, 42, 119, 0.58); // secondary buttons, chips
     --brand-muted-hover: rgba(63, 42, 119, 0.9);
-    --bar-chip: rgb(56, 35, 173);           // filter bars: chips on the --brand bar, and their dropdowns
-    --bar-chip-strong: rgb(43, 26, 140);
-    --bar-drop: #1f0c46;
     --violet: #b88ef7;                      // links
     --violet-2: #9d4ed6;                    // small accents (FAQ chevrons, footer headings)
     --green: rgb(46, 168, 38);              // trade / buy
     --green-muted: rgba(46, 168, 38, 0.55);
+    --go: #23883a;                          // solid green buttons: dark enough for white text
+    --go-hover: #2a9a43;
     --danger: rgb(163, 58, 51);
     // shape
     --r-sm: 6px;
@@ -143,7 +147,7 @@
 @mixin input {
     display: block;
     padding: .6rem .75rem;
-    background: rgba(2, 8, 30, 0.6);
+    background: var(--well);
     border: 1px solid var(--line);
     border-radius: var(--r-md);
     color: var(--ink);

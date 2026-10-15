@@ -1,5 +1,5 @@
 // Round 12: trade offer progress, rating box, "open trade offer" bar and the item tooltip.
-// Same look as the modals (partials/_modals.scss): dark navy cards, purple accents, light motion.
+// Same look as the modals (partials/_modals.scss): flat, the colour only where it says something.
 
 $ts-ease: cubic-bezier(.2, .8, .2, 1);
 
@@ -7,7 +7,7 @@ $ts-ease: cubic-bezier(.2, .8, .2, 1);
 .modal_overlay .offer-steps{
     display: flex;
     gap: 6px;
-    margin: -4px 0 20px 0;
+    margin: 0 0 20px 0;
     padding: 0;
     list-style: none;
     counter-reset: step;
@@ -20,11 +20,9 @@ $ts-ease: cubic-bezier(.2, .8, .2, 1);
         min-width: 0;
         .dot{
             display: block;
-            height: 4px;
-            border-radius: 4px;
-            background: rgba(124, 108, 255, 0.16);
-            overflow: hidden;
-            position: relative;
+            height: 3px;
+            border-radius: 3px;
+            background: var(--line-strong);
         }
         .label{
             font-size: 12px;
@@ -38,19 +36,10 @@ $ts-ease: cubic-bezier(.2, .8, .2, 1);
         }
         &.is-done{
             .dot{ background: #3fbf57; }
-            .label{ color: #8fe08a; }
+            .label{ color: var(--ink-2); }
         }
         &.is-current{
-            .dot{ background: rgba(124, 108, 255, 0.22); }
-            .dot::after{ // a soft moving shine while we wait
-                content: "";
-                position: absolute;
-                inset: 0;
-                width: 45%;
-                border-radius: inherit;
-                background: var(--accent, #7c6cff);
-                animation: stepWait 1.4s ease-in-out infinite;
-            }
+            .dot{ background: var(--violet); }
             .label{ color: var(--ink); }
         }
         &.is-failed{
@@ -63,28 +52,27 @@ $ts-ease: cubic-bezier(.2, .8, .2, 1);
 .modal_overlay .modal.status-error .offer-steps li.is-failed .dot,
 .modal_overlay .modal.status-invalid .offer-steps li.is-failed .dot{ background: #e0604f; }
 
-// each new state slides in softly instead of snapping
-.modal_overlay .modal_content > .offer-steps ~ .offer_content{ animation: offerIn 260ms $ts-ease; }
+// each new state fades in instead of snapping
+.modal_overlay .modal_content > .offer-steps ~ .offer_content{ animation: offerIn 200ms ease-out; }
 
 /* ---------- accepted: rating ---------- */
+// a separate question after the result, so a line above it
 .modal_overlay .rating-box{
     width: 100%;
-    margin: 8px 0 0 0;
-    padding: 16px 16px 14px 16px;
+    margin: 4px 0 0 0;
+    padding: 16px 0 0 0;
     box-sizing: border-box !important;
-    border-radius: 14px;
-    background: rgba(124, 108, 255, 0.07);
-    border: 1px solid var(--line);
-    text-align: center;
-    .rating-q{ margin: 0 0 10px 0; font-weight: 700; font-size: 1rem; color: var(--ink); }
-    .rating-hint{ margin: 8px 0 0 0; font-size: 12.5px; color: var(--ink-3); }
+    border-top: 1px solid var(--line);
+    .rating-q{ margin: 0 0 6px 0; font-weight: 700; font-size: 1rem; color: var(--ink); }
+    .rating-hint{ margin: 6px 0 0 0; font-size: 13px; color: var(--ink-3); }
     &.is-rated .rating-hint{ display: none; }
 }
 // row-reverse: hovering a star also lights the ones before it (pure CSS)
 .modal_overlay .rating-stars{
     display: inline-flex;
     flex-direction: row-reverse;
-    gap: 4px;
+    gap: 2px;
+    margin-left: -6px; // the first star lines up with the text
     .rate-star{
         display: inline-flex;
         align-items: center;
@@ -109,24 +97,24 @@ $ts-ease: cubic-bezier(.2, .8, .2, 1);
 .modal_overlay .rating-follow{
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     &:empty{ display: none; }
     margin-top: 12px;
-    animation: offerIn 260ms $ts-ease;
+    animation: offerIn 200ms ease-out;
     .rating-msg{ margin: 0; font-size: .93rem; line-height: 1.5; color: var(--ink-2); &.is-error{ color: #f08277; } }
     .rating-comment{
         width: 100%;
         box-sizing: border-box !important;
         padding: 10px 12px;
-        border-radius: 12px;
-        border: 1px solid var(--line);
-        background: rgba(2, 8, 30, 0.6);
+        border-radius: var(--r-md);
+        border: 1px solid transparent;
+        background: var(--well);
         color: var(--ink);
         font: inherit;
         font-size: .93rem;
         resize: vertical;
-        &:focus{ outline: none; border-color: var(--brand-hover); }
+        &:focus{ outline: none; border-color: var(--line-strong); }
     }
     .rating-send{ width: 100%; flex: none; box-sizing: border-box !important; }
 }
@@ -138,16 +126,16 @@ $ts-ease: cubic-bezier(.2, .8, .2, 1);
     width: 100%;
     box-sizing: border-box !important;
     padding: 12px 16px;
-    border-radius: 12px;
+    border-radius: var(--r-md);
     background: #00b67a; // Trustpilot green
     color: #fff !important;
     font-size: .98rem !important;
     line-height: 1.3;
     font-weight: 700;
     text-decoration: none;
-    transition: filter 150ms ease;
+    transition: background 150ms ease;
     svg{ width: 18px; height: 18px; flex: none; fill: currentColor; }
-    &:hover{ filter: brightness(1.08); }
+    &:hover{ background: #00a26c; }
 }
 
 /* ---------- "open trade offer" bar under the menu ---------- */
@@ -156,8 +144,8 @@ body header .trade-offer-bar{
     width: calc(100% - 2rem);
     max-width: 1280px;
     border-radius: var(--r-md, 12px);
-    border: 1px solid var(--line) !important;
-    background: linear-gradient(135deg, rgba(41, 33, 108, 0.92), rgba(18, 20, 60, 0.92));
+    border: 1px solid transparent !important;
+    background: var(--dialog);
     color: var(--ink);
     font-size: 15px;
     font-weight: 600;
@@ -178,19 +166,17 @@ body header .trade-offer-bar{
         height: 8px;
         flex: none;
         border-radius: 50%;
-        background: #a99dff;
+        background: var(--violet);
         animation: statusPulse 1.6s ease-in-out infinite;
         pointer-events: none;
     }
     span{ pointer-events: none; }
-    &:hover{ border-color: rgba(255, 255, 255, 0.18) !important; filter: brightness(1.08); }
-    &[data-status="sent"]{
-        background: linear-gradient(135deg, rgba(37, 120, 62, 0.92), rgba(24, 74, 44, 0.92));
-        border-color: var(--line) !important;
-        &::before{ background: #62d777; }
+    &:hover{ border-color: var(--line-strong) !important; }
+    &[data-status="sent"]{ // waiting on the visitor: the offer is in Steam
+        background: var(--go);
+        &::before{ background: #fff; }
     }
     &[data-status="waitingApproval"]{
-        border-color: var(--line) !important;
         &::before{ background: #f3b54d; }
     }
 }
@@ -313,17 +299,12 @@ $tt-line: rgba(255, 255, 255, 0.08);
     from { opacity: 0; }
     to { opacity: 1; }
 }
-@keyframes stepWait {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(230%); }
-}
 @keyframes tooltipIn {
     from { visibility: visible; opacity: 0; }
     to { visibility: visible; opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce){
-    .modal_overlay .offer-steps li.is-current .dot::after{ animation: none; width: 100%; opacity: .6; }
     .modal_overlay .modal_content > .offer-steps ~ .offer_content, .modal_overlay .rating-follow{ animation: none; }
     body header .trade-offer-bar::before{ animation: none; }
     .item-tooltip.show{ animation: tooltipIn 1ms linear 150ms forwards; }
