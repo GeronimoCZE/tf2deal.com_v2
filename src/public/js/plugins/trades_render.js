@@ -65,8 +65,17 @@ const price_factor = (side, other, price_field, key_value) => {
     return (recorded > 0 && paid > 0) ? paid / recorded : 1
 }
 
+// what one copy alone on its side went for, when that is all the side has and its price wasn't recorded
+// (trades sent to the bots directly don't record prices, and we may not price the item)
+const lone_paid = (side, other, key_value) => {
+    const copies = (side?.items || []).reduce((n, item) => n + (item?.user_stock?.length || 0), 0)
+    if(copies != 1 || other?.items?.length > 0){ return 0 }
+    if((num(side?.keys) > 0 || num(other?.keys) > 0) && !(num(key_value) > 0)){ return 0 }
+    return Math.max(0, pure_ref(other, key_value) - pure_ref(side, key_value))
+}
+
 // price_field: 'buy' for what the user gave us, 'sell' for what the user got
-const item_tiles = (side, price_field, key_value, factor = 1) => {
+const item_tiles = (side, price_field, key_value, factor = 1, paid = 0) => {
     const tiles = []
     for (const item of (side?.items || [])) {
         const craftable = (item?.bp_sku?.includes('Non-Craftable')) ? "non-craftable" : "craftable"
@@ -76,7 +85,7 @@ const item_tiles = (side, price_field, key_value, factor = 1) => {
             const rep = group[0]
             const count = group.length
             const recorded = rep?.[price_field] ? rep[price_field] : item?.[price_field]
-            const price = (num(recorded) > 0) ? num(recorded) * factor : recorded
+            const price = (num(recorded) > 0) ? num(recorded) * factor : (paid > 0 ? round_ref(paid) : recorded)
             const badge = (count > 1) ? `<div class="stack-count">${count}</div>` : ""
 
             tiles.push(`<div class="item q-${esc(item?.qualityID)} ${craftable} ${count > 1 ? 'stacked' : ''}" data-assetids="${esc(group.map(a => a?.a).join(','))}" data-key="${esc(key_value)}" data-quality="${esc(item?.qualityID)}" data-effect="${esc(item?.effectID)}" data-name="${esc(item.bp_sku)}" data-bp_sku="${esc(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks))}" data-type="${esc(item?.type)}" data-price="${esc(price)}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${num(item?.effectID)}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${esc(image)}">${badge}</div>`)
@@ -91,8 +100,8 @@ const render_trade = (trade_o) => {
     if(trade_o?.toGive?.items?.length > 0 && trade_o.toGive.items[0]?.user_stock?.length === 0){ return "" }
 
     const key_value = trade_o?.key_value
-    const userItems = [...pure_tiles(trade_o.toReceive), ...item_tiles(trade_o.toReceive, 'buy', key_value, price_factor(trade_o.toReceive, trade_o.toGive, 'buy', key_value))]
-    const siteItems = [...pure_tiles(trade_o.toGive), ...item_tiles(trade_o.toGive, 'sell', key_value, price_factor(trade_o.toGive, trade_o.toReceive, 'sell', key_value))]
+    const userItems = [...pure_tiles(trade_o.toReceive), ...item_tiles(trade_o.toReceive, 'buy', key_value, price_factor(trade_o.toReceive, trade_o.toGive, 'buy', key_value), lone_paid(trade_o.toReceive, trade_o.toGive, key_value))]
+    const siteItems = [...pure_tiles(trade_o.toGive), ...item_tiles(trade_o.toGive, 'sell', key_value, price_factor(trade_o.toGive, trade_o.toReceive, 'sell', key_value), lone_paid(trade_o.toGive, trade_o.toReceive, key_value))]
 
     const time = (trade_o?.timestamp > 0) ? `<div class="time-ago" data-time="${num(trade_o.timestamp)}">${timeAgoTrade(trade_o.timestamp)}</div>` : ""
 

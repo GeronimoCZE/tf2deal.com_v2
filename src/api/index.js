@@ -73,10 +73,12 @@ router.get('/item_names', (req, res) => {
 });
 
 
-// the newest 15 trades with something on both sides, each once (service/latest_trades.js keeps the list fresh)
+// 5 of the newest 15 trades with something on both sides, each once (service/latest_trades.js keeps the list fresh):
+// the newest, or with ?after=<id>&before=<ms> the 5 after the last one the page has. { trades, more }
 router.get('/latest_trades', async (req, res) => {
     try {
-      res.json({trades: await latest_trades.latest()})
+      const after = /^[\w-]{1,64}$/.test(String(req.query.after ?? '')) ? String(req.query.after) : ''
+      res.json(await latest_trades.latest({ after, before: Number(req.query.before) || 0, limit: Number(req.query.limit) || undefined }))
     } catch (e) {
       res.status(500).json({status: 'error', message: 'failed to fetch latest trades'})
     }

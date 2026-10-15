@@ -1,9 +1,7 @@
 import { render_trade, timeAgoTrade } from './trades_render.js'
 
-// Home page "Latest trades": the newest 5, "Show 5 more" twice (15 in total), and trades that happen while the page
-// is open appear on top as they come in (site socket, service/latest_trades.js on the server).
-
-const STEP = 5
+// Home page "Latest trades": the newest 5, and "Show 5 more" loads the next 5 (twice, 15 in total). Trades that happen
+// while the page is open appear on top as they come in (site socket, service/latest_trades.js on the server).
 
 const init_latest_trades = async (box) => {
     const list_el = box.querySelector('.trades')
@@ -22,32 +20,35 @@ const init_latest_trades = async (box) => {
 
     const message = (text) => { list_el.innerHTML = `<div class="info fade-in">${text}</div>` }
 
-    let res
+    // the last trade loaded by "Show 5 more" (not a live one), so the server knows where to go on
+    let last = null
+    const load = async () => {
+        const query = last ? `?after=${encodeURIComponent(last.id)}&before=${Number(last.timestamp) || 0}` : ''
+        const res = await fetch('/api/latest_trades' + query).then((r) => r.ok ? r.json() : Promise.reject(r.status))
+        for (const trade of (res?.trades || [])) {
+            last = trade
+            if(shown.has(trade?.id)){ continue }
+            const el = element(trade)
+            if(!el){ continue }
+            shown.add(trade.id)
+            list_el.append(el)
+        }
+        more_btn.hidden = !res?.more
+    }
+
     try {
-        res = await fetch('/api/latest_trades').then((r) => r.ok ? r.json() : Promise.reject(r.status))
+        await load().finally(() => list_el.querySelector(':scope > .skeleton')?.remove())
     } catch (e) {
         message(__('home.trades_error'))
         return
     }
-
-    list_el.innerHTML = ''
-    for (const trade of (res?.trades || [])) {
-        if(shown.has(trade?.id)){ continue }
-        const el = element(trade)
-        if(!el){ continue }
-        el.hidden = shown.size >= STEP
-        shown.add(trade.id)
-        list_el.append(el)
-    }
     if(!shown.size){ message(__('home.no_trades')) }
 
-    // "Show 5 more" opens the next 5 of the 15 loaded, so it is there twice at most
-    const update_more = () => { more_btn.hidden = !list_el.querySelector(':scope > .trade[hidden]') }
-    more_btn.addEventListener('click', () => {
-        list_el.querySelectorAll(':scope > .trade[hidden]').forEach((el, i) => { if(i < STEP){ el.hidden = false } })
-        update_more()
+    more_btn.addEventListener('click', async () => {
+        more_btn.disabled = true
+        try { await load() } catch (e) { /* the button stays, so it can be tried again */ }
+        more_btn.disabled = false
     })
-    update_more()
 
     const add_live = (trade) => {
         if(!trade?.id || shown.has(trade.id)){ return }

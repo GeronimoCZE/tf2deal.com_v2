@@ -17,6 +17,7 @@ import mongoose from 'mongoose';
 import User from '../../model/User.js';
 import { inventory_model } from '../../model/Inventory.js';
 import { trade_model } from '../../model/Trade.js';
+import { site_shape } from '../../service/trade_records.js';
 import { item_model } from '../../model/Item.js';
 import { ticket_model } from '../../model/Ticket.js';
 import { giveaway_model } from '../../model/Giveaway.js';
@@ -321,9 +322,12 @@ const PAGE_SIZE = 10
 router.get('/trades', isLogged, async (req, res) => {
   const page = Math.max(0, parseInt(req.query.page) || 0)
   try {
-    const trades = await trade_model.find({ partnerSteamID: req.user.steamid })
-      .sort({ timestamp: -1 }).skip(page * PAGE_SIZE).limit(PAGE_SIZE + 1).lean()
-    res.json({ status: 'ok', trades: trades.slice(0, PAGE_SIZE), more: trades.length > PAGE_SIZE })
+    // newest saved first (_id): older records have their timestamp in seconds. Records of either shape the bot server
+    // writes, trades made on the site and offers sent to the bots directly, are turned into the one the page draws.
+    const trades = await trade_model.find({ partnerSteamID: req.user.steamid, internalTrade: { $ne: true } })
+      .sort({ _id: -1 }).skip(page * PAGE_SIZE).limit(PAGE_SIZE + 1).lean()
+    const shaped = await site_shape(trades.slice(0, PAGE_SIZE))
+    res.json({ status: 'ok', trades: shaped.map(({ _id, tradeID, partnerSteamID, internalTrade, incomplete, ...trade }) => ({ id: String(_id), ...trade })), more: trades.length > PAGE_SIZE })
   } catch (error) {
     res.status(500).json({ status: 'error', message: req.__('api.load_trades_failed') })
   }

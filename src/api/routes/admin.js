@@ -289,8 +289,8 @@ router.get('/overview', async (req, res) => {
   const [users_total, users_new, trades_day, tickets_open, giveaway, rating] = await Promise.all([
     count(User.estimatedDocumentCount()),
     count(User.countDocuments({ firstlogin: { $gte: day_ago } })),
-    // trade timestamps may be in ms or in seconds
-    count(trade_model.countDocuments({ $or: [{ timestamp: { $gte: day_ago } }, { timestamp: { $gte: Math.floor(day_ago / 1000), $lt: 1e11 } }] })),
+    // trade timestamps may be in ms or in seconds; trades between our own bots don't count
+    count(trade_model.countDocuments({ internalTrade: { $ne: true }, $or: [{ timestamp: { $gte: day_ago } }, { timestamp: { $gte: Math.floor(day_ago / 1000), $lt: 1e11 } }] })),
     count(ticket_model.countDocuments({ status: 'open' })),
     db ? giveaway_model.findOne({ status: 'active' }, { item: 1, end: 1, entries: 1 }).lean().catch(() => null) : null,
     db ? rating_summary().catch(() => null) : null
