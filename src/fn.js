@@ -190,6 +190,15 @@ const SITEMAP_ITEMS_QUERY = {
 const QUALITY_NAMES = { 0: 'Normal', 1: 'Genuine', 3: 'Vintage', 5: 'Unusual', 6: 'Unique', 7: 'Community', 8: 'Valve', 9: 'Self-Made', 11: 'Strange', 13: 'Haunted', 14: "Collector's", 15: 'Decorated Weapon' }
 const quality_name = (qualityID) => QUALITY_NAMES[qualityID] || ''
 
+// Alt text of an item picture: the item's full name (it already holds the unusual effect, killstreak, wear, ...), plus
+// the quality when the name doesn't say it: "Burning Flames Team Captain (Unusual)". Unique, the default quality,
+// isn't named, as in TF2. The same rule is item_alt in public/js/plugins/trade.js.
+const item_alt = (item) => {
+  const name = String(item?.bp_sku || item?.name || '')
+  const quality = quality_name(item?.qualityID)
+  return (quality && quality !== 'Unique' && !name.includes(quality.replace(' Weapon', ''))) ? `${name} (${quality})` : name
+}
+
 // item type -> translation key under item_types (the same list as itemAttr.Types in partials/head.ejs)
 const TYPE_KEYS = {
   'cosmetic': 'cosmetic', 'taunt': 'taunt', 'action': 'action', 'crate': 'crate', 'tool': 'tool',
@@ -394,6 +403,20 @@ const item_description = (item, __ = t_for(DEFAULT_LANG)) => {
   return first + ' ' + (stock > 0 ? __('desc.item_stock', { count: stock }) : __('desc.item_no_stock'))
 }
 
+// The home page FAQ (views/home.ejs: the same questions, in the same order) as schema.org FAQPage, in the page language
+const HOME_FAQ = [['how_q', 'how_a'], ['limits_q', 'limits_a'], ['pure_q', 'pure_a_html'], ['money_q', 'money_a_html'],
+  ['deposits_q', 'deposits_a_html'], ['refunds_q', 'refunds_a_html'], ['legit_q', 'legit_a_html'], ['owner_q', 'owner_a']]
+const plain_text = (html) => String(html || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').replace(/\s+([.,;:!?。，；：！？])/g, '$1').trim()
+const faq_json_ld = (__) => ({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: HOME_FAQ.map(([q, a]) => ({
+    '@type': 'Question',
+    name: plain_text(__('faq.' + q)),
+    acceptedAnswer: { '@type': 'Answer', text: plain_text(__('faq.' + a, { link: '' })) } // {link}: the [1] source link in the page
+  }))
+})
+
 // Plain-text start of a markdown post (for the meta description when a post has no excerpt)
 const markdown_excerpt = (md, length = 155) => {
   const text = String(md || '')
@@ -439,6 +462,8 @@ export {
   item_indexable,
   SITEMAP_ITEMS_QUERY,
   quality_name,
+  item_alt,
+  faq_json_ld,
   item_type_text,
   class_names,
   list_price_text,

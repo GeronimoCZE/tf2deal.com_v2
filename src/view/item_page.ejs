@@ -38,7 +38,7 @@
                                     Item Overview
                                 </div> -->
                                 <div class="image-box q-<%= info.item?.qualityID %>">
-                                    <img src="<%= info.item?.image_large %>" alt="<%= info.item?.bp_sku %>" class="image lazy-fade" onload="this.classList.add('loaded')" fetchpriority="high" effect-id="<%= info.item?.effectID %>">
+                                    <img src="<%= info.item?.image_large %>" alt="<%= item_alt(info.item) %>" class="image lazy-fade" onload="this.classList.add('loaded')" fetchpriority="high" effect-id="<%= info.item?.effectID %>">
                                     <div class="btns">
                                         <button id="wishlist-btn"><%= __('item.wishlist') %></button>
                                     </div>
@@ -160,7 +160,7 @@
                                         <% info.result.sameName.forEach((item) => { %>
                                             <a href="<%= lurl('/items/' + encodeURIComponent(item.bp_sku)) %>" class="item_card q-<%= item.qualityID %>">
                                                 <div class="item-name" translate="no"><%= item.bp_sku %></div>
-                                                <img src="<%= item.image %>" alt="<%= item.bp_sku %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
+                                                <img src="<%= item.image %>" alt="<%= item_alt(item) %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
                                                 <div class="item-data">
                                                     <div class="stock"><%= __('item.in_stock', { count: item.stock?.cur || 0 }) %></div>
                                                     <div class="price"><%= item.price %></div>
@@ -183,7 +183,7 @@
                                         <% info.result.sameEffect.forEach((item) => { %>
                                             <a href="<%= lurl('/items/' + encodeURIComponent(item.bp_sku)) %>" class="item_card q-<%= item.qualityID %>">
                                                 <div class="item-name" translate="no"><%= item.bp_sku %></div>
-                                                <img src="<%= item.image %>" alt="<%= item.bp_sku %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
+                                                <img src="<%= item.image %>" alt="<%= item_alt(item) %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
                                                 <div class="item-data">
                                                     <div class="stock"><%= __('item.in_stock', { count: item.stock?.cur || 0 }) %></div>
                                                     <div class="price"><%= item.price %></div>
@@ -206,7 +206,7 @@
                                         <% info.result.sameTypeQuality.forEach((item) => { %>
                                             <a href="<%= lurl('/items/' + encodeURIComponent(item.bp_sku)) %>" class="item_card q-<%= item.qualityID %>">
                                                 <div class="item-name" translate="no"><%= item.bp_sku %></div>
-                                                <img src="<%= item.image %>" alt="<%= item.bp_sku %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
+                                                <img src="<%= item.image %>" alt="<%= item_alt(item) %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
                                                 <div class="item-data">
                                                     <div class="stock"><%= __('item.in_stock', { count: item.stock?.cur || 0 }) %></div>
                                                     <div class="price"><%= item.price %></div>

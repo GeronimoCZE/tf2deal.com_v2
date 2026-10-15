@@ -12,7 +12,7 @@
                   <div class="gw-showcase">
                     <span class="gw-live"><i></i><%= __('giveaway.live') %></span>
                     <div class="gw-image">
-                      <img class="item-image q-<%= g.item.qualityID %>" src="<%= g.item.image %>" style="background-image: <%= g.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${g.item.effectID}_94x94.png)` : 'none' %>;" alt="<%= g.item.bp_sku %>">
+                      <img class="item-image q-<%= g.item.qualityID %>" src="<%= g.item.image %>" style="background-image: <%= g.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${g.item.effectID}_94x94.png)` : 'none' %>;" alt="<%= item_alt(g.item) %>">
                     </div>
                   </div>
 
@@ -73,7 +73,7 @@
                   <% for (const old of (info?.history || [])) { %>
                     <article class="old-giveaway">
                       <div class="gw-thumb">
-                        <img class="q-<%= old.item.qualityID %>" src="<%= old.item.image %>" style="background-image: <%= old.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${old.item.effectID}_94x94.png)` : 'none' %>;" loading="lazy" alt="">
+                        <img class="q-<%= old.item.qualityID %>" src="<%= old.item.image %>" style="background-image: <%= old.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${old.item.effectID}_94x94.png)` : 'none' %>;" loading="lazy" alt="<%= item_alt(old.item) %>">
                       </div>
                       <div class="name" translate="no"><%= old.item.bp_sku %></div>
                       <div class="winner">

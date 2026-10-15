@@ -1,4 +1,4 @@
-import { round_ref, create_sku, group_assets } from './trade.js'
+import { round_ref, create_sku, group_assets, item_alt } from './trade.js'
 
 // Renders finished trades (home page "Latest trades" and Profile -> Trades).
 // Identical assets are stacked into one tile with a count, the same way the /trade page does it.
@@ -41,11 +41,11 @@ const pure_tiles = (side) => {
     const metal = num(side?.ref) + num(side?.rec) / 3 + num(side?.scrap) / 9
 
     if(keys > 0){
-        tiles.push(`<div class="pure keys" data-quality="Unique" data-type="Pure" data-count="${keys}" data-name="Mann Co. Supply Crate Key"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${img_cdn}${key_image}"><div class='pure-count'>${keys}</div></div>`)
+        tiles.push(`<div class="pure keys" data-quality="Unique" data-type="Pure" data-count="${keys}" data-name="Mann Co. Supply Crate Key"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${img_cdn}${key_image}" alt="Mann Co. Supply Crate Key"><div class='pure-count'>${keys}</div></div>`)
     }
     if(metal > 0){
         const refs = round_ref(metal)
-        tiles.push(`<div class="pure refs" data-quality="Unique" data-type="Pure" data-count="${refs}" data-name="Refined Metal"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${img_cdn}${ref_image}"><div class='pure-count'>${refs}</div></div>`)
+        tiles.push(`<div class="pure refs" data-quality="Unique" data-type="Pure" data-count="${refs}" data-name="Refined Metal"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${img_cdn}${ref_image}" alt="Refined Metal"><div class='pure-count'>${refs}</div></div>`)
     }
     return tiles
 }
@@ -79,7 +79,7 @@ const item_tiles = (side, price_field, key_value, factor = 1) => {
             const price = (num(recorded) > 0) ? num(recorded) * factor : recorded
             const badge = (count > 1) ? `<div class="stack-count">${count}</div>` : ""
 
-            tiles.push(`<div class="item q-${esc(item?.qualityID)} ${craftable} ${count > 1 ? 'stacked' : ''}" data-assetids="${esc(group.map(a => a?.a).join(','))}" data-key="${esc(key_value)}" data-quality="${esc(item?.qualityID)}" data-effect="${esc(item?.effectID)}" data-name="${esc(item.bp_sku)}" data-bp_sku="${esc(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks))}" data-type="${esc(item?.type)}" data-price="${esc(price)}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${num(item?.effectID)}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${esc(image)}">${badge}</div>`)
+            tiles.push(`<div class="item q-${esc(item?.qualityID)} ${craftable} ${count > 1 ? 'stacked' : ''}" data-assetids="${esc(group.map(a => a?.a).join(','))}" data-key="${esc(key_value)}" data-quality="${esc(item?.qualityID)}" data-effect="${esc(item?.effectID)}" data-name="${esc(item.bp_sku)}" data-bp_sku="${esc(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks))}" data-type="${esc(item?.type)}" data-price="${esc(price)}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${num(item?.effectID)}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${esc(image)}" alt="${item_alt(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${badge}</div>`)
         }
     }
     return tiles

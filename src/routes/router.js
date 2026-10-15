@@ -22,11 +22,13 @@ const home = async (req, res, next) => {
     const fp_data = app.fp_data;
     const trades_today = await stats.trades_today(fp_data.trades);
 
+    const json_ld = fn.faq_json_ld(req.__) // the FAQ at the bottom of the page
+
     if (req.user) {   
       const user_cookie = req.cookies[`td_${req.user.steamid}`]
-      res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', stats: {items: fp_data.items, trades: trades_today, bots: fp_data.bots.length || 0, users: app.users.size} }))
+      res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', json_ld, stats: {items: fp_data.items, trades: trades_today, bots: fp_data.bots.length || 0, users: app.users.size} }))
     } else {
-      res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', stats: {items: fp_data.items, trades: trades_today, bots: fp_data.bots.length || 0, users: app.users.size} }))
+      res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', json_ld, stats: {items: fp_data.items, trades: trades_today, bots: fp_data.bots.length || 0, users: app.users.size} }))
     }
   } else {
     next()
@@ -234,6 +236,19 @@ const item_page = async (req, res) => {
     const item_url = fn.site_url + req.lurl(item_path)
     const key_price = Number(main.bptf_data?.update_key_price) || 0
     const stock = { cur: Number(main.stock?.cur) || 0, limit: Number(main.stock?.limit) || 0 }
+    // its pictures as full addresses (structured data needs them; a stored "ms/..." short form is left out)
+    const images = [...new Set([main.image_large, main.image].map((url) => /^https?:\/\//.test(url || '') ? url : /^\/[^/]/.test(url || '') ? fn.site_url + url : null).filter(Boolean))]
+    // the item's data as text, so the page shows it before (and without) the page scripts
+    const shown = {
+      quality: fn.quality_name(main.qualityID),
+      type: fn.item_type_text(main.type, req.__),
+      classes: fn.class_names(main.classes, req.__),
+      buy_price: fn.list_price_text(main.sell, key_price), // the visitor buys at our sell price
+      sell_price: fn.list_price_text(main.buy, key_price), // ... and sells to us at our buy price
+      stock: stock.cur,
+      can_sell: Math.max(stock.limit - stock.cur, 0),
+      price_history: fn.price_history_rows(main.price_history)
+    }
 
     res.render(
       'item_page',
@@ -243,17 +258,7 @@ const item_page = async (req, res) => {
         item: main,
         result: result,
         key_price: app.key_price,
-        // the item's data as text, so the page shows it before (and without) the page scripts
-        shown: {
-          quality: fn.quality_name(main.qualityID),
-          type: fn.item_type_text(main.type, req.__),
-          classes: fn.class_names(main.classes, req.__),
-          buy_price: fn.list_price_text(main.sell, key_price), // the visitor buys at our sell price
-          sell_price: fn.list_price_text(main.buy, key_price), // ... and sells to us at our buy price
-          stock: stock.cur,
-          can_sell: Math.max(stock.limit - stock.cur, 0),
-          price_history: fn.price_history_rows(main.price_history)
-        },
+        shown,
         // SEO
         description: fn.item_description(main, req.__),
         path: item_path,
@@ -261,11 +266,37 @@ const item_page = async (req, res) => {
         image: main.image_large || main.image,
         json_ld: {
           '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: req.__('footer.home'), item: fn.site_url + req.lurl('/') },
-            { '@type': 'ListItem', position: 2, name: req.__('nav.items'), item: fn.site_url + req.lurl('/items') },
-            { '@type': 'ListItem', position: 3, name: main.bp_sku, item: item_url }
+          '@graph': [
+            {
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: req.__('footer.home'), item: fn.site_url + req.lurl('/') },
+                { '@type': 'ListItem', position: 2, name: req.__('nav.items'), item: fn.site_url + req.lurl('/items') },
+                { '@type': 'ListItem', position: 3, name: main.bp_sku, item: item_url }
+              ]
+            },
+            {
+              // The item and what the bots offer. Prices are in TF2 keys and refined metal, and search engines take
+              // only ISO 4217 currencies (USD, EUR, ...), so the offer has no price: the description says it in words.
+              // Google's "Product snippets" report will list these pages as missing a price: they get no price snippet.
+              '@type': 'Product',
+              '@id': item_url + '#item',
+              name: main.bp_sku,
+              url: item_url,
+              image: images.length > 0 ? images : undefined,
+              description: fn.item_description(main, req.__),
+              category: shown.type || undefined,
+              additionalProperty: [
+                shown.quality && { '@type': 'PropertyValue', name: req.__('filters.quality'), value: shown.quality },
+                shown.classes.length > 0 && { '@type': 'PropertyValue', name: req.__('item.classes'), value: shown.classes.join(', ') }
+              ].filter(Boolean),
+              offers: {
+                '@type': 'Offer',
+                url: item_url,
+                availability: stock.cur > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                seller: { '@id': fn.site_url + '/#organization' }
+              }
+            }
           ]
         }
       })

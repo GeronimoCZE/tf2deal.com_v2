@@ -76,7 +76,7 @@
                         for (const [index, bot] of res.bots.entries()) {
                             $('.bots-table .table-content').append(
                                 `<div class="table-row">
-                                    <div class="cell _avatar"><img src="${bot?.avatar_url || '???'}"></div>
+                                    <div class="cell _avatar"><img src="${bot?.avatar_url || '???'}" alt=""></div>
                                     <div class="cell _id">${index + 1 || '???'}</div>
                                     <div class="cell _name">${bot?.personaname || '???'}</div>
                                     <div class="cell _steamid"><a href="https://steamcommunity.com/profiles/${bot?.steamid}" rel="nofollow" target="_blank">${bot?.steamid || '???'}</a></div>
