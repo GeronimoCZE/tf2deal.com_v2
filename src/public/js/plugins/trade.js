@@ -650,7 +650,7 @@ const tradeOfferConnection = async (offer, action) => {
 
         case "accepted":
             modal_title = __('offer.accepted_title');
-            modal_html = state(visual('success', 'check'), __('offer.accepted_thanks'), `${__('offer.accepted_enjoy')} 😏`, `
+            modal_html = state(visual('success', 'check'), __('offer.accepted_thanks'), __('offer.accepted_enjoy'), `
                 ${rating_box(tradeoffer.offer?.offer?.offerID || tradeoffer.offer?.offerID)}`);
             break;
 

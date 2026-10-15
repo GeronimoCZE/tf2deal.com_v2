@@ -107,5 +107,6 @@
         </div>
     </div>
 
-    <%- include('./cookie_banner.ejs') %>
 </footer>
+<%# outside the footer: the footer's z-index would keep the cookie window under the nav %>
+<%- include('./cookie_banner.ejs') %>
