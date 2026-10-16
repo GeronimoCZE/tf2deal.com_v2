@@ -31,7 +31,7 @@
                 <ul class="nav-links <%= nav_section %>">
                     
                     <a href="<%= lurl('/trade') %>" class="link <%= nav_section == 'Trade' ? 'active' : '' %>"><%= __('nav.trade') %></a>
-                    <a href="<%= lurl('/items') %>" class="link <%= nav_section == 'Items' ? 'active' : '' %>"><%= __('nav.items') %></a>
+                    <a href="<%= lurl('/items') %>" class="link <%= nav_section == 'Items' ? 'active' : '' %>"<%- info?.view == 'items' ? ' aria-current="page"' : '' %>><%= __('nav.items') %></a>
                     <div class="link dropdown community <%= nav_section.includes('Community') ? 'active' : '' %>">
                       <span class="community-label"><%= __('nav.community') %><span class="nav-chevron" aria-hidden="true"></span></span>
                       <div class="dropdown">

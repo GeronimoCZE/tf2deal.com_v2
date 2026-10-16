@@ -735,8 +735,9 @@ img[src="/img/background.jpg"]{
             padding: 0 .5rem;
             justify-content: flex-start;
             align-items: center;
-            // a quiet toolbar on top of its inventory: what's picked (brand purple) is what stands out
-            background: var(--surface);
+            // a quiet toolbar on top of its inventory, a shade lighter than the items and set apart by a small gap
+            background: linear-gradient(rgba(var(--tint-rgb), 0.1), rgba(var(--tint-rgb), 0.1)), var(--surface);
+            margin-bottom: .35rem;
             --bar-chip: var(--surface-3);
             --bar-chip-strong: rgba(var(--tint-rgb), 0.22);
             border-radius: .3rem;
@@ -760,9 +761,6 @@ img[src="/img/background.jpg"]{
                     color: rgba(255, 255, 255, 0.878);
                     &:hover{
                         background: var(--bar-chip-strong);
-                        .filter-name{
-                            background: var(--bar-chip-strong) !important;
-                        }
                     }
                     &#filter-bot{
                         border: 1px solid var(--line);
@@ -786,9 +784,6 @@ img[src="/img/background.jpg"]{
                         }
                         &:hover{
                             background: var(--bar-chip-strong) !important;
-                            .filter-name{
-                                background: var(--bar-chip-strong) !important;
-                            }
                         }
                     }
                     .filter-name{
@@ -904,11 +899,8 @@ img[src="/img/background.jpg"]{
                             }
                         }
                     }
+                    // open or picked, a filter keeps the colour of the others: the picked value shows what is on
                     &.open{
-                        background: var(--bar-chip-strong);
-                        .filter-name{
-                            background: var(--bar-chip-strong) !important;
-                        }
                         .filter-dropdown{
                             display: block;
                             animation: drop_animation 200ms ease-in-out forwards;
@@ -923,18 +915,13 @@ img[src="/img/background.jpg"]{
                         }
                     }
                     &.selected{
-                        border: 1px solid transparent;
-                        background: var(--brand) !important;
+                        .filter-name, .filter-value{
+                            display: inline-block;
+                        }
                         .filter-name{
-                            background: var(--brand) !important;
-                            color: #fff;
-                            position: absolute;
-                            font-size: 10px;
-                            padding: 0 .3rem;
-                            border-radius: 5px 5px 0 0;
-                            line-height: 15px;
-                            top: -.4rem;
-                            left: 0px;
+                            margin-right: .4rem;
+                            font-size: 12px;
+                            color: var(--ink-3);
                         }
                     }
                 }
@@ -956,12 +943,8 @@ img[src="/img/background.jpg"]{
                 &:hover{
                     background: var(--bar-chip-strong);
                 }
-                &.selected{ // filters are on
-                    background: var(--brand);
-                    color: #fff;
-                }
+                // open or with filters on, it keeps the colour of the buttons next to it
                 &.active{
-                    background: var(--bar-chip-strong);
                     .icon{
                         transform: rotate(180deg);
                     }
@@ -1086,13 +1069,12 @@ img[src="/img/background.jpg"]{
             align-items: flex-start;
             margin: 0 auto;
             margin-bottom: 1%;
-            width: 98%;
+            width: 100%; // as wide as the bar above it
             height: 28rem;
             background: var(--surface);
-            border-radius: 0 0 .3rem .3rem;
-            border: 2px solid transparent;
-            border-bottom-width: 4px;
-            border-top: none;
+            border-radius: .3rem;
+            border: none;
+            border-bottom: 4px solid transparent;
             .loading-items{
                 @include flexCenter();
                 flex-direction: column;
@@ -1102,7 +1084,7 @@ img[src="/img/background.jpg"]{
                 width: 100%;
                 height: 100%;
                 background: var(--tile);
-                border-radius: 0 0 .3rem .3rem;
+                border-radius: .3rem;
                 z-index: 2;
                 &.hidden{
                     display: none !important;
