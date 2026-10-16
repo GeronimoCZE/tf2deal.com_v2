@@ -1,16 +1,26 @@
+import fetch from 'node-fetch'
 import { item_model } from '../model/Item.js'
 import { effect_model } from '../model/Effect.js'
 import { pure_model } from '../model/Pure.js'
 
-// Trade records are written to the `trades` collection by the bot server, in one of two shapes:
-// - trades made on the site: toGive / toReceive = { keys, ref, rec, scrap, items: [{ bp_sku, qualityID, effectID, type,
-//   image, buy, sell, user_stock: [{ a, ks, f }] }] }. toGive is what our bot gave.
-// - the newer one, also for offers people send the bots themselves: itemsToGive / itemsToReceive hold the Steam offer's
-//   items (assetid, market_hash_name, icon_url, tags, descriptions), keys and metal included, and internalTrade marks
-//   trades between our own bots.
-// site_shape() turns records of either shape into the first one, so latest trades and Profile -> Trades read one shape.
-// Steam items are matched to our item database for the name, picture and price the site uses for them; an item that
-// isn't there keeps Steam's name and picture.
+// Trade records are written to the `trades` collection by the bot server (bot_manager), whose code the site can't see.
+// site_shape() reads every layout it is likely to save and turns each record into the one the site draws:
+//   toGive / toReceive = { keys, ref, rec, scrap, items: [{ bp_sku, qualityID, effectID, type, image, buy, sell,
+//   user_stock: [{ a, ks, f, buy?, sell? }] }] }, toGive being what our bot gave.
+//
+// - The sides: toGive / toReceive, or itemsToGive / itemsToReceive (the fields of model/Trade.js).
+// - A side: { keys, ref, rec, scrap, metal, items: [...] }, or just the list of items.
+// - An item in that list:
+//   - a site item (it has user_stock), kept as it is;
+//   - copies named by bp_sku: { bp_sku, assetid | a | id | assetids, ks | killstreak, f | festivized, qualityID,
+//     effectID, buy, sell }, where the bp_sku may carry the killstreak or "Festivized " (like the ones the bots have
+//     the item manager price);
+//   - a Steam item: market_hash_name, icon_url, tags, descriptions;
+//   - a Steam item saved without its description (only classid / instanceid): Steam is asked for it;
+//   - keys or metal, as any of the above or as a "5021;6" style sku.
+// - internalTrade marks trades between our own bots.
+// Every item is matched to our item database for the name, picture and price the site uses for it; one that isn't
+// there keeps Steam's name and picture.
 
 const IMG_PREFIX = 'https://community.cloudflare.steamstatic.com/economy/image/'
 const PURE_NAMES = { 'Mann Co. Supply Crate Key': 'keys', 'Refined Metal': 'ref', 'Reclaimed Metal': 'rec', 'Scrap Metal': 'scrap' }
@@ -21,10 +31,19 @@ const QUALITIES = {
     'self-made': 9, selfmade: 9, strange: 11, haunted: 13, "collector's": 14, collectors: 14, 'decorated weapon': 15, paintkitweapon: 15
 }
 const KS_WORDS = /\b(?:(Professional|Specialized) )?Killstreak /
+const TF2_SKU = /^\d+;\d+/
 
 const num = (n) => Number.isFinite(Number(n)) ? Number(n) : 0
-// older records are in seconds
-const to_ms = (ts) => (num(ts) > 0 && num(ts) < 1e11) ? num(ts) * 1000 : num(ts)
+const yes = (v) => v === true || v === 1 || v === '1' || v === 'true'
+
+// ms from a timestamp in ms or seconds (older records are in seconds), a Date or a date string; 0 when there is none
+const to_ms = (ts) => {
+    const n = ts instanceof Date ? ts.getTime() : (typeof ts == 'string' && ts.trim() && !Number.isFinite(Number(ts))) ? Date.parse(ts) : Number(ts)
+    if (!Number.isFinite(n) || n <= 0) { return 0 }
+    return n < 1e11 ? n * 1000 : n
+}
+const id_time = (id) => typeof id?.getTimestamp == 'function' ? id.getTimestamp().getTime() : 0
+const record_time = (r) => to_ms(r?.timestamp) || to_ms(r?.time) || to_ms(r?.created) || to_ms(r?.createdAt) || to_ms(r?.date) || id_time(r?._id)
 
 const ks_tier = (value) => {
     const n = Number(value)
@@ -33,32 +52,53 @@ const ks_tier = (value) => {
     return name.startsWith('pro') ? 3 : name.startsWith('spec') ? 2 : name.startsWith('kill') ? 1 : 0
 }
 
-const is_site_item = (item) => item && typeof item == 'object' && (Array.isArray(item.user_stock) || typeof item.bp_sku == 'string')
+const is_object = (item) => item && typeof item == 'object' && !Array.isArray(item)
+const is_site_item = (item) => is_object(item) && Array.isArray(item.user_stock)
 const steam_name = (item) => String(item?.market_hash_name || item?.market_name || item?.name || '').trim()
+const bp_name = (item) => typeof item?.bp_sku == 'string' ? item.bp_sku.trim() : (typeof item?.sku == 'string' && !TF2_SKU.test(item.sku) ? item.sku.trim() : '')
 const tag = (item, category) => {
-    const found = (Array.isArray(item?.tags) ? item.tags : []).find((t) => String(t?.category || '').toLowerCase() == category)
+    const tags = Array.isArray(item?.tags) ? item.tags : is_object(item?.tags) ? Object.values(item.tags) : []
+    const found = tags.find((t) => String(t?.category || '').toLowerCase() == category)
     return found ? String(found.name || found.localized_tag_name || found.internal_name || '') : ''
 }
-const descriptions = (item) => (Array.isArray(item?.descriptions) ? item.descriptions : []).map((d) => String(d?.value ?? ''))
+const descriptions = (item) => (Array.isArray(item?.descriptions) ? item.descriptions : is_object(item?.descriptions) ? Object.values(item.descriptions) : [])
+    .map((d) => String(d?.value ?? ''))
+// a quality as our qualityID, from a number or a name ("Strange")
+const quality_of = (q) => (q == null || q === '') ? null : Number.isFinite(Number(q)) ? Number(q) : (QUALITIES[String(q).toLowerCase()] ?? null)
+const amount = (item) => Math.max(1, Math.floor(num(item?.amount ?? item?.count ?? item?.quantity)) || 1)
 
 // keys / ref / rec / scrap, or null for anything else
-const pure_kind = (item) => typeof item == 'string' ? (PURE_SKUS[item] || PURE_NAMES[item] || null)
-    : (PURE_NAMES[steam_name(item)] || PURE_SKUS[item?.sku] || null)
+const pure_kind = (item) => {
+    if (typeof item == 'string') { return PURE_SKUS[item.trim()] || PURE_NAMES[item.trim()] || null }
+    if (!is_object(item) || is_site_item(item)) { return null }
+    return PURE_NAMES[steam_name(item)] || PURE_NAMES[bp_name(item)] || PURE_SKUS[item.sku] || null
+}
+
+// a name with the killstreak and "Festivized " taken out: { name, ks, f }
+const strip_name = (name) => {
+    const is_kit = / Kit( Fabricator)?$/.test(name) // a killstreak kit is its own item, not a killstreak weapon
+    const ks_match = is_kit ? null : name.match(KS_WORDS)
+    return {
+        name: name.replace(/\bFestivized /, '').replace(is_kit ? '' : KS_WORDS, '').replace(/\s+/g, ' ').trim(),
+        ks: ks_match ? ({ Professional: 3, Specialized: 2 }[ks_match[1]] || 1) : 0,
+        f: /\bFestivized /.test(name) ? 1 : 0
+    }
+}
+const with_or_without_the = (name) => name.startsWith('The ') ? name.slice(4) : `The ${name}`
 
 // what a Steam item tells about itself
 const parse = (item) => {
     const name = steam_name(item)
-    const is_kit = / Kit( Fabricator)?$/.test(name) // a killstreak kit is its own item, not a killstreak weapon
-    const ks_match = is_kit ? null : name.match(KS_WORDS)
-    const ks = ks_match ? ({ Professional: 3, Specialized: 2 }[ks_match[1]] || 1) : 0
+    const stripped = strip_name(name)
     const descs = descriptions(item)
-    const f = (/^Festivized /.test(name) || descs.includes('Festivized')) ? 1 : 0
-    const base = name.replace(/^Festivized /, '').replace(is_kit ? '' : KS_WORDS, '').trim()
     const quality_tag = tag(item, 'quality').toLowerCase()
-    const effect = descs.map((d) => d.match(/^★ Unusual Effect: (.+)$/)?.[1]?.trim()).find(Boolean) || ''
     return {
-        name, base, ks, f, effect,
-        quality: quality_tag in QUALITIES ? QUALITIES[quality_tag] : (/^Strange /.test(base) ? 11 : /^Unusual /.test(base) ? 5 : 6),
+        name,
+        base: stripped.name,
+        ks: stripped.ks,
+        f: (stripped.f || descs.includes('Festivized')) ? 1 : 0,
+        effect: descs.map((d) => d.match(/^★ Unusual Effect: (.+)$/)?.[1]?.trim()).find(Boolean) || '',
+        quality: quality_tag in QUALITIES ? QUALITIES[quality_tag] : (/^Strange /.test(stripped.name) ? 11 : /^Unusual /.test(stripped.name) ? 5 : 6),
         craftable: !descs.some((d) => /Not Usable in Crafting/i.test(d)),
         assetid: String(item?.assetid ?? item?.id ?? ''),
         image: item?.icon_url ? IMG_PREFIX + item.icon_url : '',
@@ -66,19 +106,94 @@ const parse = (item) => {
     }
 }
 
-// the bp_sku we would give the item, then the same name with or without "The " (Steam and backpack.tf don't always agree)
+// the bp_sku we would give a Steam item, then the same name with or without "The " (Steam and backpack.tf don't always agree)
 const bp_names = (p) => {
     const name = p.quality == 5 && p.effect ? `${p.effect} ${p.base.replace(/^Unusual /, '')}` : p.base
     const prefix = p.craftable ? '' : 'Non-Craftable '
-    const other = p.quality == 6 ? (name.startsWith('The ') ? name.slice(4) : `The ${name}`) : null
-    return [prefix + name, ...(other ? [prefix + other] : [])]
+    return [prefix + name, ...(p.quality == 6 ? [prefix + with_or_without_the(name)] : [])]
 }
 
-// our item database entries for these Steam items: { by_bp: Map(bp_sku -> doc), effects: Map(effect name -> id) }
-// (looked up by bp_sku only, which is indexed)
-const lookup = async (parsed) => {
-    const names = [...new Set(parsed.flatMap(bp_names))]
-    const effect_names = [...new Set(parsed.map((p) => p.effect).filter(Boolean))]
+// The copies one item of a record stands for, before they are matched to our item database:
+// { names (bp_sku candidates, best first), quality, effect (name), effectID, ks, f, assetids, image, type, buy, sell }
+const copies_of = (item) => {
+    const named = bp_name(item)
+    const steam = steam_name(item) ? parse(item) : null
+    if (!named && !steam) { return null }
+
+    const stripped = named ? strip_name(named) : null
+    const ids = Array.isArray(item?.assetids) ? item.assetids : Array.isArray(item?.assets) ? item.assets.map((a) => a?.assetid ?? a?.a ?? a?.id ?? a) : null
+    const one = item?.assetid ?? item?.a ?? item?.id ?? item?.assetID ?? steam?.assetid ?? ''
+    const effect_id = num(item?.effectID ?? item?.effect_id ?? (Number.isFinite(Number(item?.effect)) ? item.effect : 0))
+    const price = num(item?.price)
+    return {
+        names: named ? [stripped.name, with_or_without_the(stripped.name), named] : bp_names(steam),
+        quality: item?.qualityID ?? item?.quality_id ?? quality_of(item?.quality) ?? steam?.quality ?? null,
+        effect: (typeof item?.effect == 'string' && !Number.isFinite(Number(item.effect)) ? item.effect : '') || steam?.effect || '',
+        effectID: effect_id,
+        ks: ks_tier(item?.ks ?? item?.killstreak ?? item?.kt ?? item?.ks_tier) || stripped?.ks || steam?.ks || 0,
+        f: (yes(item?.f) || yes(item?.festivized) || yes(item?.festive) || stripped?.f || steam?.f) ? 1 : 0,
+        assetids: (ids?.length ? ids : Array(amount(item)).fill(one)).map((a) => String(a ?? '')),
+        image: item?.image || (item?.icon_url ? IMG_PREFIX + item.icon_url : '') || steam?.image || '',
+        type: item?.type && !steam ? String(item.type) : (steam?.type || ''),
+        buy: num(item?.buy) || price,
+        sell: num(item?.sell) || price
+    }
+}
+
+/* ---------- Steam items saved without their description ---------- */
+
+// 'classid_instanceid' -> { market_hash_name, icon_url, tags, descriptions } (null: Steam doesn't know it), from
+// ISteamEconomy/GetAssetClassInfo. A class always looks the same, so what Steam said is kept.
+const classes = new Map()
+const CLASS_KEEP = 20000
+const steam_state = { wait_until: 0 } // after a failed request Steam isn't asked again for a minute
+const class_key = (item) => `${item.classid}_${item.instanceid || 0}`
+const needs_class = (item) => is_object(item) && !is_site_item(item) && !pure_kind(item) && !bp_name(item) && !steam_name(item) && item.classid
+
+const describe_classes = async (items) => {
+    const wanted = [...new Set(items.filter(needs_class).map(class_key))].filter((k) => !classes.has(k))
+    if (!wanted.length || !process.env.API_KEY_STEAM || Date.now() < steam_state.wait_until) { return }
+    for (let i = 0; i < wanted.length; i += 100) {
+        const chunk = wanted.slice(i, i + 100)
+        const params = new URLSearchParams({ key: process.env.API_KEY_STEAM, appid: '440', language: 'en', class_count: String(chunk.length) })
+        chunk.forEach((k, n) => {
+            const [classid, instanceid] = k.split('_')
+            params.set(`classid${n}`, classid)
+            params.set(`instanceid${n}`, instanceid)
+        })
+        try {
+            const res = await fetch(`https://api.steampowered.com/ISteamEconomy/GetAssetClassInfo/v1/?${params}`, { timeout: 10000 })
+            const result = (await res.json())?.result
+            if (!result?.success) { steam_state.wait_until = Date.now() + 60 * 1000; break }
+            for (const k of chunk) {
+                const [classid, instanceid] = k.split('_')
+                const d = result[instanceid != '0' ? k : classid] || result[classid]
+                classes.set(k, d?.market_hash_name ? {
+                    market_hash_name: d.market_hash_name, icon_url: d.icon_url,
+                    tags: Object.values(d.tags || {}), descriptions: Object.values(d.descriptions || {})
+                } : null)
+            }
+        } catch (e) {
+            console.log('trade records: Steam item descriptions failed', e.message)
+            steam_state.wait_until = Date.now() + 60 * 1000
+            break
+        }
+    }
+    for (const k of classes.keys()) {
+        if (classes.size <= CLASS_KEEP) { break }
+        classes.delete(k)
+    }
+}
+
+// the item with Steam's description added when it was saved without one
+const described = (item) => needs_class(item) && classes.get(class_key(item)) ? { ...item, ...classes.get(class_key(item)) } : item
+
+/* ---------- our item database ---------- */
+
+// { by_bp: Map(bp_sku -> doc), effects: Map(effect name -> id) } for these copies (looked up by bp_sku, which is indexed)
+const lookup = async (list) => {
+    const names = [...new Set(list.flatMap((c) => c.names))].filter(Boolean)
+    const effect_names = [...new Set(list.map((c) => c.effect).filter(Boolean))]
     if (!names.length) { return { by_bp: new Map(), effects: new Map() } }
 
     const [docs, effects] = await Promise.all([
@@ -91,8 +206,6 @@ const lookup = async (parsed) => {
     return { by_bp: new Map(docs.map((d) => [d.bp_sku, d])), effects: new Map(effects.map((e) => [e.name, Number(e.ID) || 0])) }
 }
 
-const find_doc = (p, found) => bp_names(p).map((name) => found.by_bp.get(name)).find(Boolean) || null
-
 // buy / sell of one copy: its killstreak tier's prices when the item has them (left out when we have no price)
 const prices = (doc, ks) => {
     const tier = ks > 0 ? (doc?.killstreak || []).find((k) => ks_tier(k?.kt ?? k?.ks_tier) == ks) : null
@@ -101,7 +214,7 @@ const prices = (doc, ks) => {
     return { ...(buy > 0 ? { buy } : {}), ...(sell > 0 ? { sell } : {}) }
 }
 
-// the key price in ref now, for newer records that don't say what it was (cached for 10 minutes)
+// the key price in ref now, for records that don't say what it was (cached for 10 minutes)
 const key_cache = { value: 0, at: 0 }
 const key_price_now = async () => {
     if (Date.now() - key_cache.at > 10 * 60 * 1000) {
@@ -111,64 +224,109 @@ const key_price_now = async () => {
     return key_cache.value
 }
 
-// one side of a newer record (an array of Steam items) as { keys, ref, rec, scrap, items, unknown }
-const side_from_steam = (list, found) => {
-    const side = { keys: 0, ref: 0, rec: 0, scrap: 0, items: [], unknown: 0 }
-    const grouped = new Map()
-    for (const item of list) {
-        const pure = pure_kind(item)
-        if (pure) { side[pure] += Math.max(1, num(item?.amount)); continue }
-        if (is_site_item(item)) { side.items.push(item); continue }
-        const p = parse(item)
-        if (!p.name) { side.unknown++; continue }
+/* ---------- records ---------- */
 
-        const doc = find_doc(p, found)
+const side_list = (side) => Array.isArray(side) ? side : Array.isArray(side?.items) ? side.items : []
+const has_content = (side) => side_list(side).length > 0 || ['keys', 'ref', 'rec', 'scrap', 'metal'].some((k) => num(side?.[k]) > 0)
+// the first of these sides that has something on it
+const first_side = (...sides) => sides.find(has_content) ?? sides.find((s) => s != null) ?? null
+// the two sides of a record as saved: { give, receive }
+const raw_sides = (record) => ({
+    give: first_side(record?.toGive, record?.itemsToGive),
+    receive: first_side(record?.toReceive, record?.itemsToReceive)
+})
+// a Steam ID as text, also from a SteamID object ({ accountid, ... })
+const steamid_of = (v) => (is_object(v) && Number.isFinite(Number(v.accountid))) ? String(76561197960265728n + BigInt(Math.floor(Number(v.accountid)))) : v
+
+// one side as { keys, ref, rec, scrap, items, unknown }; unknown counts the items nothing could be read from
+const read_side = (side, found) => {
+    // metal: all metal in ref, for records that don't count ref, rec and scrap apart
+    const apart = ['ref', 'rec', 'scrap'].some((k) => side?.[k] != null)
+    const out = { keys: num(side?.keys), ref: apart ? num(side?.ref) : num(side?.metal), rec: num(side?.rec), scrap: num(side?.scrap), items: [], unknown: 0 }
+    const grouped = new Map()
+    for (const raw of side_list(side)) {
+        const item = described(raw)
+        const pure = pure_kind(item)
+        if (pure) { out[pure] += amount(item); continue }
+        if (is_site_item(item)) { out.items.push(item); continue }
+        const c = is_object(item) || typeof item == 'string' ? copies_of(typeof item == 'string' ? { bp_sku: item } : item) : null
+        if (!c) { out.unknown++; continue }
+
+        const doc = c.names.map((name) => found.by_bp.get(name)).find(Boolean) || null
         const entry = {
-            bp_sku: doc?.bp_sku || bp_names(p)[0],
-            qualityID: String(doc?.qualityID ?? p.quality),
-            effectID: num(doc?.effectID) || found.effects.get(p.effect) || 0,
-            type: doc?.type || p.type,
-            image: doc?.image || p.image
+            bp_sku: doc?.bp_sku || c.names[0],
+            qualityID: String(doc?.qualityID ?? c.quality ?? 6),
+            effectID: num(doc?.effectID) || c.effectID || found.effects.get(c.effect) || 0,
+            type: doc?.type || c.type,
+            image: doc?.image || c.image
         }
         const key = `${entry.bp_sku}|${entry.qualityID}|${entry.effectID}`
         if (!grouped.has(key)) { grouped.set(key, { ...entry, user_stock: [] }) }
-        grouped.get(key).user_stock.push({ a: p.assetid, ks: p.ks, f: p.f, ...prices(doc, p.ks) })
+        const own = { ...(c.buy > 0 ? { buy: c.buy } : {}), ...(c.sell > 0 ? { sell: c.sell } : {}) }
+        for (const a of c.assetids) {
+            grouped.get(key).user_stock.push({ a, ks: c.ks, f: c.f, ...prices(doc, c.ks), ...own })
+        }
     }
-    side.items.push(...grouped.values())
-    return side
+    out.items.push(...grouped.values())
+    return out
 }
 
-const is_newer_shape = (record) => !record?.toGive && !record?.toReceive && (Array.isArray(record?.itemsToGive) || Array.isArray(record?.itemsToReceive))
-
-// Records of either shape -> [{ _id, tradeID, partnerSteamID, timestamp (ms), key_value, internalTrade, toGive, toReceive,
-// incomplete }]. incomplete: some item had no name (Steam didn't send its description), so the trade can't be drawn whole.
+// Records of any layout -> [{ _id, tradeID, partnerSteamID, bot, timestamp (ms), key_value, internalTrade, toGive,
+// toReceive, incomplete }]. incomplete: some item couldn't be read (no name, and Steam didn't describe it), so the trade
+// can't be drawn whole.
 const site_shape = async (records) => {
-    const steam_items = records.filter(is_newer_shape)
-        .flatMap((r) => [...(r.itemsToGive || []), ...(r.itemsToReceive || [])])
-        .filter((item) => !pure_kind(item) && !is_site_item(item) && steam_name(item))
-    const found = await lookup(steam_items.map(parse))
-    const key_now = records.some((r) => is_newer_shape(r) && !(num(r.key_value) || num(r.key_price))) ? await key_price_now() : 0
+    const all_items = records.flatMap((r) => { const s = raw_sides(r); return [...side_list(s.give), ...side_list(s.receive)] })
+    await describe_classes(all_items)
+    const copies = all_items.map(described)
+        .filter((item) => !pure_kind(item) && !is_site_item(item))
+        .map((item) => typeof item == 'string' ? copies_of({ bp_sku: item }) : is_object(item) ? copies_of(item) : null)
+        .filter(Boolean)
+    const found = await lookup(copies)
+    const key_now = records.some((r) => !(num(r?.key_value) || num(r?.key_price))) ? await key_price_now() : 0
 
     return records.map((record) => {
-        const shaped = {
+        const sides = raw_sides(record)
+        const toGive = read_side(sides.give, found)
+        const toReceive = read_side(sides.receive, found)
+        const incomplete = toGive.unknown + toReceive.unknown > 0
+        delete toGive.unknown
+        delete toReceive.unknown
+        return {
             _id: record._id,
-            tradeID: record.tradeID,
-            partnerSteamID: record.partnerSteamID,
-            timestamp: to_ms(record.timestamp),
-            key_value: num(record.key_value) || num(record.key_price) || undefined,
+            tradeID: record.tradeID ?? record.offerID ?? record.offer_id,
+            partnerSteamID: steamid_of(record.partnerSteamID ?? record.partner),
+            bot: record.bot,
+            timestamp: record_time(record),
+            key_value: num(record.key_value) || num(record.key_price) || key_now || undefined,
             internalTrade: record.internalTrade === true,
-            toGive: record.toGive ?? null,
-            toReceive: record.toReceive ?? null,
-            incomplete: false
+            toGive, toReceive, incomplete
         }
-        if (is_newer_shape(record)) {
-            shaped.key_value = shaped.key_value || key_now || undefined
-            shaped.toGive = side_from_steam(record.itemsToGive || [], found)
-            shaped.toReceive = side_from_steam(record.itemsToReceive || [], found)
-            shaped.incomplete = shaped.toGive.unknown + shaped.toReceive.unknown > 0
-        }
-        return shaped
     })
 }
 
-export { site_shape, to_ms, parse, bp_names }
+// How a record was saved, in words, for Admin -> Trade records: "itemsToGive: 2 bp_sku items; itemsToReceive: 3 key / metal items"
+const KINDS = {
+    site: ['site item', 'site items'], pure: ['key / metal item', 'key / metal items'], text: ['bp_sku text', 'bp_sku texts'],
+    bp: ['bp_sku item', 'bp_sku items'], steam: ['Steam item', 'Steam items'],
+    described: ['Steam item without a description (Steam described it)', 'Steam items without a description (Steam described them)'],
+    undescribed: ["Steam item without a description (Steam didn't describe it)", "Steam items without a description (Steam didn't describe them)"],
+    nameless: ['item without a name', 'items without a name'], other: ['unreadable entry', 'unreadable entries']
+}
+const PURE_WORDS = { keys: ['key', 'keys'], ref: ['ref', 'ref'], rec: ['rec', 'rec'], scrap: ['scrap', 'scrap'], metal: ['metal in ref', 'metal in ref'] }
+const counted = (n, [one, more]) => `${n} ${n == 1 ? one : more}`
+const layout = (record) => {
+    const kind = (item) => is_site_item(item) ? 'site' : pure_kind(item) ? 'pure' : typeof item == 'string' ? 'text' : !is_object(item) ? 'other'
+        : bp_name(item) ? 'bp' : steam_name(item) ? 'steam' : needs_class(item) ? (classes.get(class_key(item)) ? 'described' : 'undescribed') : 'nameless'
+    const sides = [['toGive', record?.toGive], ['toReceive', record?.toReceive], ['itemsToGive', record?.itemsToGive], ['itemsToReceive', record?.itemsToReceive]]
+        .filter(([, side]) => side != null)
+        .map(([field, side]) => {
+            const counts = new Map()
+            for (const item of side_list(side)) { counts.set(kind(item), (counts.get(kind(item)) || 0) + 1) }
+            const pure = Array.isArray(side) ? [] : Object.keys(PURE_WORDS).filter((k) => num(side?.[k]) > 0).map((k) => counted(num(side[k]), PURE_WORDS[k]))
+            const parts = [...[...counts].map(([k, n]) => counted(n, KINDS[k])), ...pure]
+            return `${field}: ${parts.length ? parts.join(', ') : 'empty'}`
+        })
+    return sides.length ? sides.join('; ') : 'no toGive / toReceive / itemsToGive / itemsToReceive field'
+}
+
+export { site_shape, to_ms, parse, bp_names, record_time, layout }

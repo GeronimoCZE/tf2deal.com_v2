@@ -17,6 +17,7 @@ import * as settings from '../../service/settings.js';
 import * as season from '../../service/season.js';
 import * as notifications from '../../service/notifications.js';
 import * as stock_limits from '../../service/stock_limits.js';
+import * as latest_trades from '../../service/latest_trades.js';
 import { notification_model } from '../../model/Notification.js';
 import { clients as settings_clients } from '../../service/settings_socket.js';
 import { bot_socket, item_socket } from '../../service/socket.js';
@@ -283,6 +284,12 @@ router.get('/ratings', async (req, res) => {
     rating_model.find(filter, { _id: 0, steamid: 1, name: 1, stars: 1, comment: 1, offer_id: 1, verified: 1, trustpilot: 1, lang: 1, created: 1 }).sort({ created: -1 }).limit(50).lean()
   ]);
   res.json({ status: 'ok', summary, ratings });
+});
+
+// the newest trade records the bots saved, and whether Latest trades on the home page shows each one
+router.get('/trade_records', async (req, res) => {
+  if(process.db_status?.connected !== true){ return res.json({ status: 'error', message: 'The database is not connected.' }) }
+  res.json({ status: 'ok', records: await latest_trades.check(20) });
 });
 
 router.get('/overview', async (req, res) => {
