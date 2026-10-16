@@ -30,9 +30,9 @@
         &.skeleton {
             background: linear-gradient(
                 90deg,
-                rgba(124, 108, 255, 0.05) 25%,
-                rgba(124, 108, 255, 0.16) 50%,
-                rgba(124, 108, 255, 0.05) 75%
+                rgba(var(--tint-rgb), 0.05) 25%,
+                rgba(var(--tint-rgb), 0.16) 50%,
+                rgba(var(--tint-rgb), 0.05) 75%
             );
             background-size: 200% 100%;
             animation: shimmer 1.8s infinite linear;
@@ -81,7 +81,7 @@
                 height: fit-content;
                 padding: .5rem;
                 border-radius: var(--r-md);
-                background: rgba(2, 8, 30, 0.45);
+                background: var(--well);
                 @media screen and (max-width: 1000px) {
                    display: block;
                    width: calc(100% - 1rem);
@@ -100,7 +100,7 @@
             .pure{
                 display: block;
                 position: relative;
-                background: rgba(124, 108, 255, 0.08);
+                background: var(--tile);
                 border: 1px solid transparent;
                 border-radius: 5px;
                 cursor: default;
@@ -131,7 +131,7 @@
             .item{
                 display: block;
                 position: relative;
-                background: rgba(124, 108, 255, 0.08);
+                background: var(--tile);
                 border: 2px solid transparent;
                 border-radius: 5px;
                 border-bottom: 2px solid var(--line);   // takes the item's quality colour below
@@ -140,7 +140,7 @@
                 background-repeat: no-repeat;
                 transition: 150ms ease-in-out;
                 &:hover{
-                    background: rgba(124, 108, 255, 0.16);
+                    background-color: var(--tile-hover);
                     background-size: contain;
                     background-repeat: no-repeat;
                 }

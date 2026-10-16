@@ -9,17 +9,10 @@
         <ul class="suggestions" id="searchbar-results" role="listbox">
             <li><%= __('search.results_here') %></li>
         </ul>
-        <div class="searchbar-foot" aria-hidden="true">
-            <span><kbd>↑</kbd><kbd>↓</kbd></span>
-            <span><kbd>↵</kbd> <%= __('search.hint_search') %></span>
-            <span><kbd>Esc</kbd> <%= __('search.hint_close') %></span>
-            <span class="searchbar-brand"><%= __('search.title') %></span>
-        </div>
     </div>
 
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal_header">
-            <span class="modal_icon" aria-hidden="true"></span>
             <div class="modal_name" id="modal-title"></div>
             <button type="button" class="closeModal" title="<%= __('search.close') %>" aria-label="<%= __('search.close') %>">&times;</button>
         </div>
@@ -114,5 +107,6 @@
         </div>
     </div>
 
-    <%- include('./cookie_banner.ejs') %>
 </footer>
+<%# outside the footer: the footer's z-index would keep the cookie window under the nav %>
+<%- include('./cookie_banner.ejs') %>

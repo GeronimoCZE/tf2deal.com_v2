@@ -140,7 +140,7 @@ img[src="/img/background.jpg"]{
                     position: absolute;
                     bottom: 0;
                     font-size: .9rem;
-                    color: rgb(206, 206, 206);
+                    color: var(--ink-2);
                     background: #1b1b1b;
                     width: 100%;
                     input{
@@ -487,14 +487,17 @@ img[src="/img/background.jpg"]{
                 user-select: none;
                 transition: 220ms;
                 opacity: .7;
-                // TRADE is the one main button here: quiet until the trade can be sent, then green
+                // TRADE is the one main button here: a faint green until the trade can be sent, then solid green
                 &.trade-btn{
                     cursor: default;
                     min-height: 9rem;
                     width: 85%;
+                    box-sizing: border-box;
+                    padding: 0 .5rem;
+                    container-type: inline-size; // the label below scales with the button's width
                     opacity: 1;
-                    color: var(--ink-3);
-                    background: var(--surface-2);
+                    color: rgba(150, 214, 140, 0.6);
+                    background: rgba(46, 168, 38, 0.14);
                     border: 2px solid transparent;
                     border-radius: .3rem;
                     @include lt-lg{
@@ -504,12 +507,20 @@ img[src="/img/background.jpg"]{
                     @include lt-md{
                         width: 15rem;min-height: 7rem;
                     }
+                    // --chars (letters in the label, set in trade.ejs): long words like INTERCAMBIAR get smaller
+                    // instead of spilling out of the button
                     .trade-btn-span{
+                        max-width: 100%;
                         font-size: 2.6rem;
+                        font-size: min(2.6rem, calc(100cqi / (var(--chars, 5) * 0.78)));
                         font-weight: bold;
+                        line-height: 1.15;
+                        text-align: center;
+                        overflow-wrap: anywhere;
                         color: inherit;
                         @include lt-lg {
                             font-size: 2rem;
+                            font-size: min(2rem, calc(100cqi / (var(--chars, 5) * 0.78)));
                         }
                     }
                     i.icon{
@@ -585,12 +596,11 @@ img[src="/img/background.jpg"]{
                     } 
                     &.ready{
                         opacity: 1;
-                        color: rgb(18, 18, 18);
-                        background: rgba(46, 168, 38, 0.65);
-                    
+                        color: #fff;
+                        background: var(--go);
                         cursor: pointer;
                         &:hover{
-                            background: rgba(46, 168, 38, 0.897);
+                            background: var(--go-hover);
                         }
                         &.processing{
                             pointer-events: none;
@@ -728,7 +738,7 @@ img[src="/img/background.jpg"]{
             // a quiet toolbar on top of its inventory: what's picked (brand purple) is what stands out
             background: var(--surface);
             --bar-chip: var(--surface-3);
-            --bar-chip-strong: rgba(124, 108, 255, 0.22);
+            --bar-chip-strong: rgba(var(--tint-rgb), 0.22);
             border-radius: .3rem;
             @include lt-sm{
                 padding: .3rem .5rem;
@@ -792,7 +802,7 @@ img[src="/img/background.jpg"]{
                         position: relative;
                         display: block;
                         pointer-events: none;
-                        color: rgb(205, 203, 203);
+                        color: var(--ink);
                         text-align: center;
                         img{
                             vertical-align: middle;
@@ -811,10 +821,10 @@ img[src="/img/background.jpg"]{
                         max-height: 20rem;
                         overflow-y: auto;
                         left: 0%;
-                        background: var(--bar-drop);
+                        background: var(--dialog);
                         box-shadow: none;
-                        border-radius: 0 0 .3rem .3rem;
-                        border: 1px solid var(--line);
+                        border-radius: var(--r-sm);
+                        border: 1px solid var(--line-strong); // it lies over the items
                         cursor: default;
                         /* width */
                         &::-webkit-scrollbar {
@@ -826,11 +836,11 @@ img[src="/img/background.jpg"]{
                         }
                         /* Handle */
                         &::-webkit-scrollbar-thumb {
-                            background: #2d1263;
+                            background: rgba(var(--tint-rgb), 0.3);
                         }
                         /* Handle on hover */
                         &::-webkit-scrollbar-thumb:hover {
-                            background: #36147a;
+                            background: rgba(var(--tint-rgb), 0.45);
                         }
         
                         .fd-search{
@@ -851,7 +861,7 @@ img[src="/img/background.jpg"]{
                                 background: transparent ;
                                 border: none !important;
                                 outline: none !important;
-                                color: rgba(237, 237, 237, 0.754);
+                                color: var(--ink);
                             }
                             .icon{
                                 pointer-events: none;
@@ -866,12 +876,13 @@ img[src="/img/background.jpg"]{
                             padding: .2rem .75rem;
                             cursor: pointer;
                             transition: 200ms;
-                            color: rgb(206, 206, 206);
+                            color: var(--ink-2);
                             &.none{
-                                color: rgba(206, 206, 206, 0.65);
+                                color: var(--ink-3);
                             }
                             &:hover{
-                                background: #3c158b;
+                                background: rgba(var(--tint-rgb), 0.16);
+                                color: var(--ink);
                             }
                             &.hide{
                                 display: none;
@@ -912,11 +923,11 @@ img[src="/img/background.jpg"]{
                         }
                     }
                     &.selected{
-                        border: 1px solid var(--line-strong);
-                        background: var(--bar-chip-strong) !important;
+                        border: 1px solid transparent;
+                        background: var(--brand) !important;
                         .filter-name{
-                            background: var(--bar-chip-strong) !important;
-                            color: rgba(239, 239, 239, 0.823);
+                            background: var(--brand) !important;
+                            color: #fff;
                             position: absolute;
                             font-size: 10px;
                             padding: 0 .3rem;
@@ -945,9 +956,9 @@ img[src="/img/background.jpg"]{
                 &:hover{
                     background: var(--bar-chip-strong);
                 }
-                &.selected{
-                    border: 1px solid rgba(255, 255, 255, 0.5); // filters are on
-                    background: var(--bar-chip-strong);
+                &.selected{ // filters are on
+                    background: var(--brand);
+                    color: #fff;
                 }
                 &.active{
                     background: var(--bar-chip-strong);
@@ -975,8 +986,11 @@ img[src="/img/background.jpg"]{
                 padding: .3rem .5rem;
                 justify-content: flex-start;
                 align-items: center;
-                background: rgb(100, 53, 229);
-                border-radius: 0 0 .3rem .3rem;
+                // opens over the items, so it is a solid layer with an edge (like the dropdowns in it)
+                background: var(--dialog);
+                border: 1px solid var(--line-strong);
+                border-top: none;
+                border-radius: 0 0 var(--r-sm) var(--r-sm);
                 &.hidden{
                     display: none;
                 }
@@ -988,7 +1002,7 @@ img[src="/img/background.jpg"]{
                     letter-spacing: 0.05rem;
                     transition: 250ms;
                     white-space: nowrap;
-                    color: rgba(255, 255, 255, 0.878);
+                    color: var(--ink-2);
                     cursor: default;
                     opacity: .6;
                     &.show{
@@ -1013,18 +1027,17 @@ img[src="/img/background.jpg"]{
                 margin: .4rem;
                 margin-left: auto;
                 border-radius: 5px;
-                background: var(--bar-chip-strong);
+                background: var(--well);
                 letter-spacing: 0.05rem;
-                border: 1px solid transparent;
+                border: 1px solid var(--line); // a field to type in
                 transition: 250ms;
                 @include lt-sm{
                     min-width: 55%;
                     margin: .2rem auto .45rem auto ;
                 }
                 &:focus-within{
-                        border-color: var(--brand-hover);
-
-                    }
+                    border-color: var(--line-strong);
+                }
                 &:hover{
                 }
                 input{

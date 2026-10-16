@@ -568,13 +568,18 @@ const tradeOfferConnection = async (offer, action) => {
         info: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/></svg>',
         external: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v2h3.6l-9.8 9.8 1.4 1.4L19 6.4V10h2V3zm5 16H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2z"/></svg>'
     };
-    const spinner = `<div class="offer-visual is-busy"><span class="offer-spinner"></span><img src="/img/trade-icon.jpg" alt=""></div>`;
+    const spinner = `<div class="offer-visual is-busy"><span class="offer-spinner"></span></div>`;
     const visual = (kind, icon) => `<div class="offer-visual is-${kind}">${ICONS[icon]}</div>`;
+    // icon on the left, what happened on the right, anything else (buttons, rating) below
     const state = (top, heading, text = '', extra = '') => `
         <div class="offer_content offer-state">
-            ${top}
-            ${heading ? `<h3 class="offer-heading">${heading}</h3>` : ''}
-            ${text ? `<p class="offer-text">${text}</p>` : ''}
+            <div class="offer-head">
+                ${top}
+                <div class="offer-words">
+                    ${heading ? `<h3 class="offer-heading">${heading}</h3>` : ''}
+                    ${text ? `<p class="offer-text">${text}</p>` : ''}
+                </div>
+            </div>
             ${extra}
         </div>`;
 
@@ -645,7 +650,7 @@ const tradeOfferConnection = async (offer, action) => {
 
         case "accepted":
             modal_title = __('offer.accepted_title');
-            modal_html = state(visual('success', 'check'), `🎉 ${__('offer.accepted_thanks')}`, `${__('offer.accepted_enjoy')} 😏`, `
+            modal_html = state(visual('success', 'check'), __('offer.accepted_thanks'), __('offer.accepted_enjoy'), `
                 ${rating_box(tradeoffer.offer?.offer?.offerID || tradeoffer.offer?.offerID)}`);
             break;
 
@@ -1471,8 +1476,6 @@ const open_qty_picker = (anchor_el, max, on_confirm, label = __('trade.add')) =>
                 <button type="button" class="qty-step qty-plus" aria-label="+1">+</button>
             </div>
 
-            <input type="range" class="qty-range" min="1" max="${max}" value="1" step="1" aria-hidden="true" tabindex="-1">
-
             <div class="qty-presets">
                 ${presets.map((n) => `<button type="button" class="qty-preset ${n == max ? 'qty-max' : ''}" data-qty="${n}">${n == max ? __('trade.qty_max', { max }) : n}</button>`).join('')}
             </div>
@@ -1485,15 +1488,12 @@ const open_qty_picker = (anchor_el, max, on_confirm, label = __('trade.add')) =>
     `;
 
     const input = modal.querySelector('.qty-input');
-    const range = modal.querySelector('.qty-range');
     const count = modal.querySelector('.qty-confirm-count');
 
     const set_qty = (value) => {
         const qty = clamp(parseInt(value) || 1, 1, max);
         input.value = qty;
-        range.value = qty;
         count.textContent = qty;
-        range.style.setProperty('--fill', `${max > 1 ? ((qty - 1) / (max - 1)) * 100 : 100}%`);
         modal.querySelector('.qty-minus').disabled = qty <= 1;
         modal.querySelector('.qty-plus').disabled = qty >= max;
         modal.querySelectorAll('.qty-preset').forEach((b) => b.classList.toggle('active', Number(b.dataset.qty) === qty));
@@ -1503,7 +1503,6 @@ const open_qty_picker = (anchor_el, max, on_confirm, label = __('trade.add')) =>
     modal.querySelector('.qty-minus').addEventListener('click', () => set_qty((parseInt(input.value) || 1) - 1));
     modal.querySelector('.qty-plus').addEventListener('click', () => set_qty((parseInt(input.value) || 1) + 1));
     modal.querySelectorAll('.qty-preset').forEach((b) => b.addEventListener('click', () => set_qty(b.dataset.qty)));
-    range.addEventListener('input', () => set_qty(range.value));
     input.addEventListener('input', () => { if(input.value !== ''){ set_qty(input.value) } });
     input.addEventListener('blur', () => set_qty(input.value));
 

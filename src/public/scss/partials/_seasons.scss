@@ -16,9 +16,9 @@ body.season-summer{
     --surface-3: rgba(242, 180, 90, 0.12);
     --tile: rgba(70, 48, 30, 0.55);
     --tile-hover: rgba(92, 62, 38, 0.75);
-    --bar-chip: rgb(140, 66, 18);           // filter bars
-    --bar-chip-strong: rgb(112, 52, 14);
-    --bar-drop: rgb(46, 26, 14);
+    --well: rgba(0, 0, 0, 0.28);
+    --dialog: rgb(40, 29, 21);
+    --scrim: rgba(10, 6, 3, 0.82);
     background: linear-gradient(-30deg, rgb(120, 58, 20), rgb(30, 36, 58), rgb(58, 34, 22));
     background-size: 400% 400%;
 
@@ -36,15 +36,17 @@ body.season-halloween{
     --brand-muted-hover: rgba(80, 30, 110, 0.9);
     --violet: #9fe07a;                      // links: haunted green
     --violet-2: #f08a3c;                    // pumpkin orange
-    --surface: rgba(18, 10, 28, 0.82);
-    --surface-2: rgba(160, 90, 220, 0.06);
-    --surface-3: rgba(160, 90, 220, 0.12);
-    --tile: rgba(48, 26, 70, 0.55);
-    --tile-hover: rgba(64, 34, 92, 0.75);
-    --bar-chip: rgb(78, 32, 122);
-    --bar-chip-strong: rgb(62, 24, 100);
-    --bar-drop: rgb(30, 12, 46);
-    background: linear-gradient(-30deg, rgb(70, 18, 96), rgb(14, 8, 26), rgb(66, 26, 8));
+    // the page is near black here, so boxes are lighter than the page (elsewhere they are darker)
+    --ink-3: rgba(226, 226, 244, 0.62);     // hints stay readable on the lighter boxes
+    --surface: rgba(62, 36, 88, 0.9);
+    --surface-2: rgba(190, 130, 255, 0.07);
+    --surface-3: rgba(190, 130, 255, 0.14);
+    --well: rgba(0, 0, 0, 0.3);
+    --tile: rgba(100, 68, 136, 0.55);
+    --tile-hover: rgba(118, 82, 158, 0.7);
+    --dialog: rgb(38, 22, 56);
+    --scrim: rgba(6, 3, 10, 0.82);
+    background: linear-gradient(-30deg, rgb(52, 16, 74), rgb(13, 8, 24), rgb(52, 22, 9));
     background-size: 400% 400%;
 
     .home-ps-3 .images{
@@ -68,9 +70,6 @@ body.season-smissmas{
     --brand-muted-hover: rgba(120, 30, 34, 0.9);
     --violet: #8fd18a;
     --violet-2: #e05a55;
-    --bar-chip: rgb(132, 30, 32);
-    --bar-chip-strong: rgb(108, 22, 26);
-    --bar-drop: rgb(46, 10, 14);
 }
 
 // menu bar, its dropdowns, sign-in button and footer follow the season (Smissmas keeps the normal navy)

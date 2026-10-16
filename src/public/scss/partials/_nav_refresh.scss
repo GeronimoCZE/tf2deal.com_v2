@@ -5,7 +5,7 @@
 
 $nav-card-bg: var(--nav-card, linear-gradient(180deg, #0f1946 0%, #090f35 100%)); // _seasons.scss sets --nav-card during events
 $nav-card-line: rgba(255, 255, 255, 0.08);
-$nav-row-hover: rgba(124, 108, 255, 0.14);
+$nav-row-hover: rgba(var(--tint-rgb), 0.14);
 $nav-ease: cubic-bezier(.2, .8, .2, 1);
 
 @mixin nav-card {
@@ -111,7 +111,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
             .section-devider{
                 height: 1px;
                 margin: 5px 6px;
-                background: rgba(124, 108, 255, 0.16);
+                background: rgba(var(--tint-rgb), 0.16);
                 border: none;
             }
         }
@@ -159,11 +159,11 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
             padding: 0 !important;
             border-radius: 12px !important;
             border: 1px solid var(--line);
-            background: rgba(124, 108, 255, 0.1);
+            background: rgba(var(--tint-rgb), 0.1);
             color: var(--ink);
             cursor: pointer;
             transition: background 150ms ease, border-color 150ms ease;
-            &:hover{ background: rgba(124, 108, 255, 0.2); }
+            &:hover{ background: rgba(var(--tint-rgb), 0.2); }
             &:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
         }
         .nav-search-btn .icon{ font-size: 17px; pointer-events: none; }
@@ -243,7 +243,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
             padding: 0 14px !important;
             border-radius: 12px;
             border: 1px solid var(--line) !important;
-            background: rgba(2, 8, 30, 0.6);
+            background: var(--well);
             .search, .key_shortcut{ display: none !important; }
             .icon-search{ order: -1; color: var(--violet); }
             .search-label{ display: block; color: var(--ink-3); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -378,7 +378,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
                 width: auto !important;
                 margin: 4px 0 0 0;
                 padding: 4px !important;
-                background: rgba(2, 8, 30, 0.45) !important;
+                background: var(--well) !important;
                 border: 1px solid var(--line) !important;
                 box-shadow: none !important;
                 border-radius: 12px;
