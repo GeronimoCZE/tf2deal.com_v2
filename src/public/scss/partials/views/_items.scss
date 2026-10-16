@@ -79,7 +79,7 @@
         margin: 0 auto;
         margin-top: .8rem;
         border-radius: .3rem;
-        // a quiet toolbar: the filter that is on (brand purple) is what stands out
+        // a quiet toolbar: the picked value inside a filter is what shows it is on
         background: var(--surface);
         --bar-chip: var(--surface-3);
         --bar-chip-strong: rgba(var(--tint-rgb), 0.22);
@@ -103,9 +103,6 @@
             color: rgba(255, 255, 255, 0.797);
             &:hover{
                 background: var(--bar-chip-strong);
-                .filter-name{
-                    background: var(--bar-chip-strong) !important;
-                }
             }
             .filter-name{
                 position: relative;
@@ -211,11 +208,8 @@
                     }
                 }
             }
+            // open or picked, a filter keeps the colour of the others: the picked value shows what is on
             &.open{
-                background: var(--bar-chip-strong);
-                .filter-name{
-                    background: var(--bar-chip-strong) !important;
-                }
                 .filter-dropdown{
                     display: block;
                     animation: drop_animation 200ms ease-in-out forwards;
@@ -230,18 +224,13 @@
                 }
             }
             &.selected{
-                border: 1px solid transparent;
-                background: var(--brand) !important;
+                .filter-name, .filter-value{
+                    display: inline-block;
+                }
                 .filter-name{
-                    background: var(--brand) !important;
-                    color: #fff;
-                    position: absolute;
-                    font-size: 10px;
-                    padding: 0 .3rem;
-                    border-radius: 5px 5px 0 0;
-                    line-height: 15px;
-                    top: -.4rem;
-                    left: 0px;
+                    margin-right: .4rem;
+                    font-size: 12px;
+                    color: var(--ink-3);
                 }
             }
         }
@@ -758,6 +747,7 @@
             max-width: calc(100% - 2rem - 2px);
             margin: 0 auto;
             @include panel(.75rem 1rem);
+            background: linear-gradient(rgba(var(--tint-rgb), 0.1), rgba(var(--tint-rgb), 0.1)), var(--surface); // a shade lighter than the items, like the trade page bars
             font-size: 16px !important;
             @include lt-sm{
                 max-width: calc(100% - 1.5rem - 2px);
@@ -2305,4 +2295,4 @@
             }
         }
     }
-}
+}

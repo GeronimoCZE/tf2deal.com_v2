@@ -9,8 +9,8 @@
     max-width: calc(100% - 2rem - 2px);
     margin: .75rem auto 0 auto;
     padding: .6rem 1rem; // same box model as .trade-nav, so the edges line up
-    background: var(--surface);
-    border: 1px solid var(--line);
+    background: linear-gradient(rgba(var(--tint-rgb), 0.1), rgba(var(--tint-rgb), 0.1)), var(--surface); // like the bar above, a shade lighter than the items
+    border: 1px solid transparent;
     border-radius: var(--r-lg, 14px);
     position: relative;
     z-index: 4; // dropdowns above the grid
@@ -45,7 +45,7 @@
         cursor: pointer;
         user-select: none;
         transition: background 150ms ease, border-color 150ms ease;
-        &:hover, &.open{ background: rgba(var(--tint-rgb), .18); }
+        &:hover{ background: rgba(var(--tint-rgb), .18); }
         &:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
         .if-name{ color: var(--ink-3); pointer-events: none; }
         .if-value{
@@ -68,13 +68,7 @@
             pointer-events: none;
         }
         &.open .if-chevron{ transform: translateY(3px) rotate(225deg); }
-        &.selected{
-            background: var(--brand);
-            border-color: var(--line-strong);
-            .if-name{ color: rgba(255, 255, 255, .75); }
-            .if-value{ color: #fff; }
-            .if-chevron{ color: #fff; }
-        }
+        // open or picked, a chip keeps the colour of the others: the picked value in it shows what is on
 
         .if-menu{
             position: absolute;
@@ -109,7 +103,7 @@
             span{ overflow: hidden; text-overflow: ellipsis; }
             em{ font-style: normal; font-size: 12px; color: var(--ink-3); }
             &:hover{ background: rgba(var(--tint-rgb), .14); color: var(--ink); }
-            &.active{ background: rgba(var(--tint-rgb), .22); color: #fff; font-weight: 600; }
+            &.active{ color: #fff; font-weight: 600; } // the picked one: bold, no colour block
             &.none{ color: var(--ink-3); }
             &.empty{ opacity: .45; }
         }
