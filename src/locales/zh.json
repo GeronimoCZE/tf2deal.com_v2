@@ -63,6 +63,7 @@
     "trade_offer": "TF2Deal.com - 你的交易报价",
     "trade": "TF2Deal.com - 交易 TF2 物品",
     "items": "TF2Deal.com - 物品",
+    "items_page": "TF2Deal.com - 物品（第 {page} 页）",
     "not_found": "404 - 页面未找到 - TF2deal.com",
     "giveaway": "TF2Deal.com - 抽奖 🎁",
     "blog": "TF2Deal.com - 博客",
@@ -532,7 +533,10 @@
     "found_html": "找到物品：{count}",
     "end": "已经到底了。",
     "none": "未找到匹配的物品……",
-    "search_placeholder": "搜索物品……"
+    "search_placeholder": "搜索物品……",
+    "pages": "物品列表分页",
+    "prev_page": "上一页",
+    "next_page": "下一页"
   },
   "item": {
     "inactive": "非活跃物品",

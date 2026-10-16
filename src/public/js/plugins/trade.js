@@ -1137,6 +1137,16 @@ const round_ref = (refs, direction) => {
 console.log(itemAttr.Quality);
 
 
+// Alt text of an item picture, ready for an HTML attribute: the item's full name (it holds the unusual effect,
+// killstreak, wear, ...) plus the quality when the name doesn't say it: "Burning Flames Team Captain (Unusual)".
+// Unique, the default quality, isn't named. Same rule as item_alt in src/fn.js (the server-rendered pages).
+export const item_alt = (name, qualityID) => {
+    name = String(name ?? '')
+    const quality = itemAttr?.Quality?.[qualityID]?.name || ''
+    const text = (quality && quality != 'Unique' && !name.includes(quality.replace(' Weapon', ''))) ? `${name} (${quality})` : name
+    return text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+}
+
 export const create_sku = (bp_sku, qualityID, f, ks) => {
     if(f === 0 && ks === 0){ return bp_sku; }
 
@@ -1647,7 +1657,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                 }
 
                 const ks_class = (asset?.ks > 0) ? `ks${asset?.ks}`:"";
-                grid.append($(`<div class="item q-${item_desc?.qualityID} ${craftable} ${ks_class}" data-assetid="${asset.a}" data-quality="${item_desc?.qualityID}" data-effect="${item_desc?.effectID}" data-name="${item_desc.bp_sku}" data-bp_sku="${create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks)}" data-type="${item_desc?.type}" data-price="${single_price(asset, true)}" data-classes="${classes}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy"></div>`)   )
+                grid.append($(`<div class="item q-${item_desc?.qualityID} ${craftable} ${ks_class}" data-assetid="${asset.a}" data-quality="${item_desc?.qualityID}" data-effect="${item_desc?.effectID}" data-name="${item_desc.bp_sku}" data-bp_sku="${create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks)}" data-type="${item_desc?.type}" data-price="${single_price(asset, true)}" data-classes="${classes}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks), item_desc?.qualityID)}"></div>`)   )
             }         
         }
 
@@ -1674,7 +1684,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
 
             const ks_class = (asset?.ks > 0) ? `ks${asset?.ks}`:"";
             if(item_desc){
-                grid.append($(`<div class="item q-${item_desc?.qualityID} ${craftable} ${ks_class}" data-assetid="${asset.a}" data-bot="${asset.ownerId}" data-quality="${item_desc?.qualityID}" data-effect="${item_desc?.effectID}" data-name="${item_desc.bp_sku}" data-bp_sku="${create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks)}" data-type="${item_desc?.type}" data-price="${single_price(asset, false)}" data-classes="${classes}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy"></div>`)   )
+                grid.append($(`<div class="item q-${item_desc?.qualityID} ${craftable} ${ks_class}" data-assetid="${asset.a}" data-bot="${asset.ownerId}" data-quality="${item_desc?.qualityID}" data-effect="${item_desc?.effectID}" data-name="${item_desc.bp_sku}" data-bp_sku="${create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks)}" data-type="${item_desc?.type}" data-price="${single_price(asset, false)}" data-classes="${classes}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks), item_desc?.qualityID)}"></div>`)   )
             }
         }
 
@@ -1706,8 +1716,8 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
     const recRefs = round_ref(Number(pure.rec) / 3)
     const refs_count = round_ref(pure.ref + recRefs + scrapRefs)
     const keys_count = pure.key
-    const keys = $(`<div class="pure keys" data-quality="Unique" data-type="Pure" data-count="${keys_count}" data-name="Mann Co. Supply Crate Key"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="https://community.cloudflare.steamstatic.com/economy/image/${key_image}"><div class='pure-count'>${keys_count}</div></div>`);
-    const refs = $(`<div class="pure refs" data-quality="Unique" data-type="Pure" data-count="${refs_count}" data-name="Refined Metal"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="https://community.cloudflare.steamstatic.com/economy/image/${ref_image}"><div class='pure-count'>${refs_count}</div></div>`);
+    const keys = $(`<div class="pure keys" data-quality="Unique" data-type="Pure" data-count="${keys_count}" data-name="Mann Co. Supply Crate Key"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="https://community.cloudflare.steamstatic.com/economy/image/${key_image}" alt="Mann Co. Supply Crate Key"><div class='pure-count'>${keys_count}</div></div>`);
+    const refs = $(`<div class="pure refs" data-quality="Unique" data-type="Pure" data-count="${refs_count}" data-name="Refined Metal"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="https://community.cloudflare.steamstatic.com/economy/image/${ref_image}" alt="Refined Metal"><div class='pure-count'>${refs_count}</div></div>`);
     
     if(pure.ref == 0 && pure.key == 0 && items.inventory.items.length == 0){
         if(party == 'user'){
@@ -1791,7 +1801,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     const bg_style = (item.effectID > 0) ? `style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"` : "";
                     const sig = stack_sig(rep, item.bp_sku);
 
-                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-bot="${rep?.ownerId || ''}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'sell')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy">${badge}</div>`)
+                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-bot="${rep?.ownerId || ''}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'sell')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${badge}</div>`)
 
                     if(page < 1){
                         grid.append(item_el)
@@ -1830,7 +1840,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     const bg_style = (item.effectID > 0) ? `style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"` : "";
                     const sig = stack_sig(rep, item.bp_sku);
 
-                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class} ${overstocked}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'buy')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy">${badge}</div>`)
+                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class} ${overstocked}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'buy')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${badge}</div>`)
 
                     if(page < 1){
                         grid.append(item_el)
@@ -1848,7 +1858,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     $(`#${party}-item-grid`).empty()
                     $(`#${party}-item-grid`).append(grid)
                     if(!fetched_all_pages){
-                        $(`#${party}-item-grid #${party}-grid`).append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg"></div>`)
+                        $(`#${party}-item-grid #${party}-grid`).append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg" alt=""></div>`)
                     }
 
                     put_novalue_last(party)
@@ -1861,13 +1871,13 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     put_novalue_last(party)
                     loading.addClass('hidden')
                     if(!fetched_all_pages){
-                        $(`#${party}-item-grid #${party}-grid`).append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg"></div>`)
+                        $(`#${party}-item-grid #${party}-grid`).append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg" alt=""></div>`)
                     }
                 }
             } else {
                 if(page == 0){
                     if(!fetched_all_pages){
-                        grid.append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg"></div>`)
+                        grid.append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg" alt=""></div>`)
                     }
                     $(`#${party}-item-grid`).empty()
                     $(`#${party}-item-grid`).append(grid)
@@ -1880,7 +1890,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     put_novalue_last(party)
                     loading.addClass('hidden')
                     if(!fetched_all_pages){
-                        $(`#${party}-item-grid #${party}-grid`).append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg"></div>`)
+                        $(`#${party}-item-grid #${party}-grid`).append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg" alt=""></div>`)
                     }
                 }
             }

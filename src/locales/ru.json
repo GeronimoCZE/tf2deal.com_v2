@@ -63,6 +63,7 @@
     "trade_offer": "TF2Deal.com - Ваше предложение обмена",
     "trade": "TF2Deal.com - Обмен предметами TF2",
     "items": "TF2Deal.com - Предметы",
+    "items_page": "TF2Deal.com - Предметы (страница {page})",
     "not_found": "404 - Не найдено - TF2deal.com",
     "giveaway": "TF2Deal.com - Розыгрыш 🎁",
     "blog": "TF2Deal.com - Блог",
@@ -532,7 +533,10 @@
     "found_html": "Найдено предметов: {count}",
     "end": "Вы дошли до конца.",
     "none": "Подходящих предметов не найдено...",
-    "search_placeholder": "Поиск предметов ..."
+    "search_placeholder": "Поиск предметов ...",
+    "pages": "Страницы списка предметов",
+    "prev_page": "Назад",
+    "next_page": "Далее"
   },
   "item": {
     "inactive": "Неактивный предмет",

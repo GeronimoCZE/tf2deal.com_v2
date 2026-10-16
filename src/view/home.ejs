@@ -21,7 +21,7 @@
                         <div class="color-image"></div>
                         <% const hero = ({ 'season-summer': '/img/seasons/summer-bw', 'season-halloween': '/img/seasons/halloween-bw' })[info?.season] %>
                         <img class="home-background1 lazy-fade" onload="this.classList.add('loaded')" width="1920" height="817" sizes="(max-width: 1920px) 100vw, 1920px"
-                            <% if (hero) { %>src="<%= hero %>.webp" srcset="<%= hero %>-960.webp 960w, <%= hero %>.webp 1920w"<% } else { %>src="/img/cabin-bw-1920.webp" srcset="/img/cabin-bw-960.webp 960w, /img/cabin-bw-1920.webp 1920w, /img/cabin-bw.webp 3840w"<% } %> alt="team fortress 2">
+                            <% if (hero) { %>src="<%= hero %>.webp" srcset="<%= hero %>-960.webp 960w, <%= hero %>.webp 1920w"<% } else { %>src="/img/cabin-bw-1920.webp" srcset="/img/cabin-bw-960.webp 960w, /img/cabin-bw-1920.webp 1920w, /img/cabin-bw.webp 3840w"<% } %> alt="">
                     </div> 
                     <div class="home-text">
                         <h1 class="main-text fade-in">
@@ -138,8 +138,9 @@
                     <!-- text -->
                     <!-- X-AXIS SLIDER FOR POPULAR / STOCKED ITEMS -->
                     <div class="meet-the-tf2deal">
+                    <%# the pictures in these sections are decorative (the heading next to them says what they are): alt="" %>
                     <section class="promo-skins">
-                        <img class="sec-img-1  lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEMaQkUTxr2vTx8mMnvA-aHAfQ_ktk664MayTdinxVwPffiZghuZgHPUPUPD6cF4w3tG3Z8v5QzV4XuobgDfF3q5oPBMuF9Y4xFSZTYCfWFZ1__7xk81qVbLpPapzSvg3pBAL-zcw/360fx360f" alt="tf2 skin">
+                        <img class="sec-img-1  lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEMaQkUTxr2vTx8mMnvA-aHAfQ_ktk664MayTdinxVwPffiZghuZgHPUPUPD6cF4w3tG3Z8v5QzV4XuobgDfF3q5oPBMuF9Y4xFSZTYCfWFZ1__7xk81qVbLpPapzSvg3pBAL-zcw/360fx360f" alt="">
                         <div class="text">
                         <h2><%= __('home.skins_title') %></h2>
                         <p><%- __('home.skins_text_html') %></p>
@@ -147,7 +148,7 @@
                         </div>
                     </section>
                     <section class="promo-unusuals">
-                        <img class="sec-img-2  lazy-fade" onload="this.classList.add('loaded')" loading="lazy" style="background-image: url('https://api.backpack.tf/images/440/particles/14_380x380.png'); background-repeat: no-repeat; background-size: cover;" src="https://community.akamai.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEPaQRACCTyuSxRgcfyMuKJCes_l9sn4pUbjjc5wFF6bbLlZGdlIgCUBaUOD6Ri8A3pUSIzuJM7VdHgrr4FKgvr55yGbee5wgK2nw/360fx360f" alt="tf2 hat">
+                        <img class="sec-img-2  lazy-fade" onload="this.classList.add('loaded')" loading="lazy" style="background-image: url('https://api.backpack.tf/images/440/particles/14_380x380.png'); background-repeat: no-repeat; background-size: cover;" src="https://community.akamai.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEPaQRACCTyuSxRgcfyMuKJCes_l9sn4pUbjjc5wFF6bbLlZGdlIgCUBaUOD6Ri8A3pUSIzuJM7VdHgrr4FKgvr55yGbee5wgK2nw/360fx360f" alt="">
                         <div class="text">
                         <h2><%= __('home.unusuals_title') %></h2>
                         <p><%= __('home.unusuals_text') %></p>
@@ -163,7 +164,7 @@
                         </div>
                     </section> -->
                     <section class="promo-tools">
-                        <img class="sec-img-4  lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEJbQQaTRrhswdGkNjnA_aJGt8Mmsgy4N5UjW5uwAd4ZrDlMmI1J1zGWPYNCqY7ol-_XiRmv587VdHvrr0CL13uqsKYZJhWvX8I/360fx360f" alt="tf2 backpack expander">
+                        <img class="sec-img-4  lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEJbQQaTRrhswdGkNjnA_aJGt8Mmsgy4N5UjW5uwAd4ZrDlMmI1J1zGWPYNCqY7ol-_XiRmv587VdHvrr0CL13uqsKYZJhWvX8I/360fx360f" alt="">
                         <div class="text">
                         <h2><%= __('home.tools_title') %></h2>
                         <p><%= __('home.tools_text') %></p>
@@ -175,7 +176,7 @@
                 <div class="page-section home-ps-3" id="faq">
                     <!-- img on left, text on right => IS A FINAL SECTION! -->
                     <div class="images">
-                    <img src="/img/sfm_tree.webp" class="lazy-fade" onload="this.classList.add('loaded')" loading="lazy" alt="tf2 tree">
+                    <img src="/img/sfm_tree.webp" class="lazy-fade" onload="this.classList.add('loaded')" loading="lazy" alt="">
                     <div class="snow-bottom">
                         <!-- absolute; full width -->
                     </div>

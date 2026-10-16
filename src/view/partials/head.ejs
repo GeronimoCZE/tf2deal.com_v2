@@ -59,19 +59,34 @@
         }
     </style>
 
-    <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "tf2deal.com",
-  "url": "https://tf2deal.com/",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://tf2deal.com/items?name={search_term_string}",
-    "query-input": "required name=search_term_string"
-  }
-}
-    </script>
+<%
+    // Who runs the site and what it is, on every page (schema.org). Pages add their own data with info.json_ld and can
+    // point to these two by @id: { "@id": "<site>/#organization" }. Only facts the site itself states.
+    const seo_org = {
+        '@type': 'Organization',
+        '@id': seo_site + '/#organization',
+        name: 'TF2Deal.com',
+        url: seo_site + '/',
+        logo: seo_site + '/img/logo_icon.png',
+        description: __('home.intro_1'),
+        founder: { '@type': 'Person', name: 'Nikolas Malík' },
+        sameAs: ['https://steamcommunity.com/groups/tradetf2deal', 'https://discord.gg/br3WvWaW5y'] // the footer links
+    }
+    const seo_website = {
+        '@type': 'WebSite',
+        '@id': seo_site + '/#website',
+        name: 'TF2Deal.com',
+        url: seo_site + '/',
+        publisher: { '@id': seo_org['@id'] },
+        // the item search: /items?name=... lists the matching items
+        potentialAction: {
+            '@type': 'SearchAction',
+            target: { '@type': 'EntryPoint', urlTemplate: seo_site + '/items?name={search_term_string}' },
+            'query-input': 'required name=search_term_string'
+        }
+    }
+%>
+    <script type="application/ld+json"><%- JSON.stringify({ '@context': 'https://schema.org', '@graph': [seo_org, seo_website] }).replace(/</g, '\\u003c') %></script>
 <% if (info?.json_ld) { %>
     <script type="application/ld+json"><%- JSON.stringify(info.json_ld).replace(/</g, '\\u003c') %></script>
 <% } %>

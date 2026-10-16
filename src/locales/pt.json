@@ -63,6 +63,7 @@
     "trade_offer": "TF2Deal.com - Sua oferta de troca",
     "trade": "TF2Deal.com - Troque itens de TF2",
     "items": "TF2Deal.com - Itens",
+    "items_page": "TF2Deal.com - Itens (página {page})",
     "not_found": "404 - Não encontrado - TF2deal.com",
     "giveaway": "TF2Deal.com - Sorteio 🎁",
     "blog": "TF2Deal.com - Blog",
@@ -532,7 +533,10 @@
     "found_html": "Itens encontrados: {count}",
     "end": "Você chegou ao fim.",
     "none": "Nenhum item encontrado...",
-    "search_placeholder": "Buscar itens ..."
+    "search_placeholder": "Buscar itens ...",
+    "pages": "Páginas da lista de itens",
+    "prev_page": "Anterior",
+    "next_page": "Próxima"
   },
   "item": {
     "inactive": "Item inativo",

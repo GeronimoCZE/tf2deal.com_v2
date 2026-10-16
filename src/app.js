@@ -254,6 +254,7 @@ app.use('/img', express.static(path.join(__dirname, 'public/img'), { maxAge: '7d
 app.use(express.static(path.join(__dirname,'public'), { setHeaders: static_headers }));
 
 app.locals.site_url = fn.site_url
+app.locals.item_alt = fn.item_alt // alt text of item pictures: item_alt(item)
 Object.assign(app.locals, i18n.default_locals) // English for pages rendered before the language middleware
 app.set('view engine','ejs');
 // Behind Nginx or Cloudflare, set TRUST_PROXY in .env (1 = Nginx only, 2 = Cloudflare + Nginx) so the rate limits
@@ -550,6 +551,7 @@ app.use((req, res, next) => {
 
   // Set a timeout on the response object
   res.setTimeout(timeout, () => {
+    console.warn(`Timed out after ${timeout / 1000} s: ${req.method} ${req.originalUrl}`) // shows which pages answer 504
     if (!res.headersSent) res.status(504).send({status: "error", message: 'Request timed out'});
   });
 
@@ -781,7 +783,7 @@ setInterval(async () => {
 seasons.start(); // reads this year's TF2 event dates from teamfortress.com
 
 app.use((err, req, res, next) => {
-  console.log(err)
+  console.log(`Error on ${req.method} ${req.originalUrl}:`, err) // the address, so a 500 can be traced back to a page
   if (res.headersSent) return next(err)
   if (req.xhr) return res.status(500).send({ status: "error", error: 'Something failed!' })
   res.status(500)

@@ -11,7 +11,7 @@
                 <div class="page-section items-ps">
                     <h1><%= __('items.h1') %></h1>
                     <div class="h2-info">
-                        <%- __('items.found_html', { count: '<span id="item_count">0</span>' }) %>
+                        <%- __('items.found_html', { count: '<span id="item_count">' + (Number(info.item_count) || 0) + '</span>' }) %>
                     </div>
 
                     <div class="filter-bar">
@@ -121,12 +121,34 @@
                         </form>
                     </div>
 
-                    <div class="item-content">
-                        <div class="items"></div>
+                    <%# One page of the list as plain HTML (routes/router.js items). public/js/plugins/items.js loads the next
+                        items while scrolling, or replaces the list when filters are picked. %>
+                    <% const list = info.list %>
+                    <div class="item-content<%= list?.cards.length ? ' loaded' : '' %>">
+                        <div class="items" data-page="<%= list?.page || 0 %>" data-per-page="<%= list?.per_page || 0 %>">
+                            <% for (const card of (list?.cards || [])) { %>
+                            <a href="<%= lurl('/items/' + encodeURIComponent(card.bp_sku)) %>" class="item_card q-<%= card.qualityID %> s_<%= card.stock > 0 %>"><div class="item-name" translate="no"><%= card.name %></div><img class="item-image lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="<%= card.image %>" style="background-image: <%= card.effectID > 0 ? 'url(https://api.backpack.tf/images/440/particles/' + card.effectID + '_94x94.png)' : 'none' %>;" alt="<%= item_alt(card) %>"><div class="item-data"><div class="stock <%= card.stock > 0 ? 'yes' : 'no' %>"><%= __('js.common.in_stock', { count: card.stock }) %></div><div class="price"><%= card.price %></div><div class="quality q-<%= card.qualityID %>"></div></div></a>
+                            <% } %>
+                        </div>
                         <div class="item-loader"><img src="/img/trade-icon.jpg" width="40" height="40" alt=""></div>
                         <div class="end"><span class="icon icon-info"></span> <%= __('items.end') %></div>
                         <div class="none"><%= __('items.none') %></div>
                     </div>
+
+                    <% if (list && list.pages > 1) {
+                        const page_url = (n) => lurl('/items') + (n > 1 ? '?page=' + n : '')
+                        // first, last and two pages on each side of this one
+                        const shown = [...new Set([1, list.page - 2, list.page - 1, list.page, list.page + 1, list.page + 2, list.pages])].filter((n) => n >= 1 && n <= list.pages).sort((a, b) => a - b)
+                        const link = 'display: inline-block; min-width: 2.2rem; padding: .35rem .6rem; border-radius: 5px; text-align: center; color: #b88ef7;' %>
+                    <nav class="item-pages" aria-label="<%= __('items.pages') %>" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .3rem; margin: 3.5rem auto 1rem auto; font-size: 16px;">
+                        <% if (list.page > 1) { %><a href="<%= page_url(list.page - 1) %>" style="<%= link %>">&larr; <%= __('items.prev_page') %></a><% } %>
+                        <% shown.forEach((n, i) => { %>
+                            <% if (i > 0 && n - shown[i - 1] > 1) { %><span aria-hidden="true">&hellip;</span><% } %>
+                            <% if (n == list.page) { %><span aria-current="page" style="<%= link %> color: inherit; background: var(--surface-2, rgba(255, 255, 255, .08));"><%= n %></span><% } else { %><a href="<%= page_url(n) %>" style="<%= link %>"><%= n %></a><% } %>
+                        <% }) %>
+                        <% if (list.page < list.pages) { %><a href="<%= page_url(list.page + 1) %>" style="<%= link %>"><%= __('items.next_page') %> &rarr;</a><% } %>
+                    </nav>
+                    <% } %>
                 </div>
             </main>    
         </div>

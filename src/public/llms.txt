@@ -1,22 +1,51 @@
 # TF2Deal.com
 
-> TF2Deal.com is an automated Team Fortress 2 trading site. Visitors sign in with Steam, pick items from their own inventory and from our trade bots, and get a Steam trade offer at a fair price within seconds. Prices are in keys and refined metal.
+> TF2Deal.com is an automated Team Fortress 2 (TF2) item trading website. Steam bots buy, sell and trade TF2 items with visitors: you sign in with Steam, pick items, and the bot sends you a Steam trade offer within seconds. Prices are in TF2 keys (Mann Co. Supply Crate Key) and refined metal ("ref"). There is no real-money payment.
 
-The site is available in English, Czech, German, Spanish, French, Portuguese, Russian and Chinese. Other languages use a prefix, for example https://tf2deal.com/de/items.
+TF2Deal.com is run by one person, Nikolas Malík, a TF2 player, trader and self-taught web developer based in Czechia. The site is available in English, Czech, German, Spanish, French, Portuguese, Russian and Chinese; other languages use a path prefix, for example https://tf2deal.com/de/items.
 
-Trading needs a Steam sign-in and a Steam trade offer URL saved on the profile page. Only the bots listed on the About page belong to TF2Deal.com.
+## How trading works
+
+1. Sign in with Steam and save your Steam trade offer URL (asked on the first sign-in, and on the profile page).
+2. Trade in one of these ways:
+   - On the [Trade page](https://tf2deal.com/trade): pick items from your inventory and from the bots' inventory. Pure (keys and metal) can be added on either side to balance the trade.
+   - On an item's page: buy or sell copies of that one item for pure, limited by the bots' stock and stock limit.
+   - Through the bots' backpack.tf listings: send a trade offer (or request one) that matches a current listing.
+3. A bot sends a Steam trade offer. Check the items in it and accept it in Steam.
+
+Limits per trade: up to 10 items on each side; pure up to 550 keys, 2 keys' worth of refined metal, 27 reclaimed and 18 scrap metal.
+
+## Prices and costs
+
+- Every item has two prices: the price the bots sell it for ("Buy" on the site) and the price they pay for it ("Sell" on the site). Both are in keys and refined metal and change over time.
+- Item pages show the current prices, the stock, the price history and a chart of the bots' daily sales.
+- There are no real-money transactions, no site balance and no deposits. You trade items for items or for pure, or a mix.
+- All trades are final: there are no refunds or trade reversals.
+- Users must be at least 13 years old (Terms of Service).
+
+## Supported items
+
+TF2 items of these types: cosmetics (hats and misc items), taunts, primary, secondary and melee weapons (including killstreak and Australium weapons), PDA and building items, action items, war paints and decorated weapons (skins), tools (such as keys, paints, strange parts, kits, Strangifiers and Unusualifiers) and crates.
+
+Qualities: Unique, Strange, Unusual (with their unusual effect), Vintage, Genuine, Haunted, Collector's and Decorated. The bots only trade the items listed on the site, as far as their stock and stock limits allow.
+
+## Safety
+
+Only the Steam bots listed on the [About page](https://tf2deal.com/about) belong to TF2Deal.com. Don't trust anyone else who claims to be part of the site. A scam used the tf2deal.com domain in the past, before the current owner bought it; it has nothing to do with this site.
 
 ## Pages
 
-- [Trade](https://tf2deal.com/trade): pick items from your inventory and from our bots, see the balance, and get a trade offer.
-- [Items](https://tf2deal.com/items): every item we buy and sell, with live prices and stock. Search by name with `?name=`, for example https://tf2deal.com/items?name=Team%20Captain.
-- [Item page](https://tf2deal.com/items/Team%20Captain): one item with its buy and sell price, the copies in stock and their paint, spells, parts and killstreaks. The path is the item name.
-- [About](https://tf2deal.com/about): how trading works and the list of our Steam bots.
+- [Items](https://tf2deal.com/items): every item the bots buy and sell, with prices and stock, 60 per page (https://tf2deal.com/items?page=2, ...). In a browser, `?name=` searches by name, for example https://tf2deal.com/items?name=Team%20Captain.
+- [Item page](https://tf2deal.com/items/Team%20Captain): one item with its buy and sell price, stock, price history and sales. The path is the item's full name, for example https://tf2deal.com/items/Strange%20Australium%20Wrench.
+- [Trade](https://tf2deal.com/trade): trade several items at once.
+- [About](https://tf2deal.com/about): how to trade and the list of the site's Steam bots.
 - [Giveaway](https://tf2deal.com/giveaway): the current free item giveaway and past winners.
 - [Blog](https://tf2deal.com/blog): news, guides and updates about TF2 trading.
+- [Sitemap](https://tf2deal.com/sitemap.xml): all indexed pages, in every language.
 
 ## Help
 
+- [FAQ](https://tf2deal.com/#faq): common questions (on the home page).
 - [Support](https://tf2deal.com/support): open a support ticket (needs a Steam sign-in).
 - [Terms of Service](https://tf2deal.com/terms-of-service)
 - [Cookie policy](https://tf2deal.com/cookies)

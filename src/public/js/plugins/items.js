@@ -13,7 +13,14 @@ function normalizeGerman(str) {
 
 const cli_token='awe46awe42aw1!sada!@clia_sdssdas_qweqw98d4dqwd21/as';
 const cli_secret='!!!!!!!asadas@q5qwe5qw4ew62qwe13qwe89qwe4666qw3';
-const get_items = async (page, validInputs) => {
+
+// the /api/items page (15 items each) the list shows up to; main.js asks for list.page + 1 while scrolling.
+// The server sends the first items as plain HTML (views/items.ejs), main.js sets list.page to match them.
+const list = { page: 0 }
+
+// reset: replace the list (first load, new filters or search) instead of adding to it
+const get_items = async (page, validInputs, reset = page === 0) => {
+    list.page = page
     return new Promise(async (resolve, reject) => {
         if(validInputs === false){
             iziToast.error({
@@ -25,6 +32,7 @@ const get_items = async (page, validInputs) => {
         
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
+        urlParams.delete('page') // the plain-HTML page number (/items?page=2) isn't a filter
         const paramsObject = { page: page }
         paramsObject['client_token'] = cli_token
         paramsObject['client_secret'] = cli_secret
@@ -81,7 +89,8 @@ const get_items = async (page, validInputs) => {
         .done(async function (res) {
             if(res?.status == "ok"){
                 if(res?.response.length == 0){
-                    if(page === 0){
+                    if(reset){
+                        $('.item-content .items a.item_card').remove()
                         if(res?.item_count){
                             $('.h2-info #item_count').text(res?.item_count)
                         } else {
@@ -102,7 +111,7 @@ const get_items = async (page, validInputs) => {
                     document.querySelector('.item-content').classList.remove('last-page')
                 }
 
-                if(page == 0){
+                if(reset){
                     if(res?.item_count){
                         $('.h2-info #item_count').text(res?.item_count)
                     } else {
@@ -136,16 +145,21 @@ const get_items = async (page, validInputs) => {
                                 }
 
                                 // if(name.startsWith('Non-Craftable ')){ craft = 'non-craftable'; name = name.replace('Non-Craftable ', '')}
-                                $('.item-content .items').append(`<a href="${lurl('/items/' + encodeURIComponent(item.bp_sku))}" class="item_card id_${item.index} q-${item.qualityID} ${craft} s_${stock > 0 ? "true":"false"}"><div class="item-name" translate="no">${name}</div><img class="item-image lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${item.image}" style="background-image: ${(item?.effectID > 0) ? "url(https://api.backpack.tf/images/440/particles/" + item?.effectID + "_94x94.png)" : "none"};" alt="${String(item.bp_sku).replace(/"/g, '&quot;')}"><div class="item-data"><div class="stock ${(stock > 0) ? 'yes':'no'}">${stock_string}</div><div class="price">${price_string}</div><div class="quality q-${item.qualityID}"></div></div></a>`)      
+                                $('.item-content .items').append(`<a href="${lurl('/items/' + encodeURIComponent(item.bp_sku))}" class="item_card id_${item.index} q-${item.qualityID} ${craft} s_${stock > 0 ? "true":"false"}"><div class="item-name" translate="no">${name}</div><img class="item-image lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${item.image}" style="background-image: ${(item?.effectID > 0) ? "url(https://api.backpack.tf/images/440/particles/" + item?.effectID + "_94x94.png)" : "none"};" alt="${trade.item_alt(item.bp_sku, item.qualityID)}"><div class="item-data"><div class="stock ${(stock > 0) ? 'yes':'no'}">${stock_string}</div><div class="price">${price_string}</div><div class="quality q-${item.qualityID}"></div></div></a>`)      
                             }
                         }
                         $('.item-content').append(`<div class="item-loader"><img src="/img/trade-icon.jpg" alt=""></div>`)
                     }
                 } else {
                     const loader = document.querySelector('.item-content > .item-loader')
+                    // an item can move while the list is read page by page (stock changes the order): show it once
+                    const shown = new Set(Array.from(document.querySelectorAll('.item-content .items a.item_card'), (a) => a.getAttribute('href')))
                     if(res?.response != undefined){
                         for (const item of res?.response) {
                             if(item?.bp_sku != undefined && typeof item?.bptf_data?.update_key_price == "number"){
+                                if(shown.has(lurl('/items/' + encodeURIComponent(item.bp_sku)))){
+                                    continue
+                                }
                                 if(typeof item.buy != 'number' || typeof item.sell != 'number' || (item.sell / item.buy) > 30 || item.sell > 100000*100){
                                     continue
                                 }
@@ -166,7 +180,7 @@ const get_items = async (page, validInputs) => {
                                     name = name.replace('Non-Craftable ', '')
                                 }
                                 // if(name.startsWith('Non-Craftable ')){ craft = 'non-craftable'; name = name.replace('Non-Craftable ', '')}
-                                $('.item-content .items').append(`<a href="${lurl('/items/' + encodeURIComponent(item.bp_sku))}" class="item_card id_${item.index} q-${item.qualityID} ${craft} s_${stock > 0 ? "true":"false"}"><div class="item-name" translate="no">${name}</div><img class="item-image lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${item.image}" style="background-image: ${(item?.effectID > 0) ? "url(https://api.backpack.tf/images/440/particles/" + item?.effectID + "_94x94.png)" : "none"};" alt="${String(item.bp_sku).replace(/"/g, '&quot;')}"><div class="item-data"><div class="stock ${(stock > 0) ? 'yes':'no'}">${stock_string}</div><div class="price">${price_string}</div><div class="quality q-${item.qualityID}"></div></div></a>`)      
+                                $('.item-content .items').append(`<a href="${lurl('/items/' + encodeURIComponent(item.bp_sku))}" class="item_card id_${item.index} q-${item.qualityID} ${craft} s_${stock > 0 ? "true":"false"}"><div class="item-name" translate="no">${name}</div><img class="item-image lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${item.image}" style="background-image: ${(item?.effectID > 0) ? "url(https://api.backpack.tf/images/440/particles/" + item?.effectID + "_94x94.png)" : "none"};" alt="${trade.item_alt(item.bp_sku, item.qualityID)}"><div class="item-data"><div class="stock ${(stock > 0) ? 'yes':'no'}">${stock_string}</div><div class="price">${price_string}</div><div class="quality q-${item.qualityID}"></div></div></a>`)      
                             }
                         }
                         loader.classList.remove('loading')
@@ -201,5 +215,5 @@ const query_change = async () => {}
 
 
 export {
-    get_items, query_change, clear_filter_elements, normalizeGerman
+    get_items, query_change, clear_filter_elements, normalizeGerman, list
 };
