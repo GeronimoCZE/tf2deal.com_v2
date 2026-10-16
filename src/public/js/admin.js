@@ -1,4 +1,4 @@
-/* Admin panel: Overview, Live settings, Stock limits, Users, Ratings, Notifications, Tickets, Blog, Giveaways (talk to /api/admin/*).
+/* Admin panel: Overview, Live settings, Stock limits, Users, Ratings, Trade records, Notifications, Tickets, Blog, Giveaways (talk to /api/admin/*).
    Live settings also listen on the /settings socket, so changes made by other apps show up right away. */
 (() => {
     const esc = (text) => String(text ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -1130,6 +1130,45 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
         await draw()
     }
 
+    /* ========================= TRADE RECORDS ========================= */
+    // The newest records the bots saved in `trades`, and whether Latest trades on the home page shows each one.
+
+    const TR_STATUS = { shown: 'Shown', skipped: 'Skipped', duplicate: 'Duplicate', older: 'Not in the newest 15' }
+
+    const trade_records = async (root) => {
+        root.innerHTML = head('Trade records', "The newest trades the bots saved, and whether Latest trades on the home page shows each one. If one is skipped and shouldn't be, copy it and send it to us.",
+            '<button type="button" id="tr-copy-all">Copy all records</button> <button type="button" id="tr-reload">Reload</button>') + '<div id="tr-body"><div class="admin-loading"><span class="admin-spinner"></span> Loading…</div></div>'
+        let records = []
+
+        const copy = async (text) => {
+            try { await navigator.clipboard.writeText(text); iziToast.success({ title: 'Copied', message: '' }) }
+            catch (e) { iziToast.error({ title: 'Error', message: "Couldn't copy. Open the record and select its text instead." }) }
+        }
+        const draw = async () => {
+            const res = await api('/api/admin/trade_records')
+            const box = root.querySelector('#tr-body')
+            if(!box){ return }
+            if(res.status != 'ok'){ box.innerHTML = `<p class="admin-error">${esc(res.message)}</p>`; return }
+            records = res.records
+            box.innerHTML = records.length == 0 ? '<p class="admin-empty">No trade records yet.</p>' : `<ul class="admin-trade-records">${records.map((r, i) => `<li>
+                    <div class="admin-tr-top"><span class="admin-tag tr-${esc(r.status)}">${esc(TR_STATUS[r.status] || r.status)}</span>
+                        <span>Bot gave ${esc(r.gave)}, got ${esc(r.got)}</span>
+                        <span class="muted">${r.time ? when(r.time) : 'no time'}${r.partner ? ` · <a href="https://steamcommunity.com/profiles/${esc(r.partner)}" target="_blank" rel="nofollow">user</a>` : ''}${r.bot ? ` · bot ${esc(r.bot)}` : ''}</span></div>
+                    ${r.reason ? `<p class="admin-tr-reason">${esc(r.reason)}</p>` : ''}
+                    <p class="muted small">${esc(r.layout)}</p>
+                    <details><summary>Record as saved</summary><pre>${esc(r.raw)}</pre><button type="button" data-copy="${i}">Copy record</button></details>
+                </li>`).join('')}</ul>`
+        }
+
+        root.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-copy]')
+            if(btn){ copy(records[Number(btn.dataset.copy)]?.raw || '') }
+        })
+        root.querySelector('#tr-copy-all').addEventListener('click', () => copy(records.map((r) => r.raw).join(',\n')))
+        root.querySelector('#tr-reload').addEventListener('click', draw)
+        await draw()
+    }
+
     /* ========================= NOTIFICATIONS ========================= */
     // The bell in the site nav. New giveaways, giveaway winners and ticket replies are added automatically;
     // this sends an announcement to everyone (guests included) and lists what everyone currently sees.
@@ -1188,7 +1227,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
 
     /* ========================= ROUTER ========================= */
 
-    const sections = { overview, settings: settings_section, stock: stock_section, users, ratings, notifications: notifications_section, tickets: (root) => tickets(root), blog, giveaways }
+    const sections = { overview, settings: settings_section, stock: stock_section, users, ratings, trades: trade_records, notifications: notifications_section, tickets: (root) => tickets(root), blog, giveaways }
     let route_id = 0
     let cleanup = null
 
