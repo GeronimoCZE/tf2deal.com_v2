@@ -747,6 +747,7 @@
             max-width: calc(100% - 2rem - 2px);
             margin: 0 auto;
             @include panel(.75rem 1rem);
+            background: linear-gradient(rgba(var(--tint-rgb), 0.1), rgba(var(--tint-rgb), 0.1)), var(--surface); // a shade lighter than the items, like the trade page bars
             font-size: 16px !important;
             @include lt-sm{
                 max-width: calc(100% - 1.5rem - 2px);
