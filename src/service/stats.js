@@ -14,8 +14,10 @@ const start_of_day = (now = Date.now()) => {
   return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
 }
 
-// trade timestamps are milliseconds; older records may be in seconds, so both are counted
+// trade timestamps are milliseconds; older records may be in seconds, so both are counted. Trades between our own
+// bots aren't.
 const count_since = (since_ms) => trade_model.countDocuments({
+  internalTrade: { $ne: true },
   $or: [
     { timestamp: { $gte: since_ms } },
     { timestamp: { $gte: Math.floor(since_ms / 1000), $lt: 1e11 } }

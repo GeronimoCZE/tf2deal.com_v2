@@ -41,7 +41,11 @@ const check_requirements = async (steamid, giveaway) => {
     }
 
     if(giveaway.requirements?.trade){
-        const trades = await trade_model.countDocuments({ partnerSteamID: steamid, timestamp: { $gte: giveaway.start } })
+        // any trade the bots saved, made on the site or not; older records have their timestamp in seconds
+        const trades = await trade_model.countDocuments({ partnerSteamID: steamid, $or: [
+            { timestamp: { $gte: giveaway.start } },
+            { timestamp: { $gte: Math.floor(giveaway.start / 1000), $lt: 1e11 } }
+        ] })
         result.trade = trades > 0
         if(!result.trade){ result.ok = false }
     }
