@@ -188,6 +188,28 @@
 
     /* ========================= GIVEAWAYS ========================= */
 
+    // "Steam group: posted · Facebook: removed" (announcements, see src/service/giveaway_posts.js)
+    const POST_SERVICES = { steam: 'Steam group', facebook: 'Facebook' }
+    const post_link = (key, post, info) => !post.id ? '' : key == 'steam' ? `https://steamcommunity.com/gid/${info.steam_group}/announcements/detail/${post.id}` : `https://www.facebook.com/${post.id}`
+    const post_states = (g, info) => Object.entries(POST_SERVICES).map(([key, name]) => {
+        const post = g.posts?.[key]
+        if(!post?.state){ return '' }
+        const link = post_link(key, post, info)
+        const error = `<span class="tr-error" title="${esc(post.error)}">${esc(post.error)}</span>`
+        // a post on a giveaway that ended is about to be removed
+        const state = (post.state == 'posted' && g.status != 'active') ? 'removing' : post.state
+        const text = {
+            posting: '<span class="muted">posting…</span>',
+            posted: (link ? `<a href="${esc(link)}" target="_blank" rel="nofollow">posted</a>` : 'posted') + (post.error ? ` <span class="muted">(${esc(post.error)})</span>` : ''),
+            post_failed: `not posted: ${error}`,
+            removing: '<span class="muted">removing…</span>',
+            removed: '<span class="tr-done">removed</span>',
+            remove_failed: (post.tries >= info.max_tries ? 'couldn\'t remove it, please delete it by hand: ' : 'removing failed, trying again in 10 minutes: ') + error
+        }[state] || esc(state)
+        return `${name}: ${text}`
+    }).filter(Boolean).join(' &middot; ')
+    const posts_busy = (list) => list.some((g) => Object.values(g.posts || {}).some((post) => post?.state == 'posting' || post?.state == 'removing' || (post?.state == 'posted' && g.status != 'active')))
+
     const giveaways = async (root) => {
         root.innerHTML = `<h2>Giveaways</h2><div id="admin-giveaways">Loading...</div>`
         const box = root.querySelector('#admin-giveaways')
@@ -199,13 +221,17 @@
         const past = res.giveaways.filter((g) => g.status != 'active')
 
         const default_end = new Date(Date.now() + 7 * 86400000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+        const posts_off = Object.keys(POST_SERVICES).filter((key) => !res.posts?.[key]).map((key) => POST_SERVICES[key])
+        const posts_note = posts_off.length == 0 ? '<p class="admin-note muted">New giveaways are announced on the Steam group and the Facebook Page. The posts are removed when the giveaway ends or is cancelled.</p>'
+            : `<p class="admin-note">${posts_off.join(' and ')} announcement${posts_off.length > 1 ? 's are' : ' is'} off. To announce new giveaways there, add the settings to <code>.env</code> and restart (see <code>docs/SETUP.md</code>).</p>`
 
-        box.innerHTML = (active ? `<div class="admin-giveaway active" data-id="${esc(active._id)}">
+        box.innerHTML = posts_note + (active ? `<div class="admin-giveaway active" data-id="${esc(active._id)}">
                 <img src="${esc(active.item.image)}" alt="">
                 <div>
                     <strong>${esc(active.item.bp_sku)}</strong>
                     <div>Ends ${when(active.end)} &middot; ${active.entry_count} entries</div>
                     <div class="muted">Requirements: ${[active.requirements?.steam_group && 'Steam group', active.requirements?.trade && '1 trade'].filter(Boolean).join(', ') || 'none'}</div>
+                    <div class="muted" data-posts="${esc(active._id)}">${post_states(active, res.posts)}</div>
                     <div class="actions"><button class="end-giveaway primary">End now &amp; draw winner</button> <button class="cancel-giveaway">Cancel giveaway</button></div>
                 </div>
             </div>` : `<form class="admin-form" id="giveaway-form">
@@ -226,7 +252,7 @@
             </form>`) + `
             <h3>Previous giveaways</h3>
             ${past.length == 0 ? '<p class="admin-empty">None yet.</p>' : `<table>
-                <tr><th>Item</th><th>Ended</th><th>Entries</th><th>Winner</th><th>Prize sent</th></tr>
+                <tr><th>Item</th><th>Ended</th><th>Entries</th><th>Winner</th><th>Prize sent</th><th>Announcements</th></tr>
                 ${past.map((g) => `<tr data-id="${esc(g._id)}">
                     <td>${esc(g.item.bp_sku)}</td>
                     <td>${g.status == 'cancelled' ? 'Cancelled' : when(g.end)}</td>
@@ -234,8 +260,24 @@
                     <td>${g.winner?.steamid ? `<a href="https://steamcommunity.com/profiles/${esc(g.winner.steamid)}" target="_blank" rel="nofollow">${esc(g.winner.name || g.winner.steamid)}</a>
                         ${g.winner_tradelink ? `<br><a href="${esc(g.winner_tradelink)}" target="_blank" rel="nofollow">Send trade offer</a>` : '<br><span class="muted">no trade link</span>'}` : '-'}</td>
                     <td>${g.winner?.steamid ? `<input type="checkbox" class="prize-sent" ${g.prize_sent ? 'checked' : ''}>` : ''}</td>
+                    <td data-posts="${esc(g._id)}">${post_states(g, res.posts) || '-'}</td>
                 </tr>`).join('')}
             </table>`}`
+
+        // posting and removing run in the background: keep those lines up to date until they're done
+        const watch_posts = async (list, round = 0) => {
+            if(!posts_busy(list) || round >= 40){ return }
+            await new Promise((resolve) => setTimeout(resolve, 3000))
+            if(!box.isConnected){ return }
+            const r = await api('/api/admin/giveaways')
+            if(r.status != 'ok'){ return }
+            for (const g of r.giveaways) {
+                const el = box.querySelector(`[data-posts="${g._id}"]`)
+                if(el){ el.innerHTML = post_states(g, r.posts) || (el.tagName == 'TD' ? '-' : '') }
+            }
+            watch_posts(r.giveaways, round + 1)
+        }
+        watch_posts(res.giveaways)
 
         const form = box.querySelector('#giveaway-form')
         if(form){
@@ -266,7 +308,8 @@
             if(!id){ return }
             if(e.target.classList.contains('end-giveaway') && confirm('End the giveaway now and draw a winner?')){
                 const r = await api(`/api/admin/giveaways/${id}/end`, {})
-                if(toast(r, r.winner ? `Winner: ${esc(r.winner.name || r.winner.steamid)}` : 'Ended, there were no entries.')){ giveaways(root) }
+                const left = r.skipped ? ` Skipped ${r.skipped} who had left the Steam group.` : ''
+                if(toast(r, r.winner ? `Winner: ${esc(r.winner.name || r.winner.steamid)}.${left}` : r.skipped ? 'Ended without a winner: everyone had left the Steam group.' : 'Ended, there were no entries.')){ giveaways(root) }
             }
             if(e.target.classList.contains('cancel-giveaway') && confirm('Cancel the giveaway without a winner?')){
                 const r = await api(`/api/admin/giveaways/${id}/cancel`, {})
