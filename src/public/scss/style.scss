@@ -71,6 +71,42 @@ body{
         }
     }
 }
+// the aurora: soft green, teal and violet glows across the top of the screen that sway very slowly
+body::before{
+    content: "";
+    position: fixed;
+    top: -6vh;
+    left: -10vw;
+    width: 120vw;
+    height: 70vh;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 22% 60% at 14% 34%, rgba(56, 230, 170, 0.20), transparent 70%),
+        radial-gradient(ellipse 18% 55% at 30% 22%, rgba(90, 240, 200, 0.14), transparent 70%),
+        radial-gradient(ellipse 20% 50% at 48% 16%, rgba(70, 190, 255, 0.13), transparent 70%),
+        radial-gradient(ellipse 22% 60% at 66% 26%, rgba(110, 235, 190, 0.12), transparent 70%),
+        radial-gradient(ellipse 24% 62% at 86% 20%, rgba(150, 105, 255, 0.20), transparent 70%);
+    // thin vertical rays, like the curtains of a real aurora
+    $aurora-mask: linear-gradient(180deg, #000 0%, #000 40%, transparent 100%),
+        repeating-linear-gradient(90deg, #000 0, rgba(0, 0, 0, 0.62) 11px, #000 23px),
+        repeating-linear-gradient(90deg, #000 0, rgba(0, 0, 0, 0.75) 29px, #000 57px);
+    -webkit-mask-image: $aurora-mask;
+    -webkit-mask-composite: source-in;
+    mask-image: $aurora-mask;
+    mask-composite: intersect;
+    transform: skewX(-8deg);
+    animation: auroraSway 60s ease-in-out infinite alternate;
+}
+@keyframes auroraSway{
+    0%{ transform: translateX(-2vw) skewX(-8deg); opacity: .8; }
+    50%{ opacity: 1; }
+    100%{ transform: translateX(2vw) skewX(6deg); opacity: .85; }
+}
+@media (prefers-reduced-motion: reduce){
+    body::before{ animation: none; }
+}
+
 body::-webkit-scrollbar { /* WebKit */
     width: 0;
     height: 0;
@@ -120,7 +156,8 @@ body {
         }
 
     } */
-     background: linear-gradient(-30deg, rgb(96, 10, 167), rgba(1,31,77,1), rgb(17, 1, 77));
+     // outside TF2 events: a winter night sky with a soft aurora (body::before); the seasons swap both
+     background: linear-gradient(-30deg, rgb(14, 22, 64), rgb(4, 14, 40), rgb(22, 12, 58));
       background-size: 400% 400%;
       animation: gradientMove 240s ease infinite;
 

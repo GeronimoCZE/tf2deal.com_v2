@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="<%= html_lang %>">
-    <script src="<%= vendor.tsparticles %>" defer></script>
+    <%# hero particles only during the summer (dust) and Scream Fortress (ash) events; Smissmas has the site-wide blizzard (js/blizzard.js) %>
+    <% if (['season-summer', 'season-halloween'].includes(info?.season)) { %><script src="<%= vendor.tsparticles %>" defer></script><% } %>
 
     <%- include('./partials/head.ejs') %>
     <body class="<%- info?.season %>">

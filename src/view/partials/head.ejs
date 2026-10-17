@@ -96,6 +96,7 @@
     <script src="<%= vendor.micromodal %>" defer></script>
     <script src="<%= vendor.socket_io %>" defer></script>
     <script src="<%= asset('/js/socket.js') %>" defer></script>
+    <% if (info?.season == 'season-smissmas') { %><script src="<%= asset('/js/blizzard.js') %>" defer></script><% } %>
     <link rel="preload" href="/font/rubik-700-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="<%= asset('/css/style.css') %>">
 
