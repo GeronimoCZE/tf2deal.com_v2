@@ -500,18 +500,9 @@ addEventListener('DOMContentLoaded', (event) => {
         
     })
 
-    // falling snow; during TF2 events (service/season.js) summer gets drifting dust and Scream Fortress rising ash
+    // home hero particles during TF2 events (service/season.js): summer gets drifting dust, Scream Fortress rising ash.
+    // Outside events the page has the aurora background instead, and Smissmas has the site-wide blizzard (js/blizzard.js).
     const PARTICLES = {
-        snow: {
-            color: { value: "#fff" },
-            move: { direction: "bottom", enable: true, outModes: "out", speed: 2 },
-            number: { density: { enable: false, area: 400 }, value: 50 },
-            opacity: { value: 0.5 },
-            shape: { type: "circle" },
-            size: { value: 2 },
-            wobble: { enable: true, distance: 10, speed: 10 },
-            zIndex: { value: { min: 0, max: 0 } }
-        },
         dust: {
             color: { value: ["#f3d9a8", "#e6c48a", "#fff3dc"] },
             move: { direction: "right", enable: true, outModes: "out", speed: 0.6, random: true },
@@ -534,9 +525,9 @@ addEventListener('DOMContentLoaded', (event) => {
         }
     }
     const particle_kind = document.body.classList.contains('season-summer') ? 'dust'
-        : document.body.classList.contains('season-halloween') ? 'ash' : 'snow'
+        : document.body.classList.contains('season-halloween') ? 'ash' : null
 
-    if( $("#tsparticles").length && typeof tsParticles != 'undefined' ){
+    if( particle_kind && $("#tsparticles").length && typeof tsParticles != 'undefined' ){
         tsParticles.load("tsparticles", { particles: PARTICLES[particle_kind] });
     }
 
