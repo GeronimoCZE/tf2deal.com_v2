@@ -2,7 +2,7 @@
 //
 // How many of an item the bots hold at most is `stock.limit` on the item; each killstreak tier has its own `limit`
 // in `item.killstreak`. The item server (item_manager) sets them again every time it prices an item:
-//   - global rules: its live settings stock_limit_* and ks_stock_limit*. They are read and changed here over the
+//   - global rules: its live settings stock_limit_* and ks_stock_limit. They are read and changed here over the
 //     items socket (admin:get_settings / admin:update_settings), then applied to every item (admin:apply_stock_limits).
 //   - single items: the limit is written straight onto the items, so it counts at once, together with a copy in
 //     `stock.manual_limit` / `stock.manual_ks_limit`. The item server keeps those until they are cleared here.
@@ -10,7 +10,7 @@ import { item_model } from '../model/Item.js'
 import { item_socket } from './socket.js'
 
 export const GLOBAL_KEYS = ['stock_limit_default', 'stock_limit_unusual', 'stock_limit_unusual_min_pure', 'stock_limit_collectors',
-  'stock_limit_collectors_min_pure', 'ks_stock_limit', 'ks_stock_limit_high_demand', 'ks_high_demand_buyorders']
+  'stock_limit_collectors_min_pure', 'ks_stock_limit']
 export const MAX_LIMIT = 1000
 const PER_PAGE = 100
 

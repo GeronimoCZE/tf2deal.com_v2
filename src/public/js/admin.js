@@ -817,9 +817,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
         ['stock_limit_unusual_min_pure', 'Unusuals only from', 'Pure the bots need first (the value they report). Below it the Unusual limit is 0.', 'pure'],
         ['stock_limit_collectors', "Collector's", "Collector's cosmetics, taunts and weapons."],
         ['stock_limit_collectors_min_pure', "Collector's only from", "Pure the bots need first. Below it the Collector's limit is 0.", 'pure'],
-        ['ks_stock_limit', 'Each killstreak tier', 'Per tier of a weapon (Killstreak, Specialized, Professional).'],
-        ['ks_stock_limit_high_demand', 'Each tier, weapon in demand', 'When the plain weapon has many backpack.tf buy orders.'],
-        ['ks_high_demand_buyorders', 'In demand from', 'backpack.tf buy orders for the plain weapon.', 'orders']
+        ['ks_stock_limit', 'Each killstreak tier', 'Per tier of every weapon (Killstreak, Specialized, Professional), skins included.']
     ]
     const MAX_LIMIT = 1000
 
