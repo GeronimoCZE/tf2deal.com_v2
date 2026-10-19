@@ -115,6 +115,7 @@ setTimeout(() => {
         bot_socket.timestamp = Date.now();
         bot_socket.socket = bots_io;
         console.log('Successfully connected! (bots socket)');
+        localEmitter.emit('bots:connected', bots_io); // service/listings.js sends the listings made by hand
     });
 
     bots_io.on('fp_data', (data) => {

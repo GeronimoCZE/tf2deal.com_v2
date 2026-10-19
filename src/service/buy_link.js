@@ -24,7 +24,7 @@ const ks_tier = (value) => {
 }
 
 // a price in ref; {key, metal} is turned into ref with the item's key price
-const to_ref = (value, key_ref) => {
+export const to_ref = (value, key_ref) => {
   if (value && typeof value == 'object') {
     const ref = (Number(value.key) || 0) * (Number(key_ref) || 0) + (Number(value.metal) || 0)
     return ref > 0 ? ref : 0
@@ -46,7 +46,7 @@ const sell_price = (doc, asset, key_ref) => {
 
 // "Rocket Launcher" + festivized + tier 3 -> "Festivized Professional Killstreak Rocket Launcher",
 // "Strange Rocket Launcher" -> "Strange Professional Killstreak Rocket Launcher"
-const display_name = (bp_sku, asset) => {
+export const display_name = (bp_sku, asset) => {
   const words = [asset?.f ? 'Festivized' : '', KS_NAMES[Number(asset?.ks) || 0] || ''].filter(Boolean).join(' ')
   if (!words) return bp_sku
   const name = String(bp_sku || '')
@@ -58,7 +58,7 @@ const display_name = (bp_sku, asset) => {
 const words = (value) => (Array.isArray(value) ? value : [value]).filter((v) => typeof v == 'string' && v.trim()).map((v) => v.trim().slice(0, 60))
 
 // paint, spells, parts, sheen and killstreaker: what tells two copies of the same item apart
-const details = (asset) => {
+export const details = (asset) => {
   const at = asset?.at || {}
   return [...words(at.paint), ...words(at.spells), ...words(at.strangeParts), ...words(at.sheen), ...words(at.killstreaker)].slice(0, 8)
 }

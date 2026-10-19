@@ -1,4 +1,4 @@
-/* Admin panel: Overview, Live settings, Stock limits, Users, Ratings, Trade records, Notifications, Tickets, Blog, Giveaways (talk to /api/admin/*).
+/* Admin panel: Overview, Live settings, Stock limits, Listings, Users, Ratings, Trade records, Notifications, Tickets, Blog, Giveaways (talk to /api/admin/*).
    Live settings also listen on the /settings socket, so changes made by other apps show up right away. */
 (() => {
     const esc = (text) => String(text ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -343,7 +343,7 @@
     const pill = (ok, yes = 'Online', no = 'Offline') => `<span class="admin-pill ${ok ? 'ok' : 'bad'}"><i></i>${ok ? yes : no}</span>`
     const by_label = (by) => by ? (by.kind == 'admin' ? 'Admin panel' : esc(by.name || 'app')) : 'unknown'
     const parse_by = (text) => { const [kind, ...rest] = String(text || '').split(':'); return text ? { kind, name: rest.join(':') } : null }
-    const SETTING_NAMES = { trading_state: 'Trading', min_item_key: 'Min. price', max_item_key: 'Max. price', item_blacklist: 'Blacklist', announcement: 'Banner', reviews: 'Ratings', season: 'Season', extra: 'App values' }
+    const SETTING_NAMES = { trading_state: 'Trading', min_item_key: 'Min. price', max_item_key: 'Max. price', item_blacklist: 'Blacklist', announcement: 'Banner', reviews: 'Ratings', season: 'Season', listings: 'Listings', extra: 'App values' }
 
     /* ========================= LIVE SETTINGS (socket /settings) ========================= */
 
@@ -1035,6 +1035,452 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
         await load_global()
     }
 
+    /* ========================= LISTINGS ========================= */
+    // What the bots list on backpack.tf. The rules are the live setting `listings` (the bot server reads it on the
+    // /settings socket like every other setting); the list of listings comes from the bot server; listings made by
+    // hand are kept by the site and sent to the bot server. Server side: src/service/listings.js, docs/LISTINGS.md.
+
+    const QUALITY_ORDER = ['6', '11', '5', '1', '3', '13', '14', '15', '0', '9', '7', '8']
+    const KS_LABELS = ['None', 'Killstreak', 'Specialized', 'Professional']
+    const ref_text = (n) => `${Math.round((Number(n) || 0) * 100) / 100} ref`
+    const price_text = (p) => {
+        const keys = Number(p?.keys) || 0, metal = Number(p?.metal) || 0
+        return [keys ? `${num(keys)} key${keys == 1 ? '' : 's'}` : '', (metal || !keys) ? ref_text(metal) : ''].filter(Boolean).join(' ')
+    }
+    const group_of = (type) => String(type).trim().toLowerCase().split(' ')[0]
+    const LS_STATUS = { listed: ['ok', 'Listed'], pending: ['wait', 'Waiting for the bot'], failed: ['bad', 'Failed'] }
+
+    const listings_section = async (root) => {
+        if(!live.settings){
+            const r = await api('/api/admin/settings')
+            if(r.status != 'ok'){ root.innerHTML = head('Listings') + `<p class="admin-error">${esc(r.message)}</p>`; return }
+            live.settings = r.settings
+        }
+
+        root.innerHTML = head('Listings', 'What the bots list on backpack.tf. Every change goes to the bot server right away.') + `
+            <div class="admin-settings">
+                <div class="admin-card wide" data-card="listing-rules">
+                    <div class="admin-card-head">
+                        <div><h3>List only these types and qualities</h3>
+                        <p class="muted">Tick the types and qualities the bots may list. Off: they list every item they price. Listings you make by hand below are always listed.</p></div>
+                        <label class="admin-switch"><input type="checkbox" id="lr-enabled" aria-label="List only the ticked types and qualities"><span></span></label>
+                    </div>
+                    <div class="admin-lr-sides" id="lr-sides">
+                        <span>The rules limit</span>
+                        <label class="check"><input type="checkbox" id="lr-buy"> buy listings</label>
+                        <label class="check"><input type="checkbox" id="lr-sell"> sell listings</label>
+                    </div>
+                    <div id="lr-grid"><div class="admin-loading"><span class="admin-spinner"></span> Loading…</div></div>
+                    <p class="admin-lr-summary" id="lr-summary"></p>
+                    <div class="admin-card-foot"><span class="admin-dirty">Unsaved changes</span><button type="button" data-discard>Discard</button><button type="button" class="primary" data-save>Save rules</button></div>
+                </div>
+
+                <div class="admin-card" data-card="listing-new">
+                    <h3>New listing</h3>
+                    <p class="muted">For one bot, buy or sell. It stays listed until you take it down, whatever the rules say.</p>
+                    <form id="ln-form" autocomplete="off">
+                        <div class="admin-row-fields">
+                            <label class="admin-field">Bot <select name="bot"></select></label>
+                            <div class="admin-field">Side
+                                <div class="admin-segment" id="ln-intent" role="radiogroup" aria-label="Buy or sell">
+                                    <button type="button" role="radio" data-intent="buy">Buy</button>
+                                    <button type="button" role="radio" data-intent="sell">Sell</button>
+                                </div>
+                            </div>
+                        </div>
+                        <label class="admin-field">Item <input type="search" name="bp_sku" list="ln-items" maxlength="300" placeholder="Type a name, e.g. Team Captain" required></label>
+                        <datalist id="ln-items"></datalist>
+                        <div class="admin-ln-item" id="ln-item" hidden></div>
+                        <label class="admin-field" data-for="buy" hidden>Killstreak <select name="ks"></select></label>
+                        <label class="admin-field" data-for="sell" hidden>Copy to sell <select name="assetid"></select></label>
+                        <div class="admin-row-fields">
+                            <label class="admin-field">Keys <span class="admin-input-unit"><input type="number" name="keys" min="0" max="10000" step="1" value="0"><em>keys</em></span></label>
+                            <label class="admin-field">Refined <span class="admin-input-unit"><input type="number" name="metal" min="0" step="0.01" value="0"><em>ref</em></span></label>
+                        </div>
+                        <label class="admin-field">Listing text <input name="details" maxlength="200" placeholder="Empty: the bot's usual text"></label>
+                        <div class="admin-card-foot"><button type="submit" class="primary">Create listing</button></div>
+                    </form>
+                </div>
+
+                <div class="admin-card" data-card="listing-never">
+                    <div class="admin-card-head">
+                        <div><h3>Never list <span class="admin-count" id="lx-count"></span></h3>
+                        <p class="muted">The bots don't list these items at all, whatever the rules say. They can still be traded on the site.</p></div>
+                    </div>
+                    <form class="admin-inline-form" id="lx-form">
+                        <input id="lx-input" list="lx-items" autocomplete="off" placeholder="Item name, e.g. Team Captain">
+                        <datalist id="lx-items"></datalist>
+                        <button type="submit" class="primary">Add</button>
+                    </form>
+                    <div class="admin-chips" id="lx-list"></div>
+                </div>
+
+                <div class="admin-card wide" data-card="listing-list">
+                    <div class="admin-card-head">
+                        <div><h3>All listings</h3><p class="muted" id="ll-report"></p></div>
+                        <button type="button" id="ll-refresh">Refresh</button>
+                    </div>
+                    <form class="admin-ll-filters" id="ll-filters">
+                        <div class="admin-segment" id="ll-side" role="radiogroup" aria-label="Buy or sell">
+                            <button type="button" role="radio" data-side="">All <span></span></button>
+                            <button type="button" role="radio" data-side="buy">Buy <span></span></button>
+                            <button type="button" role="radio" data-side="sell">Sell <span></span></button>
+                        </div>
+                        <select name="bot" aria-label="Bot"><option value="">Every bot</option></select>
+                        <select name="source" aria-label="Made by"><option value="">Made by the bots or by hand</option><option value="auto">Made by the bots</option><option value="manual">Made by hand</option></select>
+                        <input type="search" name="q" maxlength="100" placeholder="Item name" aria-label="Item name">
+                    </form>
+                    <div id="ll-body"><div class="admin-loading"><span class="admin-spinner"></span> Loading…</div></div>
+                </div>
+            </div>`
+
+        const $ = (sel) => root.querySelector(sel)
+        const card = (name) => root.querySelector(`[data-card="${name}"]`)
+        const rules_card = card('listing-rules')
+        let alive = true
+
+        /* ---- rules grid ---- */
+        let cells = null         // [{ type, quality, items }] priced items per type and quality
+        let groups = []          // [{ key, types: [type], counts: { quality: items } }]
+        let qualities = []
+        let picked = new Set()   // "quality|type" of the ticked cells (type is "group:<word>" or an exact type)
+        let other_rules = []     // rules the grid can't show (any quality, any type, a type no item has): kept as they are
+        const open_groups = new Set()
+
+        const build_grid = () => {
+            const by_group = new Map()
+            for (const c of cells) {
+                const key = group_of(c.type)
+                if(!by_group.has(key)){ by_group.set(key, { key, types: new Map(), counts: {} }) }
+                const g = by_group.get(key)
+                if(!g.types.has(c.type)){ g.types.set(c.type, {}) }
+                g.types.get(c.type)[c.quality] = (g.types.get(c.type)[c.quality] || 0) + c.items
+                g.counts[c.quality] = (g.counts[c.quality] || 0) + c.items
+            }
+            groups = [...by_group.values()].map((g) => ({ ...g, types: [...g.types.entries()].sort((a, b) => a[0].localeCompare(b[0])) }))
+                .sort((a, b) => a.key.localeCompare(b.key))
+            const qs = [...new Set(cells.map((c) => c.quality))]
+            qualities = [...QUALITY_ORDER.filter((q) => qs.includes(q)), ...qs.filter((q) => !QUALITY_ORDER.includes(q)).sort((a, b) => a - b)]
+        }
+
+        // the saved rules -> ticked cells (+ the rules the grid can't show)
+        const read_rules = () => {
+            const l = live.settings.listings || { enabled: false, rules: [], buy: true, sell: true, exclude: [] }
+            picked = new Set()
+            other_rules = []
+            for (const r of l.rules) {
+                const type = String(r.type || '').toLowerCase()
+                const g = type.startsWith('group:') ? groups.find((x) => x.key == type.slice(6)) : groups.find((x) => x.types.some(([t]) => t.toLowerCase() == type))
+                if(!r.quality || !type || !g){ other_rules.push(r); continue }
+                if(type.startsWith('group:') || (g.types.length == 1 && g.types[0][0].toLowerCase() == type)){ picked.add(`${r.quality}|group:${g.key}`) }
+                else { picked.add(`${r.quality}|${g.types.find(([t]) => t.toLowerCase() == type)[0]}`) }
+            }
+            $('#lr-enabled').checked = l.enabled
+            $('#lr-buy').checked = l.buy
+            $('#lr-sell').checked = l.sell
+        }
+        const grid_rules = () => [...picked].map((key) => { const [quality, ...type] = key.split('|'); return { quality, type: type.join('|') } }).concat(other_rules)
+
+        const cell = (q, type, count, inherited) => {
+            if(!count){ return '<td class="lr-none" aria-hidden="true">·</td>' }
+            const on = inherited || picked.has(`${q}|${type}`)
+            return `<td><label class="lr-cell${on ? ' on' : ''}${inherited ? ' inherited' : ''}"><input type="checkbox" data-q="${esc(q)}" data-t="${esc(type)}" ${on ? 'checked' : ''} ${inherited ? 'disabled' : ''}
+                aria-label="${esc(QUALITY_NAMES[q] || q)} ${esc(type.replace(/^group:/, ''))}"><span>${num(count)}</span></label></td>`
+        }
+        const draw_summary = () => {
+            const enabled = $('#lr-enabled').checked
+            const total = cells.reduce((s, c) => s + c.items, 0)
+            const rules = grid_rules()
+            const shown = cells.filter((c) => rules.some((r) => (!r.quality || r.quality == c.quality) && type_match(r.type, c.type))).reduce((s, c) => s + c.items, 0)
+            const sides = [$('#lr-buy').checked && 'buy', $('#lr-sell').checked && 'sell'].filter(Boolean)
+            $('#lr-summary').innerHTML = !enabled
+                ? `<strong>Off.</strong> The bots list every item they price (${num(total)} now), except the items under Never list.`
+                : rules.length == 0 ? '<span class="admin-error">Tick at least one cell, or turn the rules off.</span>'
+                : `<strong>${num(shown)} of ${num(total)}</strong> priced items may be listed on the ${sides.length == 2 ? 'buy and sell' : sides[0] || '–'} side${sides.length == 1 ? '' : 's'}.${other_rules.length ? ` Plus ${other_rules.length} rule${other_rules.length == 1 ? '' : 's'} set by an app.` : ''}`
+            rules_card.classList.toggle('is-off', !enabled)
+        }
+        const type_match = (rule_type, type) => {
+            if(!rule_type){ return true }
+            const t = type.toLowerCase(), r = rule_type.toLowerCase()
+            return r.startsWith('group:') ? (t == r.slice(6) || t.startsWith(r.slice(6) + ' ')) : t == r
+        }
+        const draw_grid = () => {
+            if(!cells){ return }
+            if(cells.length == 0){ $('#lr-grid').innerHTML = '<p class="admin-empty">No priced items yet.</p>'; draw_summary(); return }
+            $('#lr-grid').innerHTML = `<div class="admin-table-wrap"><table class="admin-lr-grid">
+                <thead><tr><th scope="col">Type</th>${qualities.map((q) => `<th scope="col"><button type="button" data-col="${esc(q)}" title="Tick or clear the whole column">${esc(QUALITY_NAMES[q] || q)}</button></th>`).join('')}</tr></thead>
+                <tbody>${groups.map((g) => {
+                    const open = open_groups.has(g.key)
+                    const many = g.types.length > 1
+                    const head_row = `<tr class="lr-group"><th scope="row"><span class="lr-row-head">
+                        ${many ? `<button type="button" class="lr-expand" data-expand="${esc(g.key)}" aria-expanded="${open}" title="${open ? 'Hide' : 'Show'} the ${g.types.length} types">${open ? '−' : '+'}</button>` : '<span class="lr-expand-pad"></span>'}
+                        <button type="button" class="lr-row" data-row="${esc(g.key)}" title="Tick or clear the whole row">${esc(g.key)}</button>${many ? `<span class="muted small">${g.types.length} types</span>` : ''}</span></th>
+                        ${qualities.map((q) => cell(q, `group:${g.key}`, g.counts[q] || 0, false)).join('')}</tr>`
+                    const type_rows = (many && open) ? g.types.map(([t, counts]) => `<tr class="lr-type"><th scope="row"><span class="lr-row-head">${esc(t)}</span></th>
+                        ${qualities.map((q) => cell(q, t, counts[q] || 0, picked.has(`${q}|group:${g.key}`))).join('')}</tr>`).join('') : ''
+                    return head_row + type_rows
+                }).join('')}</tbody></table></div>`
+            draw_summary()
+        }
+        const set_dirty = (on = true) => { rules_card.classList.toggle('is-dirty', on); rules_card.classList.remove('is-stale') }
+        const fill_rules = () => { read_rules(); draw_grid(); set_dirty(false) }
+
+        // ticking a whole group clears its single types for that quality (the group covers them)
+        const toggle = (q, type, on) => {
+            const key = `${q}|${type}`
+            on ? picked.add(key) : picked.delete(key)
+            if(type.startsWith('group:') && on){
+                for (const [t] of groups.find((g) => `group:${g.key}` == type)?.types || []) { picked.delete(`${q}|${t}`) }
+            }
+        }
+        $('#lr-grid').addEventListener('change', (e) => {
+            const box = e.target.closest('input[data-q]')
+            if(!box){ return }
+            toggle(box.dataset.q, box.dataset.t, box.checked)
+            set_dirty(); draw_grid()
+        })
+        $('#lr-grid').addEventListener('click', (e) => {
+            const expand = e.target.closest('[data-expand]')
+            if(expand){ const k = expand.dataset.expand; open_groups.has(k) ? open_groups.delete(k) : open_groups.add(k); draw_grid(); return }
+            const col = e.target.closest('[data-col]')?.dataset.col
+            const row = e.target.closest('[data-row]')?.dataset.row
+            if(col === undefined && row === undefined){ return }
+            const targets = col !== undefined
+                ? groups.filter((g) => g.counts[col]).map((g) => [col, `group:${g.key}`])
+                : qualities.filter((q) => groups.find((g) => g.key == row)?.counts[q]).map((q) => [q, `group:${row}`])
+            const all_on = targets.every(([q, t]) => picked.has(`${q}|${t}`))
+            for (const [q, t] of targets) { toggle(q, t, !all_on) }
+            set_dirty(); draw_grid()
+        })
+        $('#lr-enabled').addEventListener('change', () => { set_dirty(); draw_summary() })
+        root.querySelectorAll('#lr-buy, #lr-sell').forEach((el) => el.addEventListener('change', () => { set_dirty(); draw_summary() }))
+        rules_card.querySelector('[data-discard]').addEventListener('click', fill_rules)
+        rules_card.querySelector('[data-save]').addEventListener('click', async () => {
+            const enabled = $('#lr-enabled').checked
+            const patch = { listings: { enabled, rules: grid_rules(), buy: $('#lr-buy').checked, sell: $('#lr-sell').checked } }
+            if(toast(await save_settings(patch), enabled ? 'Rules saved. The bot server got them.' : 'Saved. The bots list every item again.')){ fill_rules() }
+        })
+
+        /* ---- never list ---- */
+        const fill_never = () => {
+            const list = live.settings.listings?.exclude || []
+            $('#lx-count').textContent = list.length
+            $('#lx-list').innerHTML = list.length == 0 ? '<p class="admin-empty">Nothing here.</p>'
+                : list.map((n) => `<span class="admin-chip">${esc(n)}<button type="button" data-remove="${esc(n)}" aria-label="List ${esc(n)} again">×</button></span>`).join('')
+        }
+        const item_search = (input, datalist) => {
+            let timer
+            input.addEventListener('input', () => {
+                clearTimeout(timer)
+                if(input.value.length < 2){ return }
+                timer = setTimeout(async () => {
+                    const r = await api(`/api/admin/items/search?q=${encodeURIComponent(input.value)}`)
+                    datalist.innerHTML = (r.items || []).map((i) => `<option value="${esc(i.bp_sku)}">`).join('')
+                }, 250)
+            })
+        }
+        item_search($('#lx-input'), $('#lx-items'))
+        $('#lx-form').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const name = $('#lx-input').value.trim()
+            if(!name){ return }
+            if(toast(await save_settings({ listings: { exclude: { add: [name] } } }), `${esc(name)} won't be listed.`)){ $('#lx-input').value = ''; fill_never() }
+        })
+        $('#lx-list').addEventListener('click', async (e) => {
+            const name = e.target.closest('[data-remove]')?.dataset.remove
+            if(name && toast(await save_settings({ listings: { exclude: { remove: [name] } } }), `${esc(name)} may be listed again.`)){ fill_never() }
+        })
+
+        /* ---- new listing ---- */
+        const form = $('#ln-form')
+        let intent = 'buy'
+        let item = null          // /listings/item answer for the picked item and bot
+        let price_touched = false
+        let bots = []
+
+        const fill_bots = () => {
+            const current = form.bot.value
+            form.bot.innerHTML = bots.length == 0 ? '<option value="">No bot is running</option>'
+                : bots.map((b) => `<option value="${esc(b.steamid)}">${esc(b.name || b.steamid)}</option>`).join('')
+            if(bots.some((b) => b.steamid == current)){ form.bot.value = current }
+            const filter = $('#ll-filters').bot
+            const shown = filter.value
+            filter.innerHTML = '<option value="">Every bot</option>' + bots.map((b) => `<option value="${esc(b.steamid)}">${esc(b.name || b.steamid)}</option>`).join('')
+            filter.value = shown
+        }
+        // our own price: buy (or the killstreak tier's), sell = the higher of the item's and the copy's tier price
+        const set_price = () => {
+            if(price_touched || !item){ return }
+            const ref = (p) => (Number(p?.keys) || 0) * (item.key_price || 0) + (Number(p?.metal) || 0)
+            let p = item.buy
+            if(intent == 'buy'){ p = item.tiers.find((t) => t.ks == Number(form.ks.value))?.buy || item.buy }
+            else {
+                const ks = item.copies.find((c) => c.assetid == form.assetid.value)?.ks || 0
+                const tier = item.tiers.find((t) => t.ks == ks)?.sell
+                p = (tier && ref(tier) > ref(item.sell)) ? tier : item.sell
+            }
+            form.keys.value = p.keys
+            form.metal.value = p.metal
+        }
+        const draw_item = () => {
+            const box = $('#ln-item')
+            root.querySelectorAll('#ln-form [data-for]').forEach((el) => { el.hidden = !item || el.dataset.for != intent || (intent == 'buy' && item.tiers.length == 0) })
+            root.querySelectorAll('#ln-intent button').forEach((b) => b.setAttribute('aria-checked', b.dataset.intent == intent))
+            if(!item){ box.hidden = true; return }
+            box.hidden = false
+            const rule_note = item.may_list[intent] ? '' : `<p class="muted small">The rules don't list this item on the ${intent} side; a listing made here is listed anyway.</p>`
+            const no_copy = intent == 'sell' && item.copies.length == 0 ? `<p class="admin-error small">${esc(form.bot.selectedOptions[0]?.textContent || 'This bot')} doesn't hold this item.</p>` : ''
+            box.innerHTML = `<span class="admin-stock-item"><img class="q-${esc(item.qualityID)}" src="${esc(item.image)}" alt="" loading="lazy">
+                <span><strong translate="no">${esc(item.bp_sku)}</strong><span class="muted small">Our prices: buy ${esc(price_text(item.buy))}, sell ${esc(price_text(item.sell))}${item.priced ? '' : ' (not priced now)'}</span></span></span>${rule_note}${no_copy}`
+            form.ks.innerHTML = [0, ...item.tiers.map((t) => t.ks)].map((ks) => `<option value="${ks}">${KS_LABELS[ks]}</option>`).join('')
+            form.assetid.innerHTML = item.copies.map((c) => `<option value="${esc(c.assetid)}">${esc(c.name)}${c.details.length ? ` (${esc(c.details.join(', '))})` : ''} · #${esc(c.assetid)}</option>`).join('')
+            set_price()
+        }
+        let item_for = ''        // "bp_sku|bot" the form shows, so leaving the name field doesn't reset the tier and price
+        const load_item = async () => {
+            const name = form.bp_sku.value.trim()
+            const wanted = `${name}|${form.bot.value}`
+            if(!name){ item = null; item_for = ''; draw_item(); return }
+            if(wanted == item_for){ return }
+            item_for = wanted
+            const r = await api(`/api/admin/listings/item?bp_sku=${encodeURIComponent(name)}&bot=${encodeURIComponent(form.bot.value)}`)
+            if(!alive || item_for != wanted){ return }
+            item = r.status == 'ok' ? r.item : null
+            if(!item){ item_for = '' }
+            price_touched = false
+            draw_item()
+        }
+        item_search(form.bp_sku, $('#ln-items'))
+        form.bp_sku.addEventListener('change', load_item)
+        form.bot.addEventListener('change', load_item)
+        form.ks.addEventListener('change', set_price)
+        form.assetid.addEventListener('change', set_price)
+        root.querySelectorAll('#ln-form input[name="keys"], #ln-form input[name="metal"]').forEach((el) => el.addEventListener('input', () => { price_touched = true }))
+        $('#ln-intent').addEventListener('click', (e) => {
+            const value = e.target.closest('[data-intent]')?.dataset.intent
+            if(!value || value == intent){ return }
+            intent = value
+            price_touched = false
+            draw_item()
+        })
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            if(!item){ await load_item() }
+            if(!item){ iziToast.warning({ title: 'Pick the item from the list', message: '' }); return }
+            const button = form.querySelector('button[type="submit"]')
+            button.disabled = true
+            const r = await api('/api/admin/listings/create', {
+                bot: form.bot.value, intent, bp_sku: item.bp_sku, ks: Number(form.ks.value) || 0, assetid: form.assetid.value,
+                price: { keys: Number(form.keys.value) || 0, metal: Number(form.metal.value) || 0 }, details: form.details.value
+            })
+            button.disabled = false
+            if(r.status == 'ok'){
+                iziToast[r.result == 'listed' ? 'success' : 'info']({ title: r.result == 'listed' ? 'Listed' : 'Saved', message: esc(r.message) })
+                form.bp_sku.value = ''; form.details.value = ''; item = null; item_for = ''; draw_item()
+                draw_list()
+            } else { toast(r) }
+        })
+        draw_item()
+
+        /* ---- all listings ---- */
+        const filters_form = $('#ll-filters')
+        const view = { side: '', page: 0 }
+        let rows = []
+        let list_id = 0
+
+        const report_line = (rep) => {
+            const shown = rep.time ? `Showing what it sent ${ago(rep.time)}, and the listings made by hand.` : 'Showing the listings made by hand.'
+            if(rep.offline){ return `${pill(false, '', 'Bot server offline')} ${shown}` }
+            if(rep.error){ return `${pill(false, '', 'No listings from the bot server')} ${esc(rep.error)}${rep.time ? '' : ' It needs the update in <code>docs/LISTINGS.md</code>.'} ${shown}` }
+            return rep.time ? `From the bot server, ${ago(rep.time)}.` : 'Asking the bot server…'
+        }
+        const status_cell = (r) => {
+            if(r.source == 'auto'){ return '<span class="muted nowrap">Bots</span>' }
+            const [kind, label] = LS_STATUS[r.status] || LS_STATUS.pending
+            return `<span class="muted nowrap">By hand</span><span class="admin-ls-state ${kind}"${r.error ? ` title="${esc(r.error)}"` : ''}>${esc(label)}${r.error ? `: ${esc(r.error)}` : ''}</span>`
+        }
+        const draw_list = async (force = false) => {
+            const id = ++list_id
+            const body = $('#ll-body')
+            const params = new URLSearchParams({ side: view.side, bot: filters_form.bot.value, source: filters_form.source.value, q: filters_form.q.value.trim(), page: view.page })
+            if(force){ params.set('refresh', '1') }
+            const res = await api(`/api/admin/listings?${params}`)
+            if(!alive || id != list_id){ return }
+            if(res.status != 'ok'){ body.innerHTML = `<p class="admin-error">${esc(res.message)}</p>`; return }
+            bots = res.bots
+            fill_bots()
+            $('#ll-report').innerHTML = report_line(res.report)
+            root.querySelectorAll('#ll-side button').forEach((b) => {
+                b.setAttribute('aria-checked', b.dataset.side == view.side)
+                b.querySelector('span').textContent = num(res.counts[b.dataset.side || 'all'])
+            })
+            rows = res.listings
+            if(res.total == 0){ body.innerHTML = '<p class="admin-empty">No listings here.</p>'; return }
+            const from = res.page * res.per_page
+            body.innerHTML = `<div class="admin-table-wrap"><table class="admin-table admin-ll-table">
+                    <thead><tr><th>Item</th><th>Side</th><th>Bot</th><th>Price</th><th class="nowrap">Made by</th><th>Listed</th><th></th></tr></thead>
+                    <tbody>${rows.map((r, i) => `<tr data-i="${i}">
+                        <td><span class="admin-stock-item"><img class="q-${esc(r.qualityID)}" src="${esc(r.image || '/img/new_user.jpg')}" alt="" loading="lazy">
+                            <span>${r.item ? `<a href="/items/${encodeURIComponent(r.item)}" target="_blank" translate="no">${esc(r.name)}</a>` : `<span translate="no">${esc(r.name)}</span>`}
+                            <span class="muted small">${esc(QUALITY_NAMES[r.qualityID] || '')}${r.assetid ? ` · #${esc(r.assetid)}` : ''}${r.details ? ` · <span title="${esc(r.details)}">“${esc(r.details.length > 60 ? r.details.slice(0, 57) + '…' : r.details)}”</span>` : ''}</span></span></span></td>
+                        <td><span class="admin-ls-side ${r.intent}">${r.intent == 'buy' ? 'Buy' : 'Sell'}</span></td>
+                        <td class="nowrap">${esc(r.bot_name || r.bot)}</td>
+                        <td class="nowrap">${esc(price_text(r.price))}</td>
+                        <td><span class="admin-ls-source">${status_cell(r)}</span></td>
+                        <td class="nowrap">${r.created ? ago(r.created) : '–'}</td>
+                        <td><span class="admin-ll-actions"><button type="button" data-remove>Take down</button>${r.source == 'auto' ? '<button type="button" data-never title="Take it down and add the item to Never list">Never list</button>' : ''}</span></td>
+                    </tr>`).join('')}</tbody>
+                </table></div>
+                ${res.total > res.per_page ? `<div class="admin-pager">
+                    <button type="button" data-page="${res.page - 1}" ${res.page == 0 ? 'disabled' : ''}>Previous</button>
+                    <span class="muted">${num(from + 1)}–${num(Math.min(from + res.per_page, res.total))} of ${num(res.total)}</span>
+                    <button type="button" data-page="${res.page + 1}" ${from + res.per_page >= res.total ? 'disabled' : ''}>Next</button>
+                </div>` : ''}`
+        }
+
+        $('#ll-body').addEventListener('click', async (e) => {
+            const pager = e.target.closest('[data-page]')
+            if(pager){ view.page = Number(pager.dataset.page); draw_list(); return }
+            const r = rows[Number(e.target.closest('tr[data-i]')?.dataset.i)]
+            const never = e.target.closest('[data-never]')
+            if(!r || !(never || e.target.closest('[data-remove]'))){ return }
+            const what = `the ${r.intent} listing for ${r.name}${r.bot_name ? ` on ${r.bot_name}` : ''}`
+            if(!confirm(never ? `Take down ${what} and never list ${r.item || r.name} again?` : r.source == 'manual' ? `Take down ${what}? It is deleted.` : `Take down ${what}? The bot lists it again at its next refresh unless the rules or Never list stop it.`)){ return }
+            const res = await api('/api/admin/listings/remove', r.source == 'manual' ? { manual_id: r.manual_id } : { id: r.id, bot: r.bot, bp_sku: r.item || r.name, never: !!never })
+            if(toast(res, esc(res.message))){ draw_list() }
+        })
+        $('#ll-side').addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-side]')
+            if(btn){ view.side = btn.dataset.side; view.page = 0; draw_list() }
+        })
+        let q_timer
+        filters_form.addEventListener('input', (e) => {
+            clearTimeout(q_timer)
+            q_timer = setTimeout(() => { view.page = 0; draw_list() }, e.target.name == 'q' ? 300 : 0)
+        })
+        filters_form.addEventListener('submit', (e) => e.preventDefault())
+        $('#ll-refresh').addEventListener('click', () => draw_list(true))
+
+        /* ---- start ---- */
+        const on_live = (type, event) => {
+            if(type != 'changed' && type != 'init'){ return }
+            if(type == 'changed' && !event?.changed?.includes('listings')){ return }
+            fill_never()
+            if(!cells){ return }
+            if(rules_card.classList.contains('is-dirty')){ rules_card.classList.add('is-stale'); return } // keep what the admin is ticking
+            fill_rules()
+        }
+        live.listeners.add(on_live)
+        fill_never()
+        const opts = await api('/api/admin/listings/options')
+        if(!alive){ return }
+        if(opts.status == 'ok'){ cells = opts.cells; build_grid(); fill_rules() }
+        else { $('#lr-grid').innerHTML = `<p class="admin-error">${esc(opts.message)}</p>` }
+        draw_list()
+        const timer = setInterval(() => { if(!document.hidden){ draw_list() } }, 60000)
+        return () => { alive = false; live.listeners.delete(on_live); clearInterval(timer) }
+    }
+
     /* ========================= USERS ========================= */
 
     const ROLES = [[0, 'Banned'], [1, 'User'], [2, 'Premium'], [3, 'Admin']]
@@ -1225,7 +1671,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
 
     /* ========================= ROUTER ========================= */
 
-    const sections = { overview, settings: settings_section, stock: stock_section, users, ratings, trades: trade_records, notifications: notifications_section, tickets: (root) => tickets(root), blog, giveaways }
+    const sections = { overview, settings: settings_section, stock: stock_section, listings: listings_section, users, ratings, trades: trade_records, notifications: notifications_section, tickets: (root) => tickets(root), blog, giveaways }
     let route_id = 0
     let cleanup = null
 

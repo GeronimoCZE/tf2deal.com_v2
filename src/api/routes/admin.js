@@ -17,6 +17,7 @@ import * as settings from '../../service/settings.js';
 import * as season from '../../service/season.js';
 import * as notifications from '../../service/notifications.js';
 import * as stock_limits from '../../service/stock_limits.js';
+import * as listings from '../../service/listings.js';
 import * as latest_trades from '../../service/latest_trades.js';
 import { notification_model } from '../../model/Notification.js';
 import { clients as settings_clients } from '../../service/settings_socket.js';
@@ -375,6 +376,37 @@ router.post('/stock/items', db_ready, async (req, res) => {
 router.post('/stock/apply', db_ready, async (req, res) => {
   const limit = (req.body?.limit === null) ? null : Number(req.body?.limit);
   const result = await stock_limits.apply({ filters: req.body?.filters, target: req.body?.target, limit }, `admin ${req.user?.steamid || ''}`.trim());
+  res.status(result.status == 'ok' ? 200 : 400).json(result);
+});
+
+/* ========================= LISTINGS (service/listings.js) ========================= */
+// The rules themselves are the live setting `listings` (POST /settings).
+
+router.get('/listings/options', db_ready, async (req, res) => {
+  res.json(await listings.options());
+});
+
+// ?side=buy|sell&bot=<steamid>&source=auto|manual&q=<name>&page=0&refresh=1
+router.get('/listings', async (req, res) => {
+  res.json(await listings.list({
+    side: text(req.query.side, 4), bot: text(req.query.bot, 20), source: text(req.query.source, 6), q: text(req.query.q, 100),
+    page: Number(req.query.page) || 0, refresh: req.query.refresh == '1'
+  }));
+});
+
+router.get('/listings/item', db_ready, async (req, res) => {
+  const result = await listings.item_info(req.query.bp_sku, text(req.query.bot, 20));
+  res.status(result.status == 'ok' ? 200 : 404).json(result);
+});
+
+router.post('/listings/create', db_ready, async (req, res) => {
+  const result = await listings.create(req.body, `admin ${req.user?.steamid || ''}`.trim());
+  res.status(result.status == 'ok' ? 200 : 400).json(result);
+});
+
+// { manual_id } for a listing made by hand, or { id, bot, never: true|false } for one the bots made
+router.post('/listings/remove', async (req, res) => {
+  const result = await listings.remove(req.body, `admin ${req.user?.steamid || ''}`.trim());
   res.status(result.status == 'ok' ? 200 : 400).json(result);
 });
 

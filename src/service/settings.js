@@ -2,6 +2,7 @@
 //
 //   get()               every setting (admin panel, other apps)
 //   public_view()       what the browser may see: trading on/off, the announcement banner, the rating box settings
+//   may_list(item, side) whether the bots may list an item on backpack.tf ('buy' or 'sell'), from the listings setting
 //   update(patch, by)   checks the patch, saves it, then announces 'settings:changed' on localEmitter
 //                       (service/socket.js sends it to the /settings socket and to every visitor)
 //
@@ -17,6 +18,7 @@ const INDEX = () => String(process.env.STEAM_GROUP_ID || '0')
 const LEVELS = ['info', 'warning', 'danger']
 const SEASON_CHOICES = ['auto', 'off', 'summer', 'halloween', 'smissmas'] // see service/season.js
 const MAX_BLACKLIST = 2000
+const MAX_LISTING_RULES = 500
 const MAX_EXTRA_BYTES = 16 * 1024
 
 const DEFAULTS = {
@@ -27,6 +29,11 @@ const DEFAULTS = {
   announcement: { enabled: false, text: '', level: 'info' },
   reviews: { enabled: true, trustpilot_url: 'https://www.trustpilot.com/review/tf2deal.com' },
   season: 'auto',
+  // What the bots list on backpack.tf (the bot server applies it; admin panel -> Listings):
+  //   enabled: only items that match one of the rules are listed; rules: [{ quality: '6', type: 'cosmetic' }], where
+  //   quality '' = any quality and type 'group:weapon' = every type starting with "weapon"; buy / sell: which listings
+  //   the rules limit; exclude: items never listed (by bp_sku), whether the rules are on or not.
+  listings: { enabled: false, rules: [], buy: true, sell: true, exclude: [] },
   extra: {}
 }
 
@@ -35,6 +42,17 @@ let loaded = false
 let queue = Promise.resolve() // updates run one after another, so two apps can't overwrite each other
 
 const is_object = (v) => v != null && typeof v == 'object' && !Array.isArray(v)
+
+const normalize_listings = (l) => {
+  const v = is_object(l) ? l : {}
+  return {
+    enabled: v.enabled === true,
+    rules: Array.isArray(v.rules) ? v.rules.filter(is_object).map((r) => ({ quality: String(r.quality ?? ''), type: String(r.type ?? '') })) : [],
+    buy: v.buy !== false,
+    sell: v.sell !== false,
+    exclude: Array.isArray(v.exclude) ? v.exclude.filter((s) => typeof s == 'string') : []
+  }
+}
 
 // a document from the DB -> the shape everyone else sees
 const normalize = (doc = {}) => {
@@ -54,6 +72,7 @@ const normalize = (doc = {}) => {
       trustpilot_url: is_object(doc.reviews) && typeof doc.reviews.trustpilot_url == 'string' ? doc.reviews.trustpilot_url : DEFAULTS.reviews.trustpilot_url
     },
     season: SEASON_CHOICES.includes(doc.season) ? doc.season : 'auto',
+    listings: normalize_listings(doc.listings),
     extra: is_object(doc.extra) ? doc.extra : {},
     version: Number(doc.version) || 0,
     updated: Number(doc.updated) || 0,
@@ -80,6 +99,23 @@ export const is_blacklisted = (bp_sku) => {
   if(!current.item_blacklist.length){ return false }
   const key = blacklist_key(bp_sku)
   return current.item_blacklist.some((name) => blacklist_key(name) === key)
+}
+
+// "weapon primary" matches the rule types "weapon primary" and "group:weapon" (any case); '' matches every type
+export const type_matches = (rule_type, type) => {
+  if(!rule_type){ return true }
+  const t = String(type || '').trim().toLowerCase()
+  const r = String(rule_type).trim().toLowerCase()
+  if(r.startsWith('group:')){ const group = r.slice(6); return t == group || t.startsWith(group + ' ') }
+  return t == r
+}
+
+// May the bots list this item (an item_instances document: bp_sku, qualityID, type) on the buy or sell side?
+// Listings made by hand in the admin panel don't go through this. Same rule as in docs/LISTINGS.md.
+export const may_list = (item, side, l = current.listings) => {
+  if(l.exclude.length && l.exclude.some((name) => blacklist_key(name) === blacklist_key(item?.bp_sku))){ return false }
+  if(!l.enabled || !l[side]){ return true }
+  return l.rules.some((r) => (!r.quality || r.quality === String(item?.qualityID ?? '')) && type_matches(r.type, item?.type))
 }
 
 // Reads the settings from the DB (creates the document the first time). Called once the DB is connected.
@@ -123,6 +159,53 @@ const dedupe = (list) => {
   return list.filter((name) => { const k = blacklist_key(name); if(seen.has(k)){ return false } seen.add(k); return true })
 }
 
+// { enabled, rules, buy, sell, exclude }: only the fields sent change; rules is always the whole list,
+// exclude is a whole list or { add: [...], remove: [...] } like item_blacklist.
+const check_listings = (v, next, errors) => {
+  if(!is_object(v)){ errors.push('listings must be an object, e.g. { "enabled": true, "rules": [{ "quality": "6", "type": "cosmetic" }] }.'); return }
+  const unknown = Object.keys(v).filter((k) => !['enabled', 'rules', 'buy', 'sell', 'exclude'].includes(k))
+  if(unknown.length){ errors.push(`Unknown listings field: ${unknown.join(', ')}.`) }
+  const l = next.listings
+
+  for (const key of ['enabled', 'buy', 'sell']) {
+    if(!(key in v)){ continue }
+    if(typeof v[key] != 'boolean'){ errors.push(`listings.${key} must be true or false.`) } else { l[key] = v[key] }
+  }
+
+  if('rules' in v){
+    if(!Array.isArray(v.rules)){ errors.push('listings.rules must be a list of { "quality": "6", "type": "cosmetic" }.') }
+    else {
+      const seen = new Set()
+      const rules = []
+      for (const r of v.rules) {
+        const quality = is_object(r) ? String(r.quality ?? '').trim() : null
+        const type = is_object(r) && typeof (r.type ?? '') == 'string' ? String(r.type ?? '').trim() : null
+        if(quality === null || !/^(\d{1,3})?$/.test(quality)){ errors.push('listings.rules: quality must be a quality number like "6", or "" for any quality.'); break }
+        if(type === null || type.length > 80 || type == 'group:'){ errors.push('listings.rules: type must be an item type like "cosmetic", "group:weapon", or "" for any type.'); break }
+        if(!quality && !type){ errors.push('listings.rules: a rule needs a quality, a type or both.'); break }
+        const key = `${quality}|${type.toLowerCase()}`
+        if(!seen.has(key)){ seen.add(key); rules.push({ quality, type }) }
+      }
+      if(rules.length > MAX_LISTING_RULES){ errors.push(`listings.rules can hold up to ${MAX_LISTING_RULES} rules.`) }
+      l.rules = rules
+    }
+  }
+
+  if('exclude' in v){
+    const e = v.exclude
+    if(Array.isArray(e)){ l.exclude = dedupe(item_names(e, 'listings.exclude', errors)) }
+    else if(is_object(e) && ('add' in e || 'remove' in e)){
+      const add = 'add' in e ? item_names(e.add, 'listings.exclude.add', errors) : []
+      const remove = new Set(('remove' in e ? item_names(e.remove, 'listings.exclude.remove', errors) : []).map(blacklist_key))
+      l.exclude = dedupe([...l.exclude, ...add]).filter((name) => !remove.has(blacklist_key(name)))
+    } else { errors.push('listings.exclude must be a list of item names, or { "add": [...], "remove": [...] }.') }
+    if(l.exclude.length > MAX_BLACKLIST){ errors.push(`listings.exclude can hold up to ${MAX_BLACKLIST} items.`) }
+  }
+
+  if(l.enabled && l.rules.length == 0){ errors.push('Pick at least one type and quality to list, or turn the listing rules off.') }
+  if(l.enabled && !l.buy && !l.sell){ errors.push('Pick which listings the rules limit: buy, sell or both.') }
+}
+
 // Returns { value, errors }: value is the complete new settings object (current + patch).
 export const check = (patch, base = current) => {
   const errors = []
@@ -130,7 +213,7 @@ export const check = (patch, base = current) => {
 
   if(!is_object(patch)){ return { value: null, errors: ['The update must be an object, e.g. { "trading_state": 0 }.'] } }
 
-  const allowed = ['trading_state', 'min_item_key', 'max_item_key', 'item_blacklist', 'announcement', 'reviews', 'season', 'extra']
+  const allowed = ['trading_state', 'min_item_key', 'max_item_key', 'item_blacklist', 'announcement', 'reviews', 'season', 'listings', 'extra']
   const unknown = Object.keys(patch).filter((k) => !allowed.includes(k))
   if(unknown.length){ errors.push(`Unknown setting${unknown.length > 1 ? 's' : ''}: ${unknown.join(', ')}. Put your own values under "extra".`) }
 
@@ -207,6 +290,8 @@ export const check = (patch, base = current) => {
     else { errors.push(`season must be one of: ${SEASON_CHOICES.join(', ')}.`) }
   }
 
+  if('listings' in patch){ check_listings(patch.listings, next, errors) }
+
   if('extra' in patch){
     const v = patch.extra
     if(!is_object(v)){
@@ -225,7 +310,7 @@ export const check = (patch, base = current) => {
   return { value: errors.length ? null : next, errors }
 }
 
-const changed_keys = (a, b) => ['trading_state', 'min_item_key', 'max_item_key', 'item_blacklist', 'announcement', 'reviews', 'season', 'extra']
+const changed_keys = (a, b) => ['trading_state', 'min_item_key', 'max_item_key', 'item_blacklist', 'announcement', 'reviews', 'season', 'listings', 'extra']
   .filter((k) => JSON.stringify(a[k]) !== JSON.stringify(b[k]))
 
 /* ========================= SAVING ========================= */
