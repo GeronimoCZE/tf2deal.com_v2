@@ -66,6 +66,7 @@ A patch that changes nothing returns `changed: []` and is not broadcast.
   "announcement": { "enabled": false, "text": "", "level": "info" },
   "reviews": { "enabled": true, "trustpilot_url": "https://www.trustpilot.com/review/tf2deal.com" },
   "season": "auto",
+  "listings": { "enabled": false, "rules": [{ "quality": "6", "type": "cosmetic" }], "buy": true, "sell": true, "exclude": [] },
   "extra": {},
   "version": 12,
   "updated": 1791113400000,
@@ -81,6 +82,7 @@ A patch that changes nothing returns `changed: []` and is not broadcast.
 | `announcement` | any of `{ enabled, text (≤300), level: "info" \| "warning" \| "danger" }` | banner under the menu on every page, updated live |
 | `reviews` | any of `{ enabled, trustpilot_url }` (an `https://` link, or `""`) | the star rating after an accepted trade; 4 and 5 stars get a button to `trustpilot_url` |
 | `season` | `"auto"`, `"off"`, `"summer"`, `"halloween"` or `"smissmas"` | seasonal look; `auto` follows the TF2 events (dates from teamfortress.com, usual dates as a fallback) |
+| `listings` | any of `{ enabled, rules, buy, sell, exclude }`; `rules` is always the whole list, `exclude` a whole list or `{ "add": [...], "remove": [...] }` | stored and shared; what the bots list on backpack.tf. The bot server applies it, see `docs/LISTINGS.md` |
 | `extra` | `{ "key": value }`; `null` removes a key | your own values (≤16 KB), the website ignores them |
 
 `version`, `updated`, `updated_by` are set by the server. Unknown fields are refused, so typos don't go unnoticed.

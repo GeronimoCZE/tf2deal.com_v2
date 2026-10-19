@@ -32,6 +32,10 @@ const Setting = mongoose.Schema({
         type: String,
         default: 'auto'
     }, // seasonal look: auto (TF2 events), off, summer, halloween or smissmas
+    listings: {
+        type: Object,
+        default: { enabled: false, rules: [], buy: true, sell: true, exclude: [] }
+    }, // what the bots list on backpack.tf: only these types / qualities, items never listed (see service/settings.js)
     extra: {
         type: Object,
         default: {}
