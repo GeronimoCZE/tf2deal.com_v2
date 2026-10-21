@@ -1,4 +1,4 @@
-/* Admin panel: Overview, Live settings, Stock limits, Listings, Users, Ratings, Trade records, Notifications, Tickets, Blog, Giveaways (talk to /api/admin/*).
+/* Admin panel: Overview, Inventory value, Live settings, Stock limits, Listings, Users, Ratings, Trade records, Notifications, Tickets, Blog, Giveaways (talk to /api/admin/*).
    Live settings also listen on the /settings socket, so changes made by other apps show up right away. */
 (() => {
     const esc = (text) => String(text ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -490,6 +490,254 @@
         const on_live = (type) => { if(type == 'changed' || type == 'init'){ draw() } }
         live.listeners.add(on_live)
         return () => { clearInterval(timer); live.listeners.delete(on_live) }
+    }
+
+    /* ========================= INVENTORY VALUE ========================= */
+
+    // What the bots hold (item copies at their current prices + keys + metal), measured every 15 minutes by
+    // service/inventory_value.js, and how much it grew over a period: the profit.
+    const IV_DAY = 24 * 60 * 60 * 1000
+    const IV_PERIODS = [['1d', '1 day'], ['7d', '7 days'], ['1m', '1 month'], ['1y', '1 year'], ['custom', 'Custom']]
+    const iv_state = { period: '7d', basis: 'sell', from: '', to: '' }
+
+    const iv_round = (n) => Math.round((Number(n) || 0) * 100) / 100
+    // 1272.11 ref with a key at 60 -> "21 keys 12.11 ref"; negative values keep their sign in front
+    const iv_money = (ref, key, signed = false) => {
+        const sign = ref < 0 ? '−' : (signed && ref > 0 ? '+' : '')
+        let rest = Math.abs(iv_round(ref))
+        const keys = key > 0 ? Math.floor(rest / key) : 0
+        rest = iv_round(rest - keys * key)
+        const parts = []
+        // a number and its unit stay on one line
+        if(keys){ parts.push(`${keys.toLocaleString()}\u00a0${keys == 1 ? 'key' : 'keys'}`) }
+        if(rest || !keys){ parts.push(`${rest.toLocaleString(undefined, { maximumFractionDigits: 2 })}\u00a0ref`) }
+        return sign + parts.join(' ')
+    }
+    const iv_ref = (ref) => `${iv_round(ref).toLocaleString(undefined, { maximumFractionDigits: 2 })} ref`
+    const iv_range = () => {
+        const now = Date.now()
+        if(iv_state.period == 'custom'){
+            const from = Date.parse(iv_state.from + 'T00:00:00')
+            const to = Date.parse(iv_state.to + 'T23:59:59')
+            return { from: Number.isFinite(from) ? from : now - 7 * IV_DAY, to: Number.isFinite(to) ? Math.min(to, now) : now }
+        }
+        const d = new Date(now)
+        if(iv_state.period == '1m'){ d.setMonth(d.getMonth() - 1); return { from: d.getTime(), to: now } }
+        if(iv_state.period == '1y'){ d.setFullYear(d.getFullYear() - 1); return { from: d.getTime(), to: now } }
+        return { from: now - (iv_state.period == '1d' ? 1 : 7) * IV_DAY, to: now }
+    }
+    const iv_date = (ms, span) => new Date(ms).toLocaleString(undefined, span <= 2 * IV_DAY ? { hour: '2-digit', minute: '2-digit' } : span <= 120 * IV_DAY ? { day: 'numeric', month: 'short' } : { month: 'short', year: '2-digit' })
+
+    // the value line: one series, so no legend; the crosshair shows every number of the nearest measurement
+    const iv_chart = (box, tip, points, basis, key_now) => {
+        const NS = 'http://www.w3.org/2000/svg'
+        const el = (name, attrs) => { const e = document.createElementNS(NS, name); for(const [k, v] of Object.entries(attrs)){ e.setAttribute(k, v) } return e }
+        box.textContent = ''
+        if(points.length < 2){ box.innerHTML = '<p class="admin-empty">Not enough measurements in this period to draw a line yet.</p>'; return }
+        const W = Math.max(300, box.clientWidth), H = 260, L = 64, R = 14, T = 14, B = 30
+        const vals = points.map((p) => p[basis])
+        let lo = Math.min(...vals), hi = Math.max(...vals)
+        const pad = Math.max((hi - lo) * 0.12, hi * 0.005, 1)
+        lo = Math.max(0, lo - pad); hi = hi + pad
+        const t0 = points[0].t, t1 = points[points.length - 1].t, span = Math.max(1, t1 - t0)
+        const x = (t) => L + (t - t0) / span * (W - L - R)
+        const y = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B)
+        const in_keys = key_now > 0 && hi >= key_now * 2
+        const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: 'img', 'aria-label': `Inventory value from ${iv_date(t0, span)} to ${iv_date(t1, span)}` })
+
+        // y grid: about 4 clean steps
+        const raw = (hi - lo) / 4, mag = Math.pow(10, Math.floor(Math.log10(raw))), stepv = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw)
+        for(let v = Math.ceil(lo / stepv) * stepv; v <= hi; v += stepv){
+            svg.append(el('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'iv-grid' }))
+            const label = el('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'iv-axis' })
+            label.textContent = in_keys ? `${(v / key_now).toLocaleString(undefined, { maximumFractionDigits: v / key_now >= 100 ? 0 : 1 })} keys` : `${Math.round(v).toLocaleString()} ref`
+            svg.append(label)
+        }
+        // x labels: 5 evenly spaced (3 on a phone)
+        const xn = W < 520 ? 2 : 4
+        for(let i = 0; i <= xn; i++){
+            const t = t0 + span * i / xn
+            const label = el('text', { x: x(t), y: H - 8, 'text-anchor': i == 0 ? 'start' : i == xn ? 'end' : 'middle', class: 'iv-axis' })
+            label.textContent = iv_date(t, span)
+            svg.append(label)
+        }
+        // the line breaks where measurements are missing (site or bot server down)
+        const gap = Math.max(3 * 15 * 60 * 1000, span / 400 * 3)
+        let line = '', area = '', run = []
+        const close = () => {
+            if(run.length > 1){ area += `M${x(run[0].t)},${y(lo)} ` + run.map((p) => `L${x(p.t)},${y(p[basis])}`).join(' ') + ` L${x(run[run.length - 1].t)},${y(lo)} Z ` }
+            run = []
+        }
+        points.forEach((p, i) => {
+            const fresh = i == 0 || p.t - points[i - 1].t > gap
+            if(fresh){ close() }
+            line += `${fresh ? 'M' : 'L'}${x(p.t)},${y(p[basis])} `
+            run.push(p)
+        })
+        close()
+        svg.append(el('path', { d: area, class: 'iv-area' }), el('path', { d: line, class: 'iv-line' }))
+        const last = points[points.length - 1]
+        svg.append(el('circle', { cx: x(last.t), cy: y(last[basis]), r: 4, class: 'iv-dot' }))
+        const hair = el('line', { y1: T, y2: H - B, class: 'iv-hair', visibility: 'hidden' })
+        const dot = el('circle', { r: 4, class: 'iv-dot', visibility: 'hidden' })
+        svg.append(hair, dot)
+        box.append(svg)
+
+        const show = (i) => {
+            const p = points[i]
+            hair.setAttribute('x1', x(p.t)); hair.setAttribute('x2', x(p.t)); hair.setAttribute('visibility', 'visible')
+            dot.setAttribute('cx', x(p.t)); dot.setAttribute('cy', y(p[basis])); dot.setAttribute('visibility', 'visible')
+            tip.innerHTML = ''
+            const strong = document.createElement('strong'); strong.textContent = iv_money(p[basis], p.key_price)
+            const rows = [`Items ${iv_ref(p.items?.[basis])} (${num(p.items?.count)} copies)`, `Keys ${num(p.keys)} at ${iv_ref(p.key_price)}`, `Metal ${iv_ref(p.metal)}`, new Date(p.t).toLocaleString()]
+            tip.append(strong, ...rows.map((text) => { const s = document.createElement('span'); s.textContent = text; return s }))
+            tip.hidden = false
+            const left = Math.min(Math.max(x(p.t) + 12, 0), W - tip.offsetWidth - 4)
+            tip.style.left = `${x(p.t) > W - tip.offsetWidth - 20 ? x(p.t) - tip.offsetWidth - 12 : left}px`
+            tip.style.top = `${Math.max(0, y(p[basis]) - tip.offsetHeight - 10)}px`
+        }
+        const hide = () => { hair.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); tip.hidden = true }
+        const nearest = (px) => {
+            const t = t0 + (px - L) / (W - L - R) * span
+            let best = 0
+            points.forEach((p, i) => { if(Math.abs(p.t - t) < Math.abs(points[best].t - t)){ best = i } })
+            return best
+        }
+        let current = points.length - 1
+        svg.addEventListener('pointermove', (e) => { const r = svg.getBoundingClientRect(); current = nearest((e.clientX - r.left) * W / r.width); show(current) })
+        svg.addEventListener('pointerleave', hide)
+        box.tabIndex = 0
+        box.onkeydown = (e) => {
+            if(e.key == 'ArrowLeft' || e.key == 'ArrowRight'){ e.preventDefault(); current = Math.min(points.length - 1, Math.max(0, current + (e.key == 'ArrowLeft' ? -1 : 1))); show(current) }
+            if(e.key == 'Escape'){ hide() }
+        }
+        box.onfocus = () => show(current)
+        box.onblur = hide
+    }
+
+    const inventory_value = async (root) => {
+        root.innerHTML = head('Inventory value', 'Everything the bots hold: item copies at their current prices plus keys and metal, measured every 15 minutes. Profit is how much that grew over the period.', '<button id="iv-measure">Measure now</button>') +
+            `<div class="iv-filters">
+                <div class="admin-segment" role="radiogroup" aria-label="Period" id="iv-period">${IV_PERIODS.map(([v, t]) => `<button type="button" role="radio" data-period="${v}">${t}</button>`).join('')}</div>
+                <div class="iv-custom" id="iv-custom" hidden>
+                    <label>From <input type="date" id="iv-from"></label>
+                    <label>To <input type="date" id="iv-to"></label>
+                </div>
+                <div class="admin-segment" role="radiogroup" aria-label="Value the items at" id="iv-basis">
+                    <button type="button" role="radio" data-basis="sell" title="What the site sells each copy for">Sell prices</button>
+                    <button type="button" role="radio" data-basis="buy" title="What the bots pay for each copy">Buy prices</button>
+                </div>
+            </div>
+            <div id="iv-body"><div class="admin-loading"><span class="admin-spinner"></span> Loading…</div></div>`
+
+        const today = new Date(), week = new Date(Date.now() - 7 * IV_DAY)
+        const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+        if(!iv_state.from){ iv_state.from = ymd(week); iv_state.to = ymd(today) }
+        root.querySelector('#iv-from').value = iv_state.from
+        root.querySelector('#iv-to').value = iv_state.to
+        root.querySelector('#iv-from').max = root.querySelector('#iv-to').max = ymd(today)
+
+        let data = null
+        const paint = () => {
+            root.querySelectorAll('#iv-period button').forEach((b) => b.setAttribute('aria-checked', b.dataset.period == iv_state.period))
+            root.querySelectorAll('#iv-basis button').forEach((b) => b.setAttribute('aria-checked', b.dataset.basis == iv_state.basis))
+            root.querySelector('#iv-custom').hidden = iv_state.period != 'custom'
+            const box = root.querySelector('#iv-body')
+            if(!data){ return }
+            if(data.status != 'ok'){ box.innerHTML = `<p class="admin-error">${esc(data.message)}</p>`; return }
+            const b = iv_state.basis
+            const st = data.state || {}
+            const status_line = `<p class="muted small iv-status">Last measured ${esc(ago(st.last))}${st.error ? ` · <span class="iv-error">Last try failed: ${esc(st.error)} (${esc(ago(st.error_at))})</span>` : ''}</p>`
+            if(!data.end){
+                box.innerHTML = `<div class="admin-card"><p class="admin-empty">${data.first_ever ? 'No measurements in this period. The first one is from ' + esc(when(data.first_ever)) + '.' : 'No measurements yet. The first one is taken within 15 minutes of the site starting, or now with Measure now.'}</p></div>${status_line}`
+                return
+            }
+            const s = data.start, e = data.end
+            const key = e.key_price
+            const change = e[b] - s[b]
+            const pct = s[b] > 0 ? change / s[b] * 100 : 0
+            const dir = change > 0.005 ? 'up' : change < -0.005 ? 'down' : 'flat'
+            const arrow = { up: '▲', down: '▼', flat: '■' }[dir]
+            const period_name = iv_state.period == 'custom' ? 'this period' : `the last ${IV_PERIODS.find(([v]) => v == iv_state.period)[1]}`
+            const partial = data.first_ever && data.first_ever > data.from + 30 * 60 * 1000
+            const d_items = e.items[b] - s.items[b], d_keys = e.keys - s.keys, d_metal = e.metal - s.metal
+            const bots = Object.entries(data.bots || {}).sort((x, y) => y[1][b] - x[1][b])
+            const total_count = bots.reduce((n, [, v]) => n + v.count, 0)
+
+            box.innerHTML = `<div class="iv-kpis">
+                    <div class="iv-hero ${dir}">
+                        <span class="label">Profit, ${esc(period_name)}</span>
+                        <strong>${iv_money(change, key, true)}</strong>
+                        <span class="sub"><b>${arrow} ${Math.abs(pct).toFixed(1)}%</b> · ${iv_ref(s[b])} → ${iv_ref(e[b])}${data.trades != null ? ` · ${num(data.trades)} trade${data.trades == 1 ? '' : 's'}` : ''}</span>
+                        ${partial ? `<span class="sub">Measured since ${esc(when(data.first_ever))}, so this covers less than the whole period.</span>` : ''}
+                    </div>
+                    ${stat('Worth now', iv_money(e[b], key), iv_ref(e[b]))}
+                    ${stat('Items', iv_money(e.items[b], key), `${num(e.items.count)} copies · ${iv_money(d_items, key, true)}`)}
+                    ${stat('Keys', num(e.keys), `${d_keys > 0 ? '+' : d_keys < 0 ? '−' : ''}${Math.abs(num(d_keys))} · 1 key = ${iv_ref(key)}`)}
+                    ${stat('Metal', iv_ref(e.metal), `${d_metal > 0 ? '+' : d_metal < 0 ? '−' : ''}${iv_ref(Math.abs(d_metal))}`)}
+                </div>
+                <div class="admin-card iv-chart-card">
+                    <h3>Worth over time <span class="muted">(items at ${b == 'sell' ? 'sell' : 'buy'} prices + keys + metal)</span></h3>
+                    <div class="iv-chart-wrap"><div class="iv-chart" id="iv-chart" aria-describedby="iv-help"></div><div class="iv-tip" id="iv-tip" hidden></div></div>
+                    <p class="muted small" id="iv-help">Point at the line (or focus it and use the arrow keys) to see each measurement.</p>
+                    <details class="iv-table"><summary>Show as a table</summary>
+                        <table><tr><th>Time</th><th>Worth</th><th>Items</th><th>Keys</th><th>Metal</th></tr>
+                        ${[...data.points].reverse().map((p) => `<tr><td>${esc(new Date(p.t).toLocaleString())}</td><td>${iv_ref(p[b])}</td><td>${iv_ref(p.items?.[b])}</td><td>${num(p.keys)}</td><td>${iv_ref(p.metal)}</td></tr>`).join('')}
+                        </table>
+                    </details>
+                </div>
+                <div class="admin-card">
+                    <h3>Items by bot <span class="muted">(${esc(when(e.t))})</span></h3>
+                    ${bots.length ? `<table class="iv-bots"><tr><th>Bot</th><th>Copies</th><th>Worth</th></tr>
+                        ${bots.map(([id, v]) => `<tr><td>${esc(data.bot_names?.[id] || (id == 'unknown' ? 'Bot not recorded' : id))}</td><td>${num(v.count)}</td><td>${iv_money(v[b], key)}</td></tr>`).join('')}
+                        <tr class="iv-sum"><td>All bots</td><td>${num(total_count)}</td><td>${iv_money(e.items[b], key)}</td></tr></table>` : '<p class="admin-empty">The bots hold no items.</p>'}
+                    <p class="muted small">Keys and metal are counted for all bots together (the bot server sends their sum).${data.unpriced ? ` ${num(data.unpriced)} cop${data.unpriced == 1 ? 'y has' : 'ies have'} no price yet and count as 0.` : ''}</p>
+                </div>
+                ${status_line}`
+            iv_chart(box.querySelector('#iv-chart'), box.querySelector('#iv-tip'), data.points, b, key)
+        }
+
+        const load = async () => {
+            const body = root.querySelector('#iv-body')
+            body.classList.add('is-loading')
+            const { from, to } = iv_range()
+            data = await api(`/api/admin/inventory_value?from=${from}&to=${to}`)
+            body.classList.remove('is-loading')
+            paint()
+        }
+
+        root.querySelector('#iv-period').addEventListener('click', (e) => {
+            const v = e.target.closest('[data-period]')?.dataset.period
+            if(!v || v == iv_state.period){ return }
+            iv_state.period = v
+            paint(); load()
+        })
+        root.querySelector('#iv-basis').addEventListener('click', (e) => {
+            const v = e.target.closest('[data-basis]')?.dataset.basis
+            if(!v || v == iv_state.basis){ return }
+            iv_state.basis = v
+            paint() // both values are already loaded
+        })
+        for(const id of ['#iv-from', '#iv-to']){
+            root.querySelector(id).addEventListener('change', () => {
+                iv_state.from = root.querySelector('#iv-from').value
+                iv_state.to = root.querySelector('#iv-to').value
+                if(iv_state.from && iv_state.to && iv_state.from <= iv_state.to){ load() }
+            })
+        }
+        root.querySelector('#iv-measure').addEventListener('click', async (e) => {
+            e.target.disabled = true
+            const res = await api('/api/admin/inventory_value/measure', {})
+            e.target.disabled = false
+            if(toast(res, 'Measured.')){ load() }
+        })
+        let width = root.clientWidth
+        const on_resize = () => { if(root.clientWidth != width){ width = root.clientWidth; paint() } }
+        window.addEventListener('resize', on_resize)
+        paint()
+        await load()
+        const timer = setInterval(() => { if(!document.hidden && iv_state.period != 'custom'){ load() } }, 5 * 60 * 1000)
+        return () => { clearInterval(timer); window.removeEventListener('resize', on_resize) }
     }
 
     /* ========================= SETTINGS ========================= */
@@ -1685,7 +1933,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
 
     /* ========================= ROUTER ========================= */
 
-    const sections = { overview, settings: settings_section, stock: stock_section, listings: listings_section, users, ratings, trades: trade_records, notifications: notifications_section, tickets: (root) => tickets(root), blog, giveaways }
+    const sections = { overview, value: inventory_value, settings: settings_section, stock: stock_section, listings: listings_section, users, ratings, trades: trade_records, notifications: notifications_section, tickets: (root) => tickets(root), blog, giveaways }
     let route_id = 0
     let cleanup = null
 
