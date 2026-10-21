@@ -380,7 +380,8 @@
       "qty_in_trade": "V obchodu: {count}",
       "qty_how_many_add": "Kolik jich chcete přidat?",
       "qty_how_many_remove": "Kolik jich chcete odebrat?",
-      "cancel": "Zrušit"
+      "cancel": "Zrušit",
+      "half_scrap_left": "Předměty za 0.055 ref (půl scrapu) jdou v párech: dva dají jeden scrap. Přidej nebo odeber jeden, aby obchod vyšel na celé scrapy."
     },
     "item": {
       "unusual_effect": "Unusual efekt: {name}",
@@ -733,6 +734,7 @@
     "item_blacklisted": "{name} teď nelze obchodovat.",
     "account_blocked": "Váš účet nemůže vytvářet obchody. Pokud jde podle vás o chybu, otevřete tiket na podpoře.",
     "buy_link_gone": "Tento předmět už není skladem.",
+    "buy_link_half_scrap": "Tento předmět má hodnotu 0.055 ref (půl scrapu), což samotné klíče a kovy nezaplatí. Vyber na stránce předmětu dva kusy.",
     "buy_link_pick": "Nejdřív vyberte, který předmět chcete."
   },
   "cookies": {

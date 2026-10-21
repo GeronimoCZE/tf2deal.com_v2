@@ -1382,6 +1382,7 @@ addEventListener('DOMContentLoaded', (event) => {
                 trade.ItemTrade.iit = [];
                 trade.ItemTrade.total = 0;
                 trade.ItemTrade.filters = {bot: null};
+                document.querySelector('#trade-note')?.replaceChildren() // nothing picked, nothing to explain
                 updateNavigation(navigation)
                 $('.navigation .current-item a').first().text(current_item)
 

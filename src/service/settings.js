@@ -110,9 +110,16 @@ export const type_matches = (rule_type, type) => {
   return t == r
 }
 
-// May the bots list this item (an item_instances document: bp_sku, qualityID, type) on the buy or sell side?
-// Listings made by hand in the admin panel don't go through this. Same rule as in docs/LISTINGS.md.
+// a price (ref, or { key, metal }) under one scrap (0.11 ref), like a 0.055 ref weapon: never listed on backpack.tf
+export const below_scrap = (price) => {
+  const ref = (price && typeof price == 'object') ? (Number(price.key ?? price.keys) > 0 ? 1 : Number(price.metal)) : Number(price)
+  return ref > 0 && ref < 0.11
+}
+
+// May the bots list this item (an item_instances document: bp_sku, qualityID, type, buy, sell) on the buy or sell
+// side? Listings made by hand in the admin panel don't go through this. Same rule as in docs/LISTINGS.md.
 export const may_list = (item, side, l = current.listings) => {
+  if(below_scrap(item?.[side])){ return false } // 0.055 ref items are traded on the site only (docs/HALF_SCRAP.md)
   if(l.exclude.length && l.exclude.some((name) => blacklist_key(name) === blacklist_key(item?.bp_sku))){ return false }
   if(!l.enabled || !l[side]){ return true }
   return l.rules.some((r) => (!r.quality || r.quality === String(item?.qualityID ?? '')) && type_matches(r.type, item?.type))

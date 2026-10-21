@@ -37,6 +37,8 @@ allows and list what it allows again.
 - `buy` / `sell`: which side the rules limit. Above, the bots only buy Unique cosmetics, Strange weapons and Unique
   paints, but keep selling everything they hold.
 - `exclude`: items (by `bp_sku`, any case) never listed on either side, also when `enabled` is false.
+- Items priced under one scrap (0.11 ref) on a side, like 0.055 ref weapons, are never listed on that side, also when
+  `enabled` is false. They are traded on the site only (see `HALF_SCRAP.md`).
 
 ```js
 const type_matches = (rule_type, type) => {
@@ -46,9 +48,16 @@ const type_matches = (rule_type, type) => {
   return t === r;
 };
 
-// item: the item_instances document (bp_sku, qualityID, type); side: 'buy' | 'sell'
+// a price in ref (or { key, metal }) under one scrap
+const below_scrap = (price) => {
+  const ref = (price && typeof price == 'object') ? (Number(price.key ?? price.keys) > 0 ? 1 : Number(price.metal)) : Number(price);
+  return ref > 0 && ref < 0.11;
+};
+
+// item: the item_instances document (bp_sku, qualityID, type, buy, sell); side: 'buy' | 'sell'
 const may_list = (item, side, l = settings.listings) => {
   const key = (s) => String(s || '').trim().toLowerCase();
+  if (below_scrap(item[side])) return false;
   if (l.exclude.some((name) => key(name) === key(item.bp_sku))) return false;
   if (!l.enabled || !l[side]) return true;
   return l.rules.some((r) => (!r.quality || r.quality === String(item.qualityID)) && type_matches(r.type, item.type));
@@ -113,7 +122,8 @@ collection and sends them like this:
 - `intent: "buy"`: a buy order for `bp_sku`. `ks` 1–3 means its Killstreak / Specialized / Professional version.
 - `intent: "sell"`: sells the copy with `assetid` that this bot holds.
 - `details`: the listing text; empty = the bot's usual text.
-- The price is the admin's own. When someone trades on that listing, the bot accepts that price for it.
+- The price is the admin's own. When someone trades on that listing, the bot accepts that price for it. It is at
+  least one scrap (0.11 ref): the site doesn't accept less.
 
 `listings:create` comes once, when the admin makes one. `listings:manual` carries the whole list (made by hand, all
 bots) when the bots socket connects and after every change. List the ones that aren't listed yet, take down manual

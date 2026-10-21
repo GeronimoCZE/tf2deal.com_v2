@@ -380,7 +380,8 @@
       "qty_in_trade": "{count} en el intercambio",
       "qty_how_many_add": "¿Cuántos quieres añadir?",
       "qty_how_many_remove": "¿Cuántos quieres quitar?",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "half_scrap_left": "Los objetos de 0.055 ref (medio scrap) van en pares: dos hacen un scrap. Añade o quita uno para que el intercambio salga en scraps enteros."
     },
     "item": {
       "unusual_effect": "Efecto Unusual: {name}",
@@ -733,6 +734,7 @@
     "item_blacklisted": "{name} no se puede intercambiar ahora mismo.",
     "account_blocked": "Tu cuenta no puede crear intercambios. Abre un ticket de soporte si crees que es un error.",
     "buy_link_gone": "Este objeto ya no está en stock.",
+    "buy_link_half_scrap": "Este objeto vale 0.055 ref (medio scrap), que no se puede pagar solo con llaves y metal. Elige dos en la página del objeto.",
     "buy_link_pick": "Primero elige qué objeto quieres."
   },
   "cookies": {

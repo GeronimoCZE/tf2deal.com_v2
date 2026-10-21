@@ -260,6 +260,8 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <%# why the trade can't be sent yet, e.g. an odd number of 0.055 ref copies (js/plugins/trade.js -> set_trade_note) %>
+                                    <p class="trade-note" id="trade-note" role="status"></p>
                                     <%# filters for the copies in the grid (bot, paint, spells, ...), built by public/js/plugins/item_filters.js %>
                                     <div class="item-filters" id="item-filters" hidden></div>
                                     <div class="items">
