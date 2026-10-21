@@ -47,6 +47,17 @@ const inv_limiter = rateLimit({
   message: (req) => ({status: "error", message: req.__ ? req.__('api.too_many_requests') : "Too many requests! Try again later..."})
 }); // 25 req per 60 sec
 
+// limits for signed-in actions: counted per Steam account (not per IP, so people behind one network don't share them),
+// answered with JSON the page can show
+const per_user = (windowMs, max) => rateLimit({
+  windowMs,
+  max,
+  keyGenerator: (req) => req.user?.steamid ? `u:${req.user.steamid}` : req.ip,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: (req) => ({ status: "error", message: req.__ ? req.__('api.too_many_requests') : "Too many requests! Try again later..." })
+})
+
 const isLogged = (req, res, next) => {
   if(req.user){
     return next();
@@ -55,7 +66,7 @@ const isLogged = (req, res, next) => {
   }
 };
 
-router.post('/update', isLogged, rateLimit({ windowMs: 60*60*1000, max: 6 }), async (req, res) => {
+router.post('/update', isLogged, per_user(60*60*1000, 6), async (req, res) => {
     let cookie = req.cookies[`td_${req.user.steamid}`]
     if(!cookie || typeof cookie != 'object' || typeof cookie.user != 'object' || cookie.user === null){
       return res.status(400).send({status: 'ERROR', message: req.__('api.save_failed')})
@@ -109,7 +120,7 @@ router.post('/update', isLogged, rateLimit({ windowMs: 60*60*1000, max: 6 }), as
     }
 });
 
-router.post('/add_wishlist', isLogged, rateLimit({ windowMs: 60*60*1000, max: 10 }), async (req, res) => {
+router.post('/add_wishlist', isLogged, per_user(60*60*1000, 60), async (req, res) => {
   const {bp_sku} = req.body
   const user_cookie = req.cookies[`td_${req.user.steamid}`]?.user;
 
@@ -155,7 +166,7 @@ router.post('/add_wishlist', isLogged, rateLimit({ windowMs: 60*60*1000, max: 10
   } 
 })
 
-router.post('/remove_wishlist', isLogged, rateLimit({ windowMs: 60*60*1000, max: 10 }), async (req, res) => {
+router.post('/remove_wishlist', isLogged, per_user(60*60*1000, 60), async (req, res) => {
   const {bp_sku} = req.body
   const user_cookie = req.cookies[`td_${req.user.steamid}`]?.user;
 
@@ -376,7 +387,7 @@ const REQUIREMENT_MESSAGES = {
   trade: { false: 'api.gw_need_trade' }
 }
 
-router.post('/giveaway/enter', isLogged, rateLimit({ windowMs: 60*60*1000, max: 20 }), async (req, res) => {
+router.post('/giveaway/enter', isLogged, per_user(60*60*1000, 20), async (req, res) => {
   const steamid = req.user.steamid
   try {
     const giveaway = await giveaway_model.findOne({ status: 'active', end: { $gt: Date.now() } }, { entries: 0 }).lean()
@@ -436,7 +447,7 @@ router.get('/tickets', isLogged, async (req, res) => {
   }
 })
 
-router.post('/tickets', isLogged, rateLimit({ windowMs: 60*60*1000, max: 5 }), async (req, res) => {
+router.post('/tickets', isLogged, per_user(60*60*1000, 5), async (req, res) => {
   const title = req.body?.title
   const details = (typeof req.body?.details == 'string') ? req.body.details.trim() : ''
 
@@ -470,7 +481,7 @@ router.post('/tickets', isLogged, rateLimit({ windowMs: 60*60*1000, max: 5 }), a
   }
 })
 
-router.post('/tickets/:id/reply', isLogged, rateLimit({ windowMs: 60*60*1000, max: 30 }), async (req, res) => {
+router.post('/tickets/:id/reply', isLogged, per_user(60*60*1000, 30), async (req, res) => {
   const text = (typeof req.body?.text == 'string') ? req.body.text.trim() : ''
   if(!mongoose.Types.ObjectId.isValid(req.params.id)){ return res.status(404).json({ status: 'error', message: req.__('api.ticket_not_found') }) }
   if(text.length == 0 || text.length > TICKET_TEXT_LIMIT){

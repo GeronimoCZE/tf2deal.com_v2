@@ -2,6 +2,7 @@ import express from 'express';
 export const router = express.Router();
 
 import rateLimit from 'express-rate-limit';
+import { LRUCache } from 'lru-cache';
 import apicache from 'apicache';
 import mongoose from 'mongoose';
 import {item_model as Instance} from '../../model/Item.js'; // add .js if using ES modules with Node
@@ -11,11 +12,19 @@ import { safe_equal } from '../../service/settings.js';
 
 const cache = apicache.middleware;
 
+// the /items list asks again on every filter change, so a few quick clicks have to fit
 const items_rate_limit = rateLimit({
-  windowMs: 3 * 1000,
-  max: 1,
-  message: "You have made too many requests."
+  windowMs: 10 * 1000,
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: (req) => ({ status: "error", message: req.__ ? req.__('api.too_many_requests') : "Too many requests! Try again later..." })
 });
+
+// The same list (filters + page) asked within ITEMS_CACHE_MS is answered from memory, not the database.
+// Stock and prices on the list may be that much behind; the item page itself is always current.
+const ITEMS_CACHE_MS = 20 * 1000
+const items_cache = new LRUCache({ max: 500, ttl: ITEMS_CACHE_MS })
 
 const item_config = {
     "Quality": 
@@ -92,9 +101,6 @@ router.post('/', items_rate_limit, async (req, res) => {
     try {
       const limit = 15;
 
-      console.log(req.body);
-      
-
       const skip = (req.body?.page === undefined || typeof req.body?.page !== 'number')
         ? 0 * limit
         : Math.round(parseFloat(req.body.page) * limit);
@@ -164,8 +170,16 @@ router.post('/', items_rate_limit, async (req, res) => {
         buy: { $gt: 0 }
       };
 
+      const cache_key = JSON.stringify([skip, name, qualityID, type, particle, warpaint, clas, stock, sort])
+      const cached = items_cache.get(cache_key)
+      if (cached) {
+        return res.status(200).json(cached)
+      }
+
+      // only what the list shows: the copies themselves (stock.items) stay out, the list needs only how many
       const project = {
-        bp_sku: 1, type: 1, stock: 1, buy: 1, sell: 1, qualityID: 1, effectID: 1, image: 1, bptf_data: 1,
+        bp_sku: 1, type: 1, buy: 1, sell: 1, qualityID: 1, effectID: 1, image: 1,
+        'bptf_data.update_key_price': 1, 'stock.items': 1, 'stock.cur': 1, 'stock.limit': 1,
         _id: 0
       };
 
@@ -175,7 +189,8 @@ router.post('/', items_rate_limit, async (req, res) => {
         { $addFields: { "stock.items_length": { $size: "$stock.items" } } },
         { $sort: sort_obj },
         { $skip: skip },
-        { $limit: limit }
+        { $limit: limit },
+        { $project: { "stock.items": 0 } }
       ];
 
       const count_pipeline = [
@@ -183,16 +198,15 @@ router.post('/', items_rate_limit, async (req, res) => {
         { $count: "totalDocuments" }
       ];
 
-      console.log(mongoose_pipeline[0]["$match"]["$or"]);
-      
-
       try {
         const [results, countResult] = await Promise.all([
           Instance.aggregate(mongoose_pipeline).exec(),
           Instance.aggregate(count_pipeline).exec()
         ]);
         const totalDocuments = countResult.length > 0 ? countResult[0].totalDocuments : 0;
-        res.status(200).json({ status: "ok", item_count: totalDocuments, response: results });
+        const body = { status: "ok", item_count: totalDocuments, response: results }
+        items_cache.set(cache_key, body)
+        res.status(200).json(body);
       } catch (err) {
         res.status(500).json({ status: "error", message: "db error" });
       }
