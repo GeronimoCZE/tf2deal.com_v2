@@ -23,7 +23,8 @@
     "theme_night": "Night sky",
     "theme_summer": "Summer",
     "theme_halloween": "Scream Fortress",
-    "theme_smissmas": "Smissmas"
+    "theme_smissmas": "Smissmas",
+    "search_short": "Search items"
   },
   "common": {
     "sign_in_steam": "Sign in with Steam",
@@ -63,7 +64,10 @@
     "faq": "FAQ",
     "powered_by": "Powered by {steam}",
     "particles_from": "Particles used from {bptf}",
-    "created_by": "Created with ❤️ by {author}"
+    "created_by": "Created with ❤️ by {author}",
+    "trading": "Trading",
+    "help": "Help",
+    "legal": "Legal"
   },
   "title": {
     "home": "TF2deal.com - Automated Team Fortress 2 trading website",
@@ -196,7 +200,9 @@
     "unusuals_link": "Show all unusuals",
     "tools_title": "Tools",
     "tools_text": "Looking to expand your inventory? Give your gun a killstreaker? We've got you covered!",
-    "tools_link": "Show all tools"
+    "tools_link": "Show all tools",
+    "cta_title": "Ready to trade?",
+    "cta_text": "Pick your items and our bots send you the trade offer on Steam."
   },
   "filters": {
     "none": "None",
@@ -567,7 +573,9 @@
     "remove_selected": "remove selected",
     "items": "items",
     "cant_trade_now": "The current situation doesn't allow us to trade this item!",
-    "reload_inventory": "Reload inventory"
+    "reload_inventory": "Reload inventory",
+    "no_price_history": "No price changes yet.",
+    "links": "More about this item"
   },
   "giveaway": {
     "current": "Current giveaway",

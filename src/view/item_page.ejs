@@ -67,17 +67,18 @@
                                                 <div class="val"><%= info.item?.effectID %></div>
                                             </div>
                                         <% } %> -->
-                                        <% if (info.item?.bptf_data?.price > 0 || info.item?.type === "tool kit" || info.item?.type == "warpaint" || String(info.item?.type || '').includes('skin')) { %>
-                                            <div class="desc bptf" value="<%= info.item?.bptf_data?.price %>" key_price="<%= info.item?.bptf_data?.update_key_price %>">
-                                                <a href="" class="val" target="_blank">backpack.tf</a>
-                                            </div>
-                                        <% } %>
-                                        <% if (info.item?.bptf_data?.price > 0) { %>
-                                            <div class="desc tf2wiki" value="<%= info.item?.bptf_data?.price %>" key_price="<%= info.item?.bptf_data?.update_key_price %>">
-                                                <a href="https://wiki.teamfortress.com/wiki/<%= info.item?.name %>" class="val" target="_blank">TF2 Wiki</a>
-                                            </div>
-                                        <% } %>
                                     </div>
+                                    <%# outside sites, apart from the item's data so they don't read as one of its properties (proximity) %>
+                                    <% const show_bptf = info.item?.bptf_data?.price > 0 || info.item?.type === "tool kit" || info.item?.type == "warpaint" || String(info.item?.type || '').includes('skin') %>
+                                    <% if (show_bptf) { %>
+                                    <div class="item-links" role="group" aria-label="<%= __('item.links') %>">
+                                        <%# backpack.tf price page: /stats/<quality>/<name>/Tradable/<Craftable|Non-Craftable>[/<effect>] %>
+                                        <a class="item-link bptf" rel="nofollow noopener" target="_blank" href="https://backpack.tf/stats/<%= encodeURIComponent(info.shown.quality || 'Unique') %>/<%= encodeURIComponent(info.item?.name || '') %>/Tradable/<%= info.item?.craftable === 'Non-Craftable' ? 'Non-Craftable' : 'Craftable' %><%= Number(info.item?.effectID) > 0 ? '/' + Number(info.item.effectID) : '' %>">backpack.tf <span aria-hidden="true">↗</span></a>
+                                    <% if (info.item?.bptf_data?.price > 0) { %>
+                                        <a class="item-link tf2wiki" rel="noopener" target="_blank" href="https://wiki.teamfortress.com/wiki/<%= encodeURIComponent(info.item?.name || '') %>">TF2 Wiki <span aria-hidden="true">↗</span></a>
+                                    <% } %>
+                                    </div>
+                                    <% } %>
                                     <div class="item-btns">
                                         <% const ks_list = Array.isArray(info.item?.killstreak) ? info.item.killstreak : (info.item?.killstreak?.killstreaks || []) %>
                                         <% if(ks_list.length > 0){ %>
@@ -89,6 +90,12 @@
                                                 </select>
                                             </label>
                                         <% } %>
+                                        <%# Buy first: it is what most visitors came for (serial position) %>
+                                        <div class="item__trade buy">
+                                            <button class="item__btn <% if(info.item?.stock?.cur > 0){ %> active <% } %>" id="buy"><span class="icon icon-credit"></span> <%= __('item.buy') %></button>
+                                            <span class="price" id="buy-price"><%= info.shown.buy_price %></span>
+                                            <span class="stock <%= info.shown.stock > 0 ? 'yes' : 'no' %>"><%- __('item.in_stock_html', { count: '<span>' + info.shown.stock + '</span>' }) %></span>
+                                        </div>
                                         <% if(info.item?.status == 1){ %>
                                             <div class="item__trade sell">
                                                 <button class="item__btn <% if(info.item?.stock?.cur < info.item?.stock?.limit){ %> active <% } %>" id="sell"><span class="icon icon-credit"></span> <%= __('item.sell') %></button>
@@ -96,11 +103,6 @@
                                                 <span class="stock <%= info.shown.can_sell > 0 ? 'yes' : 'no' %>"><%- __('item.can_buy_html', { count: '<span>' + info.shown.can_sell + '</span>' }) %></span>
                                             </div>
                                         <% } %>
-                                        <div class="item__trade buy">
-                                            <button class="item__btn <% if(info.item?.stock?.cur > 0){ %> active <% } %>" id="buy"><span class="icon icon-credit"></span> <%= __('item.buy') %></button>
-                                            <span class="price" id="buy-price"><%= info.shown.buy_price %></span>
-                                            <span class="stock <%= info.shown.stock > 0 ? 'yes' : 'no' %>"><%- __('item.in_stock_html', { count: '<span>' + info.shown.stock + '</span>' }) %></span>
-                                        </div>
                                         <% if (info.item?.stock?.limit === 0) { %>
                                             <div class="stock-limit"><%= __('item.cant_trade_now') %></div>
                                         <% } %>
@@ -144,6 +146,9 @@
                                     </div>
                                     <%# newest first; three rows, the older ones behind "show older prices" %>
                                     <div class="row more<%= info.shown.price_history.length > 3 ? ' visible' : '' %>"><%= __('item.older_prices') %></div>
+                                    <% if (info.shown.price_history.length == 0) { %>
+                                    <div class="row empty"><%= __('item.no_price_history') %></div>
+                                    <% } %>
                                     <% info.shown.price_history.forEach((row, i) => { %>
                                     <div class="row<%= i >= 3 ? ' hidden' : '' %>"><div class="cell buy"><%= row.buy %></div><div class="cell sell"><%= row.sell %></div><div class="cell time"><time datetime="<%= row.day %>"><%= new Date(row.time).toLocaleDateString(html_lang) %></time></div></div>
                                     <% }) %>

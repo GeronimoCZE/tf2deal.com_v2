@@ -60,10 +60,11 @@
                 </ul>
             </div>
             <div class="bottom-nav-items">
-                <div class="searchBar" id="searchBar" title="<%= __('nav.search_title') %>">
-                    <div class="search">_____</div>
+                <%# looks like a search field (people expect one there); opens the search, also with Ctrl+K %>
+                <div class="searchBar" id="searchBar" role="button" tabindex="0" aria-keyshortcuts="Control+K" title="<%= __('nav.search_title') %>">
                     <span class="icon icon-search"></span>
-                    <div class="key_shortcut">[CTRL + K]</div>
+                    <span class="search-short"><%= __('nav.search_short') %></span>
+                    <kbd class="key_shortcut" aria-hidden="true">Ctrl K</kbd>
                     <span class="search-label"><%= __('search.placeholder') %></span>
                 </div>
 

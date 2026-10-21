@@ -23,7 +23,8 @@
     "theme_night": "夜空",
     "theme_summer": "夏季",
     "theme_halloween": "Scream Fortress",
-    "theme_smissmas": "Smissmas"
+    "theme_smissmas": "Smissmas",
+    "search_short": "搜索物品"
   },
   "common": {
     "sign_in_steam": "通过 Steam 登录",
@@ -63,7 +64,10 @@
     "faq": "常见问题",
     "powered_by": "由 {steam} 提供支持",
     "particles_from": "粒子特效来自 {bptf}",
-    "created_by": "由 {author} 用 ❤️ 打造"
+    "created_by": "由 {author} 用 ❤️ 打造",
+    "trading": "交易",
+    "help": "帮助",
+    "legal": "法律信息"
   },
   "title": {
     "home": "TF2deal.com - 自动化 Team Fortress 2 交易网站",
@@ -196,7 +200,9 @@
     "unusuals_link": "查看所有 Unusual 物品",
     "tools_title": "工具",
     "tools_text": "想扩充你的库存？想给你的枪加上连杀特效？我们都能满足你！",
-    "tools_link": "查看所有工具"
+    "tools_link": "查看所有工具",
+    "cta_title": "准备好交易了吗？",
+    "cta_text": "选好物品，我们的机器人会在 Steam 上向你发送交易报价。"
   },
   "filters": {
     "none": "无",
@@ -567,7 +573,9 @@
     "remove_selected": "移除所选",
     "items": "物品",
     "cant_trade_now": "当前情况下我们无法交易此物品！",
-    "reload_inventory": "重新加载库存"
+    "reload_inventory": "重新加载库存",
+    "no_price_history": "暂无价格变动。",
+    "links": "关于此物品的更多信息"
   },
   "giveaway": {
     "current": "当前抽奖",

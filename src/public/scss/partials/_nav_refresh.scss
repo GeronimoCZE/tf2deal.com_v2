@@ -264,7 +264,7 @@ $nav-ease: cubic-bezier(.2, .8, .2, 1);
             border-radius: 12px;
             border: 1px solid var(--line) !important;
             background: var(--well);
-            .search, .key_shortcut{ display: none !important; }
+            .search-short, .key_shortcut{ display: none !important; }
             .icon-search{ order: -1; color: var(--violet); }
             .search-label{ display: block; color: var(--ink-3); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         }

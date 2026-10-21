@@ -249,6 +249,9 @@ addEventListener('DOMContentLoaded', (event) => {
         if((e.key === 'Enter' || e.key === ' ') && document.activeElement?.id === 'collapseNavLinks'){
             e.preventDefault(); collapseLinks(); return;
         }
+        if((e.key === 'Enter' || e.key === ' ') && document.activeElement?.id === 'searchBar'){
+            e.preventDefault(); toggleModal(modals.search, 'open'); return;
+        }
 
         if (e.ctrlKey && e.code === 'KeyK') {
             e.preventDefault(); // stop browser menu focus
