@@ -1550,11 +1550,8 @@
                     padding: 3px 6px !important;
                     border-radius: var(--r-sm);
                     cursor: pointer;
-                    transition: 200ms;
-                    &:hover{
-                        background: rgba(63, 42, 119, 0.89) !important;
-                    border: 1px solid var(--line-strong) !important;
-                    }
+                    transition: background 150ms ease;
+                    &:hover{ background: var(--surface-3) !important; } // colour only: no border, no size change
                 }
                 &.classes{
                     max-width: 17rem;
@@ -1570,11 +1567,8 @@
                     padding: 3px !important;
                     border-radius: 3px;
                     cursor: pointer;
-                    transition: 200ms;
-                    &:hover{
-                        background: rgba(63, 42, 119, 0.89) !important;
-                    border: 1px solid var(--line-strong) !important;
-                    }
+                    transition: background 150ms ease;
+                    &:hover{ background: var(--surface-3) !important; } // colour only: no border, no size change
                 }
                 .name, .val{
                     display: block;

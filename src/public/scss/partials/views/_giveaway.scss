@@ -285,8 +285,6 @@
             flex-direction: column;
             @include panel(.8rem);
             box-sizing: border-box !important;
-            transition: border-color 150ms ease;
-            &:hover{ border-color: var(--line-strong); }
             .gw-thumb{
                 display: flex;
                 justify-content: center;
@@ -310,7 +308,7 @@
                 margin-top: auto;
                 padding-top: .6rem;
                 border-top: 1px solid var(--line);
-                img{ width: 1.9rem; height: 1.9rem; border-radius: 50%; flex: none; }
+                img{ width: 1.9rem; height: 1.9rem; border-radius: 50%; flex: none; object-fit: cover; }
                 .winner-text{
                     display: flex;
                     flex-direction: column;

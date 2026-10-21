@@ -171,7 +171,6 @@ body header .trade-offer-bar{
         pointer-events: none;
     }
     span{ pointer-events: none; }
-    &:hover{ border-color: var(--line-strong) !important; }
     &[data-status="sent"]{ // waiting on the visitor: the offer is in Steam
         background: var(--go);
         &::before{ background: #fff; }

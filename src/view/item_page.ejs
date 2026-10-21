@@ -38,7 +38,7 @@
                                     Item Overview
                                 </div> -->
                                 <div class="image-box q-<%= info.item?.qualityID %>">
-                                    <img src="<%= info.item?.image_large %>" alt="<%= item_alt(info.item) %>" class="image lazy-fade" onload="this.classList.add('loaded')" fetchpriority="high" effect-id="<%= info.item?.effectID %>">
+                                    <img src="<%= info.item?.image_large %>" alt="<%= item_alt(info.item) %>" class="image" fetchpriority="high" effect-id="<%= info.item?.effectID %>">
                                     <div class="btns">
                                         <button id="wishlist-btn"><%= __('item.wishlist') %></button>
                                     </div>
@@ -280,6 +280,8 @@
         </div>
         <script type="application/javascript">
             function round_ref (refs, direction) {
+                // less than a scrap (half-scrap weapons, 0.055 ref) is shown as it is instead of rounding to 0
+                if (direction === undefined && refs > 0 && refs < 0.11) return Number(refs.toFixed(3));
                 let ref = Math.trunc(refs);
                 let ref_float = refs - ref;
                 ref_float = parseFloat(ref_float.toFixed(5));

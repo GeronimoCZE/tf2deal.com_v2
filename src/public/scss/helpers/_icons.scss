@@ -2,11 +2,9 @@
 
 @font-face {
   font-family: '#{$icomoon-font-family}';
-  src:  url('#{$icomoon-font-path}/#{$icomoon-font-family}.eot?k1nzd2');
-  src:  url('#{$icomoon-font-path}/#{$icomoon-font-family}.eot?k1nzd2#iefix') format('embedded-opentype'),
-    url('#{$icomoon-font-path}/#{$icomoon-font-family}.ttf?k1nzd2') format('truetype'),
-    url('#{$icomoon-font-path}/#{$icomoon-font-family}.woff?k1nzd2') format('woff'),
-    url('#{$icomoon-font-path}/#{$icomoon-font-family}.svg?k1nzd2##{$icomoon-font-family}') format('svg');
+  // woff2 (10 KB, preloaded in partials/head.ejs) for every current browser, woff for older ones
+  src:  url('#{$icomoon-font-path}/#{$icomoon-font-family}.woff2?k1nzd2') format('woff2'),
+    url('#{$icomoon-font-path}/#{$icomoon-font-family}.woff?k1nzd2') format('woff');
   font-weight: normal;
   font-style: normal;
   font-display: block;
