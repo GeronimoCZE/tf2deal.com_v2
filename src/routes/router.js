@@ -142,7 +142,7 @@ const items = async (req, res, next) => {
 
     let list = null
     try {
-      if (process.db_status.connected === true) list = await item_lists.listed()
+      if (process.db_status.connected === true) list = await item_lists.cards()
     } catch (err) {
       console.error('Item list failed:', err?.message || err)
     }
@@ -154,18 +154,16 @@ const items = async (req, res, next) => {
     const pages = Math.max(1, Math.ceil(all.length / ITEMS_PER_PAGE))
     if (page > pages) return next() // the 404 page
 
-    // the same cards as public/js/plugins/items.js, which skips items without a usable price the same way
-    const cards = all.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
-      .filter((item) => item.bp_sku && typeof item.key_price == 'number' && typeof item.buy == 'number' && typeof item.sell == 'number' && !(item.sell / item.buy > 30) && !(item.sell > 100000 * 100))
+    // the same cards as public/js/plugins/items.js builds from /api/items
+    const cards = all.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE).map(item_lists.public_card)
       .map((item) => ({
         bp_sku: item.bp_sku,
-        // tools that are never craftable are shown without "Non-Craftable"
-        name: ['unusualifier', 'strange filter', 'tool kit'].some((t) => String(item.type || '').toLowerCase().includes(t)) ? item.bp_sku.replace('Non-Craftable ', '') : item.bp_sku,
+        name: item.name,
         image: item.image,
         qualityID: item.qualityID,
         effectID: Number(item.effectID) || 0,
-        stock: item.stock_count,
-        price: fn.list_price_text(item.sell, item.key_price)
+        stock: item.stock.items_length,
+        price: fn.list_price_text(item.sell, item.bptf_data.update_key_price)
       }))
 
     res.render(
@@ -220,11 +218,26 @@ const item_page = async (req, res) => {
       }
     }
 
-    const main = await find_page_item(item_sku)
+    let main = await find_page_item(item_sku)
+    // "Professional Killstreak Rocket Launcher": the Rocket Launcher's page with that tier picked, when the item has it
+    let ks = 0
+    let ks_entry = null
+    const ks_name = main ? null : item_lists.ks_page(item_sku)
+    for (const base of ks_name?.bases || []) {
+      const doc = await find_page_item(base)
+      const tiers = Array.isArray(doc?.killstreak) ? doc.killstreak : (doc?.killstreak?.killstreaks || [])
+      ks_entry = tiers.find((entry) => item_lists.ks_tier(entry?.ks_tier ?? entry?.kt ?? entry?.tier) === ks_name.tier)
+      if (ks_entry) {
+        main = doc
+        ks = ks_name.tier
+        break
+      }
+    }
 
     if (!main) {
       return res.status(404).render('404', fn.res_data(!!req.user, req.user, user_cookie, req.__('title.not_found')))
     }
+    const page_name = ks ? String(item_sku) : main.bp_sku
 
     // stock.items isn't loaded (it can be long): look only when the stock count doesn't already say so
     const in_stock = fn.item_in_stock(main) || ![1, 2].includes(Number(main.status)) ||
@@ -234,34 +247,41 @@ const item_page = async (req, res) => {
       [group, list.map((item) => ({ ...item, price: fn.list_price_text(item.sell, item.bptf_data?.update_key_price) }))]))
     const item_path = `/items/${encodeURIComponent(main.bp_sku)}`
     const item_url = fn.site_url + req.lurl(item_path)
+    // a killstreak tier's page is the item's page with that tier picked, so search engines are pointed to the item's
     const key_price = Number(main.bptf_data?.update_key_price) || 0
     const stock = { cur: Number(main.stock?.cur) || 0, limit: Number(main.stock?.limit) || 0 }
     // its pictures as full addresses (structured data needs them; a stored "ms/..." short form is left out)
     const images = [...new Set([main.image_large, main.image].map((url) => /^https?:\/\//.test(url || '') ? url : /^\/[^/]/.test(url || '') ? fn.site_url + url : null).filter(Boolean))]
     // the item's data as text, so the page shows it before (and without) the page scripts
+    // on a killstreak tier's page: that tier's prices and stock, as public/js/main.js show_tier sets them
+    const tier_stock = ks_entry?.stock && typeof ks_entry.stock == 'object' ? ks_entry.stock : (ks_entry?.stock !== undefined ? { cur: ks_entry?.stock } : null)
+    const shown_stock = tier_stock ? { cur: Number(tier_stock.cur) || 0, limit: Number(ks_entry.limit ?? tier_stock.limit ?? stock.limit) || 0 } : stock
     const shown = {
       quality: fn.quality_name(main.qualityID),
       type: fn.item_type_text(main.type, req.__),
       classes: fn.class_names(main.classes, req.__),
-      buy_price: fn.list_price_text(main.sell, key_price), // the visitor buys at our sell price
-      sell_price: fn.list_price_text(main.buy, key_price), // ... and sells to us at our buy price
-      stock: stock.cur,
-      can_sell: Math.max(stock.limit - stock.cur, 0),
+      buy_price: fn.list_price_text(Math.max(buy.to_ref(ks_entry?.sell, key_price), main.sell), key_price), // the visitor buys at our sell price
+      sell_price: fn.list_price_text(Math.max(buy.to_ref(ks_entry?.buy, key_price), main.buy), key_price), // ... and sells to us at our buy price
+      stock: shown_stock.cur,
+      can_sell: Math.max(shown_stock.limit - shown_stock.cur, 0),
       price_history: fn.price_history_rows(main.price_history)
     }
 
     res.render(
       'item_page',
-      fn.res_data(!!req.user, req.user, user_cookie, req.__('title.item', { name: main.bp_sku }), {
+      fn.res_data(!!req.user, req.user, user_cookie, req.__('title.item', { name: page_name }), {
         view: 'item_page',
         promtLogin: true,
         item: main,
+        ks_tier: ks,
+        page_name,
         result: result,
         key_price: app.key_price,
         shown,
         // SEO
         description: fn.item_description(main, req.__),
-        path: item_path,
+        path: ks ? `/items/${encodeURIComponent(page_name)}` : item_path,
+        ...(ks && { canonical: item_url, no_hreflang: true }),
         noindex: !fn.item_indexable(main, in_stock), // only items the bots really trade (fn.item_indexable)
         image: main.image_large || main.image,
         json_ld: {

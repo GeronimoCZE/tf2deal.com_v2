@@ -4,11 +4,10 @@ import rateLimit from 'express-rate-limit';
 import * as apicache from 'apicache'
 import mongoose from "mongoose";
 import fetch from 'node-fetch'
-import fs from 'fs'
-import path from 'path'
 
 import * as app from '../app.js'
 import * as mw from './api_mw.js'
+import * as item_lists from '../service/item_lists.js'
 
 import {effect_model} from '../model/Effect.js'
 import {skin_model} from '../model/Skin.js'
@@ -59,17 +58,25 @@ router.use('/admin', adminApi)
 
 let bot_cache = []
 
-router.get('/item_names', (req, res) => {
-  let data = [];
-
-  for (const file of fs.readdirSync(path.join(process.cwd(), '/src/api/data'))) {
-    if (file.startsWith('item_names') && file.endsWith('.txt')) {
-      const fileData = fs.readFileSync(path.join(process.cwd(), '/src/api/data/', file), 'utf8');
-      data = [...data, ...fileData.split(',')];
-    }
+// The search suggestions: the items the bots trade, and a version that changes with the list
+// (service/item_lists.js reads the items again once a minute)
+router.get('/item_names', async (req, res) => {
+  try {
+    const { names, version } = await item_lists.names()
+    res.send({ item_names: names, version })
+  } catch {
+    res.status(503).send({ status: 'error', message: 'db error' })
   }
+});
 
-  res.send({item_names: [...data]})
+// { name: copies } of every item and killstreak version in stock, for the counts in the search suggestions,
+// and the names version, so the browser knows when its names are out of date
+router.get('/item_stock', async (req, res) => {
+  try {
+    res.send(await item_lists.stock())
+  } catch {
+    res.status(503).send({ status: 'error', message: 'db error' })
+  }
 });
 
 

@@ -2,13 +2,13 @@ import express from 'express';
 export const router = express.Router();
 
 import rateLimit from 'express-rate-limit';
-import { LRUCache } from 'lru-cache';
 import apicache from 'apicache';
 import mongoose from 'mongoose';
 import {item_model as Instance} from '../../model/Item.js'; // add .js if using ES modules with Node
 import { type } from 'os';
 import { log } from 'console';
 import { safe_equal } from '../../service/settings.js';
+import * as item_lists from '../../service/item_lists.js';
 
 const cache = apicache.middleware;
 
@@ -20,11 +20,6 @@ const items_rate_limit = rateLimit({
   legacyHeaders: false,
   message: (req) => ({ status: "error", message: req.__ ? req.__('api.too_many_requests') : "Too many requests! Try again later..." })
 });
-
-// The same list (filters + page) asked within ITEMS_CACHE_MS is answered from memory, not the database.
-// Stock and prices on the list may be that much behind; the item page itself is always current.
-const ITEMS_CACHE_MS = 20 * 1000
-const items_cache = new LRUCache({ max: 500, ttl: ITEMS_CACHE_MS })
 
 const item_config = {
     "Quality": 
@@ -78,24 +73,6 @@ router.use('/', (req, res, next) => {
   }
 });
 
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function germanRegex(text) {
-  const map = {
-    a: "[aä]",
-    o: "[oö]",
-    u: "[uü]",
-    s: "[sß]"
-  };
-
-  return escapeRegex(text)
-    .split("")
-    .map(ch => map[ch.toLowerCase()] || ch)
-    .join("");
-}
-
 router.post('/', items_rate_limit, async (req, res) => {
   if (process.db_status.connected === true) {
     try {
@@ -104,112 +81,23 @@ router.post('/', items_rate_limit, async (req, res) => {
       const skip = (req.body?.page === undefined || typeof req.body?.page !== 'number')
         ? 0 * limit
         : Math.round(parseFloat(req.body.page) * limit);
-      const name = (req.body?.name === undefined || typeof req.body?.name !== 'string')
-        ? undefined
-        : req.body.name;
-      const qualityID = (req.body?.quality === undefined || typeof req.body?.quality !== 'string' || item_config.Quality[req.body.quality] === undefined)
-        ? undefined
-        : item_config.Quality[req.body.quality].id;
-      const type = (req.body?.type === undefined || typeof req.body?.type !== 'string')
-        ? undefined
-        : req.body.type;
-      const particle = (typeof req.body?.particle === 'string')
-        ? req.body.particle
-        : undefined;
-      const warpaint = (req.body?.warpaint === undefined || typeof req.body?.warpaint !== 'string')
-        ? undefined
-        : req.body.warpaint;
-      const clas = (req.body?.class === undefined || typeof req.body?.class !== 'string')
-        ? undefined
-        : req.body.class;
-      const stock = (req.body?.stock === undefined || typeof req.body?.stock !== 'string')
-        ? undefined
-        : req.body.stock;
+      const text = (key) => (typeof req.body?.[key] === 'string') ? req.body[key] : undefined
+      const quality = text('quality')
+      const clas = text('class')
 
-      const sort = (req.body?.sort === undefined || typeof req.body?.sort !== 'string')
-        ? undefined
-        : req.body.sort;
-
-      let sort_obj = { "stock.items_length": -1, bp_sku: -1 };
-      if (sort !== undefined) {
-        if (sort === 'Price (asc)') { sort_obj = { 'sell': 1, ...sort_obj }; }
-        else if (sort === 'Price (desc)') { sort_obj = { 'sell': -1, ...sort_obj }; }
-        else if (sort === 'Popular (desc)') { sort_obj = { 'bptf_data.buyorders': -1, ...sort_obj }; }
-      }
-
-      const nameWords =
-        typeof name === "string"
-          ? name.toLowerCase().trim().split(/\s+/).filter(Boolean)
-          : [];
-
-      const matchStage = {
-        $or: [
-          { status: 1 },
-          { "stock.items": { $exists: true, $not: { $size: 0 } } }
-        ],
-        ...(nameWords.length > 0 && {
-            $and: nameWords.map(word => ({
-              bp_sku: { $regex: germanRegex(word), $options: "i" }
-            }))
-        }),
-        ...(qualityID !== undefined && { qualityID: String(qualityID) }),
-        ...(type !== undefined && { type: { "$regex": (type == "War Paint") ? "warpaint" : escapeRegex(String(type)).slice(0, 100), "$options": "i" } }),
-        ...(typeof particle === "string" && { effectID: Number(particle) }),
-        ...(warpaint !== undefined && { name: { "$regex": escapeRegex(String(warpaint)).slice(0, 100), "$options": "i" } }),
-        ...(clas !== undefined && {
-          classes: {
-            "$all": clas.includes(',')
-              ? clas.split(',').map(str => str.trim())
-              : [clas]
-          }
-        }),
-        ...(stock !== undefined && stock === 'Can sell' && { $expr: { $lt: [{ $size: "$stock.items" }, "$stock.limit"] } }),
-        ...(stock !== undefined && stock === 'Can buy' && { $expr: { $gt: [{ $size: "$stock.items" }, 0] } }),
-        // a real price (not 0, empty or NaN), like the item page needs (the plain-HTML list uses the same: service/item_lists.js)
-        sell: { $gt: 0 },
-        buy: { $gt: 0 }
+      // service/item_lists.js keeps every card in memory (read again once a minute) and filters and sorts them there
+      const filters = {
+        ...(text('name') !== undefined && { name: text('name') }),
+        ...(quality !== undefined && item_config.Quality[quality]?.id !== undefined && { qualityID: String(item_config.Quality[quality].id) }),
+        ...(text('type') !== undefined && { type: text('type') }),
+        ...(text('particle') !== undefined && { particle: text('particle') }),
+        ...(text('warpaint') !== undefined && { warpaint: text('warpaint') }),
+        ...(clas !== undefined && { classes: clas.split(',').map((str) => str.trim()) }),
+        ...(text('stock') !== undefined && { stock: text('stock') })
       };
 
-      const cache_key = JSON.stringify([skip, name, qualityID, type, particle, warpaint, clas, stock, sort])
-      const cached = items_cache.get(cache_key)
-      if (cached) {
-        return res.status(200).json(cached)
-      }
-
-      // only what the list shows: the copies themselves (stock.items) stay out, the list needs only how many
-      const project = {
-        bp_sku: 1, type: 1, buy: 1, sell: 1, qualityID: 1, effectID: 1, image: 1,
-        'bptf_data.update_key_price': 1, 'stock.items': 1, 'stock.cur': 1, 'stock.limit': 1,
-        _id: 0
-      };
-
-      const mongoose_pipeline = [
-        { $match: matchStage },
-        { $project: project },
-        { $addFields: { "stock.items_length": { $size: "$stock.items" } } },
-        { $sort: sort_obj },
-        { $skip: skip },
-        { $limit: limit },
-        { $project: { "stock.items": 0 } }
-      ];
-
-      const count_pipeline = [
-        { $match: matchStage },
-        { $count: "totalDocuments" }
-      ];
-
-      try {
-        const [results, countResult] = await Promise.all([
-          Instance.aggregate(mongoose_pipeline).exec(),
-          Instance.aggregate(count_pipeline).exec()
-        ]);
-        const totalDocuments = countResult.length > 0 ? countResult[0].totalDocuments : 0;
-        const body = { status: "ok", item_count: totalDocuments, response: results }
-        items_cache.set(cache_key, body)
-        res.status(200).json(body);
-      } catch (err) {
-        res.status(500).json({ status: "error", message: "db error" });
-      }
+      const list = await item_lists.cards(filters, text('sort'))
+      res.status(200).json({ status: "ok", item_count: list.length, response: list.slice(skip, skip + limit).map(item_lists.public_card) });
     } catch {
       res.status(500).json({ status: "error", message: "db error" });
     }
