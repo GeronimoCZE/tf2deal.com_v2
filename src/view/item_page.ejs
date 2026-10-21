@@ -38,7 +38,7 @@
                                     Item Overview
                                 </div> -->
                                 <div class="image-box q-<%= info.item?.qualityID %>">
-                                    <img src="<%= info.item?.image_large %>" alt="<%= item_alt(info.item) %>" class="image lazy-fade" onload="this.classList.add('loaded')" fetchpriority="high" effect-id="<%= info.item?.effectID %>">
+                                    <img src="<%= info.item?.image_large %>" alt="<%= item_alt(info.item) %>" class="image" fetchpriority="high" effect-id="<%= info.item?.effectID %>">
                                     <div class="btns">
                                         <button id="wishlist-btn"><%= __('item.wishlist') %></button>
                                     </div>

@@ -90,21 +90,21 @@
     "cookies": "TF2Deal.com - Politique de cookies"
   },
   "desc": {
-    "default": "Échangez vos objets TF2 à un prix juste sur TF2deal.com, un site automatisé pour échanger, acheter et vendre des chapeaux, armes, railleries Team Fortress 2 et bien plus.",
-    "trade": "Échangez des objets TF2 instantanément avec nos bots : choisissez des objets dans votre inventaire et le nôtre, obtenez un prix juste et recevez une offre d'échange Steam en quelques secondes.",
-    "items": "Parcourez des milliers d'objets TF2 avec prix et stock en temps réel. Achetez et vendez instantanément chapeaux, armes, railleries et bien plus sur TF2Deal.com.",
-    "blog": "Actualités, guides et nouveautés sur les échanges TF2, par TF2Deal.com.",
-    "about": "À propos de TF2Deal.com : un site d'échange Team Fortress 2 automatisé. Le fonctionnement de nos bots d'échange, la fixation des prix et comment nous contacter.",
-    "tos": "Conditions d'utilisation pour l'échange d'objets TF2 sur TF2Deal.com.",
-    "giveaway_active": "Gagnez {item} grâce au concours gratuit de TF2Deal.com. Connectez-vous via Steam et participez avant la fin.",
-    "giveaway_none": "Concours d'objets TF2 gratuits sur TF2Deal.com. Découvrez les anciens gagnants et revenez pour le prochain concours.",
+    "default": "Site de trading TF2 avec des bots automatiques. Achetez, vendez et échangez des objets TF2 : chapeaux, unusuals, armes, railleries et clés à prix juste en clés et ref.",
+    "trade": "Échangez des objets TF2 avec nos bots de trading TF2 : choisissez dans les deux inventaires, payez en clés ou en métal raffiné et recevez une offre Steam en quelques secondes.",
+    "items": "Prix et stock des objets TF2 en direct. Achetez et vendez chapeaux, unusuals, armes, railleries et plus contre des clés et du ref avec le trading TF2 instantané de TF2Deal.com.",
+    "blog": "Actualités, guides et prix du trading TF2 par TF2Deal.com, le site de bots d'échange TF2.",
+    "about": "À propos de TF2Deal.com, un site de trading TF2 automatisé : le fonctionnement de nos bots, la fixation des prix en clés et ref et comment nous contacter.",
+    "tos": "Conditions d'utilisation pour le trading TF2 avec les bots de TF2Deal.com.",
+    "giveaway_active": "Gagnez {item} grâce au concours TF2 gratuit de TF2Deal.com. Connectez-vous via Steam et participez avant la fin.",
+    "giveaway_none": "Concours d'objets TF2 gratuits sur TF2Deal.com, le site de trading TF2 automatisé. Découvrez les anciens gagnants et revenez pour le prochain concours.",
     "cookies": "Quels cookies TF2Deal.com utilise, pourquoi, et comment modifier votre choix.",
     "item_buy_sell": "Achetez {name} pour {buy} ou vendez cet objet pour {sell} sur TF2Deal.com.",
     "item_buy": "Achetez {name} pour {buy} sur TF2Deal.com.",
     "item_sell": "Vendez {name} pour {sell} sur TF2Deal.com.",
     "item_trade": "Échangez {name} sur TF2Deal.com.",
-    "item_stock": "En stock : {count}. Échanges automatisés instantanés.",
-    "item_no_stock": "Échanges TF2 automatisés et instantanés avec nos bots."
+    "item_stock": "En stock : {count}. Trading TF2 automatisé et instantané.",
+    "item_no_stock": "Trading TF2 automatisé et instantané avec nos bots."
   },
   "item_types": {
     "cosmetic": "Cosmétique",
