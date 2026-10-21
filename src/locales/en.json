@@ -713,7 +713,7 @@
     "load_wishlist_failed": "Failed to load your wishlist.",
     "load_giveaways_failed": "Failed to load your giveaways.",
     "gw_join_group": "Join our Steam group first.",
-    "gw_group_unknown": "We couldn't check your Steam groups. Make your Steam profile public and try again.",
+    "gw_group_unknown": "We couldn't reach Steam to check the group. Try again in a minute.",
     "gw_need_trade": "Make at least 1 trade on the site since this giveaway started.",
     "gw_none": "There is no giveaway running right now.",
     "gw_already": "You're already entered.",

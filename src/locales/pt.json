@@ -713,7 +713,7 @@
     "load_wishlist_failed": "Falha ao carregar sua lista de desejos.",
     "load_giveaways_failed": "Falha ao carregar seus sorteios.",
     "gw_join_group": "Entre no nosso grupo da Steam primeiro.",
-    "gw_group_unknown": "Não conseguimos verificar seus grupos da Steam. Deixe seu perfil da Steam público e tente novamente.",
+    "gw_group_unknown": "Não conseguimos acessar a Steam para verificar o grupo. Tente novamente em um minuto.",
     "gw_need_trade": "Faça pelo menos 1 troca no site desde o início deste sorteio.",
     "gw_none": "Não há nenhum sorteio em andamento no momento.",
     "gw_already": "Você já está participando.",

@@ -713,7 +713,7 @@
     "load_wishlist_failed": "Deine Wunschliste konnte nicht geladen werden.",
     "load_giveaways_failed": "Deine Gewinnspiele konnten nicht geladen werden.",
     "gw_join_group": "Tritt zuerst unserer Steam-Gruppe bei.",
-    "gw_group_unknown": "Wir konnten deine Steam-Gruppen nicht prüfen. Stell dein Steam-Profil auf öffentlich und versuch es erneut.",
+    "gw_group_unknown": "Wir konnten Steam nicht erreichen, um die Gruppe zu prüfen. Versuch es in einer Minute erneut.",
     "gw_need_trade": "Mach seit Beginn dieses Gewinnspiels mindestens 1 Trade auf der Seite.",
     "gw_none": "Gerade läuft kein Gewinnspiel.",
     "gw_already": "Du nimmst bereits teil.",
