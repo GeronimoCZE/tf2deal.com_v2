@@ -713,7 +713,7 @@
     "load_wishlist_failed": "Impossible de charger votre liste de souhaits.",
     "load_giveaways_failed": "Impossible de charger vos concours.",
     "gw_join_group": "Rejoignez d'abord notre groupe Steam.",
-    "gw_group_unknown": "Impossible de vérifier vos groupes Steam. Rendez votre profil Steam public et réessayez.",
+    "gw_group_unknown": "Impossible de joindre Steam pour vérifier le groupe. Réessayez dans une minute.",
     "gw_need_trade": "Effectuez au moins 1 échange sur le site depuis le début de ce concours.",
     "gw_none": "Aucun concours n'est en cours actuellement.",
     "gw_already": "Vous participez déjà.",

@@ -713,7 +713,7 @@
     "load_wishlist_failed": "加载你的愿望单失败。",
     "load_giveaways_failed": "加载你的抽奖记录失败。",
     "gw_join_group": "请先加入我们的 Steam 组。",
-    "gw_group_unknown": "我们无法检查你的 Steam 组。请将你的 Steam 个人资料设为公开后重试。",
+    "gw_group_unknown": "无法连接 Steam 来检查群组。请一分钟后再试。",
     "gw_need_trade": "请在本次抽奖开始后，在本站至少完成 1 笔交易。",
     "gw_none": "目前没有正在进行的抽奖。",
     "gw_already": "你已经参加过了。",
