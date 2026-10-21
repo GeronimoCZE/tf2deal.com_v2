@@ -32,6 +32,7 @@ import { bot_socket, createSocket, item_socket } from './service/socket.js'
 import * as seasons from './service/season.js'
 import { ticket_model } from './model/Ticket.js'
 import * as sitemap from './service/sitemap.js'
+import * as inventory_value from './service/inventory_value.js'
 
 const DOMAIN = 'localhost' 
 const PORT = 8080; // change to 8080
@@ -826,6 +827,7 @@ setInterval(async () => {
 }, 60 * 1000);
 
 seasons.start(); // reads this year's TF2 event dates from teamfortress.com
+inventory_value.start(); // Admin -> Inventory value: what the bots hold, measured every 15 minutes
 
 app.use((err, req, res, next) => {
   console.log(`Error on ${req.method} ${req.originalUrl}:`, err) // the address, so a 500 can be traced back to a page

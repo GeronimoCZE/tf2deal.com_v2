@@ -24,6 +24,7 @@ import { clients as settings_clients } from '../../service/settings_socket.js';
 import { bot_socket, item_socket } from '../../service/socket.js';
 import * as app from '../../app.js';
 import { has_admin_session } from '../../mw.js';
+import * as inventory_value from '../../service/inventory_value.js';
 
 export const router = express.Router();
 
@@ -408,6 +409,28 @@ router.post('/listings/create', db_ready, async (req, res) => {
 router.post('/listings/remove', async (req, res) => {
   const result = await listings.remove(req.body, `admin ${req.user?.steamid || ''}`.trim());
   res.status(result.status == 'ok' ? 200 : 400).json(result);
+});
+
+/* ========================= INVENTORY VALUE (service/inventory_value.js) ========================= */
+
+// ?from=&to= (ms): the measurements in that period, the first and the last one (their difference is the profit)
+router.get('/inventory_value', db_ready, async (req, res) => {
+  try {
+    const names = Object.fromEntries((Array.isArray(app.fp_data?.bots) ? app.fp_data.bots : []).map((b) => [String(b.steamid), b.personaname || '']));
+    res.json({ status: 'ok', ...(await inventory_value.history({ from: Number(req.query.from), to: Number(req.query.to) })), bot_names: names });
+  } catch (error) {
+    res.status(400).json({ status: 'error', message: error.message });
+  }
+});
+
+// "Measure now": at most once a minute
+let measured_at = 0;
+router.post('/inventory_value/measure', db_ready, async (req, res) => {
+  if(Date.now() - measured_at < 60 * 1000){ return res.status(429).json({ status: 'error', message: 'Measured less than a minute ago.' }) }
+  measured_at = Date.now();
+  const doc = await inventory_value.snapshot();
+  if(!doc){ return res.status(502).json({ status: 'error', message: `Not measured: ${inventory_value.state.error}` }) }
+  res.json({ status: 'ok', t: doc.t });
 });
 
 /* ========================= USERS ========================= */
