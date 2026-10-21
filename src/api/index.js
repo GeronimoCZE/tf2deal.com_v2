@@ -227,6 +227,10 @@ router.post('/create_trade', mw.isLogged, trade_limiter, async (req, res) => {
     if(!picked.copy){
       return res.status(409).json({ success: 0, status: "error", message: req.__(picked.error == 'pick' ? 'api.buy_link_pick' : 'api.buy_link_gone') })
     }
+    // a 0.055 ref copy alone is half a scrap, which keys and metal can't pay (docs/HALF_SCRAP.md)
+    if(picked.copy.sell > 0 && picked.copy.sell < 0.11){
+      return res.status(409).json({ success: 0, status: "error", message: req.__('api.buy_link_half_scrap') })
+    }
     const { assetid, bot, bp_sku, ks, festivized } = picked.copy
     site_data = { assetid, hash: Site?.hash, bot, bp_sku, ks, f: festivized ? 1 : 0 }
     linked.push({ bp_sku })

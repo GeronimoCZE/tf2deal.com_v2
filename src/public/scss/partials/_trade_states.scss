@@ -308,3 +308,19 @@ $tt-line: rgba(255, 255, 255, 0.08);
     body header .trade-offer-bar::before{ animation: none; }
     .item-tooltip.show{ animation: tooltipIn 1ms linear 150ms forwards; }
 }
+
+/* ---------- why a trade can't be sent yet (js/plugins/trade.js -> set_trade_note) ---------- */
+// e.g. a half scrap left over: 0.055 ref items go in pairs. Empty = hidden.
+.trade-note{
+    margin: .6rem 0 0;
+    padding: .55rem .9rem;
+    border-radius: var(--r-md);
+    background: rgba(var(--tint-rgb), .1);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.4;
+    text-align: center;
+    &:empty{ display: none; }
+}
+.index-ps .trade-note{ flex-basis: 98%; max-width: 46rem; }
+.item-page .trade-note{ max-width: calc(100% - 2rem - 2px); margin: .6rem auto 0; padding-left: 1rem; padding-right: 1rem; }

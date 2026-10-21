@@ -1301,7 +1301,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
 
     const QUALITY_ORDER = ['6', '11', '5', '1', '3', '13', '14', '15', '0', '9', '7', '8']
     const KS_LABELS = ['None', 'Killstreak', 'Specialized', 'Professional']
-    const ref_text = (n) => `${Math.round((Number(n) || 0) * 100) / 100} ref`
+    const ref_text = (n) => { n = Number(n) || 0; return `${n > 0 && n < 0.11 ? Math.round(n * 1000) / 1000 : Math.round(n * 100) / 100} ref` } // 0.055 stays 0.055
     const price_text = (p) => {
         const keys = Number(p?.keys) || 0, metal = Number(p?.metal) || 0
         return [keys ? `${num(keys)} key${keys == 1 ? '' : 's'}` : '', (metal || !keys) ? ref_text(metal) : ''].filter(Boolean).join(' ')
@@ -1364,7 +1364,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
                 <div class="admin-card" data-card="listing-never">
                     <div class="admin-card-head">
                         <div><h3>Never list <span class="admin-count" id="lx-count"></span></h3>
-                        <p class="muted">The bots don't list these items at all, whatever the rules say. They can still be traded on the site.</p></div>
+                        <p class="muted">The bots don't list these items at all, whatever the rules say. They can still be traded on the site. Items worth less than one scrap (like 0.055 ref weapons) are never listed either.</p></div>
                     </div>
                     <form class="admin-inline-form" id="lx-form">
                         <input id="lx-input" list="lx-items" autocomplete="off" placeholder="Item name, e.g. Team Captain">
@@ -1453,7 +1453,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
             const shown = cells.filter((c) => rules.some((r) => (!r.quality || r.quality == c.quality) && type_match(r.type, c.type))).reduce((s, c) => s + c.items, 0)
             const sides = [$('#lr-buy').checked && 'buy', $('#lr-sell').checked && 'sell'].filter(Boolean)
             $('#lr-summary').innerHTML = !enabled
-                ? `<strong>Off.</strong> The bots list every item they price (${num(total)} now), except the items under Never list.`
+                ? `<strong>Off.</strong> The bots list every item they price (${num(total)} now), except the items under Never list and those worth less than one scrap.`
                 : rules.length == 0 ? '<span class="admin-error">Tick at least one cell, or turn the rules off.</span>'
                 : `<strong>${num(shown)} of ${num(total)}</strong> priced items may be listed on the ${sides.length == 2 ? 'buy and sell' : sides[0] || '–'} side${sides.length == 1 ? '' : 's'}.${other_rules.length ? ` Plus ${other_rules.length} rule${other_rules.length == 1 ? '' : 's'} set by an app.` : ''}`
             rules_card.classList.toggle('is-off', !enabled)
@@ -1587,7 +1587,10 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
             root.querySelectorAll('#ln-intent button').forEach((b) => b.setAttribute('aria-checked', b.dataset.intent == intent))
             if(!item){ box.hidden = true; return }
             box.hidden = false
-            const rule_note = item.may_list[intent] ? '' : `<p class="muted small">The rules don't list this item on the ${intent} side; a listing made here is listed anyway.</p>`
+            const p_side = item[intent] || {}
+            const under_scrap = !(p_side.keys > 0) && p_side.metal > 0 && p_side.metal < 0.11
+            const rule_note = under_scrap ? `<p class="muted small">It's worth less than one scrap, so it is never listed on backpack.tf (0.055 ref items are traded on the site only). A listing needs a price of at least 0.11 ref.</p>`
+                : item.may_list[intent] ? '' : `<p class="muted small">The rules don't list this item on the ${intent} side; a listing made here is listed anyway.</p>`
             const no_copy = intent == 'sell' && item.copies.length == 0 ? `<p class="admin-error small">${esc(form.bot.selectedOptions[0]?.textContent || 'This bot')} doesn't hold this item.</p>` : ''
             box.innerHTML = `<span class="admin-stock-item"><img class="q-${esc(item.qualityID)}" src="${esc(item.image)}" alt="" loading="lazy">
                 <span><strong translate="no">${esc(item.bp_sku)}</strong><span class="muted small">Our prices: buy ${esc(price_text(item.buy))}, sell ${esc(price_text(item.sell))}${item.priced ? '' : ' (not priced now)'}</span></span></span>${rule_note}${no_copy}`

@@ -380,7 +380,8 @@
       "qty_in_trade": "{count} na troca",
       "qty_how_many_add": "Quantos você quer adicionar?",
       "qty_how_many_remove": "Quantos você quer remover?",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "half_scrap_left": "Itens de 0.055 ref (meio scrap) vão em pares: dois fazem um scrap. Adicione ou remova um para que a troca dê scraps inteiros."
     },
     "item": {
       "unusual_effect": "Efeito Unusual: {name}",
@@ -733,6 +734,7 @@
     "item_blacklisted": "{name} não pode ser trocado no momento.",
     "account_blocked": "Sua conta não pode criar trocas. Abra um ticket de suporte se achar que isso é um erro.",
     "buy_link_gone": "Este item não está mais em estoque.",
+    "buy_link_half_scrap": "Este item vale 0.055 ref (meio scrap), o que não dá para pagar sozinho com chaves e metal. Escolha dois na página do item.",
     "buy_link_pick": "Primeiro escolha qual item você quer."
   },
   "cookies": {
