@@ -1434,7 +1434,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
             body.innerHTML = `<div class="admin-table-wrap"><table class="admin-table admin-ll-table">
                     <thead><tr><th>Item</th><th>Side</th><th>Bot</th><th>Price</th><th class="nowrap">Made by</th><th>Listed</th><th></th></tr></thead>
                     <tbody>${rows.map((r, i) => `<tr data-i="${i}">
-                        <td><span class="admin-stock-item"><img class="q-${esc(r.qualityID)}" src="${esc(r.image || '/img/new_user.jpg')}" alt="" loading="lazy">
+                        <td><span class="admin-stock-item"><img class="q-${esc(r.qualityID)}" src="${esc(r.image || '/img/new_user-96.webp')}" alt="" loading="lazy">
                             <span>${r.item ? `<a href="/items/${encodeURIComponent(r.item)}" target="_blank" translate="no">${esc(r.name)}</a>` : `<span translate="no">${esc(r.name)}</span>`}
                             <span class="muted small">${esc(QUALITY_NAMES[r.qualityID] || '')}${r.assetid ? ` · #${esc(r.assetid)}` : ''}${r.details ? ` · <span title="${esc(r.details)}">“${esc(r.details.length > 60 ? r.details.slice(0, 57) + '…' : r.details)}”</span>` : ''}</span></span></span></td>
                         <td><span class="admin-ls-side ${r.intent}">${r.intent == 'buy' ? 'Buy' : 'Sell'}</span></td>

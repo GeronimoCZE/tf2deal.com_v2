@@ -9,25 +9,87 @@ import { notify } from './notifications.js'
 import { remove_posts, remove_due } from './giveaway_posts.js'
 
 const STEAM_GROUP_64_BASE = 103582791429521408n
+const MEMBERS_CACHE_MS = 2 * 60 * 1000 // the group's member list is read again after this...
+const MEMBERS_RECHECK_MS = 10 * 1000   // ... or after this for someone not on it (they may have just joined)
+const MEMBER_PAGES = 50                // 1,000 members per page
 
-// true / false, or null when Steam doesn't tell us (private profile, API down)
-const in_steam_group = async (steamid) => {
-    const group_id = String(process.env.STEAM_GROUP_ID || '')
-    if(!group_id){ return null }
+const community_xml = async (path) => {
+    try {
+        const res = await fetch('https://steamcommunity.com' + path, { timeout: 8000 })
+        return res.ok ? await res.text() : null
+    } catch (error) {
+        return null
+    }
+}
 
+// STEAM_GROUP_ID as the group's 64-bit id (<groupID64> in its memberslistxml); its 32-bit id, URL name
+// (tradetf2deal) or whole steamcommunity.com/groups/... address work too. Without it: the group the giveaway page links to.
+const DEFAULT_GROUP = 'tradetf2deal'
+let group = { setting: null, id64: null }
+const group_id64 = async () => {
+    const setting = String(process.env.STEAM_GROUP_ID || '').trim() || DEFAULT_GROUP
+    if(group.setting === setting && group.id64){ return group.id64 }
+
+    let id64 = null
+    if(/^\d{17,}$/.test(setting)){ id64 = setting }
+    else if(/^\d+$/.test(setting)){ id64 = (STEAM_GROUP_64_BASE + BigInt(setting)).toString() }
+    else {
+        const name = setting.replace(/^https?:\/\/steamcommunity\.com\/groups\//i, '').replace(/[/?#].*$/, '')
+        const xml = await community_xml(`/groups/${encodeURIComponent(name)}/memberslistxml/?xml=1`)
+        id64 = xml?.match(/<groupID64>(\d+)<\/groupID64>/)?.[1] || null
+    }
+    group = { setting, id64 }
+    return id64
+}
+
+// the player's groups from the Steam Web API: true / false, or null when Steam doesn't tell (private profile, API down)
+const listed_in_group = async (steamid, id64) => {
     try {
         const res = await fetch(`https://api.steampowered.com/ISteamUser/GetUserGroupList/v1/?key=${process.env.API_KEY_STEAM}&steamid=${steamid}`, { timeout: 8000 })
         if(!res.ok){ return null }
         const data = await res.json()
         if(!data?.response?.success){ return null }
-
-        // the API returns 32-bit group ids, STEAM_GROUP_ID may be either format
-        return (data.response.groups || []).some(({ gid }) => {
-            return String(gid) == group_id || (STEAM_GROUP_64_BASE + BigInt(gid)).toString() == group_id
-        })
+        // the API gives 32-bit group ids
+        return (data.response.groups || []).some(({ gid }) => /^\d+$/.test(String(gid)) && (STEAM_GROUP_64_BASE + BigInt(gid)).toString() == id64)
     } catch (error) {
         return null
     }
+}
+
+// the group's own member list (public whatever the members' profile settings), as a Set of steamids, or null
+let members = { id64: null, time: 0, set: null, loading: null }
+const group_members = async (id64, max_age) => {
+    if(members.id64 === id64 && members.set && Date.now() - members.time < max_age){ return members.set }
+    if(members.loading?.id64 === id64){ return members.loading.promise }
+
+    const promise = (async () => {
+        const set = new Set()
+        for(let page = 1, pages = 1; page <= pages && page <= MEMBER_PAGES; page++){
+            const xml = await community_xml(`/gid/${id64}/memberslistxml/?xml=1&p=${page}`)
+            if(!xml?.includes('<memberList>')){ return null }
+            pages = Number(xml.match(/<totalPages>(\d+)<\/totalPages>/)?.[1]) || 1
+            for(const match of xml.matchAll(/<steamID64>(\d+)<\/steamID64>/g)){ set.add(match[1]) }
+        }
+        members = { id64, time: Date.now(), set, loading: null }
+        return set
+    })().finally(() => { if(members.loading?.promise === promise){ members.loading = null } })
+    members.loading = { id64, promise }
+    return promise
+}
+
+// true / false, or null when Steam doesn't tell us (Steam down). A private profile hides its groups from the
+// Web API, so anyone the API doesn't list is looked up in the group's member list.
+const in_steam_group = async (steamid) => {
+    const id64 = await group_id64()
+    if(!id64){ return null }
+
+    const listed = await listed_in_group(steamid, id64)
+    if(listed === true){ return true }
+
+    let set = await group_members(id64, MEMBERS_CACHE_MS)
+    if(set && !set.has(String(steamid))){ set = await group_members(id64, MEMBERS_RECHECK_MS) }
+    if(!set){ return listed }
+    return set.has(String(steamid))
 }
 
 // { steam_group: true|false|null|undefined, trade: true|false|undefined, ok: boolean }

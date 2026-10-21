@@ -1044,18 +1044,24 @@ img[src="/img/background.jpg"]{
 
                 }
                 button{
-                    height: 1.5rem;
-                    width: 1.5rem;
+                    // 32px to tap, in the same box height (it reaches into the box's padding)
+                    height: 2rem;
+                    width: 2rem;
+                    flex: none;
                     padding: 0;
-                    margin: 0;
+                    margin: -.25rem -.25rem -.25rem 0;
                     font-size: 17px;
                     background: transparent;
                     color: rgb(228, 228, 228);
                     border: none;
-                    outline: none;
+                    border-radius: 4px;
                     cursor: pointer;
                     &:hover{
                         color: #fff;
+                    }
+                    &:focus-visible{
+                        outline: 2px solid var(--violet);
+                        outline-offset: -2px;
                     }
                 }
             }

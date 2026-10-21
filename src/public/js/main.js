@@ -527,8 +527,24 @@ addEventListener('DOMContentLoaded', (event) => {
     const particle_kind = document.body.classList.contains('season-summer') ? 'dust'
         : document.body.classList.contains('season-halloween') ? 'ash' : null
 
-    if( particle_kind && $("#tsparticles").length && typeof tsParticles != 'undefined' ){
-        tsParticles.load("tsparticles", { particles: PARTICLES[particle_kind] });
+    // The library (about 2 s of work on a mid-range phone) is fetched only after the page has loaded and the browser
+    // is idle, so it never holds up the first view; phones get fewer particles at 30 fps, reduced motion gets none.
+    const particle_box = document.getElementById('tsparticles')
+    if( particle_kind && particle_box?.dataset.src && !window.matchMedia('(prefers-reduced-motion: reduce)').matches ){
+        const small = window.matchMedia('(max-width: 768px)').matches
+        const start = () => {
+            const script = document.createElement('script')
+            script.src = particle_box.dataset.src
+            script.onload = () => tsParticles.load("tsparticles", {
+                fpsLimit: small ? 30 : 60,
+                detectRetina: !small,
+                particles: { ...PARTICLES[particle_kind], number: { ...PARTICLES[particle_kind].number, value: small ? 15 : PARTICLES[particle_kind].number.value } }
+            })
+            document.head.appendChild(script)
+        }
+        const later = () => ('requestIdleCallback' in window) ? requestIdleCallback(start, { timeout: 3000 }) : setTimeout(start, 1500)
+        if (document.readyState == 'complete') later()
+        else window.addEventListener('load', later, { once: true })
     }
 
     if(TD_PATH.startsWith('/items/')){

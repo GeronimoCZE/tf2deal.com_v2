@@ -36,7 +36,9 @@ to delete it by hand.
 ### Steam group
 
 - `STEAM_GROUP_ID`: the group's id number. Open `https://steamcommunity.com/groups/YOURGROUP/memberslistxml/?xml=1`
-  and copy the number in `<groupID64>`.
+  and copy the number in `<groupID64>`. The giveaway's group check also takes the group's URL name, and uses
+  `tradetf2deal` (the group the giveaway page links to) when this is empty. It looks players up in the group's
+  public member list, so players with a private Steam profile can join too.
 - `STEAM_GROUP_ACCOUNT` and `STEAM_GROUP_PASSWORD`: the sign-in name and password of the Steam account that posts.
   - It has to be an **officer of the group**: on the group page open the members list, click the account and
     promote it to officer.
