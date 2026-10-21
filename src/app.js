@@ -250,10 +250,10 @@ const static_headers = (res) => {
   }
 }
 
-// XML sitemaps, built from the database on request (before the static files, so old sitemap files left on disk
+// the XML sitemap, built from the database on request (before the static files, so old sitemap files left on disk
 // are never served)
-app.get(['/sitemap.xml', '/sitemap_index.xml'], sitemap.index_handler)
-app.get('/sitemaps/:file', sitemap.file_handler)
+app.get('/sitemap.xml', sitemap.handler)
+app.get(['/sitemap_index.xml', '/sitemaps/:file'], sitemap.redirect)
 
 // Fonts and images rarely change, so browsers keep them for a while; everything else is checked on each visit
 app.use('/font', express.static(path.join(__dirname, 'public/font'), { maxAge: '30d' }))
