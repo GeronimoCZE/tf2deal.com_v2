@@ -419,6 +419,7 @@ const blog_page = async (req, res, next) => {
       'blog_page',
       fn.res_data(!!req.user, req.user, user_cookie, `${shown.title} - TF2Deal.com Blog`, {
         view: 'blog_page',
+        post_id: String(post._id), // the admin bar's Edit post link
         promtLogin: true,
         // SEO: excerpt, or the start of the post when there's no excerpt
         description: shown.excerpt || fn.markdown_excerpt(shown.content),

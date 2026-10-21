@@ -30,6 +30,7 @@ import {router as profileRoute} from './routes/profile.js'
 
 import { bot_socket, createSocket, item_socket } from './service/socket.js'
 import * as seasons from './service/season.js'
+import { ticket_model } from './model/Ticket.js'
 
 const DOMAIN = 'localhost' 
 const PORT = 8080; // change to 8080
@@ -312,6 +313,19 @@ app.use(passport.session());
 io.engine.use(sessionMiddleware);
 io.engine.use(passport.initialize());
 io.engine.use(passport.session());
+
+// WordPress-style admin bar on every page for the admin's Steam account (partials/admin_bar.ejs). The panel itself
+// still needs the admin password (/login); until then the bar offers to unlock it.
+app.use(async (req, res, next) => {
+  if (!req.user?.steamid || !process.env.ADMIN_STEAMID || req.user.steamid !== process.env.ADMIN_STEAMID) return next()
+  const unlocked = mw.has_admin_session(req)
+  res.locals.admin_bar = { unlocked, until: unlocked ? Number(req.session.admin_until) : 0, tickets_open: null }
+  // open tickets for the Tickets link, on pages only (not on API calls)
+  if (unlocked && process.db_status?.connected === true && req.method == 'GET' && !req.path.startsWith('/api/') && req.accepts('html')) {
+    res.locals.admin_bar.tickets_open = await ticket_model.countDocuments({ status: 'open' }).catch(() => null)
+  }
+  next()
+})
 
 // 5. Language (/de/..., /cs/... -> see i18n.js), then SEO data for the page
 app.use(i18n.middleware)

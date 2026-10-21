@@ -1,0 +1,66 @@
+<%# WordPress-style admin bar: only for the admin's Steam account (app.js sets admin_bar). The links open the admin
+    panel's sections; the panel still asks for the admin password (/login) when it isn't unlocked. Logic: js/admin_bar.js %>
+<% if (locals.admin_bar) {
+    const ab = locals.admin_bar
+    const on_admin = String(locals.page_path || '').startsWith('/admin')
+    const sections = [['overview', 'Overview'], ['settings', 'Live settings'], ['stock', 'Stock limits'], ['listings', 'Listings'], ['users', 'Users'], ['ratings', 'Ratings'], ['trades', 'Trade records'], ['notifications', 'Notifications'], ['tickets', 'Tickets'], ['blog', 'Blog'], ['giveaways', 'Giveaways']]
+    // the page's own admin link, like WordPress's "Edit post"
+    const context = locals.info?.view == 'blog_page' && locals.info?.post_id ? ['Edit post', '/admin#blog/edit/' + locals.info.post_id]
+        : locals.info?.view == 'giveaway' ? ['Manage giveaways', '/admin#giveaways']
+        : null
+    const trading_on = (typeof site_settings != 'undefined' ? site_settings?.trading : true) !== false
+%>
+<div class="admin-bar" id="admin-bar" role="navigation" aria-label="Admin">
+    <div class="ab-group">
+        <div class="ab-menu">
+            <a class="ab-item ab-brand" href="<%= on_admin ? '/' : '/admin' %>">
+                <img src="/img/logo_icon.png" width="18" height="18" alt="">
+                <span><%= on_admin ? 'View site' : 'Admin' %></span>
+            </a>
+            <div class="ab-sub">
+                <% for (const [id, name] of sections) { %><a href="/admin#<%= id %>"><%= name %></a><% } %>
+            </div>
+        </div>
+        <a class="ab-item ab-wide" href="/admin#settings">Live settings</a>
+        <a class="ab-item ab-wide" href="/admin#listings">Listings</a>
+        <a class="ab-item" href="/admin#tickets" title="Open tickets">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>
+            <span class="ab-label">Tickets</span>
+            <% if (ab.tickets_open > 0) { %><span class="ab-count"><%= ab.tickets_open %></span><% } %>
+        </a>
+        <div class="ab-menu">
+            <span class="ab-item" tabindex="0">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg>
+                <span class="ab-label">New</span>
+            </span>
+            <div class="ab-sub">
+                <a href="/admin#blog/new">Blog post</a>
+                <a href="/admin#giveaways">Giveaway</a>
+                <a href="/admin#notifications">Notification</a>
+                <a href="/admin#listings">Listing</a>
+            </div>
+        </div>
+        <% if (context) { %><a class="ab-item ab-context" href="<%= context[1] %>">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.3V21h3.7l11-11-3.7-3.7zM20.7 7a1 1 0 0 0 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.7 3.7z"/></svg>
+            <span class="ab-label"><%= context[0] %></span>
+        </a><% } %>
+    </div>
+    <div class="ab-group">
+        <span class="ab-item ab-state ab-wide" data-state="<%= typeof bots != 'undefined' && bots == 'online' ? 'on' : 'off' %>" title="Bot server">
+            <i aria-hidden="true"></i><%= typeof bots != 'undefined' && bots == 'online' ? 'Bots online' : 'Bots offline' %>
+        </span>
+        <button type="button" class="ab-item ab-state ab-trading" data-state="<%= trading_on ? 'on' : 'off' %>" title="<%= trading_on ? 'Click to pause trading for everyone' : 'Click to turn trading back on' %>">
+            <i aria-hidden="true"></i><span>Trading <%= trading_on ? 'on' : 'paused' %></span>
+        </button>
+        <% if (ab.unlocked) { %>
+            <span class="ab-item ab-session ab-wide" data-until="<%= ab.until %>" title="The admin password is needed again after this">Unlocked</span>
+        <% } else { %>
+            <a class="ab-item ab-unlock" href="/login" title="Enter the admin password">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8h-1V6A5 5 0 0 0 7 6v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zM9 6a3 3 0 0 1 6 0v2H9zm4 9.7V18h-2v-2.3a2 2 0 1 1 2 0z"/></svg>
+                <span class="ab-label">Unlock admin</span>
+            </a>
+        <% } %>
+    </div>
+</div>
+<script src="<%= asset('/js/admin_bar.js') %>" defer></script>
+<% } %>
