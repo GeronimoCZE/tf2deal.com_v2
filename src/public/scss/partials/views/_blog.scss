@@ -22,9 +22,7 @@
         overflow: hidden;
         @include panel(0);
         color: var(--ink);
-        transition: border-color 200ms;
         &:hover{
-            border-color: var(--line-strong);
             .read-more{ color: #c7a6ff; }
         }
         .cover{
