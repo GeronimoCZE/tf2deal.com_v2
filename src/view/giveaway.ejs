@@ -78,7 +78,7 @@
                       <div class="name" translate="no"><%= old.item.bp_sku %></div>
                       <div class="winner">
                         <% if (old.winner?.steamid) { %>
-                          <img src="<%= old.winner.avatar || '/img/new_user.jpg' %>" alt="" loading="lazy">
+                          <img src="<%= old.winner.avatar || '/img/new_user-96.webp' %>" alt="" loading="lazy">
                           <span class="winner-text">
                             <small><%= __('giveaway.winner') %></small>
                             <a href="https://steamcommunity.com/profiles/<%= old.winner.steamid %>" target="_blank" rel="nofollow"><%= old.winner.name || __('giveaway.winner') %></a>

@@ -255,9 +255,10 @@ const static_headers = (res) => {
 app.get(['/sitemap.xml', '/sitemap_index.xml'], sitemap.index_handler)
 app.get('/sitemaps/:file', sitemap.file_handler)
 
-// Fonts and images rarely change, so browsers keep them for a while; everything else is checked on each visit
+// Fonts and images rarely change, so browsers keep them for a month (give a changed picture a new name); everything
+// else is checked on each visit
 app.use('/font', express.static(path.join(__dirname, 'public/font'), { maxAge: '30d' }))
-app.use('/img', express.static(path.join(__dirname, 'public/img'), { maxAge: '7d' }))
+app.use('/img', express.static(path.join(__dirname, 'public/img'), { maxAge: '30d' }))
 app.use(express.static(path.join(__dirname,'public'), { setHeaders: static_headers }));
 
 app.locals.site_url = fn.site_url
