@@ -3,9 +3,7 @@ import path from 'path'
 import SteamID from 'steamid'
 import * as app from './app.js'
 import {item_model as Items} from '../src/model/Item.js'
-import { blog_model } from './model/Blog.js'
-import { localize_path, LANGS, DEFAULT_LANG, t_for } from './i18n.js'
-import { available_langs } from './service/translate.js'
+import { localize_path, DEFAULT_LANG, t_for } from './i18n.js'
 import { bot_socket } from './service/socket.js'
 import * as settings from './service/settings.js'
 import * as season from './service/season.js'
@@ -15,7 +13,7 @@ import { url } from 'inspector'
    CORE HELPERS
 ======================= */
 
-// Public address of the site: used for canonical URLs, social tags and the sitemaps.
+// Public address of the site: used for canonical URLs, social tags and the sitemaps (service/sitemap.js).
 const site_url = 'https://tf2deal.com'
 
 // '/items/' -> '/items' (one URL per page for search engines)
@@ -253,82 +251,19 @@ const price_history_rows = (history, limit = 30) => {
    DB / FILE OPS
 ======================= */
 
-const SITEMAP_FILE_SIZE = 22500 // URLs per item sitemap file (search engines take up to 50,000)
+const ITEM_NAMES_FILE_SIZE = 22500 // names per file in src/api/data
 
-const update_sitemap = async () => {
+// Item names for the search suggestions (/api/item_names): every active item. The sitemaps are built on request
+// (service/sitemap.js).
+const update_item_names = async () => {
   try {
-    const sitemap_dir = path.join(process.cwd(), '/src/public/sitemaps')
-    const chunks = (list) => Array.from({ length: Math.ceil(list.length / SITEMAP_FILE_SIZE) }, (_, n) => list.slice(n * SITEMAP_FILE_SIZE, (n + 1) * SITEMAP_FILE_SIZE))
-
-    // item names for the search suggestions (/api/item_names): every active item, as before
     const active = await Items.find({ status: { $in: [1, 2] } }, { _id: 0, bp_sku: 1 }).lean()
-    chunks(active.map((item) => item.bp_sku)).forEach((names, n) => {
-      fs.writeFileSync(path.join(process.cwd(), `/src/api/data/item_names${n + 1}.txt`), names.join(','))
-    })
-
-    // item pages for search engines: the items the bots really trade (item_indexable above), each one once,
-    // in every language: sitemap_1.txt (English), sitemap_de_1.txt, ...
-    const indexable = await Items.find(SITEMAP_ITEMS_QUERY, { _id: 0, bp_sku: 1 }).lean()
-    const names = [...new Set(indexable.map((item) => item.bp_sku).filter(Boolean))].sort()
-    const item_files = chunks(names)
-    item_files.forEach((list, n) => {
-      for (const lang of LANGS) {
-        const file = lang === DEFAULT_LANG ? `sitemap_${n + 1}.txt` : `sitemap_${lang}_${n + 1}.txt`
-        fs.writeFileSync(path.join(sitemap_dir, file), list.map((name) => site_url + localize_path(lang, '/items/' + encodeURIComponent(name))).join('\n'))
-      }
-    })
-
-    // remove item sitemaps left over from a run that had more items (they would list old URLs; an empty one is an error)
-    for (const file of fs.readdirSync(sitemap_dir)) {
-      const n = Number(file.match(/^sitemap_(?:[a-z]{2}_)?(\d+)\.txt$/)?.[1])
-      if (n > item_files.length) fs.unlinkSync(path.join(sitemap_dir, file))
+    const names = active.map((item) => item.bp_sku)
+    for (let n = 0; n * ITEM_NAMES_FILE_SIZE < names.length; n++) {
+      fs.writeFileSync(path.join(process.cwd(), `/src/api/data/item_names${n + 1}.txt`), names.slice(n * ITEM_NAMES_FILE_SIZE, (n + 1) * ITEM_NAMES_FILE_SIZE).join(','))
     }
-    console.log(`Sitemap: ${names.length} item pages (of ${active.length} active items)`)
-
-    // main pages in every language; documents that only exist in English once
-    const pages = ['/', '/trade', '/items', '/giveaway', '/blog', '/about']
-    const english_only = ['/terms-of-service', '/cookies']
-    fs.writeFileSync(
-      path.join(process.cwd(), '/src/public/sitemaps/index.txt'),
-      [...LANGS.flatMap(lang => pages.map(p => site_url + localize_path(lang, p))), ...english_only.map(p => site_url + p)].join('\n')
-    )
-
-    // published blog posts, in every language they exist in (the original + AI translations, see service/translate.js)
-    const posts = await blog_model.find({ published: true }, { slug: 1, lang: 1, source_hash: 1, translations: 1 }).lean()
-    const blog_sitemap = path.join(process.cwd(), '/src/public/sitemaps/sitemap_blog.txt')
-    if (posts.length > 0) {
-      fs.writeFileSync(blog_sitemap, posts.flatMap(post => available_langs(post).map(lang => site_url + localize_path(lang, `/blog/${encodeURIComponent(post.slug)}`))).join('\n'))
-    } else if (fs.existsSync(blog_sitemap)) {
-      fs.unlinkSync(blog_sitemap) // an empty sitemap is reported as an error by Search Console
-    }
-
-    const sitemapDir = '/src/public/sitemaps';
-    const sitemapsUrl = `${site_url}/sitemaps`;
-
-    const files = fs.readdirSync(path.join(process.cwd(), sitemapDir))
-      .filter(f => f.startsWith('sitemap_') && f.endsWith('.txt'));
-
-    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    xml += `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-
-    xml += `  <sitemap>\n`;
-    xml += `    <loc>${sitemapsUrl}/index.txt</loc>\n`;
-    xml += `  </sitemap>\n`;
-
-    for (const file of files) {
-      xml += `  <sitemap>\n`;
-      xml += `    <loc>${sitemapsUrl}/${file}</loc>\n`;
-      xml += `  </sitemap>\n`;
-    }
-
-    xml += `</sitemapindex>`;
-
-    fs.writeFileSync(path.join(process.cwd(), '/src/public/', 'sitemap.xml'), xml);
-    console.log('Sitemaps generated sucessfully');
-
   } catch (error) {
-    // the sitemaps from the last good run stay in place
-    console.log('Sitemap update failed:', error?.message || error)
+    console.log('Item names update failed:', error?.message || error)
   }
 }
 
@@ -447,7 +382,7 @@ export {
   round_ref,
   setup_cache,
   item_check,
-  update_sitemap,
+  update_item_names,
   socketCallback,
   escape_html,
   render_markdown,
