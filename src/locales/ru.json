@@ -16,7 +16,14 @@
     "giveaways": "Розыгрыши",
     "settings": "Настройки",
     "sign_out": "Выйти",
-    "notifications": "Уведомления"
+    "notifications": "Уведомления",
+    "theme": "Тема",
+    "theme_auto": "Автоматически",
+    "theme_auto_hint": "по событиям TF2",
+    "theme_night": "Ночное небо",
+    "theme_summer": "Лето",
+    "theme_halloween": "Scream Fortress",
+    "theme_smissmas": "Smissmas"
   },
   "common": {
     "sign_in_steam": "Войти через Steam",

@@ -106,7 +106,7 @@ body.season-summer, body.season-halloween{
             background: rgba(var(--tint-rgb), 0.1);
             &:hover{ background: rgba(var(--tint-rgb), 0.2); }
         }
-        .lang-option.active{ background: rgba(var(--tint-rgb), 0.3) !important; }
+        .lang-option.active, .theme-option.active{ background: rgba(var(--tint-rgb), 0.3) !important; }
         .section-devider{ background: rgba(var(--tint-rgb), 0.16) !important; }
     }
     .user-avatar{

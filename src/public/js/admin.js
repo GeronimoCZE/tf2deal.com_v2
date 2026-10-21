@@ -548,7 +548,7 @@
 
                 <div class="admin-card" data-card="season">
                     <h3>Seasonal theme</h3>
-                    <p class="muted">During TF2 events the site changes its home picture, background, colours and the falling particles. On Auto the dates come from the TF2 update notes on teamfortress.com, with the usual dates as a fallback.</p>
+                    <p class="muted">During TF2 events the site changes its home picture, background, colours and the falling particles. On Auto the dates come from the TF2 update notes on teamfortress.com, with the usual dates as a fallback. This is what visitors see on Automatic; anyone can pick another theme for themselves in the menu.</p>
                     <div class="admin-segment wrap" id="set-season" role="radiogroup" aria-label="Seasonal theme">
                         ${SEASON_CHOICES.map(([v, t]) => `<button type="button" role="radio" data-season="${v}">${t}</button>`).join('')}
                     </div>

@@ -16,7 +16,14 @@
     "giveaways": "Soutěže",
     "settings": "Nastavení",
     "sign_out": "Odhlásit se",
-    "notifications": "Oznámení"
+    "notifications": "Oznámení",
+    "theme": "Motiv",
+    "theme_auto": "Automaticky",
+    "theme_auto_hint": "podle akcí v TF2",
+    "theme_night": "Noční obloha",
+    "theme_summer": "Léto",
+    "theme_halloween": "Scream Fortress",
+    "theme_smissmas": "Smissmas"
   },
   "common": {
     "sign_in_steam": "Přihlásit se přes Steam",

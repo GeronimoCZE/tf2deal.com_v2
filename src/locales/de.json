@@ -16,7 +16,14 @@
     "giveaways": "Gewinnspiele",
     "settings": "Einstellungen",
     "sign_out": "Abmelden",
-    "notifications": "Benachrichtigungen"
+    "notifications": "Benachrichtigungen",
+    "theme": "Design",
+    "theme_auto": "Automatisch",
+    "theme_auto_hint": "folgt den TF2-Events",
+    "theme_night": "Nachthimmel",
+    "theme_summer": "Sommer",
+    "theme_halloween": "Scream Fortress",
+    "theme_smissmas": "Smissmas"
   },
   "common": {
     "sign_in_steam": "Mit Steam anmelden",
