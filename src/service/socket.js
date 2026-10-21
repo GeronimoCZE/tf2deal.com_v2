@@ -105,10 +105,27 @@ setTimeout(() => {
     })
 
 
-    items_io.on('disconnect', () => {
+    items_io.on('disconnect', (reason) => {
         item_socket.timestamp = Date.now();
         item_socket.socket = null;
-        console.log('Items socket disconnected.');
+        console.log(`Items socket disconnected (${reason}).`);
+        // socket.io only reconnects by itself after a lost connection; when the item server turned us away
+        // ("io server disconnect", e.g. SERVER_TOKEN / SERVER_SECRET differ between the two .env files) it never would
+        if(reason === 'io server disconnect'){ setTimeout(() => items_io.connect(), 30000) }
+    });
+
+    // the item server says why it refused the connection (never the token values)
+    items_io.on('auth_error', (data) => {
+        console.log(`Items socket refused by the item server: ${data?.reason || 'no reason given'}`);
+    });
+
+    // it keeps retrying; logged once a minute, or when the reason changes
+    let connect_error = { message: '', at: 0 }
+    items_io.on('connect_error', (err) => {
+        const message = String(err?.message || err)
+        if(message === connect_error.message && Date.now() - connect_error.at < 60000){ return }
+        connect_error = { message, at: Date.now() }
+        console.log(`Items socket can't connect to ${process.env.ITEMS_ENDPOINT || 'ITEMS_ENDPOINT (not set)'}: ${message}`);
     });
 
     bots_io.on('connect', () => {

@@ -31,6 +31,7 @@ import {router as profileRoute} from './routes/profile.js'
 import { bot_socket, createSocket, item_socket } from './service/socket.js'
 import * as seasons from './service/season.js'
 import { ticket_model } from './model/Ticket.js'
+import * as sitemap from './service/sitemap.js'
 
 const DOMAIN = 'localhost' 
 const PORT = 8080; // change to 8080
@@ -249,6 +250,11 @@ const static_headers = (res) => {
   }
 }
 
+// XML sitemaps, built from the database on request (before the static files, so old sitemap files left on disk
+// are never served)
+app.get(['/sitemap.xml', '/sitemap_index.xml'], sitemap.index_handler)
+app.get('/sitemaps/:file', sitemap.file_handler)
+
 // Fonts and images rarely change, so browsers keep them for a while; everything else is checked on each visit
 app.use('/font', express.static(path.join(__dirname, 'public/font'), { maxAge: '30d' }))
 app.use('/img', express.static(path.join(__dirname, 'public/img'), { maxAge: '7d' }))
@@ -324,6 +330,27 @@ app.use(async (req, res, next) => {
   if (unlocked && process.db_status?.connected === true && req.method == 'GET' && !req.path.startsWith('/api/') && req.accepts('html')) {
     res.locals.admin_bar.tickets_open = await ticket_model.countDocuments({ status: 'open' }).catch(() => null)
   }
+// The look of the page: the theme the visitor picked in the menu (td_theme cookie), or the site's own (the TF2 event
+// look, service/season.js). GET /theme/<choice> saves a choice and goes back to the page it was picked on.
+app.get('/theme/:choice', (req, res) => {
+  const choice = req.params.choice
+  if (!seasons.CHOICES.includes(choice)) return res.status(404).send('Not found')
+  if (choice == 'auto') res.clearCookie(seasons.THEME_COOKIE, { path: '/' })
+  else res.cookie(seasons.THEME_COOKIE, choice, seasons.THEME_COOKIE_OPTIONS)
+  // back to the same page on this site (only its path, never another site)
+  let back = '/'
+  try {
+    const from = new URL(req.get('referer') || '')
+    if (from.host == req.get('host') && /^\/(?![\/\\])/.test(from.pathname)) back = from.pathname + from.search
+  } catch (e) {}
+  res.set('X-Robots-Tag', 'noindex')
+  res.redirect(303, back)
+})
+app.locals.season_class = ''
+app.locals.theme = 'auto'
+app.use((req, res, next) => {
+  res.locals.theme = seasons.theme_choice(req)
+  res.locals.season_class = seasons.body_class(res.locals.theme) // '' = the normal look, else season-summer / -halloween / -smissmas
   next()
 })
 
@@ -378,7 +405,7 @@ const connectDB = async () => {
         console.log('connected to DB')
         fn.setup_cache();
         settings.load().catch((e) => console.log('Failed to load site settings', e.message));
-        fn.update_sitemap();
+        fn.update_item_names();
         giveaways.refresh_state().catch((e) => console.log('Failed to load giveaways', e.message));
         translate.sweep().catch((e) => console.log('translate: start failed', e.message)); // AI translations still missing
 
@@ -770,7 +797,8 @@ setInterval(async () => {
         } }
     ])
 
-    await fn.update_sitemap()
+    await fn.update_item_names()
+    sitemap.clear()
   }
 
   // ends giveaways whose time is up and draws the winners

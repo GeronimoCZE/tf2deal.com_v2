@@ -106,6 +106,30 @@ body::before{
 @media (prefers-reduced-motion: reduce){
     body::before{ animation: none; }
 }
+// Boxes are solid in the normal look: the aurora showed through the see-through ones and made their text hard to
+// read. These are the colours of _design.scss as they looked over the night sky (rgb(10, 16, 50)).
+body:not(.season-summer):not(.season-halloween):not(.season-smissmas){
+    --surface: rgb(4, 11, 40);
+    --tile: rgb(24, 30, 78);
+    --tile-hover: rgb(37, 43, 104);
+    --well: rgb(3, 9, 34);
+    --brand-muted: rgb(41, 31, 90);
+    --brand-muted-hover: rgb(58, 39, 112);
+    --green-muted: rgb(30, 100, 43);
+    // tinted boxes that sit right on the page (not in a panel): the same tints, solid
+    .item__btn, .total-value, a.view-items-btn{
+        --surface-2: rgb(18, 22, 64);
+        --surface-3: rgb(25, 28, 77);
+    }
+    .item__btn.active:hover{ background: rgb(41, 145, 40) !important; }
+    .btn.trade-btn:not(.ready){ background: rgb(15, 37, 48) !important; }
+    .trade-status.online{ background: rgb(15, 37, 48) !important; }
+    .trade-status.offline{ background: rgb(34, 23, 50) !important; }
+    .about-ps .info-div{ background: rgb(53, 28, 50); }
+    @media screen and (max-width: 1370px){
+        #site-nav .nav-wrapper{ background: rgb(4, 11, 41); }
+    }
+}
 
 body::-webkit-scrollbar { /* WebKit */
     width: 0;

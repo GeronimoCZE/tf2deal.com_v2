@@ -16,7 +16,14 @@
     "giveaways": "抽奖",
     "settings": "设置",
     "sign_out": "退出登录",
-    "notifications": "通知"
+    "notifications": "通知",
+    "theme": "主题",
+    "theme_auto": "自动",
+    "theme_auto_hint": "跟随 TF2 活动",
+    "theme_night": "夜空",
+    "theme_summer": "夏季",
+    "theme_halloween": "Scream Fortress",
+    "theme_smissmas": "Smissmas"
   },
   "common": {
     "sign_in_steam": "通过 Steam 登录",

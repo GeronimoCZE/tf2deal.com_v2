@@ -74,6 +74,14 @@ cd ~/tf2deal && git pull && npm install && pm2 restart tf2deal
 
 Your `src/config/.env` stays untouched by `git pull`.
 
+If `git pull` stops with "Your local changes to the following files would be overwritten" and lists
+`src/public/sitemap.xml` or files in `src/public/sitemaps/`: those are old sitemap files the server wrote itself.
+The sitemaps are now built on request, so drop the server's copies and pull again:
+
+```bash
+git checkout -- src/public/sitemap.xml src/public/sitemaps && git pull
+```
+
 ## Optional: domain and HTTPS
 
 Put Nginx in front of port 8080 and get a free certificate:

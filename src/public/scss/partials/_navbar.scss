@@ -532,12 +532,12 @@ header{
                         height: fit-content !important;
                         display: block;
                     }
-                    &.dc-langSelect{
+                    &.dc-langSelect, &.dc-themeSelect{
                         @include lt-md{
                             padding: 0 0 0 0;
                         }
                     }
-                    .langSelect{
+                    .langSelect, .themeSelect{
                         display: flex;
                         flex-direction: row;
                         justify-content: center;
@@ -613,7 +613,7 @@ header{
                         *{
                             pointer-events: none;
                         }
-                        .lang-option{ 
+                        .lang-option, .theme-option{
                             position: relative;
                             pointer-events: all;
                             display: flex;
@@ -638,7 +638,7 @@ header{
                                 width: 2rem;
                                 margin-right: .3rem;
                             }
-                            span.lang-name{
+                            span.lang-name, span.theme-name{
                                 font-size: 17px;
                                 display: block;
                                 white-space: nowrap;

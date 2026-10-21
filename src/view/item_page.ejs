@@ -9,7 +9,7 @@
         const itemStock = <%- JSON.stringify(info.item?.stock ?? null).replace(/</g, '\\u003c') %>;
     </script>
     <%- include('./partials/head.ejs') %>
-    <body class="<%= info?.season %>">
+    <body class="<%= season_class %>">
         <%- include('./partials/nav.ejs') %>
         
         <div class="main-wrapper">

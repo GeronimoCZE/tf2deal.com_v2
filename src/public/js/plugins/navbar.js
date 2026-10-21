@@ -16,7 +16,7 @@ const collapseLinks = () => {
     hamburger.classList.toggle('is-active')
     document.getElementById('collapseNavLinks').setAttribute('aria-expanded', links.classList.contains('open'))
     // close any open dropdowns inside the menu
-    document.querySelectorAll('nav .langSelect.open, nav .user-avatar.open, nav .link.dropdown.community.open').forEach((el) => el.classList.remove('open'))
+    document.querySelectorAll('nav .langSelect.open, nav .themeSelect.open, nav .user-avatar.open, nav .link.dropdown.community.open').forEach((el) => el.classList.remove('open'))
 
     $('#body_overlay').remove();
     $('body').removeClass('no-scroll')
