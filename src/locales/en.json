@@ -90,21 +90,21 @@
     "cookies": "TF2Deal.com - Cookie Policy"
   },
   "desc": {
-    "default": "Trade TF2 items with fair price at TF2deal.com, an automated website for exchange, buy and sell Team Fortress 2 hats, weapons, taunts, and more.",
-    "trade": "Trade TF2 items instantly with our bots: pick items from your inventory and ours, get a fair price and receive a Steam trade offer in seconds.",
-    "items": "Browse thousands of TF2 items with live prices and stock. Buy and sell hats, weapons, taunts and more instantly on TF2Deal.com.",
-    "blog": "News, guides and updates about TF2 trading from TF2Deal.com.",
-    "about": "About TF2Deal.com: an automated Team Fortress 2 trading site. How our trade bots work, how prices are set and how to reach us.",
-    "tos": "Terms of Service for trading TF2 items on TF2Deal.com.",
-    "giveaway_active": "Win {item} in the free TF2Deal.com giveaway. Sign in with Steam and enter before it ends.",
-    "giveaway_none": "Free TF2 item giveaways on TF2Deal.com. See past winners and check back for the next giveaway.",
+    "default": "TF2 trading site with automated trade bots. Buy, sell and trade TF2 items: hats, unusuals, weapons, taunts and keys at fair prices in keys and ref.",
+    "trade": "Trade TF2 items with our TF2 trade bots: pick items from both inventories, pay in keys or refined metal and get a Steam trade offer in seconds.",
+    "items": "Live TF2 item prices and stock. Buy and sell TF2 hats, unusuals, weapons, taunts and more for keys and ref with instant TF2 trading on TF2Deal.com.",
+    "blog": "TF2 trading news, guides and price updates from TF2Deal.com, the automated TF2 trade bot site.",
+    "about": "About TF2Deal.com, an automated TF2 trading site: how our TF2 trade bots work, how prices in keys and ref are set and how to reach us.",
+    "tos": "Terms of Service for TF2 trading with the TF2Deal.com trade bots.",
+    "giveaway_active": "Win {item} in the free TF2Deal.com TF2 giveaway. Sign in with Steam and enter before it ends.",
+    "giveaway_none": "Free TF2 item giveaways on TF2Deal.com, the automated TF2 trading site. See past winners and check back for the next giveaway.",
     "cookies": "Which cookies TF2Deal.com uses, why, and how to change your choice.",
     "item_buy_sell": "Buy {name} for {buy} or sell it for {sell} on TF2Deal.com.",
     "item_buy": "Buy {name} for {buy} on TF2Deal.com.",
     "item_sell": "Sell {name} for {sell} on TF2Deal.com.",
     "item_trade": "Trade {name} on TF2Deal.com.",
-    "item_stock": "{count} in stock, instant automated trades.",
-    "item_no_stock": "Instant automated TF2 trades with our bots."
+    "item_stock": "{count} in stock, instant automated TF2 trading.",
+    "item_no_stock": "Instant automated TF2 trading with our trade bots."
   },
   "item_types": {
     "cosmetic": "Cosmetic",
