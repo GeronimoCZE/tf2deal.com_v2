@@ -6,7 +6,8 @@
 // the usual dates below are used instead. Outside an event the site keeps its normal look.
 //
 // The admin panel (Live settings → Seasonal theme) can force a theme or turn it off: settings.season is
-// 'auto' (default), 'off', 'summer', 'halloween' or 'smissmas'.
+// 'auto' (default), 'off', 'summer', 'halloween' or 'smissmas'. Each visitor can also pick a theme of their own in
+// the menu (body_class(choice)); 'auto' follows the site.
 //
 //   current()  { id: 'halloween' | 'summer' | 'smissmas' | null, name, ends, source }
 //   status()   the same plus what was read from teamfortress.com (for the admin panel)
@@ -146,10 +147,18 @@ export const status = () => ({
   source: { ok: state.ok, fetched: state.fetched, error: state.error, events: state.events.slice(0, 6) }
 })
 
-// the class on <body>: '' outside events
-export const body_class = () => {
+// the class on <body>: '' outside events. `choice` is a visitor's own theme (the td_theme cookie, see theme_choice):
+// 'off' = the normal look, a season = that season's look all year, 'auto' = what the site shows (above)
+export const body_class = (choice = 'auto') => {
+  if (choice == 'off') { return '' }
+  if (SEASONS[choice]) { return `season-${choice}` }
   const s = current()
   return s.id ? `season-${s.id}` : ''
 }
+
+// The theme a visitor picked in the menu (GET /theme/<choice> saves it in the td_theme cookie): one of CHOICES
+export const THEME_COOKIE = 'td_theme'
+export const THEME_COOKIE_OPTIONS = { maxAge: 365 * 24 * 3600 * 1000, sameSite: 'lax', path: '/' }
+export const theme_choice = (req) => CHOICES.includes(req.cookies?.[THEME_COOKIE]) ? req.cookies[THEME_COOKIE] : 'auto'
 
 export const start = () => { maybe_refresh() }

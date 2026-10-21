@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="<%= html_lang %>">
     <%# hero particles only during the summer (dust) and Scream Fortress (ash) events; Smissmas has the site-wide blizzard (js/blizzard.js) %>
-    <% if (['season-summer', 'season-halloween'].includes(info?.season)) { %><script src="<%= vendor.tsparticles %>" defer></script><% } %>
+    <% if (['season-summer', 'season-halloween'].includes(season_class)) { %><script src="<%= vendor.tsparticles %>" defer></script><% } %>
 
     <%- include('./partials/head.ejs') %>
-    <body class="<%- info?.season %>">
+    <body class="<%= season_class %>">
         <%- include('./partials/nav.ejs') %>
             
         <div class="main-wrapper">
@@ -20,7 +20,7 @@
                 <div class="page-section home-ps-1">
                     <div class="bg-block">
                         <div class="color-image"></div>
-                        <% const hero = ({ 'season-summer': '/img/seasons/summer-bw', 'season-halloween': '/img/seasons/halloween-bw' })[info?.season] %>
+                        <% const hero = ({ 'season-summer': '/img/seasons/summer-bw', 'season-halloween': '/img/seasons/halloween-bw' })[season_class] %>
                         <img class="home-background1 lazy-fade" onload="this.classList.add('loaded')" width="1920" height="817" sizes="(max-width: 1920px) 100vw, 1920px"
                             <% if (hero) { %>src="<%= hero %>.webp" srcset="<%= hero %>-960.webp 960w, <%= hero %>.webp 1920w"<% } else { %>src="/img/cabin-bw-1920.webp" srcset="/img/cabin-bw-960.webp 960w, /img/cabin-bw-1920.webp 1920w, /img/cabin-bw.webp 3840w"<% } %> alt="">
                     </div> 

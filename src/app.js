@@ -313,6 +313,30 @@ io.engine.use(sessionMiddleware);
 io.engine.use(passport.initialize());
 io.engine.use(passport.session());
 
+// The look of the page: the theme the visitor picked in the menu (td_theme cookie), or the site's own (the TF2 event
+// look, service/season.js). GET /theme/<choice> saves a choice and goes back to the page it was picked on.
+app.get('/theme/:choice', (req, res) => {
+  const choice = req.params.choice
+  if (!seasons.CHOICES.includes(choice)) return res.status(404).send('Not found')
+  if (choice == 'auto') res.clearCookie(seasons.THEME_COOKIE, { path: '/' })
+  else res.cookie(seasons.THEME_COOKIE, choice, seasons.THEME_COOKIE_OPTIONS)
+  // back to the same page on this site (only its path, never another site)
+  let back = '/'
+  try {
+    const from = new URL(req.get('referer') || '')
+    if (from.host == req.get('host') && /^\/(?![\/\\])/.test(from.pathname)) back = from.pathname + from.search
+  } catch (e) {}
+  res.set('X-Robots-Tag', 'noindex')
+  res.redirect(303, back)
+})
+app.locals.season_class = ''
+app.locals.theme = 'auto'
+app.use((req, res, next) => {
+  res.locals.theme = seasons.theme_choice(req)
+  res.locals.season_class = seasons.body_class(res.locals.theme) // '' = the normal look, else season-summer / -halloween / -smissmas
+  next()
+})
+
 // 5. Language (/de/..., /cs/... -> see i18n.js), then SEO data for the page
 app.use(i18n.middleware)
 app.use((req, res, next) => {

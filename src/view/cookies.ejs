@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="<%= html_lang %>">
     <%- include('./partials/head.ejs') %>
-    <body class="<%= info?.season %>">
+    <body class="<%= season_class %>">
         <%- include('./partials/nav.ejs') %>
 
         <div class="main-wrapper">
@@ -34,6 +34,7 @@
                         <div class="row"><div><code>td_&lt;your SteamID&gt;</code></div><div>Your account settings (trade URL, email if you added one, wishlist) so the Site can serve your pages. Only readable by our server.</div><div>1 year</div></div>
                         <div class="row"><div><code>td_current_url</code></div><div>The page you were on, so we can bring you back to it after signing in.</div><div>1 day</div></div>
                         <div class="row"><div><code>td_lang</code></div><div>The language you picked in the language menu (or the "also available in" bar), so the Site opens in it next time. Only set when you pick a language yourself.</div><div>1 year</div></div>
+                        <div class="row"><div><code>td_theme</code></div><div>The theme you picked in the theme menu (Night sky, Summer, Scream Fortress or Smissmas), so the Site keeps that look. Only set when you pick a theme yourself; picking Automatic removes it.</div><div>1 year</div></div>
                         <div class="row"><div><code>td_consent</code></div><div>That you've seen the cookie notice, and your cookie choices if the Site uses optional cookies.</div><div>12 months</div></div>
                         <div class="row"><div><code>authenticated</code></div><div>Only set for the site administrator in the admin panel.</div><div>1 hour</div></div>
                         <div class="row"><div><code>__cf_bm</code>, <code>cf_clearance</code></div><div>Set by Cloudflare, our hosting and security provider, to tell people apart from bots and block attacks.</div><div>30 minutes / up to 1 year</div></div>

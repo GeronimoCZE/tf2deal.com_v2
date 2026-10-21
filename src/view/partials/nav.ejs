@@ -83,6 +83,23 @@
                         <% } %>
                     </div>
                 </div>
+                <%# the visitor's own theme: /theme/<choice> saves it (app.js, service/season.js); Automatic follows the site %>
+                <% const theme_opts = ['auto', 'off', 'summer', 'halloween', 'smissmas'].map((code) => [code, __('nav.theme_' + (code == 'off' ? 'night' : code))]) %>
+                <div class="dropdown-container dc-themeSelect">
+                    <div class="themeSelect" id="themeSelect" title="<%= __('nav.theme') %>">
+                        <span class="theme-swatch theme-<%= theme %>" aria-hidden="true"></span>
+                        <span class="theme-current-name"><%= __('nav.theme') %>: <%= (theme_opts.find(([code]) => code == theme) || theme_opts[0])[1] %></span>
+                        <span class="icon icon-arrow_down"></span>
+                    </div>
+                    <div class="dropdown dropdown-item">
+                        <% for (const [code, name] of theme_opts) { %>
+                        <a class="theme-option<%= code == theme ? ' active' : '' %>" href="/theme/<%= code %>" rel="nofollow">
+                            <span class="theme-swatch theme-<%= code %>" aria-hidden="true"></span>
+                            <span class="theme-name"><%= name %><% if (code == 'auto') { %><small><%= __('nav.theme_auto_hint') %></small><% } %></span>
+                        </a>
+                        <% } %>
+                    </div>
+                </div>
                 <% if(user){ %><button type="button" class="nav-bell nav-bell-desktop" data-notif-bell title="<%= __('nav.notifications') %>" aria-label="<%= __('nav.notifications') %>" aria-haspopup="dialog" aria-expanded="false">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-1.7 1.7a1 1 0 0 0 .7 1.7h16a1 1 0 0 0 .7-1.7z"/></svg>
                 <span class="nav-bell-count" hidden></span>

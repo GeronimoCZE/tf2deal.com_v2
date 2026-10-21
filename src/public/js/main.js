@@ -647,14 +647,16 @@ addEventListener('DOMContentLoaded', (event) => {
 
             if(e.target.parentElement.classList.contains('dropdown-container') || e.target.classList.contains('dropdown-item')){
                 if(e.target.classList.contains('langSelect')){
-                    navDropdown('.langSelect', ['.user-avatar', '.notifications'])
+                    navDropdown('.langSelect', ['.user-avatar', '.notifications', '.themeSelect'])
+                } else if(e.target.classList.contains('themeSelect')){
+                    navDropdown('.themeSelect', ['.user-avatar', '.notifications', '.langSelect'])
                 } else if(e.target.classList.contains('notifications')){
-                    navDropdown('.notifications', ['.user-avatar', '.langSelect'])
+                    navDropdown('.notifications', ['.user-avatar', '.langSelect', '.themeSelect'])
                 } else if(e.target.classList.contains('user-avatar')){
-                    navDropdown('.user-avatar', ['.langSelect', '.notifications'])
+                    navDropdown('.user-avatar', ['.langSelect', '.notifications', '.themeSelect'])
                 }
             } else {
-                navDropdown('', ['.notifications', '.user-avatar', '.langSelect'])
+                navDropdown('', ['.notifications', '.user-avatar', '.langSelect', '.themeSelect'])
             }
             
             if(e.target.getAttribute('id') == "collapseNavLinks"){

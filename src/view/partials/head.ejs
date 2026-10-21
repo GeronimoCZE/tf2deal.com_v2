@@ -96,7 +96,7 @@
     <script src="<%= vendor.micromodal %>" defer></script>
     <script src="<%= vendor.socket_io %>" defer></script>
     <script src="<%= asset('/js/socket.js') %>" defer></script>
-    <% if (info?.season == 'season-smissmas') { %><script src="<%= asset('/js/blizzard.js') %>" defer></script><% } %>
+    <% if (season_class == 'season-smissmas') { %><script src="<%= asset('/js/blizzard.js') %>" defer></script><% } %>
     <link rel="preload" href="/font/rubik-700-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="<%= asset('/css/style.css') %>">
 
@@ -290,7 +290,7 @@
                 localStorage.setItem('warpaints_update', Date.now() + 1000*60*60*24)
             });
         }
-        const session = `<%- tl(info?.season) %>`;
+        const session = `<%- tl(season_class) %>`;
         const user_id = `<%- tl(user?.hash?.hex) %>`;
         const promtLogin = `<%- tl(info?.promtLogin) %>`
         const server = `<%- tl(trading) %>`
