@@ -206,7 +206,8 @@ export const send_manual = async () => {
 
 const split_price = (ref, key_ref) => {
   const keys = (key_ref > 0 && ref >= key_ref) ? Math.floor(ref / key_ref) : 0
-  return { keys, metal: Math.round((ref - keys * key_ref) * 100) / 100 }
+  const metal = ref - keys * key_ref
+  return { keys, metal: (metal > 0 && metal < 0.11) ? Math.round(metal * 1000) / 1000 : Math.round(metal * 100) / 100 } // 0.055 stays 0.055
 }
 
 // What the form needs once an item and a bot are picked: its prices (buy, sell, each killstreak tier) and, for a
@@ -260,6 +261,7 @@ export const create = async (input, by) => {
   if(!Number.isInteger(keys) || keys < 0 || keys > MAX_KEYS){ return { status: 'error', message: `Keys must be a whole number from 0 to ${MAX_KEYS}.` } }
   if(!Number.isFinite(metal) || metal < 0 || metal >= 10000){ return { status: 'error', message: 'Refined must be a number from 0, e.g. 1.33.' } }
   if(keys == 0 && metal == 0){ return { status: 'error', message: 'Set a price.' } }
+  if(keys == 0 && metal < 0.11){ return { status: 'error', message: 'Nothing under one scrap (0.11 ref) is listed on backpack.tf; 0.055 ref items are traded on the site only.' } }
 
   const doc = await item_model.findOne({ bp_sku }, { _id: 0, bp_sku: 1, killstreak: 1, 'stock.items': 1 }).lean()
   if(!doc){ return { status: 'error', message: 'No item with that name. Pick one from the list.' } }

@@ -76,6 +76,8 @@
                             </div>
                         </div>
                     </div>
+                    <%# why the trade can't be sent yet, e.g. a half scrap left over (js/plugins/trade.js -> set_trade_note) %>
+                    <p class="trade-note" id="trade-note" role="status"></p>
                     <div class="trade-inv-window user-window">
                         <div class="filters" id="user-filters">
                             <div class="filter-btn" id="filter-btn-user"><span class="icon icon-arrow_down"></span> <%= __('filters.filters') %></div>

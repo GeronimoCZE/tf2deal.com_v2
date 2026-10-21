@@ -380,7 +380,8 @@
       "qty_in_trade": "{count} im Trade",
       "qty_how_many_add": "Wie viele möchtest du hinzufügen?",
       "qty_how_many_remove": "Wie viele möchtest du entfernen?",
-      "cancel": "Abbrechen"
+      "cancel": "Abbrechen",
+      "half_scrap_left": "Gegenstände für 0.055 Ref (ein halber Scrap) gehen paarweise: zwei ergeben einen Scrap. Füge einen hinzu oder entferne einen, damit der Handel in ganzen Scraps aufgeht."
     },
     "item": {
       "unusual_effect": "Unusual-Effekt: {name}",
@@ -733,6 +734,7 @@
     "item_blacklisted": "{name} kann gerade nicht gehandelt werden.",
     "account_blocked": "Dein Konto kann keine Trades erstellen. Öffne ein Support-Ticket, wenn du das für einen Fehler hältst.",
     "buy_link_gone": "Dieser Gegenstand ist nicht mehr auf Lager.",
+    "buy_link_half_scrap": "Dieser Gegenstand ist 0.055 Ref wert (ein halber Scrap), das lässt sich allein nicht mit Schlüsseln und Metall bezahlen. Wähle auf der Gegenstandsseite zwei davon.",
     "buy_link_pick": "Wähle zuerst, welchen Gegenstand du möchtest."
   },
   "cookies": {

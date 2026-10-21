@@ -380,7 +380,8 @@
       "qty_in_trade": "交易中 {count} 个",
       "qty_how_many_add": "要添加多少个？",
       "qty_how_many_remove": "要移除多少个？",
-      "cancel": "取消"
+      "cancel": "取消",
+      "half_scrap_left": "价值 0.055 ref（半个 scrap）的物品需成对交易：两个合成一个 scrap。请再添加或移除一个，让交易凑成整数个 scrap。"
     },
     "item": {
       "unusual_effect": "Unusual 特效：{name}",
@@ -733,6 +734,7 @@
     "item_blacklisted": "{name} 目前无法交易。",
     "account_blocked": "您的账户无法创建交易。如果您认为这是错误，请提交支持工单。",
     "buy_link_gone": "此物品已无库存。",
+    "buy_link_half_scrap": "此物品价值 0.055 ref（半个 scrap），无法单独用钥匙和金属支付。请在物品页面选择两个。",
     "buy_link_pick": "请先选择你想要的物品。"
   },
   "cookies": {

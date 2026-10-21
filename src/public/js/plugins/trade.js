@@ -1141,6 +1141,23 @@ const round_ref = (refs, direction) => {
     return parseFloat((ref + float).toFixed(2));
 }
 
+// Items worth less than one scrap (0.11 ref), like 0.055 ref weapons, are half-scrap items: each counts as 0.055 ref
+// and two of them make a scrap. Keys and metal only come in whole scraps, so a trade can only be sent when the
+// half-scrap items on both sides pair up (docs/HALF_SCRAP.md).
+const HALF_SCRAP = 0.055;
+const is_half_scrap = (price) => Number(price) > 0 && Number(price) < 0.11;
+
+// metal in ref rounded to whole scraps, plus the half scrap when the side has one: 1.165
+const metal_value = (ref, half) => half
+    ? Number((round_ref(Math.max(ref - HALF_SCRAP, 0), 'nearest') + HALF_SCRAP).toFixed(3))
+    : round_ref(ref, 'nearest');
+
+// the line under the trade buttons that says why the trade can't be sent yet ('' = nothing to say)
+const set_trade_note = (text) => {
+    const el = document.querySelector('#trade-note');
+    if(el && el.textContent != text){ el.textContent = text; }
+}
+
 console.log(itemAttr.Quality);
 
 
@@ -1915,17 +1932,21 @@ const single_update_trade = async (party) => {
     const trade_total = ItemTrade.total;
     
     const keyCount = trade_total / key_price;
-    const has_scrap_items = ItemTrade.iit.some(asset => single_price(asset, party === "trade-user") == 0.05);
-    const refCount = has_scrap_items ? Number((keyCount - Math.trunc(keyCount)) * key_price).toFixed(3) : round_ref((keyCount - Math.trunc(keyCount)) * key_price)
+    const half_left = single_half_left();
+    const refCount = metal_value((keyCount - Math.trunc(keyCount)) * key_price, half_left)
     
     document.querySelector('.trade-stats #trade-count').textContent = ItemTrade.iit.length;    
     document.querySelector('.trade-total #trade-key-total').textContent = Math.trunc(keyCount);    
     // 0.550 -> 0.55 (only cut zeros after the decimal point: 50 stays 50)
     document.querySelector('.trade-total #trade-ref-total').textContent = String(refCount).includes('.') ? String(refCount).replace(/0+$/, '').replace(/\.$/, '') : refCount;
 
-    document.querySelector(".trade-nav #trade-btn").classList.toggle('ready', ItemTrade.iit.length > 0)
+    document.querySelector(".trade-nav #trade-btn").classList.toggle('ready', ItemTrade.iit.length > 0 && !half_left)
     document.querySelector(".trade-nav #remove-iit")?.classList.toggle('ready', ItemTrade.iit.length > 0)
+    set_trade_note(half_left ? __('trade.half_scrap_left') : '')
 }
+
+// Item page: an odd number of half-scrap copies (0.055 ref) is picked, which keys and metal can't pay
+const single_half_left = () => ItemTrade.iit.filter(asset => is_half_scrap(single_price(asset, ItemTrade.party == "trade-user"))).length % 2 == 1;
 
 const single_item_to_trade = async (action, item, party) => {
     try {
@@ -1963,7 +1984,7 @@ const single_item_to_trade = async (action, item, party) => {
                     return false;
                 }
                 const price = single_price(asset, ItemTrade.party == "trade-user");
-                ItemTrade.total += (price == 0.05) ? 0.055 : price;
+                ItemTrade.total += is_half_scrap(price) ? HALF_SCRAP : price;
                 ItemTrade.iit.push(asset)
                 item.classList.add('in-trade')
 
@@ -1983,7 +2004,7 @@ const single_item_to_trade = async (action, item, party) => {
                 const index = (asset?.ownerId) ? ItemTrade.iit.findIndex(itm => itm.a == item.getAttribute('data-assetid') && itm.ownerId == item.getAttribute('data-bot')) : ItemTrade.iit.findIndex(itm => itm.a == item.getAttribute('data-assetid'))
                 if(index > -1){
                     const price = single_price(ItemTrade.iit[index], ItemTrade.party == "trade-user");
-                    ItemTrade.total -= (price == 0.05) ? 0.055 : price;
+                    ItemTrade.total -= is_half_scrap(price) ? HALF_SCRAP : price;
                     ItemTrade.iit.splice(index, 1)
 
                     const overstocked = (single_stock().cur + ItemTrade.iit.length >= single_stock().limit) ? true:false
@@ -2037,7 +2058,10 @@ const item_page_trade_body = () => {
     const selling = ItemTrade.party == "trade-user";
     const key_metal = key_price?.metal > 0 ? key_price.metal : itemKey;
     const items = ItemTrade.iit.map(asset => ({...asset, bp_sku: item.bp_sku, [selling ? 'buy' : 'sell']: single_price(asset, selling), stock: itemStock, key: itemKey}));
-    const items_metal = items.reduce((sum, itm) => sum + ((selling ? itm.buy : itm.sell) / (itm.key || 1)) * key_metal, 0);
+    const items_metal = items.reduce((sum, itm) => {
+        const price = selling ? itm.buy : itm.sell;
+        return sum + (is_half_scrap(price) ? HALF_SCRAP : (price / (itm.key || 1)) * key_metal);
+    }, 0);
 
     const user_iit = new Trade_Object().iit;
     const site_iit = new Trade_Object().iit;
@@ -2342,6 +2366,7 @@ const update_trade = async () => {
         const user_item_total = Object.values(UserTrade.iit.items).reduce((sum, item) => {
             const buy = item.buy || 0;
             const key = item.key || 1;
+            if(is_half_scrap(buy)){ return sum; } // counted below
     
             return sum + (buy / key);
         }, 0);
@@ -2349,9 +2374,16 @@ const update_trade = async () => {
         const site_item_total = Object.values(SiteTrade.iit.items).reduce((sum, item) => {
             const buy = item.sell || 0;
             const key = item.key || 1;
+            if(is_half_scrap(buy)){ return sum; }
     
             return sum + (buy / key);
         }, 0);
+
+        // half-scrap items are 0.055 ref each whatever the key price; when an odd number is left over after pairing
+        // the two sides, keys and metal can't make up the difference, so that half scrap stays unpaid
+        const user_half = UserTrade.iit.items.filter(item => is_half_scrap(item.buy)).length;
+        const site_half = SiteTrade.iit.items.filter(item => is_half_scrap(item.sell)).length;
+        const half_left = Math.abs(user_half - site_half) % 2 == 1;
     
         const key_metal = key_price.metal > 0 ? key_price.metal : SiteTrade.iit.items[0]?.key;
     
@@ -2365,8 +2397,8 @@ const update_trade = async () => {
             return false;
         }
     
-        const user_item_metal = user_item_total*key_metal
-        const site_item_metal = site_item_total*key_metal
+        const user_item_metal = user_item_total*key_metal + user_half*HALF_SCRAP
+        const site_item_metal = site_item_total*key_metal + site_half*HALF_SCRAP
     
         const user_key_el = document.querySelector(`.item-grid #user-grid .pure.keys`)
         const user_ref_el = document.querySelector(`.item-grid #user-grid .pure.refs`)
@@ -2383,10 +2415,14 @@ const update_trade = async () => {
         const trade_rec_limit = 150;
         const trade_scrap_limit = 150;
     
-        if(round_ref(user_item_metal) > round_ref(site_item_metal)){
-            const diff = user_item_metal - site_item_metal
+        // what the paying side adds: keys and whole scraps (the half scrap left over isn't paid)
+        const unpaid = half_left ? HALF_SCRAP : 0
+        const pays = round_ref(Math.abs(user_item_metal - site_item_metal) - unpaid, 'nearest') > 0
+
+        if(pays && user_item_metal > site_item_metal){
+            const diff = user_item_metal - site_item_metal - unpaid
             const keys_diff = Math.trunc(diff / key_metal)
-            const metal_diff = round_ref(diff - (keys_diff * key_metal))
+            const metal_diff = round_ref(diff - (keys_diff * key_metal), 'nearest')
     
             UserTrade.iit.total_pure.price = 0
             SiteTrade.iit.total_pure.price = diff
@@ -2444,10 +2480,10 @@ const update_trade = async () => {
             if(user_key_it_el){
                 document.querySelector(`.items-in-trade #user-grid`).removeChild(user_key_it_el)
             }
-        } else if(round_ref(user_item_metal) < round_ref(site_item_metal)){
-            const diff = site_item_metal - user_item_metal
+        } else if(pays && user_item_metal < site_item_metal){
+            const diff = site_item_metal - user_item_metal - unpaid
             const keys_diff = Math.trunc(diff / key_metal)
-            const metal_diff = round_ref(diff - (keys_diff * key_metal))
+            const metal_diff = round_ref(diff - (keys_diff * key_metal), 'nearest')
     
             let keys_to_add = keys_diff; 
             let metal_to_add = metal_diff;
@@ -2504,6 +2540,9 @@ const update_trade = async () => {
                 document.querySelector(`.items-in-trade #site-grid`).removeChild(site_key_it_el)
             }
         } else {
+            UserTrade.iit.total_pure.price = 0
+            SiteTrade.iit.total_pure.price = 0
+
             if(site_ref_it_el){
                 document.querySelector(`.items-in-trade #site-grid`).removeChild(site_ref_it_el)
             }
@@ -2526,8 +2565,8 @@ const update_trade = async () => {
         const site_key_raw = SiteTrade.iit.total.price / key_metal
         const user_keys = Math.trunc(user_key_raw)
         const site_keys = Math.trunc(site_key_raw)
-        const user_metal = round_ref((user_key_raw - user_keys) * key_metal)
-        const site_metal = round_ref((site_key_raw - site_keys) * key_metal)
+        const user_metal = metal_value((user_key_raw - user_keys) * key_metal, user_half % 2 == 1)
+        const site_metal = metal_value((site_key_raw - site_keys) * key_metal, site_half % 2 == 1)
     
         document.querySelector(`#user-key-total`).textContent = user_keys;
         document.querySelector(`#user-ref-total`).textContent = (user_metal == 0) ? "0.00":user_metal;
@@ -2535,11 +2574,12 @@ const update_trade = async () => {
         document.querySelector(`#site-key-total`).textContent = site_keys;
         document.querySelector(`#site-ref-total`).textContent = (site_metal == 0) ? "0.00":site_metal;
     
-        if(round_ref(UserTrade.iit.total.price) === round_ref(SiteTrade.iit.total.price) && UserTrade.iit.total.price > 0){
+        if(round_ref(UserTrade.iit.total.price) === round_ref(SiteTrade.iit.total.price) && UserTrade.iit.total.price > 0 && !half_left){
             document.querySelector('.btn.trade-btn').classList.add('ready')
         } else {
             document.querySelector('.btn.trade-btn').classList.remove('ready')        
         }
+        set_trade_note(half_left ? __('trade.half_scrap_left') : '')
     
         if(UserTrade.iit.items.length == 0 && SiteTrade.iit.items.length == 0){
             document.querySelector(`.items-in-trade #user-grid`).appendChild(document.createElement('span')).classList.add('no-items')
@@ -3319,7 +3359,7 @@ const create_trade = async (type, data, on_result) => {
     }
 
     if(view == "item_page"){
-        if(trade_req || ItemTrade.iit.length == 0){ return false; }
+        if(trade_req || ItemTrade.iit.length == 0 || single_half_left()){ return false; }
         set_item_trade_btn('creating')
     }
 

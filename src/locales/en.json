@@ -380,7 +380,8 @@
       "qty_in_trade": "{count} in trade",
       "qty_how_many_add": "How many do you want to add?",
       "qty_how_many_remove": "How many do you want to remove?",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "half_scrap_left": "Items worth 0.055 ref (half a scrap) go in pairs: two make a scrap. Add or remove one so the trade comes to whole scraps."
     },
     "item": {
       "unusual_effect": "Unusual Effect: {name}",
@@ -733,6 +734,7 @@
     "item_blacklisted": "{name} can't be traded right now.",
     "account_blocked": "Your account can't create trades. Open a support ticket if you think this is a mistake.",
     "buy_link_gone": "This item isn't in stock any more.",
+    "buy_link_half_scrap": "This item is worth 0.055 ref (half a scrap), which keys and metal can't pay on its own. Pick two of them on the item page.",
     "buy_link_pick": "Pick which item you want first."
   },
   "cookies": {
