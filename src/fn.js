@@ -113,6 +113,8 @@ const trade_offer_obj = (trade_id, trade_url) => ({
 ======================= */
 
 const round_ref = (refs) => {
+  // less than a scrap (half-scrap weapons, 0.055 ref) stays as it is instead of rounding to 0
+  if (refs > 0 && refs < 0.11) return Number(refs.toFixed(3))
   const ref = Math.trunc(refs)
   let ref_float = refs - ref
   ref_float = Number(ref_float.toFixed(5))
@@ -222,15 +224,15 @@ const list_price_text = (ref, key_price) => {
   const key = Number(key_price) || 0
   const value = Number(ref) || 0
   let keys = key > 0 ? Math.floor(value / key) : 0
-  let metal = Number(round_ref(value - keys * key).toFixed(2))
-  if (key > 0 && metal >= key) { metal = Number(round_ref(metal - key).toFixed(2)); keys++ }
+  let metal = Number(round_ref(value - keys * key).toFixed(3))
+  if (key > 0 && metal >= key) { metal = Number(round_ref(metal - key).toFixed(3)); keys++ }
   return keys > 0 ? `${keys} key ${metal} ref` : `${metal} ref`
 }
 
 // The item page's price history, newest first: one row per day (the newest entry of the day), and only when the
 // price changed since the row before (the same rows public/js used to build). Entries are "buy|sell|key|time".
 const price_history_rows = (history, limit = 30) => {
-  const text = (ref, key) => (key > 0 && ref / key >= 1) ? `${(ref / key).toFixed(2)} keys` : `${Number(round_ref(ref).toFixed(2))} ref`
+  const text = (ref, key) => (key > 0 && ref / key >= 1) ? `${(ref / key).toFixed(2)} keys` : `${Number(round_ref(ref).toFixed(3))} ref`
   const rows = []
   let last = null
   for (const entry of [...(Array.isArray(history) ? history : [])].reverse()) {
@@ -312,9 +314,9 @@ const render_markdown = (md) => {
 // "2 keys 10.33 ref" from a price in refined metal
 const price_text = (ref, key_price) => {
   if (typeof ref !== 'number' || !(ref > 0)) return ''
-  if (!(key_price > 0)) return `${Number(round_ref(ref).toFixed(2))} ref`
+  if (!(key_price > 0)) return `${Number(round_ref(ref).toFixed(3))} ref`
   let keys = Math.floor(ref / key_price)
-  let metal = Number(round_ref(ref - keys * key_price).toFixed(2))
+  let metal = Number(round_ref(ref - keys * key_price).toFixed(3))
   if (metal >= key_price) { metal = Number((metal - key_price).toFixed(2)); keys++ }
   if (keys === 0) return `${metal} ref`
   return `${keys} ${keys === 1 ? 'key' : 'keys'}${metal > 0 ? ` ${metal} ref` : ''}`
