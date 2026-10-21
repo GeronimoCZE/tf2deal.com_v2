@@ -330,6 +330,9 @@ app.use(async (req, res, next) => {
   if (unlocked && process.db_status?.connected === true && req.method == 'GET' && !req.path.startsWith('/api/') && req.accepts('html')) {
     res.locals.admin_bar.tickets_open = await ticket_model.countDocuments({ status: 'open' }).catch(() => null)
   }
+  next()
+})
+
 // The look of the page: the theme the visitor picked in the menu (td_theme cookie), or the site's own (the TF2 event
 // look, service/season.js). GET /theme/<choice> saves a choice and goes back to the page it was picked on.
 app.get('/theme/:choice', (req, res) => {
