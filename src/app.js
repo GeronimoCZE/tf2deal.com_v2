@@ -30,6 +30,7 @@ import {router as profileRoute} from './routes/profile.js'
 
 import { bot_socket, createSocket, item_socket } from './service/socket.js'
 import * as seasons from './service/season.js'
+import * as sitemap from './service/sitemap.js'
 
 const DOMAIN = 'localhost' 
 const PORT = 8080; // change to 8080
@@ -248,6 +249,11 @@ const static_headers = (res) => {
   }
 }
 
+// XML sitemaps, built from the database on request (before the static files, so old sitemap files left on disk
+// are never served)
+app.get(['/sitemap.xml', '/sitemap_index.xml'], sitemap.index_handler)
+app.get('/sitemaps/:file', sitemap.file_handler)
+
 // Fonts and images rarely change, so browsers keep them for a while; everything else is checked on each visit
 app.use('/font', express.static(path.join(__dirname, 'public/font'), { maxAge: '30d' }))
 app.use('/img', express.static(path.join(__dirname, 'public/img'), { maxAge: '7d' }))
@@ -388,7 +394,7 @@ const connectDB = async () => {
         console.log('connected to DB')
         fn.setup_cache();
         settings.load().catch((e) => console.log('Failed to load site settings', e.message));
-        fn.update_sitemap();
+        fn.update_item_names();
         giveaways.refresh_state().catch((e) => console.log('Failed to load giveaways', e.message));
         translate.sweep().catch((e) => console.log('translate: start failed', e.message)); // AI translations still missing
 
@@ -780,7 +786,8 @@ setInterval(async () => {
         } }
     ])
 
-    await fn.update_sitemap()
+    await fn.update_item_names()
+    sitemap.clear()
   }
 
   // ends giveaways whose time is up and draws the winners

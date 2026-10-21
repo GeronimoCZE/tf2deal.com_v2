@@ -817,7 +817,10 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
         ['stock_limit_unusual_min_pure', 'Unusuals only from', 'Pure the bots need first (the value they report). Below it the Unusual limit is 0.', 'pure'],
         ['stock_limit_collectors', "Collector's", "Collector's cosmetics, taunts and weapons."],
         ['stock_limit_collectors_min_pure', "Collector's only from", "Pure the bots need first. Below it the Collector's limit is 0.", 'pure'],
-        ['ks_stock_limit', 'Each killstreak tier', 'Per tier of every weapon (Killstreak, Specialized, Professional), skins included.']
+        ['ks_stock_limit', 'Each killstreak tier', 'Per tier of every weapon (Killstreak, Specialized, Professional), skins included.'],
+        ['stock_limit_popular', 'Popular items', 'Most of a popular item (steady demand, good margin): weapons, cosmetics, taunts. Only cheap popular crates, tools and action items go higher.'],
+        ['stock_over_keys_limit', 'Items over 1 key', 'Most of any item bought for more than 1 key, whatever else applies.'],
+        ['stock_limit_ceiling', 'Any item', 'Most of any item, whatever else applies. Limits for single items below can still go higher.']
     ]
     const MAX_LIMIT = 1000
 
@@ -874,7 +877,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
                     <span class="admin-input-unit"><input type="number" data-key="${key}" value="${esc(l.value)}" min="${esc(l.min ?? 0)}" max="${esc(l.max ?? '')}" step="1" required><em>${unit || 'max'}</em></span>
                     <span class="admin-help">${esc(help)} Default ${esc(l.default)}.</span></label>`
             }).join('')}</div>
-            ${global.missing.length ? `<p class="admin-note">This item server only knows ${global.limits.length ? 'the killstreak limits' : 'none of these limits'}. Update item_manager to set the others here.</p>` : ''}`
+            ${global.missing.length ? `<p class="admin-note">This item server doesn't know ${global.limits.length ? 'some of these limits' : 'these limits'} yet. Update item_manager to set ${global.limits.length ? 'the others' : 'them'} here.</p>` : ''}`
             save.disabled = global.limits.length == 0
         }
         const load_global = async () => {
