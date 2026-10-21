@@ -10,7 +10,7 @@ import { item_model } from '../model/Item.js'
 import { item_socket } from './socket.js'
 
 export const GLOBAL_KEYS = ['stock_limit_default', 'stock_limit_unusual', 'stock_limit_unusual_min_pure', 'stock_limit_collectors',
-  'stock_limit_collectors_min_pure', 'ks_stock_limit']
+  'stock_limit_collectors_min_pure', 'ks_stock_limit', 'stock_limit_popular', 'stock_over_keys_limit', 'stock_limit_ceiling']
 export const MAX_LIMIT = 1000
 const PER_PAGE = 100
 
