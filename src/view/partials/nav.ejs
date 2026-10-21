@@ -1,3 +1,4 @@
+<%- include('./admin_bar.ejs') %>
 <header>
     <div class="nav-placeholder"></div>
     <nav class="nav-main" id="site-nav">
@@ -123,9 +124,9 @@
                                     <a href="<%= lurl('/profile/wishlist') %>" nofollow><span class="icon-drawer"></span> <span><%= __('nav.wishlist') %></span></a>
                                     <a href="<%= lurl('/profile/giveaways') %>" nofollow><span class="icon-gift"></span> <span><%= __('nav.giveaways') %></span></a>
 
-                                    <% if(user.steamid === '76561198124728984'){%> 
+                                    <% if(locals.admin_bar){%>
                                       <div class="section-devider"></div>
-                                      <a href="../admin"><span class="icon-stats-bars"></span> <span>Admin</span></a> 
+                                      <a href="/admin"><span class="icon-stats-bars"></span> <span>Admin</span></a> 
                                       <% }%>
 
                                     <div class="section-devider"></div>

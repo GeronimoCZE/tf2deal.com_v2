@@ -30,6 +30,7 @@ import {router as profileRoute} from './routes/profile.js'
 
 import { bot_socket, createSocket, item_socket } from './service/socket.js'
 import * as seasons from './service/season.js'
+import { ticket_model } from './model/Ticket.js'
 import * as sitemap from './service/sitemap.js'
 
 const DOMAIN = 'localhost' 
@@ -319,6 +320,16 @@ io.engine.use(sessionMiddleware);
 io.engine.use(passport.initialize());
 io.engine.use(passport.session());
 
+// WordPress-style admin bar on every page for the admin's Steam account (partials/admin_bar.ejs). The panel itself
+// still needs the admin password (/login); until then the bar offers to unlock it.
+app.use(async (req, res, next) => {
+  if (!req.user?.steamid || !process.env.ADMIN_STEAMID || req.user.steamid !== process.env.ADMIN_STEAMID) return next()
+  const unlocked = mw.has_admin_session(req)
+  res.locals.admin_bar = { unlocked, until: unlocked ? Number(req.session.admin_until) : 0, tickets_open: null }
+  // open tickets for the Tickets link, on pages only (not on API calls)
+  if (unlocked && process.db_status?.connected === true && req.method == 'GET' && !req.path.startsWith('/api/') && req.accepts('html')) {
+    res.locals.admin_bar.tickets_open = await ticket_model.countDocuments({ status: 'open' }).catch(() => null)
+  }
 // The look of the page: the theme the visitor picked in the menu (td_theme cookie), or the site's own (the TF2 event
 // look, service/season.js). GET /theme/<choice> saves a choice and goes back to the page it was picked on.
 app.get('/theme/:choice', (req, res) => {

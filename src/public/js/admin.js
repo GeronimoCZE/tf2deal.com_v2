@@ -97,7 +97,15 @@
         }).join(' · ')
     }
 
-    const blog = async (root) => {
+    // #blog/new and #blog/edit/<id> (the admin bar's New → Blog post and Edit post) open the editor right away
+    const blog = async (root, action, id) => {
+        if(action == 'new' || (action == 'edit' && id)){
+            history.replaceState(null, '', '#blog') // so the same link works again later
+            if(action == 'new'){ return blog_editor(root, null) }
+            const res = await api(`/api/admin/blog/${encodeURIComponent(id)}`)
+            if(res.status == 'ok'){ return blog_editor(root, res.post) }
+            toast(res)
+        }
         root.innerHTML = `<h2>Blog</h2>
             <button class="primary" id="new-post">+ New post</button>
             <div class="admin-list" id="admin-posts">Loading...</div>`
@@ -1679,7 +1687,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
     let cleanup = null
 
     const route = () => {
-        const wanted = location.hash.slice(1)
+        const [wanted, ...args] = location.hash.slice(1).split('/') // #blog/edit/<id>: section + what to open in it
         const name = sections[wanted] ? wanted : 'overview'
         document.querySelectorAll('.admin-nav a').forEach((a) => a.classList.toggle('active', a.dataset.section == name))
         if(cleanup){ cleanup(); cleanup = null }
@@ -1687,7 +1695,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
         const id = ++route_id
         const root = document.getElementById('admin-content')
         root.innerHTML = '<div class="admin-loading"><span class="admin-spinner"></span> Loading…</div>'
-        Promise.resolve(sections[name](root)).then((stop) => {
+        Promise.resolve(sections[name](root, ...args)).then((stop) => {
             if(typeof stop != 'function'){ return }
             if(id == route_id){ cleanup = stop } else { stop() }
         })

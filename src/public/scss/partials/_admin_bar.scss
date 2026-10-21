@@ -1,0 +1,127 @@
+// Admin bar (view/partials/admin_bar.ejs, js/admin_bar.js): a slim bar over every page for the admin, like WordPress's.
+// Solid and quiet, in the menu bar's navy; the pages move down by its height.
+
+$ab-h: 32px;
+$ab-h-phone: 40px;
+
+.admin-bar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 900; // over the menu bar (5), under the pop-up windows (1000)
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    height: $ab-h;
+    padding: 0 6px;
+    background: #050a1f;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0;
+    color: var(--ink-2);
+
+    .ab-group{ display: flex; align-items: stretch; gap: 2px; min-width: 0; }
+    .ab-item{
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 100%;
+        margin: 0;
+        padding: 0 10px;
+        color: var(--ink-2) !important;
+        background: none;
+        border: none;
+        border-radius: 0;
+        font: inherit;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background 150ms ease, color 150ms ease;
+        svg{ width: 16px; height: 16px; fill: currentColor; opacity: .85; }
+        &:hover, &:focus-visible{ background: rgba(var(--tint-rgb), 0.16); color: var(--ink) !important; }
+        &:disabled{ opacity: .6; cursor: wait; }
+    }
+    .ab-brand{
+        font-weight: 700;
+        color: var(--ink) !important;
+        img{ width: 18px; height: 18px; border-radius: 4px; }
+    }
+    .ab-count{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 9px;
+        background: var(--danger);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+    }
+    // a dot: green = on, red = off
+    .ab-state{
+        i{ display: block; width: 8px; height: 8px; border-radius: 50%; background: #e0604f; }
+        &[data-state="on"] i{ background: #4ade80; }
+    }
+    .ab-trading[data-state="off"]{ color: #f6b0a6 !important; background: rgba(224, 96, 79, 0.16); }
+    span.ab-state, .ab-session{
+        cursor: default;
+        &:hover{ background: none; color: var(--ink-2) !important; }
+    }
+    .ab-session{ color: var(--ink-3) !important; }
+    .ab-unlock{ color: #f3c969 !important; }
+
+    // Admin and New: a list that opens under the item (hover or keyboard focus; tap on touch screens)
+    .ab-menu{
+        position: relative;
+        display: flex;
+        .ab-sub{
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 190px;
+            padding: 6px;
+            background: #0b1338;
+            border: 1px solid var(--line);
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            a{
+                display: block;
+                padding: 8px 10px;
+                border-radius: 6px;
+                color: var(--ink-2) !important;
+                text-decoration: none;
+                white-space: nowrap;
+                &:hover, &:focus-visible{ background: rgba(var(--tint-rgb), 0.16); color: var(--ink) !important; }
+            }
+        }
+        &:focus-within .ab-sub, &.open .ab-sub{ display: block; }
+        @media (hover: hover){ &:hover .ab-sub{ display: block; } }
+        &:hover > .ab-item, &.open > .ab-item{ background: rgba(var(--tint-rgb), 0.16); color: var(--ink) !important; }
+    }
+
+    // narrower screens keep the essentials: Admin, Tickets, New, the page's own link, Trading, Unlock
+    @media (max-width: 1000px){ .ab-wide{ display: none; } }
+    @media (max-width: 600px){
+        height: $ab-h-phone;
+        .ab-label, .ab-brand span{ display: none; }
+        .ab-item{ padding: 0 12px; }
+        .ab-sub{ position: fixed; top: $ab-h-phone; left: 0; right: 0; border-radius: 0 0 12px 12px; }
+    }
+}
+
+// room for the bar: the menu bar and the page start below it
+body:has(#admin-bar){
+    header nav.nav-main{ top: $ab-h; }
+    header .nav-placeholder{ margin-top: $ab-h; }
+    .admin .admin-sidebar{ top: 80px + $ab-h; }
+    @media (max-width: 600px){
+        header nav.nav-main{ top: $ab-h-phone; }
+        header .nav-placeholder{ margin-top: $ab-h-phone; }
+    }
+}
