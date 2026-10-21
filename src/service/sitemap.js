@@ -1,20 +1,18 @@
-// XML sitemaps, built from the database when a search engine asks (no files on disk):
-//   /sitemap.xml (also /sitemap_index.xml): the index, one entry per sitemap below
-//   /sitemaps/pages.xml: the main pages, in every language
-//   /sitemaps/items-1.xml, /sitemaps/items-de-1.xml, ...: item pages (fn.item_indexable), per language
-//   /sitemaps/blog.xml: published blog posts, in every language they exist in
-// A built set is kept for CACHE_MS, so a crawler reading every sitemap doesn't query the database each time.
+// One XML sitemap, built from the database when a search engine asks (no file on disk): /sitemap.xml.
+// The main pages come first with the highest priority, then blog posts, then every item page at 0.4,
+// each in every language it exists in. /sitemap_index.xml and the old /sitemaps/*.xml files redirect to it.
+// The built file is kept for CACHE_MS, so a crawler doesn't query the database on every request.
 
 import { item_model as Items } from '../model/Item.js'
 import { blog_model } from '../model/Blog.js'
-import { localize_path, LANGS, DEFAULT_LANG } from '../i18n.js'
+import { localize_path, LANGS } from '../i18n.js'
 import { available_langs } from './translate.js'
 import * as fn from '../fn.js'
 
 const CACHE_MS = 10 * 60 * 1000
-const FILE_SIZE = 20000 // URLs per item sitemap (search engines take up to 50,000)
+const MAX_URLS = 50000 // the most one sitemap file may hold
 
-// main pages in every language; documents that only exist in English once
+// main pages in every language, highest priority first; documents that only exist in English once
 const PAGES = [
   { path: '/', changefreq: 'always', priority: '1.0' },
   { path: '/trade', changefreq: 'always', priority: '0.9' },
@@ -24,8 +22,8 @@ const PAGES = [
   { path: '/about', changefreq: 'monthly', priority: '0.5' }
 ]
 const ENGLISH_ONLY = [
-  { path: '/terms-of-service', changefreq: 'yearly', priority: '0.2' },
-  { path: '/cookies', changefreq: 'yearly', priority: '0.2' }
+  { path: '/terms-of-service', changefreq: 'yearly', priority: '0.5' },
+  { path: '/cookies', changefreq: 'yearly', priority: '0.5' }
 ]
 // item pages: prices and stock change all the time
 const ITEM = { changefreq: 'always', priority: '0.4' }
@@ -43,50 +41,37 @@ const urlset = (urls) => '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '</url>\n').join('') +
   '</urlset>\n'
 
-const index = (names) => '<?xml version="1.0" encoding="UTF-8"?>\n' +
-  '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-  names.map((name) => `<sitemap>\n<loc>${xml_escape(`${fn.site_url}/sitemaps/${name}`)}</loc>\n</sitemap>\n`).join('') +
-  '</sitemapindex>\n'
-
 const page_url = (lang, p) => fn.site_url + localize_path(lang, p)
 
-let cache = null   // { time, files: Map(name -> xml) }
+let cache = null   // { time, xml, urls }
 let building = null
 
 const build = async () => {
-  const files = new Map()
-
-  files.set('pages.xml', urlset([
-    ...LANGS.flatMap((lang) => PAGES.map((p) => ({ ...p, loc: page_url(lang, p.path) }))),
+  const pages = [
+    ...PAGES.flatMap((p) => LANGS.map((lang) => ({ ...p, loc: page_url(lang, p.path) }))),
     ...ENGLISH_ONLY.map((p) => ({ ...p, loc: fn.site_url + p.path }))
-  ]))
-
-  // the items the bots really trade (the same rule as the item page's noindex), each one once
-  const items = await Items.find(fn.SITEMAP_ITEMS_QUERY, { _id: 0, bp_sku: 1 }).lean()
-  const names = [...new Set(items.map((item) => item.bp_sku).filter(Boolean))].sort()
-  for (let n = 0; n * FILE_SIZE < names.length; n++) {
-    const list = names.slice(n * FILE_SIZE, (n + 1) * FILE_SIZE)
-    for (const lang of LANGS) {
-      const name = lang === DEFAULT_LANG ? `items-${n + 1}.xml` : `items-${lang}-${n + 1}.xml`
-      files.set(name, urlset(list.map((bp_sku) => ({ ...ITEM, loc: page_url(lang, '/items/' + encodeURIComponent(bp_sku)) }))))
-    }
-  }
+  ]
 
   // published blog posts, in every language they exist in (the original + AI translations, see service/translate.js)
   const posts = await blog_model.find({ published: true }, { slug: 1, lang: 1, source_hash: 1, translations: 1, updated: 1 }).lean()
-  if (posts.length > 0) { // an empty sitemap is reported as an error by Search Console
-    files.set('blog.xml', urlset(posts.flatMap((post) => available_langs(post).map((lang) => ({
-      loc: page_url(lang, `/blog/${encodeURIComponent(post.slug)}`),
-      lastmod: post.updated > 0 ? day(post.updated) : '',
-      changefreq: 'weekly',
-      priority: '0.5'
-    })))))
-  }
+  const blog = posts.flatMap((post) => available_langs(post).map((lang) => ({
+    loc: page_url(lang, `/blog/${encodeURIComponent(post.slug)}`),
+    lastmod: post.updated > 0 ? day(post.updated) : '',
+    changefreq: 'weekly',
+    priority: '0.5'
+  })))
 
-  return { time: Date.now(), files, items: names.length }
+  // the items the bots really trade (the same rule as the item page's noindex), each one once, in every language
+  const items = await Items.find(fn.SITEMAP_ITEMS_QUERY, { _id: 0, bp_sku: 1 }).lean()
+  const names = [...new Set(items.map((item) => item.bp_sku).filter(Boolean))].sort()
+  const item_urls = names.flatMap((bp_sku) => LANGS.map((lang) => ({ ...ITEM, loc: page_url(lang, '/items/' + encodeURIComponent(bp_sku)) })))
+
+  const urls = [...pages, ...blog, ...item_urls]
+  if (urls.length > MAX_URLS) console.log(`Sitemap: ${urls.length} URLs, only the first ${MAX_URLS} fit in one file`)
+  return { time: Date.now(), xml: urlset(urls.slice(0, MAX_URLS)), urls: Math.min(urls.length, MAX_URLS) }
 }
 
-// the sitemap files, rebuilt when older than CACHE_MS (one build at a time; a failed build keeps the last good one)
+// the sitemap, rebuilt when older than CACHE_MS (one build at a time; a failed build keeps the last good one)
 const current = async () => {
   if (cache && Date.now() - cache.time < CACHE_MS) return cache
   building = building || build()
@@ -107,23 +92,16 @@ const send = (res, xml) => {
   res.send(xml)
 }
 
-export const index_handler = async (req, res) => {
+export const handler = async (req, res) => {
   try {
-    send(res, index([...(await current()).files.keys()]))
+    send(res, (await current()).xml)
   } catch (error) {
     res.status(503).set('Retry-After', '600').send('Sitemap not available right now')
   }
 }
 
-export const file_handler = async (req, res) => {
-  try {
-    const xml = (await current()).files.get(req.params.file)
-    if (!xml) return res.status(404).send('Not found') // also old sitemap files still on the server's disk
-    send(res, xml)
-  } catch (error) {
-    res.status(503).set('Retry-After', '600').send('Sitemap not available right now')
-  }
-}
+// the sitemap index and its files from before everything was in one file (also old files still on the server's disk)
+export const redirect = (req, res) => res.redirect(301, '/sitemap.xml')
 
-// drop the cached set (the next request builds a new one)
+// drop the cached sitemap (the next request builds a new one)
 export const clear = () => { cache = null }

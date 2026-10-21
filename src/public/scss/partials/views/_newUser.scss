@@ -80,7 +80,7 @@
             transition: .3s ease;
             cursor: pointer;
             &:hover{
-                border-color: var(--line-strong);
+                background: rgba(63, 42, 119, 0.8);
             }
         }
 

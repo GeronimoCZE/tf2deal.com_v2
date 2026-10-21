@@ -485,7 +485,7 @@ header{
                     cursor: pointer;
                     transition: 220ms;
                     &:hover{
-                        border: 1px solid var(--line-strong);
+                        background: rgba(60, 60, 60, 0.6);
                     }
                     @include lt-sm{
                         height: fit-content !important;

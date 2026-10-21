@@ -51,18 +51,12 @@ dotenv.config({ path: path.resolve(__dirname, "config/.env") });
 
 const reverseLookup = promisify(dns.reverse);
 
-// Cache for tracking rate-limiting events and restrictions
-const userLimitCache = {};
 // Cache for bot DNS lookup results (IP-based) to avoid repeated lookups
 const botIpCache = new LRUCache({
   maxSize: 500, // Cache up to 500 bot IPs
   ttl: 1000 * 60 * 60 * 24 * 7, // Cache for 7 days
   sizeCalculation: () => 1,
 });
-
-// Rate limit parameters
-const RATE_LIMIT_COUNT = 5; // Number of allowed rate limits
-const RATE_LIMIT_PERIOD = 1000 * 60 * 60 * 24 * 7; // 1 week in milliseconds
 
 // Major crawler user agents and corresponding hostnames
 const knownBots = {
@@ -80,7 +74,7 @@ async function isBotIp(userAgent, ip) {
     return cachedBotCheck; // Return the cached result (true or false)
   }
 
-  const matchingBot = Object.values(knownBots).find(bot => userAgent.includes(bot.userAgent));
+  const matchingBot = Object.values(knownBots).find(bot => String(userAgent || '').includes(bot.userAgent));
 
   if (!matchingBot) {
     botIpCache.set(ip, false); // Cache as false for non-bot IPs
@@ -101,11 +95,6 @@ async function isBotIp(userAgent, ip) {
   }
 }
 
-// Function to check if the user is restricted
-function isUserRestricted(userId) {
-  return userLimitCache[userId]?.restricted || false;
-}
-
 // Middleware to skip the rate limiter for known bots
 async function shouldSkipRateLimit(req) {
   const userAgent = req.get('User-Agent');
@@ -115,54 +104,24 @@ async function shouldSkipRateLimit(req) {
   return await isBotIp(userAgent, ip);
 }
 
-// Middleware to check user access (if restricted after 5 violations)
-async function checkAccess(req, res, next) {
-  const userId = req.ip;
-
-  if (isUserRestricted(userId)) {
-    return res.status(403).json({ message: 'Access denied. You have been rate limited.' });
-  }
-
-  next();
-}
-
-// Function to log rate-limited events
-function logRateLimit(userId) {
-  const now = Date.now();
-  const userEntry = userLimitCache[userId] || { count: 0, timestamps: [] };
-
-  // Remove timestamps older than the rate limit period
-  userEntry.timestamps = userEntry.timestamps.filter(timestamp => (now - timestamp) < RATE_LIMIT_PERIOD);
-
-  // Increment count and add the current timestamp
-  userEntry.count += 1;
-  userEntry.timestamps.push(now);
-
-  // Check if the user exceeded the allowed rate limits
-  if (userEntry.count >= RATE_LIMIT_COUNT) {
-    userEntry.restricted = true; // Mark user as restricted
-  }
-
-  userLimitCache[userId] = userEntry; // Update cache
-}
-
+// Every page and API request (not the static files, they come before it): 600 per 10 minutes per visitor, far more
+// than browsing needs, but a scraper or a stuck script is stopped for a few minutes instead of hours.
 const allRequestsLimiter = rateLimit({
-  windowMs: 16 * 60 * 60 * 1000,
-  max: 43500,
-  message: {
-    status: 429,
-    error: 'Too many requests',
-    details: 'You have exceeded the rate limit. You can try again in 16 hours since you exceeded the limit.',
-  },
-  skip: shouldSkipRateLimit, // Skip the rate limit for known bots
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  headers: true,
-}); 
+  windowMs: 10 * 60 * 1000,
+  max: 600,
+  skip: shouldSkipRateLimit, // search engine crawlers (checked by reverse DNS)
+  standardHeaders: true, // RateLimit-* headers
+  legacyHeaders: false,
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode)
+    if (req.method == 'GET' && !req.path.startsWith('/api/') && req.accepts(['html', 'json']) == 'html') {
+      return res.render('rate_limited', fn.res_data(!!req.user, req.user, req.user ? req.cookies[`td_${req.user.steamid}`] : undefined, req.__('errors.rate_limited')))
+    }
+    res.json({ status: 'error', message: req.__('api.too_many_requests') })
+  }
+});
 
-/* handling wrong paths */
 app.use(compression()) // gzip responses
-app.use(allRequestsLimiter)
-app.use(checkAccess);
 
 
 app.use(cors({
@@ -250,10 +209,10 @@ const static_headers = (res) => {
   }
 }
 
-// XML sitemaps, built from the database on request (before the static files, so old sitemap files left on disk
+// the XML sitemap, built from the database on request (before the static files, so old sitemap files left on disk
 // are never served)
-app.get(['/sitemap.xml', '/sitemap_index.xml'], sitemap.index_handler)
-app.get('/sitemaps/:file', sitemap.file_handler)
+app.get('/sitemap.xml', sitemap.handler)
+app.get(['/sitemap_index.xml', '/sitemaps/:file'], sitemap.redirect)
 
 // Fonts and images rarely change, so browsers keep them for a month (give a changed picture a new name); everything
 // else is checked on each visit
@@ -369,7 +328,8 @@ app.use((req, res, next) => {
   next()
 })
 
-// app.use() use global ratelimit (1 hour / xxxx req)
+// 6. The overall rate limit (after the language, so the "too many requests" page is in the visitor's language)
+app.use(allRequestsLimiter)
 
 Date.prototype.toUnixTime = function() { return this.getTime()/1000|0 };
 Date.time = function() { return new Date().toUnixTime(); }

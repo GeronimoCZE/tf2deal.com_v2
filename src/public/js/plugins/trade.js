@@ -1109,6 +1109,8 @@ const load_user_inventory = async (page, change, reload) => {
 }
 
 const round_ref = (refs, direction) => {
+    // less than a scrap (half-scrap weapons, 0.055 ref) is shown as it is instead of rounding to 0
+    if (direction === undefined && refs > 0 && refs < 0.11) return Number(refs.toFixed(3));
     let ref = Math.trunc(refs);
     let ref_float = refs - ref;
     ref_float = parseFloat(ref_float.toFixed(5));

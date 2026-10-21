@@ -135,7 +135,7 @@ const get_items = async (page, validInputs, reset = page === 0) => {
                                     keys ++
                                 }
                                 
-                                let stock = (typeof (item.stock?.items) == "object") ? item.stock.items.length:0
+                                let stock = Number(item.stock?.items_length) || 0
                                 let stock_string =  __('common.in_stock', { count: stock })
                                 let price_string = (keys > 0) ? `${keys} key ${metals} ref`:`${metals} ref`;
                                 let craft = ''
@@ -171,7 +171,7 @@ const get_items = async (page, validInputs, reset = page === 0) => {
                                     keys ++
                                 }
 
-                                let stock = (typeof (item.stock?.items) == "object") ? item.stock.items.length:0
+                                let stock = Number(item.stock?.items_length) || 0
                                 let stock_string =  __('common.in_stock', { count: stock })
                                 let price_string = (keys > 0) ? `${keys} key ${metals} ref`:`${metals} ref`
                                 let craft = ''

@@ -713,7 +713,7 @@
     "load_wishlist_failed": "Váš seznam přání se nepodařilo načíst.",
     "load_giveaways_failed": "Vaše soutěže se nepodařilo načíst.",
     "gw_join_group": "Nejdřív se připojte k naší Steam skupině.",
-    "gw_group_unknown": "Nepodařilo se ověřit vaše Steam skupiny. Nastavte svůj profil na Steamu jako veřejný a zkuste to znovu.",
+    "gw_group_unknown": "Nepodařilo se spojit se Steamem a ověřit skupinu. Zkuste to znovu za minutu.",
     "gw_need_trade": "Od začátku této soutěže proveďte na webu alespoň 1 výměnu.",
     "gw_none": "Momentálně neprobíhá žádná soutěž.",
     "gw_already": "Už se účastníte.",
