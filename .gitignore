@@ -6,3 +6,7 @@ src/api/routes/config/.env
 node_modules/
 npm-debug.log*
 .DS_Store
+
+# sitemaps are built on request (service/sitemap.js); old generated files may still be on a server
+src/public/sitemap.xml
+src/public/sitemaps/
