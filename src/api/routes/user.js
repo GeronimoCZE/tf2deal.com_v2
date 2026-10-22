@@ -58,6 +58,10 @@ const per_user = (windowMs, max) => rateLimit({
   message: (req) => ({ status: "error", message: req.__ ? req.__('api.too_many_requests') : "Too many requests! Try again later..." })
 })
 
+// the bot server can take long on an inventory it hasn't fetched from Steam yet: give up before a proxy in front
+// of the site does (Nginx waits 60 s), so the page gets a JSON error it can retry instead of a gateway page
+const BOT_INVENTORY_TIMEOUT = 45 * 1000;
+
 const isLogged = (req, res, next) => {
   if(req.user){
     return next();
@@ -231,6 +235,7 @@ router.post('/inventory', isLogged, inv_limiter, async (req, res) => {
   let res_sent = false;
   try{
     fetch(process.env.BOTS_ENDPOINT + '/inventory/user', {
+          signal: AbortSignal.timeout(BOT_INVENTORY_TIMEOUT),
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -285,6 +290,7 @@ router.post('/inventory/:bp_sku', isLogged, inv_limiter, async (req, res) => {
   
   try{
     fetch(process.env.BOTS_ENDPOINT + '/inventory/user/single', {
+          signal: AbortSignal.timeout(BOT_INVENTORY_TIMEOUT),
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -1041,6 +1041,7 @@ const load_user_inventory = async (page, change, reload) => {
 
     if(main.trade_o == "true"){
         render_items('user', "error", page)
+        processing_user_inventory = false;
         return false;
     }
 
@@ -1050,8 +1051,23 @@ const load_user_inventory = async (page, change, reload) => {
         fetched_all_user_pages = false;
     }
 
-    $.ajax(userSettings)
-    .fail(async function (res){ 
+    // the first load of an inventory often fails while the bot server is still fetching it from Steam
+    // (a reload a moment later is instant), so try again a few times before showing an error
+    let response = null, failed = null;
+    for (let attempt = 0; ; attempt++) {
+        try {
+            response = await $.ajax(userSettings);
+            failed = null;
+        } catch (res) {
+            response = null;
+            failed = res;
+        }
+        if(attempt >= USER_INV_RETRY_DELAYS.length || !user_inventory_retryable(failed, response)){ break; }
+        await delay(USER_INV_RETRY_DELAYS[attempt])
+    }
+
+    if(failed){
+        const res = failed;
         $('.item-grid #user-grid .invisible-item').remove()
 
         $(`#user-item-grid`).empty()
@@ -1062,50 +1078,62 @@ const load_user_inventory = async (page, change, reload) => {
         }
         $(`.loading-items#user-loading`).addClass('hidden')
         processing_user_inventory = false;
+        return;
+    }
+
+    last_load_user.filters = JSON.stringify(UserTrade.filters);
+    document.querySelectorAll('.filter-btn').forEach((btn) => {
+        if(!btn.parentElement.querySelector('.filter-box').classList.contains('hidden')){
+            btn.parentElement.querySelector('.filter-box').classList.toggle('hidden')
+        }
+        if(btn.classList.contains('active')){
+            btn.classList.toggle('active')
+        }
     })
-    .done(async function (response) {
-        last_load_user.filters = JSON.stringify(UserTrade.filters);
-        document.querySelectorAll('.filter-btn').forEach((btn) => {
-            if(!btn.parentElement.querySelector('.filter-box').classList.contains('hidden')){
-                btn.parentElement.querySelector('.filter-box').classList.toggle('hidden')
-            }
-            if(btn.classList.contains('active')){
-                btn.classList.toggle('active')
-            }
-        })
-        
-        // save response in FE and render it for 30sec -> then allow refresh
-        if(await response?.success == 1){
-            user_trusted.bptf = response?.inventory?.userTrust
+    
+    // save response in FE and render it for 30sec -> then allow refresh
+    if(await response?.success == 1){
+        user_trusted.bptf = response?.inventory?.userTrust
 
-            if( response.inventory.items.length < response?.page_limit ){ fetched_all_user_pages = true }
-            if(Array.isArray(UserTrade.inventory)){
-                UserTrade.inventory.push(...response?.inventory?.items);
-            } else {
-                UserTrade.inventory = response?.inventory?.items;
-            }
-            UserTrade.pure = response?.inventory?.pure;
-            UserTrade.pureAssets.key = response.keys;
-            UserTrade.pureAssets.ref = response.refs;
-            UserTrade.pureAssets.rec = response.recs;
-            UserTrade.pureAssets.scrap = response.scraps;
-            await render_items('user', await response, page, change, fetched_all_user_pages)
-            if(response?.fallback){
-                $('.trade-inv-window.user-window').append(`<div class="fallback"><span aria-label="${__('trade.fallback_tooltip')}" data-microtip-position="top-right" role="tooltip">&#128712;</span> ${__('trade.fallback_from')} <span>${formatUnixTimestamp(response?.update)}</span></div>`)
-            } else if($('.trade-inv-window.user-window .fallback').length) {
-                $('.trade-inv-window.user-window .fallback').remove()
-            }
+        if( response.inventory.items.length < response?.page_limit ){ fetched_all_user_pages = true }
+        if(Array.isArray(UserTrade.inventory)){
+            UserTrade.inventory.push(...response?.inventory?.items);
+        } else {
+            UserTrade.inventory = response?.inventory?.items;
         }
-        else{
-            await render_items('user', await response, page)
-            if(response?.error == "You already have an active offer from our bots!"){
-                socket.emit('getTradeOffer')
-            }
+        UserTrade.pure = response?.inventory?.pure;
+        UserTrade.pureAssets.key = response.keys;
+        UserTrade.pureAssets.ref = response.refs;
+        UserTrade.pureAssets.rec = response.recs;
+        UserTrade.pureAssets.scrap = response.scraps;
+        await render_items('user', await response, page, change, fetched_all_user_pages)
+        if(response?.fallback){
+            $('.trade-inv-window.user-window').append(`<div class="fallback"><span aria-label="${__('trade.fallback_tooltip')}" data-microtip-position="top-right" role="tooltip">&#128712;</span> ${__('trade.fallback_from')} <span>${formatUnixTimestamp(response?.update)}</span></div>`)
+        } else if($('.trade-inv-window.user-window .fallback').length) {
+            $('.trade-inv-window.user-window .fallback').remove()
         }
+    }
+    else{
+        await render_items('user', await response, page)
+        if(response?.error == "You already have an active offer from our bots!"){
+            socket.emit('getTradeOffer')
+        }
+    }
 
-        $(`.loading-items#user-loading`).addClass('hidden')
-        processing_user_inventory = false;
-    });
+    $(`.loading-items#user-loading`).addClass('hidden')
+    processing_user_inventory = false;
+}
+
+// waits before the 2nd and 3rd try of a user inventory load
+const USER_INV_RETRY_DELAYS = [2000, 5000];
+
+const user_inventory_retryable = (failed, response) => {
+    if(failed){
+        // signed out, rate limited or turned away: trying again won't help
+        return ![401, 403, 429, 511].includes(failed.status);
+    }
+    if(response?.success == 1){ return false; }
+    return response?.error != "You already have an active offer from our bots!";
 }
 
 const round_ref = (refs, direction) => {
