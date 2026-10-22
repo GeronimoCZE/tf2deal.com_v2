@@ -23,7 +23,8 @@
     "theme_night": "Nachthimmel",
     "theme_summer": "Sommer",
     "theme_halloween": "Scream Fortress",
-    "theme_smissmas": "Smissmas"
+    "theme_smissmas": "Smissmas",
+    "search_short": "Items suchen"
   },
   "common": {
     "sign_in_steam": "Mit Steam anmelden",
@@ -63,7 +64,10 @@
     "faq": "FAQ",
     "powered_by": "Powered by {steam}",
     "particles_from": "Partikel von {bptf}",
-    "created_by": "Mit ❤️ erstellt von {author}"
+    "created_by": "Mit ❤️ erstellt von {author}",
+    "trading": "Handel",
+    "help": "Hilfe",
+    "legal": "Rechtliches"
   },
   "title": {
     "home": "TF2deal.com - Automatisierte Tauschbörse für Team Fortress 2",
@@ -196,7 +200,9 @@
     "unusuals_link": "Alle Unusuals anzeigen",
     "tools_title": "Werkzeuge",
     "tools_text": "Du willst dein Inventar erweitern? Deiner Waffe einen Killstreaker verpassen? Wir haben, was du brauchst!",
-    "tools_link": "Alle Werkzeuge anzeigen"
+    "tools_link": "Alle Werkzeuge anzeigen",
+    "cta_title": "Bereit zum Traden?",
+    "cta_text": "Wähle deine Items und unsere Bots schicken dir das Tauschangebot auf Steam."
   },
   "filters": {
     "none": "Keine",
@@ -567,7 +573,9 @@
     "remove_selected": "Auswahl entfernen",
     "items": "Items",
     "cant_trade_now": "Aufgrund der aktuellen Lage können wir dieses Item nicht tauschen!",
-    "reload_inventory": "Inventar neu laden"
+    "reload_inventory": "Inventar neu laden",
+    "no_price_history": "Noch keine Preisänderungen.",
+    "links": "Mehr zu diesem Item"
   },
   "giveaway": {
     "current": "Aktuelles Gewinnspiel",

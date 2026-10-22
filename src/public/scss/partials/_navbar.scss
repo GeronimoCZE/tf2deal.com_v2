@@ -470,52 +470,57 @@ header{
                     }
                 }
 
+                // looks like a search field (Jakob's law: people expect one there) and is a big target;
+                // the keycap says Ctrl+K opens it too. The phone/tablet menu styles it in _nav_refresh.scss.
                 .searchBar{
                     position: relative;
                     display: flex;
                     flex-direction: row;
                     align-items: center;
-                    justify-content: center;
+                    gap: .55rem;
                     margin: 0 1rem 0 0;
-                    padding: .2rem .65rem;
-                    height: 2rem;
-                    border-radius: 5px;
-                    background: rgba(45, 45, 45, 0.6);
+                    padding: 0 .45rem 0 .75rem;
+                    height: 2.5rem;
+                    min-width: 12.5rem;
+                    border-radius: var(--r-md);
+                    background: var(--well);
                     border: 1px solid var(--line);
-                    cursor: pointer;
-                    transition: 220ms;
-                    &:hover{
-                        background: rgba(60, 60, 60, 0.6);
-                    }
+                    cursor: text;
+                    transition: background 150ms ease;
+                    &:hover{ background: var(--surface-2); }
                     @include lt-sm{
                         height: fit-content !important;
                         width: calc(80% - 2rem) !important;
                         margin: .5rem 0 !important;
                     }
+                    // narrow desktops: the field keeps its shape, icon and keycap, the label goes so the menu stays on one line
+                    @media screen and (min-width: 1371px) and (max-width: 1600px){
+                        min-width: 0;
+                        .search-short{ display: none; }
+                    }
                     *{
                         pointer-events: none;
                     }
-                    .search{
-                        width: fit-content;
-                    }
                     .icon-search{
-                        width: fit-content;
-                        position: relative;
-                        pointer-events: none;
-                        display: block;
-                        vertical-align: middle;
-                        font-size: 16px;
-                        color: rgb(200, 200, 200);
+                        font-size: 15px;
+                        color: var(--ink-3);
+                    }
+                    .search-short{
+                        flex: 1;
+                        color: var(--ink-3);
+                        font-size: 14px;
+                        white-space: nowrap;
                     }
                     .key_shortcut{
-                        display: block;
-                        position: absolute;
-                        top: 5px;
-                        left: 5px;
-                        font-size: 10px !important;
-                        @include lt-sm{
-                            display: none;
-                        }
+                        padding: .3rem .4rem;
+                        border-radius: 6px;
+                        background: var(--surface-3);
+                        color: var(--ink-2);
+                        font-family: inherit;
+                        font-size: 11px;
+                        font-weight: 600;
+                        line-height: 1;
+                        white-space: nowrap;
                     }
                 }
 

@@ -346,20 +346,47 @@
                 font-size: 1.6rem;
             }
         }
-        ul{
+        .intro-body{
             grid-column: 2;
             align-self: start;
             @include lt-sm{
                 grid-column: 1;
             }
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            .content{
+            .lead{
+                margin: 0 0 1.25rem 0;
                 color: var(--ink-2);
                 font-size: 1.1rem;
                 line-height: 1.6;
-                margin-bottom: .5rem;
+            }
+        }
+        // the two ways to trade: same look, one per row (similarity, chunking)
+        .intro-points{
+            display: grid;
+            gap: .6rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            li{
+                display: flex;
+                align-items: center;
+                gap: .85rem;
+                padding: .75rem 1rem;
+                border-radius: var(--r-md);
+                background: var(--surface);
+                color: var(--ink-2);
+                font-size: 1.05rem;
+                line-height: 1.45;
+            }
+            .icon{
+                flex: none;
+                display: grid;
+                place-items: center;
+                width: 2.25rem;
+                height: 2.25rem;
+                border-radius: 50%;
+                background: var(--surface-3);
+                color: var(--violet);
+                font-size: 1rem;
             }
         }
         a{
@@ -498,11 +525,21 @@
                     span{
                         margin-left: 2px;
                     }
-                    &:hover{
-                        color: var(--ink);
+                    // the link covers the whole card: anywhere on it opens the list (Fitts's law)
+                    &::after{
+                        content: "";
+                        position: absolute;
+                        inset: 0;
+                        border-radius: inherit;
                     }
                 }
             }
+            transition: background 150ms ease;
+            &:hover{
+                background: var(--surface-2);
+                .text a{ color: var(--ink); }
+            }
+            &:focus-within{ outline: 2px solid var(--violet); outline-offset: 2px; }
         }
     }
     .latest-trades{
@@ -696,3 +733,48 @@
       transform: translateX(-25%) !important;
     }
   }
+
+// The end of the home page: the main action once more (peak-end rule), same buttons as the top of the page
+.home-cta{
+    // under the FAQ, in the last section, so the tree and the ground still close the page
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    margin: 2.5rem 0 0 0;
+    padding: 2.25rem 1.5rem;
+    border-radius: var(--r-lg);
+    background: var(--surface);
+    text-align: center;
+    @include lt-sm{
+        padding: 1.75rem 1rem;
+    }
+    h2{
+        @include section-title;
+        margin: 0;
+        font-size: 1.8rem;
+        @include lt-sm{ font-size: 1.5rem; }
+    }
+    p{
+        margin: 0 0 1rem 0;
+        color: var(--ink-2);
+        font-size: 1.05rem;
+        line-height: 1.5;
+    }
+    .buttons{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: .75rem;
+        a.start_trading-btn{
+            @include button(success);
+            font-size: 1.1rem;
+            padding: .8rem 1.6rem;
+        }
+        a.view-items-btn{
+            @include button(secondary);
+            font-size: 1.1rem;
+            padding: .8rem 1.4rem;
+        }
+    }
+}

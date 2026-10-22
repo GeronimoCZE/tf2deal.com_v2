@@ -15,6 +15,12 @@
                     </div>
 
                     <div class="filter-bar">
+                        <%# search first: it is what most visitors came to do (serial position), then the filters %>
+                        <form action="" method="post" class="input-filter" id="user-input-filter" toolname="filter_items" tooldescription="Show only the items on this list whose name contains the text. The other filters on the page still apply.">
+                            <input type="text" id="itemInput" name="name" toolparamdescription="Item name or part of it, for example Team Captain" spellcheck="false" placeholder="<%= __('items.search_placeholder') %>" autocomplete="off">
+                            <button type="submit" aria-label="<%= __('search.title') %>"><span class="icon icon-search" aria-hidden="true"></span></button>
+                        </form>
+
                         <div class="filter" filter="quality" value="none">
                             <div class="filter-name">
                                 <span><%= __('filters.quality') %></span>
@@ -114,11 +120,6 @@
                         </div>
 
                         <button type="button" class="resetFilters" id="resetFilters" disabled><%= __('filters.reset_filters') %></button>
-                        
-                        <form action="" method="post" class="input-filter" id="user-input-filter" toolname="filter_items" tooldescription="Show only the items on this list whose name contains the text. The other filters on the page still apply.">
-                            <input type="text" id="itemInput" name="name" toolparamdescription="Item name or part of it, for example Team Captain" spellcheck="false" placeholder="<%= __('items.search_placeholder') %>" autocomplete="off">
-                            <button type="submit" aria-label="<%= __('search.title') %>"><span class="icon icon-search" aria-hidden="true"></span></button>
-                        </form>
                     </div>
 
                     <%# One page of the list as plain HTML (routes/router.js items). public/js/plugins/items.js loads the next

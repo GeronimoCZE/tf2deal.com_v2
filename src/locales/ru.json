@@ -23,7 +23,8 @@
     "theme_night": "Ночное небо",
     "theme_summer": "Лето",
     "theme_halloween": "Scream Fortress",
-    "theme_smissmas": "Smissmas"
+    "theme_smissmas": "Smissmas",
+    "search_short": "Поиск предметов"
   },
   "common": {
     "sign_in_steam": "Войти через Steam",
@@ -63,7 +64,10 @@
     "faq": "FAQ",
     "powered_by": "Работает на {steam}",
     "particles_from": "Эффекты частиц взяты с {bptf}",
-    "created_by": "Сделано с ❤️ — {author}"
+    "created_by": "Сделано с ❤️ — {author}",
+    "trading": "Обмен",
+    "help": "Помощь",
+    "legal": "Правовая информация"
   },
   "title": {
     "home": "TF2deal.com - Автоматизированный сайт для обмена предметами Team Fortress 2",
@@ -196,7 +200,9 @@
     "unusuals_link": "Показать все Unusual",
     "tools_title": "Инструменты",
     "tools_text": "Хотите расширить инвентарь? Добавить оружию киллстрикер? Мы обо всём позаботились!",
-    "tools_link": "Показать все инструменты"
+    "tools_link": "Показать все инструменты",
+    "cta_title": "Готовы к обмену?",
+    "cta_text": "Выберите предметы, и наши боты отправят вам предложение обмена в Steam."
   },
   "filters": {
     "none": "Нет",
@@ -567,7 +573,9 @@
     "remove_selected": "убрать выбранные",
     "items": "предм.",
     "cant_trade_now": "Сейчас мы не можем обменивать этот предмет!",
-    "reload_inventory": "Перезагрузить инвентарь"
+    "reload_inventory": "Перезагрузить инвентарь",
+    "no_price_history": "Цена пока не менялась.",
+    "links": "Подробнее о предмете"
   },
   "giveaway": {
     "current": "Текущий розыгрыш",

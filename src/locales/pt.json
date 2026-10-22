@@ -23,7 +23,8 @@
     "theme_night": "Céu noturno",
     "theme_summer": "Verão",
     "theme_halloween": "Scream Fortress",
-    "theme_smissmas": "Smissmas"
+    "theme_smissmas": "Smissmas",
+    "search_short": "Pesquisar itens"
   },
   "common": {
     "sign_in_steam": "Entrar com a Steam",
@@ -63,7 +64,10 @@
     "faq": "FAQ",
     "powered_by": "Com tecnologia {steam}",
     "particles_from": "Partículas obtidas de {bptf}",
-    "created_by": "Criado com ❤️ por {author}"
+    "created_by": "Criado com ❤️ por {author}",
+    "trading": "Trocas",
+    "help": "Ajuda",
+    "legal": "Legal"
   },
   "title": {
     "home": "TF2deal.com - Site automatizado de trocas de Team Fortress 2",
@@ -196,7 +200,9 @@
     "unusuals_link": "Ver todos os Unusuals",
     "tools_title": "Ferramentas",
     "tools_text": "Quer expandir seu inventário? Colocar um killstreaker na sua arma? Temos o que você precisa!",
-    "tools_link": "Ver todas as ferramentas"
+    "tools_link": "Ver todas as ferramentas",
+    "cta_title": "Pronto para trocar?",
+    "cta_text": "Escolha seus itens e nossos bots enviam a oferta de troca na Steam."
   },
   "filters": {
     "none": "Nenhum",
@@ -567,7 +573,9 @@
     "remove_selected": "remover selecionados",
     "items": "itens",
     "cant_trade_now": "A situação atual não nos permite trocar este item!",
-    "reload_inventory": "Recarregar inventário"
+    "reload_inventory": "Recarregar inventário",
+    "no_price_history": "Ainda não há mudanças de preço.",
+    "links": "Mais sobre este item"
   },
   "giveaway": {
     "current": "Sorteio atual",
