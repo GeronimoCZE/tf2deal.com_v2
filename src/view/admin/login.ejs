@@ -1,17 +1,39 @@
 <!DOCTYPE html>
 <html lang="<%= html_lang %>">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login</title>
-</head>
-<body>
-  <h1>Admin Login</h1>
-  <form action="/login" method="post">
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    <br>
-    <button type="submit">Login</button>
-  </form>
-</body>
+    <%- include('../partials/head.ejs') %>
+    <body class="<%= season_class %>">
+        <%- include('../partials/nav.ejs') %>
+        <main>
+            <%# Admin password step after the Steam sign-in (app.js GET/POST /login). Styles: .admin-login in views/_admin.scss %>
+            <div class="page-section admin-login">
+                <form class="admin-login-card" action="/login" method="post">
+                    <span class="admin-login-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M17 9V7A5 5 0 0 0 7 7v2a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zM9 7a3 3 0 0 1 6 0v2H9zm4 9.7V18h-2v-1.3a2 2 0 1 1 2 0z"/></svg>
+                    </span>
+                    <h1>Unlock the admin panel</h1>
+                    <p>Signed in with Steam as <strong><%= user?.personaname || 'admin' %></strong>. Enter the admin password to open the panel. It stays unlocked for 1 hour in this browser.</p>
+                    <% if (info?.login_error) { %>
+                        <p class="admin-login-error" role="alert"><%= info.login_error %></p>
+                    <% } %>
+                    <label for="password">Admin password</label>
+                    <div class="admin-login-field">
+                        <input type="password" id="password" name="password" autocomplete="current-password" required autofocus<% if (info?.login_error) { %> aria-invalid="true"<% } %>>
+                        <button type="button" class="admin-login-show" aria-pressed="false" aria-controls="password">Show</button>
+                    </div>
+                    <button type="submit" class="admin-login-go">Unlock</button>
+                    <a class="admin-login-back" href="/">Back to the site</a>
+                </form>
+            </div>
+        </main>
+        <script>
+            document.querySelector('.admin-login-show').addEventListener('click', (e) => {
+                const input = document.getElementById('password'), show = input.type == 'password'
+                input.type = show ? 'text' : 'password'
+                e.currentTarget.textContent = show ? 'Hide' : 'Show'
+                e.currentTarget.setAttribute('aria-pressed', String(show))
+                input.focus()
+            })
+        </script>
+        <%- include('../partials/footer.ejs') %>
+    </body>
 </html>

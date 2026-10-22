@@ -7,6 +7,8 @@
         const itemBuy = <%- JSON.stringify(info.item?.buy ?? null).replace(/</g, '\\u003c') %>;
         const itemSell = <%- JSON.stringify(info.item?.sell ?? null).replace(/</g, '\\u003c') %>;
         const itemStock = <%- JSON.stringify(info.item?.stock ?? null).replace(/</g, '\\u003c') %>;
+        // a killstreak tier's page (/items/Professional Killstreak ...) opens with that tier picked
+        const itemKsTier = <%- JSON.stringify(info.ks_tier || 0) %>;
     </script>
     <%- include('./partials/head.ejs') %>
     <body class="<%= season_class %>">
@@ -22,7 +24,7 @@
                         <div class="navigation">
                             <a href="<%= lurl('/items') %>"><%= __('nav.items') %></a>
                             <span class="spoiler">/</span>
-                            <span class="current-item"><a href="#"><%= info.item?.bp_sku %></a></span>
+                            <span class="current-item"><a href="#"><%= info.page_name || info.item?.bp_sku %></a></span>
                         </div>
 
                         <% if(info.item?.status == 0){ %>
@@ -44,7 +46,7 @@
                                     </div>
                                 </div>
                                 <div class="item-details">
-                                    <h1 class="item-name" id="item-name" translate="no"><%= info.item?.bp_sku %></h1>
+                                    <h1 class="item-name" id="item-name" translate="no"><%= info.page_name || info.item?.bp_sku %></h1>
                                     <div class="item-desc">
                                         <%# the item's data is written here by the server (routes/router.js item_page, info.shown) %>
                                         <div class="desc">
@@ -233,7 +235,7 @@
                                         <div class="trade-item">
                                             <img src="<%= info.item?.image %>" alt="" class="trade-item-img">
                                             <div class="trade-item-text">
-                                                <div class="trade-item-name" id="trade-item-name" translate="no"><%= info.item?.bp_sku %></div>
+                                                <div class="trade-item-name" id="trade-item-name" translate="no"><%= info.page_name || info.item?.bp_sku %></div>
                                                 <div class="trade-item-price"><span id="trade-mode" class="trade-mode"></span> <span id="trade-item-price"></span></div>
                                             </div>
                                         </div>
@@ -326,7 +328,7 @@
                     navigation.html(`
                     <a href="<%= lurl('/items') %>"><%= __('nav.items') %></a>
                     <span class="spoiler">/</span>
-                    <span class="current-item"><a href="#"><%= info.item?.bp_sku %></a></span>
+                    <span class="current-item"><a href="#"><%= info.page_name || info.item?.bp_sku %></a></span>
                     <span class="spoiler">/</span>
                     <span class="current-item"><%= __('item.sell') %></span>
                     `)
@@ -334,7 +336,7 @@
                     navigation.html(`
                     <a href="<%= lurl('/items') %>"><%= __('nav.items') %></a>
                     <span class="spoiler">/</span>
-                    <span class="current-item"><a href="#"><%= info.item?.bp_sku %></a></span>
+                    <span class="current-item"><a href="#"><%= info.page_name || info.item?.bp_sku %></a></span>
                     <span class="spoiler">/</span>
                     <span class="current-item"><%= __('item.buy') %></span>
                     `)

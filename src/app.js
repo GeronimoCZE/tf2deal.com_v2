@@ -33,6 +33,7 @@ import * as seasons from './service/season.js'
 import { ticket_model } from './model/Ticket.js'
 import * as sitemap from './service/sitemap.js'
 import * as inventory_value from './service/inventory_value.js'
+import * as item_lists from './service/item_lists.js'
 
 const DOMAIN = 'localhost' 
 const PORT = 8080; // change to 8080
@@ -370,7 +371,6 @@ const connectDB = async () => {
         console.log('connected to DB')
         fn.setup_cache();
         settings.load().catch((e) => console.log('Failed to load site settings', e.message));
-        fn.update_item_names();
         giveaways.refresh_state().catch((e) => console.log('Failed to load giveaways', e.message));
         translate.sweep().catch((e) => console.log('translate: start failed', e.message)); // AI translations still missing
 
@@ -616,14 +616,24 @@ const same_secret = (given, expected) => {
   const b = crypto.createHash('sha256').update(expected).digest()
   return crypto.timingSafeEqual(a, b)
 }
-const login_limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false })
+const login_limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false,
+  handler: (req, res) => res.redirect('/login?error=wait') }) // the login page says to wait instead of a bare 429
+const LOGIN_ERRORS = {
+  wrong: "That password isn't right. Try again.",
+  wait: 'Too many tries. Wait 15 minutes, then try again.',
+}
 
 update_server()
 // run everyday at midnight
 
 // Serve the login page
 app.get('/login', mw.isLogged, mw.isAdmin, (req, res) => {
-  res.render('./admin/login');
+  if (mw.has_admin_session(req)) { return res.redirect('/admin') } // already unlocked
+  const user_cookie = req.cookies[`td_${req.user.steamid}`];
+  res.render('./admin/login', fn.res_data(true, req.user, user_cookie, 'Admin login - tf2deal.com', {
+    view: 'admin_login',
+    login_error: LOGIN_ERRORS[req.query.error] || '',
+  }));
 });
 
 // Handle login form submission
@@ -635,7 +645,7 @@ app.post('/login', login_limiter, mw.isLogged, mw.isAdmin, (req, res) => {
     res.clearCookie('authenticated'); // the old admin cookie isn't used any more
     res.redirect('/admin');
   } else {
-    res.redirect('/login');
+    res.redirect('/login?error=wrong');
   }
 });
 
@@ -762,7 +772,7 @@ setInterval(async () => {
         } }
     ])
 
-    await fn.update_item_names()
+    await item_lists.refresh() // items that went inactive leave the list and the search suggestions now
     sitemap.clear()
   }
 

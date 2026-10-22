@@ -125,7 +125,12 @@
                 .icon{ font-size: 13px; color: var(--ink-3); }
                 .sug-name{ flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
                 mark{ background: none; color: var(--ink); font-weight: 700; }
-                .sug-go{ visibility: hidden; color: var(--ink-3); font-size: 13px; }
+                // copies in stock, in the green of the item cards' stock
+                .sug-stock{ flex: none; color: #70B04A; font-size: 13px; white-space: nowrap; }
+                .sug-go{
+                    visibility: hidden; color: var(--ink-3); font-size: 13px;
+                    @include lt-sm{ display: none; } // a keyboard hint: phones give its room to the name
+                }
                 &:hover, &.active{
                     background: var(--surface-3);
                     color: var(--ink);

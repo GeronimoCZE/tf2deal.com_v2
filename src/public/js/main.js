@@ -26,6 +26,45 @@ const selectedItems = []
 let lastSearch = null;
 const maxSuggestions = 10;
 
+// Search suggestions: the item names (kept in localStorage by views/partials/head.ejs) and { name: copies } of what
+// the bots have in stock, killstreak versions included (/api/item_stock). Both are checked again when the search
+// opens, at most once a minute: the names are loaded again when the server's list changed (items that went inactive
+// would open a missing page).
+const search_stock = { stock: {}, time: 0, pending: null }
+
+const stored_names = () => {
+    try {
+        const names = JSON.parse(localStorage.getItem('names'))
+        return Array.isArray(names?.item_names) ? names : null
+    } catch { return null }
+}
+
+const load_search_data = () => {
+    if(search_stock.pending || Date.now() - search_stock.time < 60 * 1000) return search_stock.pending
+    const get_json = (url) => fetch(url).then(res => res.ok ? res.json() : Promise.reject(res.status))
+    search_stock.pending = get_json('/api/item_stock').then(async (res) => {
+        search_stock.stock = (res?.stock && typeof res.stock == 'object') ? res.stock : {}
+        search_stock.time = Date.now()
+        if(res?.names_version && stored_names()?.version !== res.names_version){
+            const fresh = await get_json('/api/item_names')
+            if(Array.isArray(fresh?.item_names)){
+                try {
+                    localStorage.setItem('names', JSON.stringify(fresh))
+                    localStorage.setItem('names_update', Date.now() + 1000*60*60*6)
+                } catch {}
+            }
+        }
+    }).catch(() => {}).finally(() => {
+        search_stock.pending = null
+        // show the counts on what is already typed
+        if(curModal.class === modals.search.class && $('#searchbarItems').val()){
+            lastSearch = null
+            $('#searchbarItems').trigger('input')
+        }
+    })
+    return search_stock.pending
+}
+
 let curModal = { class: "", lock: false };
 
 // lock = true cannot hide or swap modal until resolved
@@ -95,6 +134,7 @@ const clearModal = (modal) => {
         $('#searchbarItems').focus()
         $('#searchbar .suggestions').children().remove()
         $('#searchbar .suggestions').append(`<li>${__('search.results_here')}</li>`)
+        load_search_data()
     }
 }
 
@@ -278,23 +318,21 @@ addEventListener('DOMContentLoaded', (event) => {
         if (input !== lastSearch && input.length > 0) {
             lastSearch = input;
 
-            const itemNames = JSON.parse(localStorage.getItem('names'));
             const words = input.toLowerCase().trim().split(/\s+/);
+            const stock = search_stock.stock
+            // the items the bots trade, and everything in stock (killstreak versions too)
+            const names = [...new Set([...(stored_names()?.item_names || []), ...Object.keys(stock)])]
 
-            const suggestions = itemNames.item_names
+            const score = str => words.reduce((sum, w) => sum + str.indexOf(w), 0);
+            const suggestions = names
                 .filter(name => {
+                    if(typeof name !== 'string' || !name) return false;
                     const normalized = items.normalizeGerman(name).toLowerCase();
                     return words.every(word => normalized.includes(word));
                 })
-                .sort((a, b) => {
-                    const score = str =>
-                        words.reduce((sum, w) => sum + str.indexOf(w), 0);
-
-                    const aNorm = items.normalizeGerman(a).toLowerCase();
-                    const bNorm = items.normalizeGerman(b).toLowerCase();
-
-                    return score(aNorm) - score(bNorm);
-                })
+                .map(name => ({ name, score: score(items.normalizeGerman(name).toLowerCase()), stock: Number(stock[name]) || 0 }))
+                // the closest names first, and of those the ones in stock
+                .sort((a, b) => a.score - b.score || b.stock - a.stock)
                 .slice(0, maxSuggestions);
 
             const $suggestions = $('#searchbar .suggestions');
@@ -305,9 +343,10 @@ addEventListener('DOMContentLoaded', (event) => {
                 // bold the typed words in each name
                 const pattern = new RegExp(`(${words.filter(Boolean).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
                 for (const sug of suggestions) {
-                    const label = sug.split(pattern).map((part, i) => i % 2 ? `<mark>${esc_html(part)}</mark>` : esc_html(part)).join('');
+                    const label = sug.name.split(pattern).map((part, i) => i % 2 ? `<mark>${esc_html(part)}</mark>` : esc_html(part)).join('');
+                    const stock_text = sug.stock > 0 ? `<span class="sug-stock">${esc_html(__('common.in_stock', { count: sug.stock }))}</span>` : '';
                     $suggestions.append(
-                        `<a href="${lurl('/items/' + encodeURIComponent(sug))}" translate="no" role="option"><span class="icon icon-search" aria-hidden="true"></span><span class="sug-name">${label}</span><span class="sug-go" aria-hidden="true">↵</span></a>`
+                        `<a href="${lurl('/items/' + encodeURIComponent(sug.name))}" translate="no" role="option"><span class="icon icon-search" aria-hidden="true"></span><span class="sug-name">${label}</span>${stock_text}<span class="sug-go" aria-hidden="true">↵</span></a>`
                     );
                 }
             } else {
@@ -1155,7 +1194,8 @@ addEventListener('DOMContentLoaded', (event) => {
             const item_update = item?.item_updated;
             const effectID = item?.effectID;
             const item_name = decodeURIComponent(TD_PATH).replace('/items/', '')
-            const item_page_title = document.title
+            // the title with the item's own name (a killstreak tier's page opens with the tier's name)
+            const item_page_title = document.title.replace(item_name, item.bp_sku)
             let current_item = item_name;
 
             let TradeData = new trade.Trade_Object()
@@ -1267,7 +1307,7 @@ addEventListener('DOMContentLoaded', (event) => {
                 }
                 ks_select.addEventListener('change', () => show_tier(Number(ks_select.value)))
                 // a link to e.g. /items/Professional Killstreak Rocket Launcher opens with that tier picked
-                const linked = ks_tiers.find(t => t.bp_sku === item_name)
+                const linked = ks_tiers.find(t => t.bp_sku === item_name) || ks_tiers.find(t => t.tier == itemKsTier)
                 show_tier(linked ? linked.tier : 0)
             }
             function formatUnixTimestamp(unixMs) {
