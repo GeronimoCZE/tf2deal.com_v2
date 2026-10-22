@@ -1,6 +1,6 @@
 // Smissmas only (view/partials/head.ejs loads it when service/season.js puts season-smissmas on <body>):
-// a light blizzard drifting across the whole site. One fixed canvas on top of the page that never takes clicks.
-// Kept calm on purpose: few flakes, small and see-through, the wind gusts slowly instead of shaking.
+// a light blizzard drifting across the whole site. One fixed canvas behind the page content that never takes clicks.
+// Kept calm on purpose: few flakes, small and see-through, a soft breeze that swells slowly instead of a storm.
 // Nothing runs for people who ask for less motion, and it stops while the tab is hidden.
 (() => {
     if (!document.body || !document.body.classList.contains('season-smissmas')) { return }
@@ -15,19 +15,19 @@
 
     let width = 0, height = 0, flakes = [], last = 0, clock = 0, frame = null
 
-    // about one flake per 20,000 px² of screen: ~65 on a laptop, ~25 on a phone
-    const flake_count = () => Math.max(20, Math.min(90, Math.round(width * height / 20000)))
+    // about one flake per 32,000 px² of screen: ~40 on a laptop, ~15 on a phone
+    const flake_count = () => Math.max(12, Math.min(55, Math.round(width * height / 32000)))
 
     const new_flake = (anywhere) => {
-        const near = Math.random() < 0.25 // a few bigger, faster flakes "close to the camera" read as a storm
+        const near = Math.random() < 0.12 // a few bigger flakes "close to the camera" give it depth
         const from_top = Math.random() < 0.5 // new ones blow in over the top or the left edge, so no corner stays empty
         return {
             x: anywhere ? Math.random() * width : from_top ? Math.random() * width : -10 - Math.random() * 40,
             y: anywhere ? Math.random() * height : from_top ? -10 - Math.random() * 40 : Math.random() * height,
             near,
-            r: near ? 1.1 + Math.random() * 0.8 : 0.6 + Math.random() * 0.9,
-            speed: near ? 1.6 + Math.random() * 0.8 : 0.7 + Math.random() * 0.7,
-            alpha: near ? 0.35 + Math.random() * 0.2 : 0.2 + Math.random() * 0.3,
+            r: near ? 1 + Math.random() * 0.6 : 0.5 + Math.random() * 0.7,
+            speed: near ? 1.1 + Math.random() * 0.5 : 0.5 + Math.random() * 0.5,
+            alpha: near ? 0.25 + Math.random() * 0.15 : 0.12 + Math.random() * 0.2,
             phase: Math.random() * Math.PI * 2
         }
     }
@@ -48,8 +48,8 @@
         const dt = Math.min((now - (last || now)) / 16.67, 3) // in 60 fps frames, so speed is the same on 120 Hz screens
         last = now
         clock += dt
-        // the wind blows left to right and swells every ~10 s
-        const wind = 1.6 + Math.sin(clock / 160) * 0.9 + Math.sin(clock / 47) * 0.35
+        // a breeze from the left that swells every ~10 s
+        const wind = 0.9 + Math.sin(clock / 160) * 0.45 + Math.sin(clock / 47) * 0.15
         ctx.clearRect(0, 0, width, height)
         ctx.lineCap = 'round'
         for (const f of flakes) {
@@ -59,7 +59,7 @@
             f.y += vy * dt
             if (f.x > width + 20 || f.y > height + 20) { Object.assign(f, new_flake(false)) }
             // a short streak in the direction it flies, so the fast ones look wind-driven rather than falling dots
-            const tail = f.near ? Math.min(10, 2.4 * f.speed * wind) : Math.min(3, 0.8 * f.speed * wind)
+            const tail = f.near ? Math.min(5, 1.6 * f.speed * wind) : Math.min(2, 0.6 * f.speed * wind)
             ctx.strokeStyle = `rgba(255, 255, 255, ${f.alpha})`
             ctx.lineWidth = f.r * 1.7
             ctx.beginPath()

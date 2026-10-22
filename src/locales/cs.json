@@ -24,7 +24,8 @@
     "theme_summer": "Léto",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
-    "search_short": "Hledat předměty"
+    "search_short": "Hledat předměty",
+    "lang_theme": "Jazyk a motiv"
   },
   "common": {
     "sign_in_steam": "Přihlásit se přes Steam",
@@ -315,7 +316,8 @@
     },
     "search": {
       "results_here": "Výsledky se zobrazí zde...",
-      "no_results": "Nenalezeny žádné odpovídající návrhy."
+      "no_results": "Nenalezeny žádné odpovídající návrhy.",
+      "stock_of": "Skladem {count} z {limit}"
     },
     "home": {
       "no_trades": "Zatím tu nejsou žádné výměny... tak nějakou udělejte!",

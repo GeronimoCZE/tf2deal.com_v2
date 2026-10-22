@@ -26,8 +26,9 @@ const selectedItems = []
 let lastSearch = null;
 const maxSuggestions = 10;
 
-// Search suggestions: the item names (kept in localStorage by views/partials/head.ejs) and { name: copies } of what
-// the bots have in stock, killstreak versions included (/api/item_stock). Both are checked again when the search
+// Search suggestions: the item names with their stock limits (kept in localStorage by views/partials/head.ejs) and
+// { name: [copies, limit] } of what the bots have in stock, killstreak versions included (/api/item_stock). Each
+// suggestion shows "copies/limit". Both are checked again when the search
 // opens, at most once a minute: the names are loaded again when the server's list changed (items that went inactive
 // would open a missing page).
 const search_stock = { stock: {}, time: 0, pending: null }
@@ -320,6 +321,7 @@ addEventListener('DOMContentLoaded', (event) => {
 
             const words = input.toLowerCase().trim().split(/\s+/);
             const stock = search_stock.stock
+            const limits = stored_names()?.limits || {}
             // the items the bots trade, and everything in stock (killstreak versions too)
             const names = [...new Set([...(stored_names()?.item_names || []), ...Object.keys(stock)])]
 
@@ -330,7 +332,10 @@ addEventListener('DOMContentLoaded', (event) => {
                     const normalized = items.normalizeGerman(name).toLowerCase();
                     return words.every(word => normalized.includes(word));
                 })
-                .map(name => ({ name, score: score(items.normalizeGerman(name).toLowerCase()), stock: Number(stock[name]) || 0 }))
+                .map(name => {
+                    const [copies, limit] = Array.isArray(stock[name]) ? stock[name] : [0, limits[name]]
+                    return { name, score: score(items.normalizeGerman(name).toLowerCase()), stock: Number(copies) || 0, limit: Number.isFinite(limit) ? limit : null }
+                })
                 // the closest names first, and of those the ones in stock
                 .sort((a, b) => a.score - b.score || b.stock - a.stock)
                 .slice(0, maxSuggestions);
@@ -344,7 +349,11 @@ addEventListener('DOMContentLoaded', (event) => {
                 const pattern = new RegExp(`(${words.filter(Boolean).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
                 for (const sug of suggestions) {
                     const label = sug.name.split(pattern).map((part, i) => i % 2 ? `<mark>${esc_html(part)}</mark>` : esc_html(part)).join('');
-                    const stock_text = sug.stock > 0 ? `<span class="sug-stock">${esc_html(__('common.in_stock', { count: sug.stock }))}</span>` : '';
+                    // "2/3": copies in stock of the most the bots keep; without a known limit only what is in stock
+                    const stock_title = esc_html(sug.limit !== null ? __('search.stock_of', { count: sug.stock, limit: sug.limit }) : __('common.in_stock', { count: sug.stock }))
+                    const stock_text = sug.limit !== null || sug.stock > 0
+                        ? `<span class="sug-stock${sug.stock > 0 ? '' : ' none'}" title="${stock_title}" aria-label="${stock_title}">${sug.limit !== null ? `${sug.stock}/${sug.limit}` : sug.stock}</span>`
+                        : '';
                     $suggestions.append(
                         `<a href="${lurl('/items/' + encodeURIComponent(sug.name))}" translate="no" role="option"><span class="icon icon-search" aria-hidden="true"></span><span class="sug-name">${label}</span>${stock_text}<span class="sug-go" aria-hidden="true">↵</span></a>`
                     );

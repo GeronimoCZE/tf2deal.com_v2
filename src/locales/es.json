@@ -24,7 +24,8 @@
     "theme_summer": "Verano",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
-    "search_short": "Buscar objetos"
+    "search_short": "Buscar objetos",
+    "lang_theme": "Idioma y tema"
   },
   "common": {
     "sign_in_steam": "Iniciar sesión con Steam",
@@ -315,7 +316,8 @@
     },
     "search": {
       "results_here": "Los resultados aparecerán aquí...",
-      "no_results": "No se encontraron sugerencias."
+      "no_results": "No se encontraron sugerencias.",
+      "stock_of": "{count} de {limit} en stock"
     },
     "home": {
       "no_trades": "Todavía no hay intercambios registrados... ¡anímate a hacer alguno!",

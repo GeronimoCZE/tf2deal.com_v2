@@ -24,7 +24,8 @@
     "theme_summer": "夏季",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
-    "search_short": "搜索物品"
+    "search_short": "搜索物品",
+    "lang_theme": "语言和主题"
   },
   "common": {
     "sign_in_steam": "通过 Steam 登录",
@@ -315,7 +316,8 @@
     },
     "search": {
       "results_here": "结果将显示在这里……",
-      "no_results": "未找到匹配的建议。"
+      "no_results": "未找到匹配的建议。",
+      "stock_of": "库存 {count}/{limit}"
     },
     "home": {
       "no_trades": "目前还没有交易记录……快去交易吧！",
