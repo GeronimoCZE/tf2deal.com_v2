@@ -26,6 +26,16 @@ body.season-summer{
         img{ display: none; }                // the snowy tree
         .snow-bottom{ background: rgb(214, 178, 122); } // sand instead of snow
     }
+
+    // the bright desert sky made the picture's own soft edge read as a hard box: fade all four sides out to nothing
+    .home-ps-1 .bg-block{
+        $hero-fade: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%),
+            linear-gradient(180deg, transparent 0%, #000 16%, #000 68%, transparent 100%);
+        -webkit-mask-image: $hero-fade;
+        -webkit-mask-composite: source-in;
+        mask-image: $hero-fade;
+        mask-composite: intersect;
+    }
 }
 
 body.season-halloween{
