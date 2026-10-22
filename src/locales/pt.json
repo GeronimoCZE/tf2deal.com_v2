@@ -315,7 +315,8 @@
     },
     "search": {
       "results_here": "Os resultados aparecerão aqui...",
-      "no_results": "Nenhuma sugestão encontrada."
+      "no_results": "Nenhuma sugestão encontrada.",
+      "stock_of": "{count} de {limit} em estoque"
     },
     "home": {
       "no_trades": "Ainda não há registros de trocas... vá fazer algumas!",

@@ -58,18 +58,18 @@ router.use('/admin', adminApi)
 
 let bot_cache = []
 
-// The search suggestions: the items the bots trade, and a version that changes with the list
-// (service/item_lists.js reads the items again once a minute)
+// The search suggestions: the items the bots trade, { name: stock limit } of each, and a version that changes with
+// either (service/item_lists.js reads the items again once a minute)
 router.get('/item_names', async (req, res) => {
   try {
-    const { names, version } = await item_lists.names()
-    res.send({ item_names: names, version })
+    const { names, limits, version } = await item_lists.names()
+    res.send({ item_names: names, limits, version })
   } catch {
     res.status(503).send({ status: 'error', message: 'db error' })
   }
 });
 
-// { name: copies } of every item and killstreak version in stock, for the counts in the search suggestions,
+// { name: [copies, limit] } of every item and killstreak version in stock, for the counts in the search suggestions,
 // and the names version, so the browser knows when its names are out of date
 router.get('/item_stock', async (req, res) => {
   try {

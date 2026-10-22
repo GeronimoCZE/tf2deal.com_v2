@@ -315,7 +315,8 @@
     },
     "search": {
       "results_here": "Hier erscheinen die Ergebnisse...",
-      "no_results": "Keine passenden Vorschläge gefunden."
+      "no_results": "Keine passenden Vorschläge gefunden.",
+      "stock_of": "{count} von {limit} auf Lager"
     },
     "home": {
       "no_trades": "Es gibt noch keine Trades... leg los und mach welche!",

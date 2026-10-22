@@ -5,9 +5,11 @@
 //   similar(item)         the item page's "similar items": same name, same unusual effect, same type and quality
 //   cards(filters, sort)  the /items list (/api/items and the plain-HTML /items pages): a card per item, plus a card per
 //                         killstreak tier the bots have in stock, which opens that tier's page
-//   names()               the search modal's suggestions: the items the bots trade (status 1), and a version
-//   stock()               { name: copies } of every card in stock (killstreak tiers included): the search modal adds
-//                         these names to the suggestions with their counts. Every suggestion opens a page (no 404s).
+//   names()               the search modal's suggestions: the items the bots trade (status 1), their stock limits,
+//                         and a version that changes with either
+//   stock()               { name: [copies, limit] } of every card in stock (killstreak tiers included): the search
+//                         modal adds these names to the suggestions and shows "copies/limit" next to every name.
+//                         Every suggestion opens a page (no 404s).
 //   ks_page(name)         "Professional Killstreak Rocket Launcher" -> { bases: ['Rocket Launcher', ...], tier: 3 }
 //   refresh()             read the items again now (after the daily sweep marks old items inactive)
 
@@ -193,12 +195,17 @@ const index = cached(async () => {
   const cards = pages.filter((doc) => doc.status == 1 || (doc.stock?.items?.length || 0) > 0).flatMap(item_cards)
   // the items the bots trade; what's in stock (other items and killstreak versions too) comes with stock(), which the
   // browser asks for every time the search opens, so the names (a long list) only change when items go (in)active
-  const names = pages.filter((doc) => doc.status == 1).map((doc) => doc.bp_sku)
-  const stock = Object.fromEntries(cards.filter((card) => card.count > 0).map((card) => [card.bp_sku, card.count]))
+  const active = pages.filter((doc) => doc.status == 1)
+  const names = active.map((doc) => doc.bp_sku)
+  // how many copies the bots keep at most: a killstreak tier with its own limit counts on its own (as the Can sell filter)
+  const limits = Object.fromEntries(active.map((doc) => [doc.bp_sku, Number(doc.stock?.limit) || 0]))
+  const card_limit = (card) => card.ks > 0 && card.tier_limit !== null ? card.tier_limit : card.limit
+  const stock = Object.fromEntries(cards.filter((card) => card.count > 0).map((card) => [card.bp_sku, [card.count, card_limit(card)]]))
   return {
     cards,
     names,
-    names_version: crypto.createHash('sha1').update(names.join('\n')).digest('hex').slice(0, 12),
+    limits,
+    names_version: crypto.createHash('sha1').update(JSON.stringify([names, limits])).digest('hex').slice(0, 12),
     stock,
     built: Date.now()
   }
@@ -266,7 +273,7 @@ const public_card = (card) => ({
 
 const names = async () => {
   const all = await index()
-  return { names: all.names, version: all.names_version }
+  return { names: all.names, limits: all.limits, version: all.names_version }
 }
 
 const stock = async () => {

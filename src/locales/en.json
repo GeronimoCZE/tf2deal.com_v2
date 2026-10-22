@@ -315,7 +315,8 @@
     },
     "search": {
       "results_here": "The results will appear here...",
-      "no_results": "No matching suggestions found."
+      "no_results": "No matching suggestions found.",
+      "stock_of": "{count} of {limit} in stock"
     },
     "home": {
       "no_trades": "There are no trade records yet... go make some!",
