@@ -22,32 +22,48 @@
 
 <footer>
     <div class="foo-content">
+        <%# links grouped by what people come for (similar things together): trading, community, help, legal %>
         <div class="foo-links">
             <div class="foo-links-column">
-                <div class="foo-col-heading"><%= __('footer.site_content') %></div>
-                <a href="<%= lurl('/') %>" class="foo-col-link">
-                    <span><%= __('footer.home') %></span>
-                </a>
+                <div class="foo-col-heading"><%= __('footer.trading') %></div>
                 <a href="<%= lurl('/trade') %>" class="foo-col-link">
                     <span><%= __('nav.trade') %></span>
                 </a>
                 <a href="<%= lurl('/items') %>" class="foo-col-link">
                     <span><%= __('nav.items') %></span>
                 </a>
+                <a href="<%= lurl('/about') %>#bots-table" class="foo-col-link">
+                    <span><%= __('footer.bots') %></span>
+                </a>
+            </div>
+            <div class="foo-links-column">
+                <div class="foo-col-heading"><%= __('nav.community') %></div>
+                <a href="<%= lurl('/giveaway') %>" class="foo-col-link">
+                    <span><%= __('nav.giveaway') %></span>
+                </a>
+                <a href="<%= lurl('/blog') %>" class="foo-col-link">
+                    <span><%= __('nav.blog') %></span>
+                </a>
                 <a href="<%= lurl('/about') %>" class="foo-col-link">
                     <span><%= __('nav.about') %></span>
                 </a>
             </div>
             <div class="foo-links-column">
-                <div class="foo-col-heading"><%= __('footer.technical') %></div>
+                <div class="foo-col-heading"><%= __('footer.help') %></div>
                 <a href="<%= lurl('/about') %>#how-to-trade" class="foo-col-link">
                     <span><%= __('footer.how_to_trade') %></span>
                 </a>
+                <a href="<%= lurl('/') %>#faq" class="foo-col-link">
+                    <span><%= __('footer.faq') %></span>
+                </a>
+                <a href="<%= lurl('/support') %>" class="foo-col-link">
+                    <span><%= __('footer.support') %></span>
+                </a>
+            </div>
+            <div class="foo-links-column">
+                <div class="foo-col-heading"><%= __('footer.legal') %></div>
                 <a href="<%= lurl('/terms-of-service') %>" class="foo-col-link">
                     <span><%= __('footer.tos') %></span>
-                </a>
-                <a href="<%= lurl('/about') %>#bots-table" class="foo-col-link">
-                    <span><%= __('footer.bots') %></span>
                 </a>
                 <a href="<%= lurl('/cookies') %>" class="foo-col-link">
                     <span><%= __('footer.cookie_policy') %></span>
@@ -55,36 +71,6 @@
                 <a href="#cookie-settings" class="foo-col-link" data-cookie-settings>
                     <span><%= __('footer.cookie_settings') %></span>
                 </a>
-            </div>
-            <div class="foo-links-column">
-                <div class="foo-col-heading"><%= __('footer.support_help') %></div>
-                <a href="<%= lurl('/support') %>" class="foo-col-link">
-                    <span><%= __('footer.support') %></span>
-                </a>
-                <a href="<%= lurl('/') %>#faq" class="foo-col-link">
-                    <span><%= __('footer.faq') %></span>
-                </a>
-            </div>
-            <div class="foo-links-column">
-                <div class="foo-col-heading"><%= __('footer.other') %></div>
-                <!-- <a href="/premium" class="foo-col-link">
-                    <span>Premium</span>
-                </a> -->
-                <a href="<%= lurl('/giveaway') %>" class="foo-col-link">
-                    <span><%= __('nav.giveaway') %></span>
-                </a>               
-                <a href="<%= lurl('/blog') %>" class="foo-col-link">
-                    <span><%= __('nav.blog') %></span>
-                </a>
-                <!-- <a href="https://bazaar.tf2deal.com" class="foo-col-link">
-                    <span class="lang lang-en">Bazaar</span>
-                </a> -->
-                <!-- <a href="/posts" class="foo-col-link">
-                    <span>Posts</span>
-                </a>
-                <a href="/updates" class="foo-col-link">
-                    <span>Updates</span>
-                </a> -->
             </div>
         </div>
         <div class="foo-credits">

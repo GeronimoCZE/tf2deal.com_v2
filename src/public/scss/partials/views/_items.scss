@@ -234,8 +234,12 @@
                 }
             }
         }
+        // shown only once a filter is on: one choice fewer while there is nothing to reset (Hick's law)
         .resetFilters{
             display: block;
+            &:disabled{
+                display: none;
+            }
             position: relative;
             pointer-events: none;
             border: none;
@@ -267,8 +271,7 @@
             height: 1.5rem;
             line-height: 1.5rem;
             padding: .3rem .3rem;
-            margin: .4rem;
-            margin-left: auto;
+            margin: .4rem .9rem .4rem .4rem;
             border-radius: 5px;
             background: var(--well);
             letter-spacing: 0.05rem;
@@ -1382,6 +1385,35 @@
                     }
                 }
             }
+            // backpack.tf, TF2 Wiki: links to other sites, in their own row under the item's data
+            .item-links{
+                display: flex;
+                flex-wrap: wrap;
+                gap: .5rem;
+                margin: 0 0 0 .5rem;
+                @include lt-sm{
+                    justify-content: center;
+                    margin: 0 auto;
+                }
+                .item-link{
+                    display: inline-flex;
+                    align-items: center;
+                    gap: .35rem;
+                    padding: .35rem .75rem;
+                    border-radius: var(--r-sm);
+                    background: var(--surface-2);
+                    color: var(--ink-2);
+                    font-size: 14px;
+                    font-weight: 600;
+                    text-decoration: none;
+                    transition: background 150ms ease, color 150ms ease; // colour only: no border, no size change
+                    &:hover{
+                        background: var(--surface-3);
+                        color: var(--ink);
+                    }
+                    span{ color: var(--ink-3); }
+                }
+            }
             .item-btns{
                 position: relative;
                 display: block;
@@ -2065,6 +2097,10 @@
                 }
                 &.hidden{
                     display: none;
+                }
+                &.empty{
+                    padding: .9rem 0 0 0;
+                    color: var(--ink-3) !important;
                 }
                 &.more{
                     position: absolute !important;

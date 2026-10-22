@@ -96,20 +96,14 @@
                     <div class="wrapper">
                         <img src="/img/sfm/sfm404_2.webp" alt="" class="tf2_char  lazy-fade" onload="this.classList.add('loaded')" loading="lazy">                        
                         <h2 class=""><%= __('home.intro_title') %></h2>
-                        <ul class="fade-in">
-                            <li class="content">
-                                <%= __('home.intro_1') %>
-                            </li>
-                            <li class="content">
-                            <%= __('home.intro_2') %>
-                            </li>
-                            <li class="content">
-                            <%- __('home.intro_3_html', { url: lurl('/trade') }) %>
-                            </li>
-                            <li class="content">
-                            <%- __('home.intro_4_html', { url: lurl('/items') }) %>
-                            </li>
-                        </ul>
+                        <%# what the site is in two sentences, then the two ways to trade as separate points (chunking) %>
+                        <div class="intro-body fade-in">
+                            <p class="lead"><%= __('home.intro_1') %> <%= __('home.intro_2') %></p>
+                            <ul class="intro-points">
+                                <li><span class="icon icon-trade1" aria-hidden="true"></span><span><%- __('home.intro_3_html', { url: lurl('/trade') }) %></span></li>
+                                <li><span class="icon icon-key" aria-hidden="true"></span><span><%- __('home.intro_4_html', { url: lurl('/items') }) %></span></li>
+                            </ul>
+                        </div>
                         </div>
 
 
@@ -137,6 +131,7 @@
                     <!-- heading -->
                     <!-- text -->
                     <!-- X-AXIS SLIDER FOR POPULAR / STOCKED ITEMS -->
+                    <%# each card opens its list: the link covers the whole card (a big target), see .meet-the-tf2deal in _home.scss %>
                     <div class="meet-the-tf2deal">
                     <%# the pictures in these sections are decorative (the heading next to them says what they are): alt="" %>
                     <section class="promo-skins">
@@ -217,6 +212,19 @@
                                 <h3 class="header"><span class="icon icon-arrow_down"></span> <%= __('faq.owner_q') %></h3>
                                 <div class="body"><%= __('faq.owner_a') %></div>
                             </section>
+                        </div>
+                    </div>
+                    <%# the page ends on the main action again (peak-end rule), with the same two buttons as the top %>
+                    <div class="home-cta">
+                        <h2><%= __('home.cta_title') %></h2>
+                        <p><%= __('home.cta_text') %></p>
+                        <div class="buttons">
+                            <% if (user) { %>
+                                <a href="<%= lurl('/trade') %>" class="start_trading-btn"><%= __('home.start_trading') %></a>
+                            <% } else { %>
+                                <a rel="nofollow" href="/auth/steam" class="start_trading-btn"><%= __('home.start_trading') %></a>
+                            <% } %>
+                            <a href="<%= lurl('/items') %>" class="view-items-btn"><span class="icon icon-search"></span> <%= __('home.browse_items') %></a>
                         </div>
                     </div>
                     </div>

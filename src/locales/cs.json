@@ -23,7 +23,8 @@
     "theme_night": "Noční obloha",
     "theme_summer": "Léto",
     "theme_halloween": "Scream Fortress",
-    "theme_smissmas": "Smissmas"
+    "theme_smissmas": "Smissmas",
+    "search_short": "Hledat předměty"
   },
   "common": {
     "sign_in_steam": "Přihlásit se přes Steam",
@@ -63,7 +64,10 @@
     "faq": "Časté dotazy",
     "powered_by": "Běží na službě {steam}",
     "particles_from": "Efekty částic převzaty z {bptf}",
-    "created_by": "Vytvořil s ❤️ {author}"
+    "created_by": "Vytvořil s ❤️ {author}",
+    "trading": "Obchodování",
+    "help": "Nápověda",
+    "legal": "Právní informace"
   },
   "title": {
     "home": "TF2deal.com - Automatizované obchodování v Team Fortress 2",
@@ -196,7 +200,9 @@
     "unusuals_link": "Zobrazit všechny Unusualy",
     "tools_title": "Nástroje",
     "tools_text": "Chcete rozšířit svůj inventář? Dát své zbrani killstreaker? Máme pro vás řešení!",
-    "tools_link": "Zobrazit všechny nástroje"
+    "tools_link": "Zobrazit všechny nástroje",
+    "cta_title": "Připraveni obchodovat?",
+    "cta_text": "Vyberte si předměty a naši boti vám pošlou nabídku obchodu na Steamu."
   },
   "filters": {
     "none": "Žádné",
@@ -567,7 +573,9 @@
     "remove_selected": "odebrat vybrané",
     "items": "ks",
     "cant_trade_now": "Aktuální situace nám neumožňuje tento předmět vyměnit!",
-    "reload_inventory": "Znovu načíst inventář"
+    "reload_inventory": "Znovu načíst inventář",
+    "no_price_history": "Cena se zatím neměnila.",
+    "links": "Více o tomto předmětu"
   },
   "giveaway": {
     "current": "Aktuální soutěž",
