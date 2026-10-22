@@ -33,6 +33,7 @@ import * as seasons from './service/season.js'
 import { ticket_model } from './model/Ticket.js'
 import * as sitemap from './service/sitemap.js'
 import * as inventory_value from './service/inventory_value.js'
+import * as item_lists from './service/item_lists.js'
 
 const DOMAIN = 'localhost' 
 const PORT = 8080; // change to 8080
@@ -370,7 +371,6 @@ const connectDB = async () => {
         console.log('connected to DB')
         fn.setup_cache();
         settings.load().catch((e) => console.log('Failed to load site settings', e.message));
-        fn.update_item_names();
         giveaways.refresh_state().catch((e) => console.log('Failed to load giveaways', e.message));
         translate.sweep().catch((e) => console.log('translate: start failed', e.message)); // AI translations still missing
 
@@ -772,7 +772,7 @@ setInterval(async () => {
         } }
     ])
 
-    await fn.update_item_names()
+    await item_lists.refresh() // items that went inactive leave the list and the search suggestions now
     sitemap.clear()
   }
 
