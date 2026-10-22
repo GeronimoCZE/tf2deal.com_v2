@@ -24,7 +24,8 @@
     "theme_summer": "Léto",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
-    "search_short": "Hledat předměty"
+    "search_short": "Hledat předměty",
+    "lang_theme": "Jazyk a motiv"
   },
   "common": {
     "sign_in_steam": "Přihlásit se přes Steam",

@@ -24,7 +24,8 @@
     "theme_summer": "夏季",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
-    "search_short": "搜索物品"
+    "search_short": "搜索物品",
+    "lang_theme": "语言和主题"
   },
   "common": {
     "sign_in_steam": "通过 Steam 登录",

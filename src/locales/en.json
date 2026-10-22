@@ -24,7 +24,8 @@
     "theme_summer": "Summer",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
-    "search_short": "Search items"
+    "search_short": "Search items",
+    "lang_theme": "Language and theme"
   },
   "common": {
     "sign_in_steam": "Sign in with Steam",
