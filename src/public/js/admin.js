@@ -444,7 +444,7 @@
                     ${stat('Items in stock', num(o.items), `${num(o.bots)} bot${o.bots == 1 ? '' : 's'}`)}
                     ${stat('Registered users', num(o.users_total), o.users_new != null ? `+${num(o.users_new)} in 24 h` : '', '#users')}
                     ${stat('Open tickets', num(o.tickets_open), o.tickets_open ? 'waiting for a reply' : 'all answered', '#tickets')}
-                    ${stat('Key price', o.key_price ? `${num(o.key_price)} ref` : '–', 'Mann Co. Supply Crate Key')}
+                    ${stat('Key price', o.key_price ? `${num(o.key_price)}<small> ref</small>` : '–', 'Mann Co. key')}
                     ${stat('Trade rating', o.rating?.avg != null ? `${o.rating.avg.toFixed(1)} ★` : '–', o.rating?.count ? `${num(o.rating.count)} rating${o.rating.count == 1 ? '' : 's'}` : 'no ratings yet', '#ratings')}
                 </div>
                 <div class="admin-grid">
@@ -1940,7 +1940,14 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
     const route = () => {
         const [wanted, ...args] = location.hash.slice(1).split('/') // #blog/edit/<id>: section + what to open in it
         const name = sections[wanted] ? wanted : 'overview'
-        document.querySelectorAll('.admin-nav a').forEach((a) => a.classList.toggle('active', a.dataset.section == name))
+        document.querySelectorAll('.admin-nav a').forEach((a) => {
+            const open = a.dataset.section == name
+            a.classList.toggle('active', open)
+            if(open){ a.setAttribute('aria-current', 'page') } else { a.removeAttribute('aria-current') }
+        })
+        // phones and narrow windows: the links are one row that scrolls sideways, so bring the open one into view (without moving the page)
+        const nav = document.querySelector('.admin-nav'), open_link = nav?.querySelector('a.active')
+        if(open_link && nav.scrollWidth > nav.clientWidth){ nav.scrollLeft = open_link.offsetLeft - (nav.clientWidth - open_link.offsetWidth) / 2 }
         if(cleanup){ cleanup(); cleanup = null }
 
         const id = ++route_id
