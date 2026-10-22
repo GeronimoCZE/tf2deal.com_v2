@@ -1,8 +1,5 @@
-import fs from 'fs'
-import path from 'path'
 import SteamID from 'steamid'
 import * as app from './app.js'
-import {item_model as Items} from '../src/model/Item.js'
 import { localize_path, DEFAULT_LANG, t_for } from './i18n.js'
 import { bot_socket } from './service/socket.js'
 import * as settings from './service/settings.js'
@@ -248,26 +245,6 @@ const price_history_rows = (history, limit = 30) => {
 }
 
 /* =======================
-   DB / FILE OPS
-======================= */
-
-const ITEM_NAMES_FILE_SIZE = 22500 // names per file in src/api/data
-
-// Item names for the search suggestions (/api/item_names): every active item. The sitemaps are built on request
-// (service/sitemap.js).
-const update_item_names = async () => {
-  try {
-    const active = await Items.find({ status: { $in: [1, 2] } }, { _id: 0, bp_sku: 1 }).lean()
-    const names = active.map((item) => item.bp_sku)
-    for (let n = 0; n * ITEM_NAMES_FILE_SIZE < names.length; n++) {
-      fs.writeFileSync(path.join(process.cwd(), `/src/api/data/item_names${n + 1}.txt`), names.slice(n * ITEM_NAMES_FILE_SIZE, (n + 1) * ITEM_NAMES_FILE_SIZE).join(','))
-    }
-  } catch (error) {
-    console.log('Item names update failed:', error?.message || error)
-  }
-}
-
-/* =======================
    TEXT (blog / tickets)
 ======================= */
 
@@ -382,7 +359,6 @@ export {
   round_ref,
   setup_cache,
   item_check,
-  update_item_names,
   socketCallback,
   escape_html,
   render_markdown,
