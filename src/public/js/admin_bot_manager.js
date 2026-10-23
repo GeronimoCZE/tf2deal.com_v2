@@ -1346,11 +1346,151 @@
         ctx.every(30000, draw_status)
     }
 
-    /* ========================= PRICES (+ what we paid) ========================= */
+    /* ========================= PRICES (+ set by hand, what we paid) ========================= */
+
+    // a price in ref as [keys, ref] at the key price it was saved with
+    const in_keys = (metal, key) => {
+        const m = Number(metal) || 0, k = Number(key) || 0
+        const whole = k > 0 ? Math.floor((m + 0.005) / k) : 0
+        return [whole, r2(m - whole * k)]
+    }
+    const keys_ref = (k, r) => [k ? `${num(k)} key${k == 1 ? '' : 's'}` : '', r || !k ? ref(r) : ''].filter(Boolean).join(', ')
+    const price_text = (metal, key) => keys_ref(...in_keys(metal, key))
+    const pair_input = (name, label, keep) => `<div class="admin-field">${label}
+        <span class="admin-bm-pair">
+            <span class="admin-input-unit"><input type="number" name="${name}_keys" min="0" step="1" inputmode="numeric"${keep ? ' placeholder="keep"' : ''} aria-label="${label}, keys"><em>keys</em></span>
+            <span class="admin-input-unit"><input type="number" name="${name}_ref" min="0" step="0.01" inputmode="decimal"${keep ? ' placeholder="keep"' : ''} aria-label="${label}, ref"><em>ref</em></span>
+        </span></div>`
+
+    // Prices set by hand (service/manual_prices.js): straight in the database, so this works without bot_manager too
+    const manual_card = (box, ctx) => {
+        const card = box.querySelector('#bm-manual')
+        card.innerHTML = `<h3>Prices set by hand</h3>
+            <p class="muted">Sell an item for your own price. Locked, the price only changes here and item_manager leaves it alone. Not locked, item_manager prices the item again at its next round. The price is in ref at today's key price, like item_manager's; killstreak versions keep their own prices.</p>
+            <form class="admin-bm-manual-form" id="bm-manual-form" autocomplete="off">
+                <label class="admin-field">Item <input type="search" name="bp_sku" list="bm-manual-names" required maxlength="200" placeholder="Item name, e.g. Team Captain" spellcheck="false"></label>
+                <datalist id="bm-manual-names"></datalist>
+                ${pair_input('sell', 'Sell for')}
+                ${pair_input('buy', 'Buy for', true)}
+                <div class="admin-bm-checks">
+                    <label class="check"><input type="checkbox" name="locked" checked> Lock the price</label>
+                    <label class="check"><input type="checkbox" name="list" checked> Always list it for sale</label>
+                </div>
+                <button type="submit" class="primary">Save price</button>
+            </form>
+            <p class="admin-help admin-bm-now" id="bm-manual-now" aria-live="polite"></p>
+            <div id="bm-manual-list">${loading}</div>`
+        const form = card.querySelector('#bm-manual-form')
+        const found = new Map()
+        let pinned = null
+
+        const describe = (i) => {
+            const m = i.manual
+            const parts = [`Now sells for ${price_text(i.sell, i.key_price)} and buys for ${price_text(i.buy, i.key_price)}`, `${num(i.stock)} in stock`]
+            if(i.status != 1){ parts.push('not priced by item_manager') }
+            if(m){ parts.push(m.locked ? `locked by hand ${ago(m.at)}` : `set by hand ${ago(m.at)}, not locked`) }
+            return parts.join(', ') + '.'
+        }
+        const fill = (i) => {
+            const m = i.manual
+            const [sk, sr] = m ? [m.keys, m.ref] : in_keys(i.sell, i.key_price)
+            form.sell_keys.value = sk || ''
+            form.sell_ref.value = sr || ''
+            form.buy_keys.value = m?.buy_keys ?? ''
+            form.buy_ref.value = m?.buy_ref ?? ''
+            form.locked.checked = m ? m.locked !== false : true
+            card.querySelector('#bm-manual-now').textContent = describe(i).replace(/<[^>]+>/g, '')
+        }
+
+        let timer = null
+        form.bp_sku.addEventListener('input', () => {
+            clearTimeout(timer)
+            const q = form.bp_sku.value.trim()
+            if(found.has(q)){ return fill(found.get(q)) }
+            card.querySelector('#bm-manual-now').textContent = ''
+            timer = setTimeout(async () => {
+                const res = await kit.api(`/api/admin/manual_prices/search?q=${encodeURIComponent(q)}`)
+                if(res.status != 'ok' || form.bp_sku.value.trim() != q){ return }
+                for (const i of res.items || []) { found.set(i.bp_sku, i) }
+                card.querySelector('#bm-manual-names').innerHTML = (res.items || []).map((i) => `<option value="${esc(i.bp_sku)}"></option>`).join('')
+                if(found.has(q)){ fill(found.get(q)) }
+            }, 250)
+        })
+
+        const draw = async () => {
+            const [res, set] = await Promise.all([kit.api('/api/admin/manual_prices'), bm('admin:listings:settings')])
+            if(!card.isConnected){ return }
+            const el = card.querySelector('#bm-manual-list')
+            if(res.status != 'ok'){ el.innerHTML = error_line(res); return }
+            pinned = set.status == 'ok' ? new Set(set.data?.pinned?.sell || []) : null
+            for (const i of res.items || []) { found.set(i.bp_sku, i) }
+            el.innerHTML = table(['Item', 'Sells for', 'Buys for', 'In stock', 'Set', ''], (res.items || []).map((i) => {
+                const m = i.manual
+                const own = Math.abs((Number(m.sell) || 0) - i.sell) < 0.01
+                return `<tr>
+                    <td>${esc(i.bp_sku)}
+                        ${m.locked ? '<span class="admin-tag tag-warn">locked</span>' : '<span class="admin-tag">not locked</span>'}
+                        ${pinned?.has(i.bp_sku) ? '<span class="admin-tag tag-sell">always listed</span>' : ''}</td>
+                    <td>${own ? keys_ref(m.keys, m.ref) : `${price_text(i.sell, i.key_price)}<span class="admin-help">item_manager's price; yours was ${keys_ref(m.keys, m.ref)}</span>`}</td>
+                    <td>${price_text(i.buy, i.key_price)}</td>
+                    <td>${num(i.stock)}</td>
+                    <td>${ago(m.at)}<span class="admin-help">${/^\d{17}$/.test(m.by || '') ? profile(m.by, `…${m.by.slice(-5)}`) : esc(m.by || '')}</span></td>
+                    <td class="admin-bm-cell-actions">
+                        <button type="button" data-manual-edit="${esc(i.bp_sku)}">Edit</button>
+                        <button type="button" data-manual-lock="${esc(i.bp_sku)}" data-locked="${m.locked ? '0' : '1'}">${m.locked ? 'Unlock' : 'Lock'}</button>
+                        ${pinned && !pinned.has(i.bp_sku) ? act('admin:listings:pin', { intent: 'sell', bp_sku: i.bp_sku, on: true }, 'Always list', { ok: 'Always listed from the next sync, which starts now.' }) : ''}
+                        <button type="button" data-manual-forget="${esc(i.bp_sku)}">Forget</button></td></tr>`
+            }), 'No price is set by hand.')
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const btn = form.querySelector('[type="submit"]')
+            const payload = {
+                bp_sku: form.bp_sku.value.trim(), locked: form.locked.checked, list: form.list.checked,
+                sell: { keys: form.sell_keys.value, ref: form.sell_ref.value },
+                buy: (form.buy_keys.value !== '' || form.buy_ref.value !== '') ? { keys: form.buy_keys.value, ref: form.buy_ref.value } : null
+            }
+            const res = await busy(btn, () => kit.api('/api/admin/manual_prices', payload))
+            if(toast(res, `${esc(payload.bp_sku)} now sells for ${price_text(res.item?.sell, res.item?.key_price)}${payload.locked ? ', locked' : ''}.${(res.notes || []).map((n) => ` ${esc(n)}`).join('')}`)){
+                found.set(res.item.bp_sku, res.item)
+                fill(res.item)
+                draw()
+            }
+        })
+        card.addEventListener('click', async (e) => {
+            const edit = e.target.closest('[data-manual-edit]')
+            if(edit){
+                const i = found.get(edit.dataset.manualEdit)
+                form.bp_sku.value = edit.dataset.manualEdit
+                if(i){ fill(i) }
+                form.scrollIntoView({ block: 'center' })
+                form.sell_keys.focus()
+            }
+            const lock = e.target.closest('[data-manual-lock]')
+            if(lock){
+                const on = lock.dataset.locked == '1'
+                if(!on && !confirm(`Unlock ${lock.dataset.manualLock}? item_manager prices it again at its next round.`)){ return }
+                const res = await busy(lock, () => kit.api('/api/admin/manual_prices/lock', { bp_sku: lock.dataset.manualLock, locked: on }))
+                if(toast(res, on ? 'Locked: only changed here.' : 'Unlocked: item_manager prices it again.')){ draw() }
+            }
+            const forget = e.target.closest('[data-manual-forget]')
+            if(forget){
+                if(!confirm(`Forget the price you set for ${forget.dataset.manualForget}? It stays until item_manager prices the item again.`)){ return }
+                const res = await busy(forget, () => kit.api('/api/admin/manual_prices/forget', { bp_sku: forget.dataset.manualForget }))
+                if(toast(res, 'Forgotten.')){ draw() }
+            }
+        })
+        actions(card, draw)
+        ctx.watch(['listings'], draw)
+        ctx.every(30000, () => { if(!card.querySelector('form :focus')){ draw() } })
+        return draw()
+    }
 
     const tab_prices = async (box, ctx) => {
         box.innerHTML = `<div id="bm-price-status">${loading}</div>
             <div class="admin-settings admin-bm-stack">
+                <div class="admin-card wide" id="bm-manual"></div>
                 <div class="admin-card wide"><h3>Emergency prices</h3><p class="muted">Prices bot_manager set from backpack.tf while item_manager was down.</p><div id="bm-emergency">${loading}</div></div>
                 <div class="admin-card wide">
                     <h3>What we paid</h3>
@@ -1376,7 +1516,8 @@
         const draw_status = async () => {
             const res = await bm('admin:prices:status')
             if(!box.isConnected){ return }
-            if(res.status != 'ok'){ return failed(box, res) }
+            // prices set by hand work without bot_manager: only this part says it's offline
+            if(res.status != 'ok'){ $('#bm-emergency').innerHTML = ''; return failed($('#bm-price-status'), res) }
             const w = res.data?.priceWatch || {}, c = res.data?.priceCheck || {}, e = res.data?.emergency || {}, im = w.itemManager || e.itemManager || {}
             $('#bm-price-status').innerHTML = `<div class="admin-bm-toolbar">
                     <span>${pill(im.connected, 'item_manager connected', 'item_manager not connected')} ${e.mode == 'active' ? '<span class="admin-tag tag-warn">emergency pricing on</span>' : ''}</span>
@@ -1451,7 +1592,7 @@
         })
         actions(box, () => { draw_status(); draw_holds() })
 
-        await Promise.all([draw_status(), draw_holds(), checks.load(), holds.load()])
+        await Promise.all([manual_card(box, ctx), draw_status(), draw_holds(), checks.load(), holds.load()])
         ctx.watch(['prices', 'listings', 'system'], () => { draw_status(); checks.changed() })
         ctx.watch(['holds'], () => { draw_holds(); holds.changed() })
         ctx.every(30000, draw_status)
