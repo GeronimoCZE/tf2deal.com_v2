@@ -592,7 +592,9 @@
 
     /* ========================= BOTS ========================= */
 
-    const bot_state = (a) => a.stopping ? ['warn', 'Logging off']
+    // a = the account (database + bot_manager's view when it's connected), b = the running bot (admin:bots:list)
+    const bot_state = (a, live) => !live ? ((a.status == 'disabled' || a.enabled === false) ? ['off', 'Disabled'] : ['off', 'Enabled'])
+        : a.stopping ? ['warn', 'Logging off']
         : a.loginError && !a.online ? ['bad', 'Login failed']
         : a.loggingIn ? ['warn', 'Logging in']
         : a.online ? (a.paused ? ['warn', 'Paused'] : ['ok', 'Online'])
@@ -600,8 +602,8 @@
         : a.status == 'pending' ? ['warn', 'Not logged in yet']
         : a.notRunning == 'not_started' ? ['warn', 'Not started'] : ['bad', 'Offline']
 
-    const bot_card = (a, b) => {
-        const [cls, label] = bot_state(a)
+    const bot_card = (a, b, live) => {
+        const [cls, label] = bot_state(a, live)
         const steamid = a.steamid || b?.steamid
         const inv = b?.inventory || a.inventory || {}
         const running = Boolean(b) || a.running
@@ -611,12 +613,17 @@
             <div class="admin-bm-bot-head">
                 ${b?.avatar ? `<img src="${esc(b.avatar)}" alt="" width="44" height="44" loading="lazy">` : '<span class="admin-bm-avatar" aria-hidden="true"></span>'}
                 <div><strong>${steamid ? profile(steamid, name) : esc(name)}</strong>
-                    <span class="muted">${esc(a.accountName)}, ${a.type == 'warehouse' ? 'warehouse' : 'trade'} bot${(a.level ?? b?.level) != null ? `, level ${num(a.level ?? b?.level)}` : ''}</span></div>
+                    <span class="muted">${esc(a.accountName)}, ${a.type == 'warehouse' ? 'warehouse' : 'trade'} bot${a.level || b?.level ? `, level ${num(a.level || b?.level)}` : ''}</span></div>
                 <span class="admin-pill ${cls}"><i></i>${label}</span>
             </div>
             ${a.loginError && !a.online ? `<p class="admin-error">${esc(a.loginError.message || 'Steam refused the login')}${a.loginError.eresult ? ` (EResult ${esc(a.loginError.eresult)})` : ''}, ${ago(a.loginError.at)}</p>` : ''}
             ${a.stopping ? `<p class="admin-note">Logs off ${a.stopping.until ? later(a.stopping.until) : 'soon'}${a.stopping.openOffers ? `, once its ${num(a.stopping.openOffers)} open offer${a.stopping.openOffers == 1 ? ' is' : 's are'} done` : ''}.</p>` : ''}
-            ${facts([
+            ${!live ? facts([
+                ['Steam ID', steamid ? esc(steamid) : 'not logged in yet'],
+                a.type != 'warehouse' && ['backpack.tf', a.hasBptfToken ? 'token saved' : '<span class="admin-error">no token</span>'],
+                ['Saved', ago(a.updated)],
+                disabled && a.disabledBy && ['Disabled by', /^\d{17}$/.test(a.disabledBy) ? profile(a.disabledBy, `…${a.disabledBy.slice(-5)}`) : esc(a.disabledBy)]
+            ]) : facts([
                 ['Backpack', `${num(inv.total)} / ${num(inv.slots)}`],
                 ['Items', num(inv.items)],
                 ['Pure', `${num(inv.keys)} keys, ${num(inv.ref)} ref`],
@@ -633,10 +640,11 @@
                     ${act('admin:bots:web_relog', { steamid }, 'New web session', { ok: 'New web session requested.' })}
                     ${act('admin:bots:resync_inventory', { steamid }, 'Reload inventory', { ok: 'Inventory reloaded from Steam.' })}
                     ${a.type != 'warehouse' ? act('admin:bots:bptf_refresh', { steamid }, 'Refresh on backpack.tf', { ok: 'backpack.tf asked to load the inventory again.' }) : ''}` : ''}
-                ${disabled || (!running && !a.stopping) || a.stopping ? act('admin:bots:enable', { bot: a.accountName }, a.stopping ? 'Keep it running' : 'Enable and log in', { cls: 'primary', ok: `${name} is logging in.` }) : ''}
+                ${!live ? `<button type="button" data-db-enabled="${esc(a.accountName)}" data-on="${disabled ? '1' : '0'}"${disabled ? ' class="primary"' : ''}>${disabled ? 'Enable' : 'Disable'}</button>`
+                    : disabled || (!running && !a.stopping) || a.stopping ? act('admin:bots:enable', { bot: a.accountName }, a.stopping ? 'Keep it running' : 'Enable and log in', { cls: 'primary', ok: `${name} is logging in.` }) : ''}
                 ${disabled && !running && !a.stopping ? `<button type="button" data-remove-bot="${esc(a.accountName)}">Remove</button>` : ''}
             </div>
-            ${!disabled && !a.stopping ? `<details class="admin-bm-disable"><summary>Disable this bot…</summary>
+            ${live && !disabled && !a.stopping ? `<details class="admin-bm-disable"><summary>Disable this bot…</summary>
                 <p class="admin-help">It stops trading now and its listings come down. It logs off once its open sent offers are done, then its items and pure leave the stock. It isn't started again after a restart.</p>
                 <label class="check"><input type="checkbox" name="cancel"> Cancel its open sent offers now</label>
                 <label class="admin-field">Wait for open offers at most <span class="admin-input-unit"><input type="number" name="wait" min="1" max="120" value="35"><em>min</em></span></label>
@@ -661,7 +669,7 @@
             <div class="admin-settings admin-bm-forms">
                 <form class="admin-card" id="bm-add-bot" autocomplete="off">
                     <h3>Add a bot</h3>
-                    <p class="muted">The login is saved encrypted in bot_manager's database and never shown again. Nothing typed here is kept by the site.</p>
+                    <p class="muted">Saved straight into bot_manager's database (steam_bots), the login encrypted with PASSWORD from .env like bot_manager does it, and never shown again. When bot_manager is connected, an enabled bot logs in right away; otherwise when bot_manager starts.</p>
                     <label class="admin-field">Steam account name <input type="text" name="accountName" required maxlength="64" spellcheck="false" autocomplete="off"></label>
                     ${secret_inputs(true)}
                     <div class="admin-row-fields">
@@ -675,7 +683,7 @@
                 </form>
                 <form class="admin-card" id="bm-login" autocomplete="off">
                     <h3>Change a bot's login</h3>
-                    <p class="muted">Fill in only what changes. backpack.tf key and token apply now, the rest at the bot's next login (disable and enable it to log in now).</p>
+                    <p class="muted">Fill in only what changes. With bot_manager connected the backpack.tf key and token apply now, the rest at the bot's next login (disable and enable it to log in now).</p>
                     <label class="admin-field">Bot <select name="bot" required><option value="">Pick a bot</option></select></label>
                     ${secret_inputs(false)}
                     <label class="admin-field">Kind <select name="type"><option value="">Keep it</option><option value="trade">Trade bot</option><option value="warehouse">Warehouse</option></select></label>
@@ -684,26 +692,33 @@
             </div>`
         const list = box.querySelector('#bm-bots')
 
-        const draw = async () => {
-            const [acc, run] = await Promise.all([bm('admin:bots:accounts'), bm('admin:bots:list')])
+        // the accounts come from the database (service/bot_accounts.js), bot_manager's live state is added when it's
+        // connected; redrawn only when something changed, so an open form or menu isn't reset
+        let shown = null
+        const draw = async (force) => {
+            const acc = await kit.api('/api/admin/bot_accounts')
+            const run = acc.live ? await bm('admin:bots:list') : null
             if(!box.isConnected){ return }
-            if(acc.status != 'ok'){ return failed(box, acc) }
-            const live = new Map((run.status == 'ok' ? run.data : []).map((b) => [String(b.steamid), b]))
-            const accounts = acc.data?.accounts || []
-            const running = Array.isArray(acc.data?.running) ? acc.data.running.length : acc.data?.running
-            // bots running that aren't in the accounts list (an older bot_manager) still get a card
+            if(acc.status != 'ok'){ list.innerHTML = error_line(acc); return }
+            const now = JSON.stringify([acc, run?.data])
+            if(now === shown && force !== true){ return }
+            shown = now
+            const live = new Map((run?.status == 'ok' ? run.data : []).map((b) => [String(b.steamid), b]))
+            const accounts = acc.accounts || []
+            // bots running that aren't in the database (an older bot_manager) still get a card
             const extra = [...live.values()].filter((b) => !accounts.some((a) => String(a.steamid) == String(b.steamid)))
                 .map((b) => ({ accountName: b.accountName || b.name, name: b.name, steamid: b.steamid, type: b.type, online: b.online, paused: b.paused, running: true, enabled: true }))
-            list.innerHTML = `<div class="admin-card admin-bm-max">
+            list.innerHTML = (acc.live ? `<div class="admin-card admin-bm-max">
                     <div><h3>Bots running at once</h3>
-                    <p class="muted">${num(running)} running now. bot_manager logs in the enabled bots with the lowest IDs up to this number.</p></div>
+                    <p class="muted">${num(acc.running)} running now. bot_manager logs in the enabled bots with the lowest IDs up to this number.</p></div>
                     <form class="admin-inline-form" id="bm-max">
-                        <span class="admin-input-unit"><input type="number" name="max" min="1" max="${esc(acc.data?.hardMax ?? 12)}" value="${esc(acc.data?.maxBots ?? '')}" aria-label="Bots running at once"><em>of ${esc(acc.data?.hardMax ?? 12)}</em></span>
+                        <span class="admin-input-unit"><input type="number" name="max" min="1" max="${esc(acc.hardMax ?? 12)}" value="${esc(acc.maxBots ?? '')}" aria-label="Bots running at once"><em>of ${esc(acc.hardMax ?? 12)}</em></span>
                         <button type="submit">Save</button>
                         ${act('admin:bots:max', { max: null }, 'Use .env value', { ok: 'Max bots comes from MAX_BOTS in .env again.' })}
                     </form>
-                </div>
-                <div class="admin-bm-bots">${[...accounts, ...extra].map((a) => bot_card(a, live.get(String(a.steamid)))).join('') || '<p class="admin-empty">No bot accounts yet. Add one below.</p>'}</div>`
+                </div>` : `<div class="admin-card admin-bm-max"><div><h3>bot_manager isn't connected</h3>
+                    <p class="muted">These are the bot accounts saved in the database. Whether they're online, their inventory and listings show once bot_manager is connected. Adding, enabling, disabling and removing bots here is saved in the database and used when bot_manager starts.</p></div></div>`) + `
+                <div class="admin-bm-bots">${[...accounts, ...extra].map((a) => bot_card(a, live.get(String(a.steamid)), acc.live)).join('') || '<p class="admin-empty">No bot accounts in the database yet. Add one below.</p>'}</div>`
             const select = box.querySelector('#bm-login [name="bot"]')
             const picked = select.value
             select.innerHTML = '<option value="">Pick a bot</option>' + accounts.map((a) => `<option value="${esc(a.accountName)}">${esc(a.name || a.accountName)} (${esc(a.accountName)})</option>`).join('')
@@ -722,19 +737,18 @@
             if(form.id == 'bm-add-bot'){
                 const payload = { accountName: form.accountName.value.trim(), type: form.type.value, enabled: form.enabled.checked, start: form.start.checked }
                 for (const [name] of SECRET_FIELDS) { if(form[name].value.trim()){ payload[name] = form[name].value.trim() } }
-                if(payload.type == 'trade' && (!payload.bptf_key || !payload.bptf_token) && !confirm('Trade bots need a backpack.tf API key and access token to list items. Add the bot without them?')){ return }
-                const res = await busy(btn, () => bm('admin:bots:add', payload))
-                if(toast(res, res.data?.started ? 'Bot added and logging in.' : `Bot added${res.data?.reason ? `, not started: ${esc(words(res.data.reason))}` : ''}.`)){ form.reset(); draw() }
+                const res = await busy(btn, () => kit.api('/api/admin/bot_accounts/add', payload))
+                if(toast(res, `${esc(payload.accountName)} saved in the database${res.started ? ' and logging in' : ''}.${res.note ? ` ${esc(res.note)}` : ''}`)){ form.reset(); draw(true) }
             }
             if(form.id == 'bm-login'){
                 const payload = { bot: form.bot.value }
                 for (const [name] of SECRET_FIELDS) { if(form[name].value.trim()){ payload[name] = form[name].value.trim() } }
                 if(form.type.value){ payload.type = form.type.value }
                 if(Object.keys(payload).length == 1){ return iziToast.info({ title: 'Nothing to save', message: 'Fill in what changes.' }) }
-                const res = await busy(btn, () => bm('admin:bots:update', payload))
-                const now = Array.isArray(res.data?.appliedNow) ? res.data.appliedNow : []
-                const next = Array.isArray(res.data?.nextLogin) ? res.data.nextLogin : []
-                if(toast(res, `Saved.${now.length ? ` Used now: ${esc(now.join(', '))}.` : ''}${next.length ? ` At its next login: ${esc(next.join(', '))}.` : ''}`)){ form.reset(); draw() }
+                const res = await busy(btn, () => kit.api('/api/admin/bot_accounts/update', payload))
+                const now = Array.isArray(res.appliedNow) ? res.appliedNow : []
+                const next = Array.isArray(res.nextLogin) ? res.nextLogin : []
+                if(toast(res, res.saved_only ? 'Saved in the database. bot_manager uses it at the bot\'s next login.' : `Saved.${now.length ? ` Used now: ${esc(now.join(', '))}.` : ''}${next.length ? ` At its next login: ${esc(next.join(', '))}.` : ''}`)){ form.reset(); draw(true) }
             }
         })
         box.addEventListener('click', async (e) => {
@@ -748,10 +762,16 @@
             }
             const remove = e.target.closest('[data-remove-bot]')
             if(remove){
-                const typed = prompt(`Delete the account ${remove.dataset.removeBot} from bot_manager? Its saved login is deleted too. Type the account name to confirm.`)
+                const typed = prompt(`Delete the account ${remove.dataset.removeBot} from the database? Its saved login is deleted too. Type the account name to confirm.`)
                 if(typed === null){ return }
-                const res = await busy(remove, () => bm('admin:bots:remove', { bot: remove.dataset.removeBot, confirm: typed.trim() }))
-                if(toast(res, 'Bot account removed.')){ draw() }
+                const res = await busy(remove, () => kit.api('/api/admin/bot_accounts/remove', { bot: remove.dataset.removeBot, confirm: typed.trim() }))
+                if(toast(res, 'Bot account deleted from the database.')){ draw(true) }
+            }
+            const db_enabled = e.target.closest('[data-db-enabled]')
+            if(db_enabled){
+                const on = db_enabled.dataset.on == '1'
+                const res = await busy(db_enabled, () => kit.api('/api/admin/bot_accounts/enabled', { bot: db_enabled.dataset.dbEnabled, enabled: on }))
+                if(toast(res, `${on ? 'Enabled' : 'Disabled'} in the database. bot_manager ${on ? 'logs it in' : 'leaves it off'} when it starts.`)){ draw(true) }
             }
             const disable = e.target.closest('[data-disable-bot]')
             if(disable){
@@ -762,8 +782,9 @@
         })
 
         await draw()
-        ctx.watch(['bots'], draw)
-        ctx.every(30000, () => { if(!box.querySelector('details[open], form :focus')){ draw() } })
+        ctx.watch(['bots'], () => draw())
+        // also changes made straight in the database or while bot_manager was away
+        ctx.every(10000, () => { if(!box.querySelector('details[open], form :focus')){ draw() } })
     }
 
     /* ========================= TRADING ========================= */
@@ -1346,11 +1367,151 @@
         ctx.every(30000, draw_status)
     }
 
-    /* ========================= PRICES (+ what we paid) ========================= */
+    /* ========================= PRICES (+ set by hand, what we paid) ========================= */
+
+    // a price in ref as [keys, ref] at the key price it was saved with
+    const in_keys = (metal, key) => {
+        const m = Number(metal) || 0, k = Number(key) || 0
+        const whole = k > 0 ? Math.floor((m + 0.005) / k) : 0
+        return [whole, r2(m - whole * k)]
+    }
+    const keys_ref = (k, r) => [k ? `${num(k)} key${k == 1 ? '' : 's'}` : '', r || !k ? ref(r) : ''].filter(Boolean).join(', ')
+    const price_text = (metal, key) => keys_ref(...in_keys(metal, key))
+    const pair_input = (name, label, keep) => `<div class="admin-field">${label}
+        <span class="admin-bm-pair">
+            <span class="admin-input-unit"><input type="number" name="${name}_keys" min="0" step="1" inputmode="numeric"${keep ? ' placeholder="keep"' : ''} aria-label="${label}, keys"><em>keys</em></span>
+            <span class="admin-input-unit"><input type="number" name="${name}_ref" min="0" step="0.01" inputmode="decimal"${keep ? ' placeholder="keep"' : ''} aria-label="${label}, ref"><em>ref</em></span>
+        </span></div>`
+
+    // Prices set by hand (service/manual_prices.js): straight in the database, so this works without bot_manager too
+    const manual_card = (box, ctx) => {
+        const card = box.querySelector('#bm-manual')
+        card.innerHTML = `<h3>Prices set by hand</h3>
+            <p class="muted">Sell an item for your own price. Locked, the price only changes here and item_manager leaves it alone. Not locked, item_manager prices the item again at its next round. The price is in ref at today's key price, like item_manager's; killstreak versions keep their own prices.</p>
+            <form class="admin-bm-manual-form" id="bm-manual-form" autocomplete="off">
+                <label class="admin-field">Item <input type="search" name="bp_sku" list="bm-manual-names" required maxlength="200" placeholder="Item name, e.g. Team Captain" spellcheck="false"></label>
+                <datalist id="bm-manual-names"></datalist>
+                ${pair_input('sell', 'Sell for')}
+                ${pair_input('buy', 'Buy for', true)}
+                <div class="admin-bm-checks">
+                    <label class="check"><input type="checkbox" name="locked" checked> Lock the price</label>
+                    <label class="check"><input type="checkbox" name="list" checked> Always list it for sale</label>
+                </div>
+                <button type="submit" class="primary">Save price</button>
+            </form>
+            <p class="admin-help admin-bm-now" id="bm-manual-now" aria-live="polite"></p>
+            <div id="bm-manual-list">${loading}</div>`
+        const form = card.querySelector('#bm-manual-form')
+        const found = new Map()
+        let pinned = null
+
+        const describe = (i) => {
+            const m = i.manual
+            const parts = [`Now sells for ${price_text(i.sell, i.key_price)} and buys for ${price_text(i.buy, i.key_price)}`, `${num(i.stock)} in stock`]
+            if(i.status != 1){ parts.push('not priced by item_manager') }
+            if(m){ parts.push(m.locked ? `locked by hand ${ago(m.at)}` : `set by hand ${ago(m.at)}, not locked`) }
+            return parts.join(', ') + '.'
+        }
+        const fill = (i) => {
+            const m = i.manual
+            const [sk, sr] = m ? [m.keys, m.ref] : in_keys(i.sell, i.key_price)
+            form.sell_keys.value = sk || ''
+            form.sell_ref.value = sr || ''
+            form.buy_keys.value = m?.buy_keys ?? ''
+            form.buy_ref.value = m?.buy_ref ?? ''
+            form.locked.checked = m ? m.locked !== false : true
+            card.querySelector('#bm-manual-now').textContent = describe(i).replace(/<[^>]+>/g, '')
+        }
+
+        let timer = null
+        form.bp_sku.addEventListener('input', () => {
+            clearTimeout(timer)
+            const q = form.bp_sku.value.trim()
+            if(found.has(q)){ return fill(found.get(q)) }
+            card.querySelector('#bm-manual-now').textContent = ''
+            timer = setTimeout(async () => {
+                const res = await kit.api(`/api/admin/manual_prices/search?q=${encodeURIComponent(q)}`)
+                if(res.status != 'ok' || form.bp_sku.value.trim() != q){ return }
+                for (const i of res.items || []) { found.set(i.bp_sku, i) }
+                card.querySelector('#bm-manual-names').innerHTML = (res.items || []).map((i) => `<option value="${esc(i.bp_sku)}"></option>`).join('')
+                if(found.has(q)){ fill(found.get(q)) }
+            }, 250)
+        })
+
+        const draw = async () => {
+            const [res, set] = await Promise.all([kit.api('/api/admin/manual_prices'), bm('admin:listings:settings')])
+            if(!card.isConnected){ return }
+            const el = card.querySelector('#bm-manual-list')
+            if(res.status != 'ok'){ el.innerHTML = error_line(res); return }
+            pinned = set.status == 'ok' ? new Set(set.data?.pinned?.sell || []) : null
+            for (const i of res.items || []) { found.set(i.bp_sku, i) }
+            el.innerHTML = table(['Item', 'Sells for', 'Buys for', 'In stock', 'Set', ''], (res.items || []).map((i) => {
+                const m = i.manual
+                const own = Math.abs((Number(m.sell) || 0) - i.sell) < 0.01
+                return `<tr>
+                    <td>${esc(i.bp_sku)}
+                        ${m.locked ? '<span class="admin-tag tag-warn">locked</span>' : '<span class="admin-tag">not locked</span>'}
+                        ${pinned?.has(i.bp_sku) ? '<span class="admin-tag tag-sell">always listed</span>' : ''}</td>
+                    <td>${own ? keys_ref(m.keys, m.ref) : `${price_text(i.sell, i.key_price)}<span class="admin-help">item_manager's price; yours was ${keys_ref(m.keys, m.ref)}</span>`}</td>
+                    <td>${price_text(i.buy, i.key_price)}</td>
+                    <td>${num(i.stock)}</td>
+                    <td>${ago(m.at)}<span class="admin-help">${/^\d{17}$/.test(m.by || '') ? profile(m.by, `…${m.by.slice(-5)}`) : esc(m.by || '')}</span></td>
+                    <td class="admin-bm-cell-actions">
+                        <button type="button" data-manual-edit="${esc(i.bp_sku)}">Edit</button>
+                        <button type="button" data-manual-lock="${esc(i.bp_sku)}" data-locked="${m.locked ? '0' : '1'}">${m.locked ? 'Unlock' : 'Lock'}</button>
+                        ${pinned && !pinned.has(i.bp_sku) ? act('admin:listings:pin', { intent: 'sell', bp_sku: i.bp_sku, on: true }, 'Always list', { ok: 'Always listed from the next sync, which starts now.' }) : ''}
+                        <button type="button" data-manual-forget="${esc(i.bp_sku)}">Forget</button></td></tr>`
+            }), 'No price is set by hand.')
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const btn = form.querySelector('[type="submit"]')
+            const payload = {
+                bp_sku: form.bp_sku.value.trim(), locked: form.locked.checked, list: form.list.checked,
+                sell: { keys: form.sell_keys.value, ref: form.sell_ref.value },
+                buy: (form.buy_keys.value !== '' || form.buy_ref.value !== '') ? { keys: form.buy_keys.value, ref: form.buy_ref.value } : null
+            }
+            const res = await busy(btn, () => kit.api('/api/admin/manual_prices', payload))
+            if(toast(res, `${esc(payload.bp_sku)} now sells for ${price_text(res.item?.sell, res.item?.key_price)}${payload.locked ? ', locked' : ''}.${(res.notes || []).map((n) => ` ${esc(n)}`).join('')}`)){
+                found.set(res.item.bp_sku, res.item)
+                fill(res.item)
+                draw()
+            }
+        })
+        card.addEventListener('click', async (e) => {
+            const edit = e.target.closest('[data-manual-edit]')
+            if(edit){
+                const i = found.get(edit.dataset.manualEdit)
+                form.bp_sku.value = edit.dataset.manualEdit
+                if(i){ fill(i) }
+                form.scrollIntoView({ block: 'center' })
+                form.sell_keys.focus()
+            }
+            const lock = e.target.closest('[data-manual-lock]')
+            if(lock){
+                const on = lock.dataset.locked == '1'
+                if(!on && !confirm(`Unlock ${lock.dataset.manualLock}? item_manager prices it again at its next round.`)){ return }
+                const res = await busy(lock, () => kit.api('/api/admin/manual_prices/lock', { bp_sku: lock.dataset.manualLock, locked: on }))
+                if(toast(res, on ? 'Locked: only changed here.' : 'Unlocked: item_manager prices it again.')){ draw() }
+            }
+            const forget = e.target.closest('[data-manual-forget]')
+            if(forget){
+                if(!confirm(`Forget the price you set for ${forget.dataset.manualForget}? It stays until item_manager prices the item again.`)){ return }
+                const res = await busy(forget, () => kit.api('/api/admin/manual_prices/forget', { bp_sku: forget.dataset.manualForget }))
+                if(toast(res, 'Forgotten.')){ draw() }
+            }
+        })
+        actions(card, draw)
+        ctx.watch(['listings'], draw)
+        ctx.every(30000, () => { if(!card.querySelector('form :focus')){ draw() } })
+        return draw()
+    }
 
     const tab_prices = async (box, ctx) => {
         box.innerHTML = `<div id="bm-price-status">${loading}</div>
             <div class="admin-settings admin-bm-stack">
+                <div class="admin-card wide" id="bm-manual"></div>
                 <div class="admin-card wide"><h3>Emergency prices</h3><p class="muted">Prices bot_manager set from backpack.tf while item_manager was down.</p><div id="bm-emergency">${loading}</div></div>
                 <div class="admin-card wide">
                     <h3>What we paid</h3>
@@ -1376,7 +1537,8 @@
         const draw_status = async () => {
             const res = await bm('admin:prices:status')
             if(!box.isConnected){ return }
-            if(res.status != 'ok'){ return failed(box, res) }
+            // prices set by hand work without bot_manager: only this part says it's offline
+            if(res.status != 'ok'){ $('#bm-emergency').innerHTML = ''; return failed($('#bm-price-status'), res) }
             const w = res.data?.priceWatch || {}, c = res.data?.priceCheck || {}, e = res.data?.emergency || {}, im = w.itemManager || e.itemManager || {}
             $('#bm-price-status').innerHTML = `<div class="admin-bm-toolbar">
                     <span>${pill(im.connected, 'item_manager connected', 'item_manager not connected')} ${e.mode == 'active' ? '<span class="admin-tag tag-warn">emergency pricing on</span>' : ''}</span>
@@ -1451,7 +1613,7 @@
         })
         actions(box, () => { draw_status(); draw_holds() })
 
-        await Promise.all([draw_status(), draw_holds(), checks.load(), holds.load()])
+        await Promise.all([manual_card(box, ctx), draw_status(), draw_holds(), checks.load(), holds.load()])
         ctx.watch(['prices', 'listings', 'system'], () => { draw_status(); checks.changed() })
         ctx.watch(['holds'], () => { draw_holds(); holds.changed() })
         ctx.every(30000, draw_status)

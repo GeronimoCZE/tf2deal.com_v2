@@ -19,6 +19,8 @@ import * as notifications from '../../service/notifications.js';
 import * as stock_limits from '../../service/stock_limits.js';
 import * as listings from '../../service/listings.js';
 import * as bot_manager from '../../service/bot_manager.js';
+import * as manual_prices from '../../service/manual_prices.js';
+import * as bot_accounts from '../../service/bot_accounts.js';
 import * as latest_trades from '../../service/latest_trades.js';
 import { notification_model } from '../../model/Notification.js';
 import { clients as settings_clients } from '../../service/settings_socket.js';
@@ -419,6 +421,46 @@ router.post('/listings/remove', async (req, res) => {
 router.post('/bot_manager', async (req, res) => {
   const result = await bot_manager.ask(text(req.body?.event, 80), req.body?.payload, req.user?.steamid);
   res.status(result.status == 'ok' ? 200 : (result.offline ? 503 : 400)).json(result);
+});
+
+/* ========================= BOT ACCOUNTS (service/bot_accounts.js) ========================= */
+// bot_manager's accounts straight from the database; logins are encrypted there and never sent back
+
+router.get('/bot_accounts', db_ready, async (req, res) => {
+  res.json(await bot_accounts.list(req.user?.steamid));
+});
+
+for (const [path, action] of [['add', bot_accounts.add], ['update', bot_accounts.update], ['enabled', bot_accounts.set_enabled], ['remove', bot_accounts.remove]]) {
+  router.post(`/bot_accounts/${path}`, db_ready, async (req, res) => {
+    const result = await action(req.body || {}, req.user?.steamid);
+    res.status(result.status == 'ok' ? 200 : 400).json(result);
+  });
+}
+
+/* ========================= PRICES SET BY HAND (service/manual_prices.js) ========================= */
+
+router.get('/manual_prices', db_ready, async (req, res) => {
+  res.json(await manual_prices.list());
+});
+
+router.get('/manual_prices/search', db_ready, async (req, res) => {
+  res.json(await manual_prices.search(text(req.query?.q, 200)));
+});
+
+// { bp_sku, sell: { keys, ref }, buy: { keys, ref } | null, locked, list }
+router.post('/manual_prices', db_ready, async (req, res) => {
+  const result = await manual_prices.set(req.body, req.user?.steamid);
+  res.status(result.status == 'ok' ? 200 : 400).json(result);
+});
+
+router.post('/manual_prices/lock', db_ready, async (req, res) => {
+  const result = await manual_prices.lock(req.body);
+  res.status(result.status == 'ok' ? 200 : 400).json(result);
+});
+
+router.post('/manual_prices/forget', db_ready, async (req, res) => {
+  const result = await manual_prices.forget(req.body);
+  res.status(result.status == 'ok' ? 200 : 400).json(result);
 });
 
 /* ========================= INVENTORY VALUE (service/inventory_value.js) ========================= */

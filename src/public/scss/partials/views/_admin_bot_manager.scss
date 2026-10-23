@@ -260,6 +260,19 @@
         textarea{ min-height: 4.2rem; }
     }
 
+    // ---------- prices set by hand ----------
+    .admin-bm-manual-form{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+        gap: 0 .8rem;
+        align-items: end;
+        .admin-field{ margin-bottom: .7rem; }
+        input:not([type="checkbox"]){ width: 100%; height: 2.6rem; }
+        > button{ justify-self: start; margin-bottom: .7rem; height: 2.6rem; }
+    }
+    .admin-bm-pair{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; }
+    .admin-bm-now:empty{ display: none; }
+
     // ---------- audit log ----------
     .admin-bm-audit li{ grid-template-columns: 6.5rem 6rem minmax(0, 1fr); align-items: start; }
     .admin-bm-audit code{ overflow-wrap: anywhere; }

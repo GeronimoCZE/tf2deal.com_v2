@@ -72,6 +72,11 @@ const Instance = mongoose.Schema({
         type: Array,
         default: []
     },
+    // a price set by hand in the admin panel (Bot manager → Prices, service/manual_prices.js): { locked, buy, sell, keys, ref,
+    // buy_keys, buy_ref, at, by }; while locked, item_manager doesn't price the item
+    manual_price: {
+        type: Object
+    },
     price_history: { 
         type: Array,
         default: []
