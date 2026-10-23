@@ -919,9 +919,13 @@ addEventListener('DOMContentLoaded', (event) => {
                         const party = e.target.parentElement.parentElement.parentElement.parentElement.getAttribute('id').replace('-filters', '')
                         const filter = e.target.parentElement.parentElement.getAttribute('filter')
                         const value = fd_value(e.target)
-                        trade.set_filter(party, filter, value)
+                        trade.pick_filter(party, filter, value) // waits for "Apply filters"
                     }
                 })
+            });
+
+            document.querySelectorAll('.apply-filters').forEach((button) => {
+                button.addEventListener('click', () => trade.apply_filters(button.classList.contains('user') ? 'user' : 'site'))
             });
 
             document.querySelectorAll('.input-filter').forEach(input => {
@@ -1016,6 +1020,47 @@ addEventListener('DOMContentLoaded', (event) => {
     if(TD_PATH.includes('/items')){
             let next_api_request = Date.now()
             let req_reserved = false;
+
+            // Picked filters wait for "Apply filters", so several can be set with one load. The search applies at once
+            // and keeps the filters that are applied (the URL), not the picked ones.
+            const filter_draft = new URLSearchParams(window.location.search)
+            const filter_names = () => Array.from(document.querySelectorAll('.filter-bar .filter[filter]')).map((f) => f.getAttribute('filter'))
+            const show_apply = () => {
+                const button = document.getElementById('applyFilters')
+                if(!button){ return }
+                const applied = new URLSearchParams(window.location.search)
+                button.hidden = filter_names().every((name) => (filter_draft.get(name) || '') === (applied.get(name) || ''))
+                // Reset Filters also drops filters that are only picked
+                applied.delete('page')
+                const can_reset = !button.hidden || applied.size > 0
+                $('#resetFilters').toggleClass('active', can_reset).prop('disabled', !can_reset)
+            }
+            const apply_filters = () => {
+                const params = new URLSearchParams(window.location.search)
+                for (const name of filter_names()) {
+                    if(filter_draft.has(name)){ params.set(name, filter_draft.get(name)) } else { params.delete(name) }
+                }
+                params.delete('page')
+                history.replaceState(null, null, "?"+params.toString());
+                show_apply()
+                let items_page = 0
+                document.querySelector('.item-content').classList.remove('loaded')
+                document.querySelector('.item-content').classList.remove('last-page')
+                document.querySelector('.item-content').classList.remove('no-items')    
+                if(next_api_request <= Date.now()){
+                    req_reserved = true
+                    items.get_items(items_page)
+                    next_api_request = Date.now() + 3000
+                    req_reserved = false                
+                } else {
+                    req_reserved = true
+                    setTimeout(() => {
+                        items.get_items(items_page)
+                        next_api_request = Date.now() + 3000
+                        req_reserved = false                    
+                    }, next_api_request - Date.now());
+                }
+            }
             
 
             document.addEventListener('click', function(e){
@@ -1044,37 +1089,21 @@ addEventListener('DOMContentLoaded', (event) => {
                     if(el.classList.contains('fd-value')){
                         if(fd_value(el) == 'None'){
                             el.parentElement.parentElement.classList.remove('selected');
-                            urlParams.delete(el.parentElement.parentElement.getAttribute('filter'))
+                            filter_draft.delete(el.parentElement.parentElement.getAttribute('filter'))
                             el.parentElement.parentElement.querySelector('.filter-value').innerHTML = '';
                         }
                         if(fd_value(el) != 'None'){
                             el.parentElement.parentElement.classList.add('selected');
-                            urlParams.set(el.parentElement.parentElement.getAttribute('filter'), fd_value(el))
+                            filter_draft.set(el.parentElement.parentElement.getAttribute('filter'), fd_value(el))
                             el.parentElement.parentElement.querySelector('.filter-value').innerHTML = el.innerHTML;
                             el.parentElement.parentElement.querySelector('.filter-value').setAttribute('style', el.getAttribute('style'))
                         }
                         el.parentElement.parentElement.classList.remove('open');
+                        show_apply()
+                    }
 
-                        // filter function
-                        urlParams.delete('page')
-                        history.replaceState(null, null, "?"+urlParams.toString());
-                        let items_page = 0
-                        document.querySelector('.item-content').classList.remove('loaded')
-                        document.querySelector('.item-content').classList.remove('last-page')
-                        document.querySelector('.item-content').classList.remove('no-items')    
-                        if(next_api_request <= Date.now()){
-                            req_reserved = true
-                            items.get_items(items_page)
-                            next_api_request = Date.now() + 3000
-                            req_reserved = false                
-                        } else {
-                            req_reserved = true
-                            setTimeout(() => {
-                                items.get_items(items_page)
-                                next_api_request = Date.now() + 3000
-                                req_reserved = false                    
-                            }, next_api_request - Date.now());
-                        }
+                    if(el.getAttribute('id') === 'applyFilters'){
+                        apply_filters()
                     }
 
                     if(el.getAttribute('id') === 'resetFilters' && el.classList.contains('active')){
@@ -1147,15 +1176,17 @@ addEventListener('DOMContentLoaded', (event) => {
                 document.querySelector('form#user-input-filter').addEventListener('submit', function(e){
                     e.preventDefault()
 
+                    // the applied filters stay (the URL as it is now), filters only picked still wait for "Apply filters"
+                    const params = new URLSearchParams(window.location.search)
                     const value = e.target.querySelector('input').value
                     if(value == ''){
-                        urlParams.delete('name')
+                        params.delete('name')
                     } else {
-                        urlParams.set('name', String(value))
+                        params.set('name', String(value))
                     }
-                    urlParams.delete('page')
+                    params.delete('page')
 
-                    history.replaceState(null, null, "?"+urlParams.toString());
+                    history.replaceState(null, null, "?"+params.toString());
                     items_page = 0
                     document.querySelector('.item-content').classList.remove('loaded')
                     document.querySelector('.item-content').classList.remove('last-page')

@@ -39,7 +39,8 @@ const get_items = async (page, validInputs, reset = page === 0) => {
 
         if(urlParams.size > 0){
             $('#resetFilters').addClass('active').prop('disabled', false)
-        } else {
+        } else if(document.getElementById('applyFilters')?.hidden !== false) {
+            // nothing applied and nothing picked that waits for "Apply filters" (main.js)
             clear_filter_elements()
             $('#resetFilters').removeClass('active').prop('disabled', true)
         }

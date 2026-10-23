@@ -119,6 +119,8 @@
                             </div>
                         </div>
 
+                        <%# picked filters wait for this, so several can be set with one load (main.js); the search applies at once %>
+                        <button type="button" class="applyFilters" id="applyFilters" hidden><%= __('filters.apply_filters') %></button>
                         <button type="button" class="resetFilters" id="resetFilters" disabled><%= __('filters.reset_filters') %></button>
                     </div>
 

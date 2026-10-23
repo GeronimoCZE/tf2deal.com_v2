@@ -227,7 +227,8 @@
     "can_buy": "可购买",
     "can_sell": "可出售",
     "search_options": "搜索选项……",
-    "reset_filters": "重置筛选"
+    "reset_filters": "重置筛选",
+    "apply_filters": "应用筛选"
   },
   "classes": {
     "all": "全部兵种",

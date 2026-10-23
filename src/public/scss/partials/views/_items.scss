@@ -249,6 +249,30 @@
                 }
             }
         }
+        // shown while picked filters wait to be applied: the one filled button in the bar, the size of a chip
+        .applyFilters{
+            display: block;
+            &[hidden]{
+                display: none;
+            }
+            height: 1.5rem;
+            line-height: 1.5rem;
+            padding: .3rem .7rem;
+            margin: .4rem;
+            border: none;
+            border-radius: 5px;
+            background: var(--brand);
+            color: #fff;
+            font-family: inherit;
+            font-size: 15px;
+            letter-spacing: 0.05rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background-color 250ms;
+            &:hover{
+                background: var(--brand-hover);
+            }
+        }
         // shown only once a filter is on: one choice fewer while there is nothing to reset (Hick's law)
         .resetFilters{
             display: block;
