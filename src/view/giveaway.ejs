@@ -5,64 +5,77 @@
         <%- include('./partials/nav.ejs') %>
         
         <main>
+            <%# Built like the home page: the giveaway reads like its intro (picture + heading, text, points, one green
+                button), the countdown and entries like its stats strip, and the previous giveaways like its cards. %>
             <div class="page-section giveaway-ps">
               <% const g = info?.giveaway; %>
-              <section class="gw-hero<%= g ? '' : ' is-empty' %>">
-                <% if (g) { %>
+              <% if (g) { %>
+                <section class="gw-hero">
                   <div class="gw-showcase">
-                    <span class="gw-live"><i></i><%= __('giveaway.live') %></span>
-                    <div class="gw-image">
-                      <img class="item-image q-<%= g.item.qualityID %>" src="<%= g.item.image %>" style="background-image: <%= g.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${g.item.effectID}_94x94.png)` : 'none' %>;" alt="<%= item_alt(g.item) %>">
-                    </div>
+                    <img class="item-image q-<%= g.item.qualityID %>" src="<%= g.item.image %>" style="background-image: <%= g.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${g.item.effectID}_94x94.png)` : 'none' %>;" alt="<%= item_alt(g.item) %>">
                   </div>
 
                   <div class="gw-info">
-                    <h1><%= __('giveaway.current') %></h1>
-                    <h2 translate="no"><a href="<%= lurl('/items/' + encodeURIComponent(g.item.bp_sku)) %>"><%= g.item.bp_sku %></a></h2>
+                    <span class="gw-live"><i></i><%= __('giveaway.current') %></span>
+                    <h1 translate="no"><a href="<%= lurl('/items/' + encodeURIComponent(g.item.bp_sku)) %>"><%= g.item.bp_sku %></a></h1>
                     <% if (g.description) { %><p class="description" lang="<%= lang_tags[g.description_lang] %>"><%= g.description_shown %><% if (g.description_translated) { %> <span class="ai-note"><%= __('common.ai_translated') %></span><% } %></p><% } %>
 
-                    <div class="gw-stats">
-                      <div class="gw-countdown" id="giveaway-countdown" data-end="<%= g.end %>" aria-label="<%= __('giveaway.ends_in') %>">
-                        <span class="gw-label"><%= __('giveaway.ends_in') %></span>
-                        <div class="gw-units">
-                          <div><strong data-unit="d">–</strong><span><%= __('giveaway.days') %></span></div>
-                          <div><strong data-unit="h">–</strong><span><%= __('giveaway.hours') %></span></div>
-                          <div><strong data-unit="m">–</strong><span><%= __('giveaway.minutes') %></span></div>
-                          <div><strong data-unit="s">–</strong><span><%= __('giveaway.seconds') %></span></div>
-                        </div>
-                        <div class="gw-drawing" hidden><%= __('giveaway.drawing') %></div>
-                        <noscript><%= new Date(g.end).toUTCString() %></noscript>
-                      </div>
-                      <div class="gw-entries">
-                        <span class="gw-label"><%= __('giveaway.entries') %></span>
-                        <strong id="giveaway-entries"><%= g.entry_count %></strong>
-                      </div>
-                    </div>
-
-                    <h3 class="gw-subtitle"><%= __('giveaway.how_to_enter') %></h3>
+                    <h2 class="gw-subtitle"><%= __('giveaway.how_to_enter') %></h2>
+                    <%# each point gets a tick or a cross once the entry is checked %>
                     <ul class="requirements">
-                      <li data-req="login" class="<%= locals.user?.steamid ? 'met' : '' %>"><span class="gw-check" aria-hidden="true"></span><span><%= __('giveaway.req_login') %></span></li>
-                      <% if (g.requirements?.steam_group) { %><li data-req="steam_group"><span class="gw-check" aria-hidden="true"></span><span><%- __('giveaway.req_group_html', { link: '<a href="https://steamcommunity.com/groups/tradetf2deal" target="_blank" rel="nofollow">' + __('giveaway.steam_group') + '</a>' }) %></span></li><% } %>
-                      <% if (g.requirements?.trade) { %><li data-req="trade"><span class="gw-check" aria-hidden="true"></span><span><%= __('giveaway.req_trade') %></span></li><% } %>
+                      <li data-req="login" class="<%= locals.user?.steamid ? 'met' : '' %>"><span class="gw-check icon icon-user" aria-hidden="true"></span><span><%= __('giveaway.req_login') %></span></li>
+                      <% if (g.requirements?.steam_group) { %><li data-req="steam_group"><span class="gw-check icon icon-steam_circle" aria-hidden="true"></span><span><%- __('giveaway.req_group_html', { link: '<a href="https://steamcommunity.com/groups/tradetf2deal" target="_blank" rel="nofollow">' + __('giveaway.steam_group') + '</a>' }) %></span></li><% } %>
+                      <% if (g.requirements?.trade) { %><li data-req="trade"><span class="gw-check icon icon-trade1" aria-hidden="true"></span><span><%= __('giveaway.req_trade') %></span></li><% } %>
                     </ul>
 
-                    <% if (!user) { %>
-                      <a class="enter-btn" rel="nofollow" href="/auth/steam"><%= __('giveaway.sign_in_to_enter') %></a>
-                    <% } else if (info.entered) { %>
-                      <button class="enter-btn entered" disabled><%= __('giveaway.entered') %> &#10003;</button>
-                    <% } else { %>
-                      <button class="enter-btn" id="giveaway-enter"><%= __('giveaway.enter') %></button>
-                    <% } %>
+                    <div class="buttons">
+                      <% if (!user) { %>
+                        <a class="enter-btn" rel="nofollow" href="/auth/steam"><%= __('giveaway.sign_in_to_enter') %></a>
+                      <% } else if (info.entered) { %>
+                        <button class="enter-btn entered" disabled><%= __('giveaway.entered') %> &#10003;</button>
+                      <% } else { %>
+                        <button class="enter-btn" id="giveaway-enter"><%= __('giveaway.enter') %></button>
+                      <% } %>
+                    </div>
                     <div class="enter-result" id="giveaway-result" role="status"></div>
                   </div>
-                <% } else { %>
-                  <div class="gw-empty">
-                    <span class="gw-empty-icon icon-gift" aria-hidden="true"></span>
-                    <h1><%= __('giveaway.none_title') %></h1>
-                    <p><%= __('giveaway.none_text') %></p>
+                </section>
+
+                <div class="gw-stats">
+                  <div class="stat-block gw-countdown" id="giveaway-countdown" data-end="<%= g.end %>">
+                    <span class="icon-clock stat-icon" aria-hidden="true"></span>
+                    <div class="stat-text">
+                      <div class="stat-name"><%= __('giveaway.ends_in') %></div>
+                      <div class="stat-data gw-units">
+                        <span><strong data-unit="d">–</strong><small><%= __('giveaway.days') %></small></span>
+                        <span><strong data-unit="h">–</strong><small><%= __('giveaway.hours') %></small></span>
+                        <span><strong data-unit="m">–</strong><small><%= __('giveaway.minutes') %></small></span>
+                        <span><strong data-unit="s">–</strong><small><%= __('giveaway.seconds') %></small></span>
+                      </div>
+                      <div class="gw-drawing" hidden><%= __('giveaway.drawing') %></div>
+                      <noscript><%= new Date(g.end).toUTCString() %></noscript>
+                    </div>
                   </div>
-                <% } %>
-              </section>
+                  <div class="stat-block">
+                    <span class="icon-group stat-icon" aria-hidden="true"></span>
+                    <div class="stat-text">
+                      <div class="stat-name"><%= __('giveaway.entries') %></div>
+                      <div class="stat-data" id="giveaway-entries"><%= g.entry_count %></div>
+                    </div>
+                  </div>
+                </div>
+              <% } else { %>
+                <%# nothing running: the home page's closing box, with its two buttons %>
+                <section class="gw-empty">
+                  <span class="gw-empty-icon icon-gift" aria-hidden="true"></span>
+                  <h1><%= __('giveaway.none_title') %></h1>
+                  <p><%= __('giveaway.none_text') %></p>
+                  <div class="buttons">
+                    <a <% if (!user) { %>rel="nofollow" href="/auth/steam"<% } else { %>href="<%= lurl('/trade') %>"<% } %> class="start_trading-btn"><%= __('home.start_trading') %></a>
+                    <a href="<%= lurl('/items') %>" class="view-items-btn"><span class="icon icon-search"></span> <%= __('home.browse_items') %></a>
+                  </div>
+                </section>
+              <% } %>
 
               <section class="giveaway-history">
                 <h2><%= __('giveaway.previous') %></h2>
@@ -72,10 +85,8 @@
                   <% } %>
                   <% for (const old of (info?.history || [])) { %>
                     <article class="old-giveaway">
-                      <div class="gw-thumb">
-                        <img class="q-<%= old.item.qualityID %>" src="<%= old.item.image %>" style="background-image: <%= old.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${old.item.effectID}_94x94.png)` : 'none' %>;" loading="lazy" alt="<%= item_alt(old.item) %>">
-                      </div>
-                      <div class="name" translate="no"><%= old.item.bp_sku %></div>
+                      <img class="q-<%= old.item.qualityID %>" src="<%= old.item.image %>" style="background-image: <%= old.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${old.item.effectID}_94x94.png)` : 'none' %>;" loading="lazy" alt="<%= item_alt(old.item) %>">
+                      <h3 class="name" translate="no"><%= old.item.bp_sku %></h3>
                       <div class="winner">
                         <% if (old.winner?.steamid) { %>
                           <img src="<%= old.winner.avatar || '/img/new_user-96.webp' %>" alt="" loading="lazy">

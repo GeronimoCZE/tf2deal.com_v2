@@ -123,10 +123,6 @@ body.season-summer, body.season-halloween{
         background: var(--brand-muted) !important;
         &:hover, &.open{ background: var(--brand-muted-hover) !important; }
     }
-    .giveaway-ps{
-        .gw-showcase{ background: radial-gradient(circle at 50% 45%, rgba(var(--tint-rgb), 0.16), rgba(var(--tint-rgb), 0.03) 65%); }
-        .gw-live, .gw-units > div, .requirements li{ background: rgba(0, 0, 0, 0.3); }
-    }
     .admin-stat{ background: linear-gradient(160deg, rgba(var(--tint-rgb), 0.12), rgba(var(--tint-rgb), 0.03)); }
     button.send-btn{ background: var(--brand-muted) !important; }
 }
