@@ -1,4 +1,5 @@
-/* Admin panel: Overview, Inventory value, Live settings, Stock limits, Listings, Users, Ratings, Trade records, Notifications, Tickets, Blog, Giveaways (talk to /api/admin/*).
+/* Admin panel: Overview, Inventory value, Live settings, Users, Ratings, Trade records, Notifications, Tickets, Blog, Giveaways (talk to /api/admin/*).
+   Bot manager is in js/admin_bot_manager.js; it replaces the Stock limits and Listings pages below, which bot_manager doesn't read.
    Live settings also listen on the /settings socket, so changes made by other apps show up right away. */
 (() => {
     const esc = (text) => String(text ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -405,6 +406,9 @@
             }
         })
         socket.on('settings:clients_changed', refresh_clients)
+        // bot_manager changed something / worked out its stock limits again (js/admin_bot_manager.js listens)
+        socket.on('bot_manager:changed', (event) => notify('bot_manager', event))
+        socket.on('bot_manager:stock_updated', (status) => notify('bot_manager_stock', status))
     }
 
     // through the socket when it's up, otherwise through the REST route
@@ -1960,6 +1964,11 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
     }
 
     window.admin_sections = sections
+    // for the sections in other files (js/admin_bot_manager.js), loaded after this one
+    window.admin_kit = {
+        esc, when, ago, num, uptime, api, toast, head, stat, pill, QUALITY_NAMES,
+        on_live: (fn) => { live.listeners.add(fn); return () => live.listeners.delete(fn) }
+    }
     window.addEventListener('hashchange', route)
     document.addEventListener('DOMContentLoaded', () => {
         route()

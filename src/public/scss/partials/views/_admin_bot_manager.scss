@@ -1,0 +1,281 @@
+// Admin panel → Bot manager (js/admin_bot_manager.js): bot_manager's settings and state. Built from the panel's
+// own parts (_admin.scss); only what those don't have is here.
+
+.admin-shell{
+    // the tabs are links (#bots/<tab>), so a tab can be opened from elsewhere and the Back button works
+    .content .admin-bm-tabs{
+        display: flex;
+        a{
+            display: inline-flex;
+            align-items: center;
+            padding: .45rem .95rem;
+            border-radius: calc(var(--r-md) - 3px);
+            color: var(--ink-3);
+            font-size: .92rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 150ms ease, color 150ms ease;
+            &:hover{ color: var(--ink); background: var(--surface-3); }
+            &.active{ background: var(--surface-3); color: var(--ink); }
+        }
+    }
+
+    .admin-bm-stack{ margin-top: 1rem; }
+    .admin-bm-toolbar{
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: .6rem 1rem;
+        margin-bottom: 1rem;
+        > span:first-child{ display: inline-flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+        + .admin-stats{ margin-bottom: 1rem; }
+    }
+    .admin-stats + .admin-note, .admin-stats + .admin-card{ margin-top: 1rem; }
+    .admin-bm-actions{
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .5rem;
+        margin-top: .8rem;
+        .admin-bm-toolbar &{ margin-top: 0; }
+        select{ height: auto; }
+    }
+    button.danger{ color: #f3a097; &:hover{ background: rgba(224, 96, 79, .18); color: #fff; } }
+    .admin-pill{
+        &.warn{ background: rgba(233, 196, 106, .14); color: #e9c46a; }
+        &.off{ background: var(--surface-3); color: var(--ink-3); }
+    }
+    .admin-tag{
+        &.tag-warn{ background: rgba(233, 196, 106, .14); color: #e9c46a; }
+        &.tag-bad{ background: rgba(224, 96, 79, .16); color: #f3a097; }
+        &.tag-sell{ background: rgba(76, 217, 100, .12); color: #8fe08a; }
+        &.tag-buy{ background: rgba(var(--tint-rgb), .2); color: #d9ccff; }
+        b{ color: var(--ink); font-weight: 700; }
+    }
+    .admin-bm-counts{ display: flex; flex-wrap: wrap; gap: .35rem; margin: .3rem 0 .8rem 0; }
+    .admin-bm-sub{ margin: 1rem 0 .45rem 0; font-size: .95rem; color: var(--ink); &:first-child{ margin-top: 0; } }
+    .admin-bm-yes{ color: #8fe08a; margin: .4rem 0; }
+    .admin-bm-offline{ max-width: 40rem; }
+    .admin-bm-linkish{
+        padding: 0;
+        border: none;
+        background: none;
+        color: var(--violet);
+        font: inherit;
+        font-size: inherit !important;
+        text-align: left;
+        cursor: pointer;
+        &:hover{ background: none; color: var(--ink); text-decoration: underline; }
+    }
+    td .admin-help, li .admin-help{ display: block; margin-top: .15rem; }
+    td.admin-bm-cell-actions{
+        white-space: nowrap;
+        text-align: right;
+        button + button{ margin-left: .3rem; }
+    }
+
+    // label → value pairs
+    .admin-bm-facts{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+        gap: .55rem 1rem;
+        margin: .4rem 0 .9rem 0;
+        div{ min-width: 0; }
+        dt{ font-size: 12px; color: var(--ink-3); }
+        dd{ margin: .1rem 0 0 0; color: var(--ink); overflow-wrap: anywhere; }
+    }
+
+    // a thin bar behind "used / of" numbers (listing slots, backpack slots)
+    .admin-bm-meter{
+        display: block;
+        width: 6rem;
+        height: 5px;
+        margin-bottom: .3rem;
+        border-radius: 5px;
+        background: linear-gradient(90deg, var(--violet) var(--fill, 0%), rgba(226, 226, 244, .1) 0);
+        &.is-low{ background: linear-gradient(90deg, #f08277 var(--fill, 0%), rgba(226, 226, 244, .1) 0); }
+    }
+    .admin-bm-slots{ margin-top: 1rem; }
+
+    // forms with filters above a table (stock groups, listings)
+    .admin-bm-filters{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+        gap: 0 .8rem;
+        align-items: end;
+        margin-bottom: .4rem;
+        .admin-field{ margin-bottom: .7rem; }
+        input:not([type="checkbox"]), select{ width: 100%; height: 2.6rem; padding-top: 0; padding-bottom: 0; }
+        > button{ justify-self: start; margin-bottom: .7rem; height: 2.6rem; }
+    }
+    .admin-bm-checks{
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .4rem 1rem;
+        min-height: 2.6rem;
+        margin-bottom: .7rem;
+    }
+    label.check{
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        margin: .2rem 1rem .4rem 0;
+        color: var(--ink-2);
+        font-size: 14px;
+        font-weight: 400;
+        cursor: pointer;
+    }
+    .admin-field label.check{ display: flex; }
+    .admin-input-unit.no-unit input{ padding-right: .75rem !important; }
+
+    // ---------- bots ----------
+    .admin-bm-max{
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: .5rem 1.5rem;
+        margin-bottom: 1rem;
+        p{ margin: 0; }
+        .admin-inline-form{ margin: 0; align-items: center; .admin-input-unit{ width: 9rem; } }
+    }
+    .admin-bm-bots{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+        gap: 1rem;
+    }
+    .admin-bm-bot{
+        display: flex;
+        flex-direction: column;
+        .admin-bm-facts{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .admin-bm-actions{ margin-top: auto; padding-top: .2rem; }
+        button{ padding: .35rem .75rem; font-size: 13px; }
+        .admin-error, .admin-note{ margin: 0 0 .6rem 0; font-size: 13.5px; }
+    }
+    .admin-bm-bot-head{
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        margin-bottom: .8rem;
+        img, .admin-bm-avatar{ flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--surface-3); object-fit: cover; }
+        > div{ display: flex; flex-direction: column; min-width: 0; margin-right: auto; }
+        strong{ color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; a{ color: inherit; } }
+        .muted{ font-size: 13px; }
+    }
+    .admin-bm-disable{
+        margin-top: .8rem;
+        summary{ cursor: pointer; color: var(--ink-3); font-size: 13.5px; &:hover{ color: var(--ink); } }
+        &[open] summary{ margin-bottom: .5rem; }
+        .admin-input-unit{ max-width: 10rem; }
+        button{ color: #f3a097; }
+    }
+    .admin-bm-forms{
+        margin-top: 1rem;
+        form{ margin: 0; }
+    }
+
+    // ---------- stock groups ----------
+    .admin-bm-group-row{
+        cursor: pointer;
+        td:first-child strong::before{
+            content: "▸";
+            display: inline-block;
+            width: 1rem;
+            color: var(--ink-3);
+            transition: transform 150ms ease;
+        }
+        &[aria-expanded="true"] td:first-child strong::before{ transform: rotate(90deg); }
+        &:focus-visible{ outline: 2px solid var(--violet); outline-offset: -2px; }
+        td:first-child .admin-help{ padding-left: 1rem; }
+    }
+    tr.admin-bm-detail > td, tr.admin-bm-detail:hover > td{ padding: 1rem; background: var(--well); }
+    .admin-bm-group-detail{
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem 2rem;
+        @media (max-width: 1099px){ grid-template-columns: minmax(0, 1fr); }
+        .wide{ grid-column: 1 / -1; }
+        .admin-bm-actions{ margin-top: .4rem; }
+    }
+    .admin-bm-override .admin-field{ margin-bottom: .6rem; }
+
+    // ---------- settings cards ----------
+    .admin-bm-config .admin-card-head{ margin-bottom: .2rem; }
+    .admin-bm-group{
+        margin-top: .6rem;
+        border-radius: var(--r-md);
+        background: var(--well);
+        summary{
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: .2rem .8rem;
+            padding: .75rem 1rem;
+            cursor: pointer;
+            list-style: none;
+            &::-webkit-details-marker{ display: none; }
+            > span:first-child{
+                color: var(--ink);
+                font-weight: 700;
+                &::before{ content: "▸"; display: inline-block; width: 1rem; color: var(--ink-3); transition: transform 150ms ease; }
+            }
+            .muted{ font-size: 13px; }
+        }
+        &[open] > summary > span:first-child::before{ transform: rotate(90deg); }
+        > .admin-bm-fields, > .admin-bm-group-help{ margin-left: 1rem; margin-right: 1rem; }
+        > .admin-bm-fields{ padding-bottom: .4rem; }
+    }
+    .admin-bm-group-help{ margin: -.2rem 0 .8rem 0; }
+    .admin-bm-fields{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+        gap: .2rem 1.2rem;
+    }
+    .admin-bm-field{
+        display: flex;
+        flex-direction: column;
+        gap: .3rem;
+        margin-bottom: .9rem;
+        min-width: 0;
+        &.is-wide{ grid-column: 1 / -1; }
+        .admin-bm-label{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .6rem;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink-2);
+        }
+        .admin-bm-name{ display: inline-flex; align-items: center; gap: .35rem; }
+        // the value isn't bot_manager's default
+        .admin-bm-custom{ width: 7px; height: 7px; border-radius: 50%; background: var(--violet); }
+        // typed but not saved yet
+        &.is-changed .admin-bm-label::after{ content: "changed"; margin-left: auto; color: #e9c46a; font-size: 11.5px; font-weight: 600; }
+        &.kind-bool.is-changed .admin-bm-label::after{ order: 1; margin-left: 0; }
+        &.kind-bool .admin-bm-label{ .admin-switch{ order: 2; } }
+        .admin-bm-default{ color: var(--ink-3); opacity: .85; }
+        textarea{ min-height: 4.2rem; }
+    }
+
+    // ---------- audit log ----------
+    .admin-bm-audit li{ grid-template-columns: 6.5rem 6rem minmax(0, 1fr); align-items: start; }
+    .admin-bm-audit code{ overflow-wrap: anywhere; }
+    .admin-bm-payload{ display: block; margin-top: .15rem; overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    // phones: nothing in a tab may be wider than the screen
+    .admin-bm-page{
+        .admin-inline-form{ flex-wrap: wrap; input, select{ min-width: 0; } }
+        .admin-row-fields{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        select{ max-width: 100%; }
+        @include lt-sm{ .admin-bm-audit li{ grid-template-columns: minmax(0, 1fr); gap: .2rem; } }
+    }
+}
+
+// table cells keep their inputs tiny (.admin td input, for the old inline editors); these forms need room
+.admin{
+    td .admin-input-unit input, .admin-bm-detail td input{ max-width: none !important; }
+    td .admin-input-unit{ min-width: 6.5rem; }
+}

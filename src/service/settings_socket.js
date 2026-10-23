@@ -11,6 +11,8 @@
 //   client -> server  'settings:get'      (ack) -> { status: 'ok', settings, version }
 //   client -> server  'settings:update'   (patch, ack) -> { status: 'ok', settings, changed } | { status: 'error', message, errors }
 //   client -> server  'settings:clients'  (ack) -> { status: 'ok', clients: [...] }   who is connected (admin panel)
+//   server -> admin panel only  'bot_manager:changed' { event, scope, admin, time }, 'bot_manager:stock_updated' (stock status)
+//                     bot_manager's own admin pushes (socket.js), so its pages in the panel refresh
 //
 // Website visitors get only the public part on the default namespace: 'site_settings' { trading, announcement, version }.
 // Full guide with examples: SETTINGS.md
@@ -69,6 +71,7 @@ export const createSettingsSocket = (io) => {
     const client = socket.data.client
     console.log(`settings socket: ${client.kind} "${client.name}" connected (${socket.id})`)
 
+    if(client.kind == 'admin'){ socket.join('admins') } // bot_manager's admin pushes below
     socket.emit('settings:init', { settings: settings.get(), version: settings.get().version })
     nsp.emit('settings:clients_changed', { count: nsp.sockets.size })
 
@@ -114,6 +117,10 @@ export const createSettingsSocket = (io) => {
       io.emit('site_settings', settings.public_view())
     }
   })
+
+  // bot_manager changed something (any admin, also from another panel) / recomputed its stock limits: only the admin panel needs it
+  localEmitter.on('bot_manager:changed', (event) => nsp.to('admins').emit('bot_manager:changed', event))
+  localEmitter.on('bot_manager:stock_updated', (status) => nsp.to('admins').emit('bot_manager:stock_updated', status))
 
   // first load from the DB (in case a client connected before it finished)
   localEmitter.on('settings:loaded', (all) => {

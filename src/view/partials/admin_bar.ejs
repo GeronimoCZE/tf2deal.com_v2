@@ -3,7 +3,7 @@
 <% if (locals.admin_bar) {
     const ab = locals.admin_bar
     const on_admin = String(locals.page_path || '').startsWith('/admin')
-    const sections = [['overview', 'Overview'], ['settings', 'Live settings'], ['stock', 'Stock limits'], ['listings', 'Listings'], ['users', 'Users'], ['ratings', 'Ratings'], ['trades', 'Trade records'], ['notifications', 'Notifications'], ['tickets', 'Tickets'], ['blog', 'Blog'], ['giveaways', 'Giveaways']]
+    const sections = [['overview', 'Overview'], ['settings', 'Live settings'], ['bots', 'Bot manager'], ['users', 'Users'], ['ratings', 'Ratings'], ['trades', 'Trade records'], ['notifications', 'Notifications'], ['tickets', 'Tickets'], ['blog', 'Blog'], ['giveaways', 'Giveaways']]
     // the page's own admin link, like WordPress's "Edit post"
     const context = locals.info?.view == 'blog_page' && locals.info?.post_id ? ['Edit post', '/admin#blog/edit/' + locals.info.post_id]
         : locals.info?.view == 'giveaway' ? ['Manage giveaways', '/admin#giveaways']
@@ -22,7 +22,7 @@
             </div>
         </div>
         <a class="ab-item ab-wide" href="/admin#settings">Live settings</a>
-        <a class="ab-item ab-wide" href="/admin#listings">Listings</a>
+        <a class="ab-item ab-wide" href="/admin#bots">Bot manager</a>
         <a class="ab-item" href="/admin#tickets" title="Open tickets">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>
             <span class="ab-label">Tickets</span>
@@ -37,7 +37,7 @@
                 <a href="/admin#blog/new">Blog post</a>
                 <a href="/admin#giveaways">Giveaway</a>
                 <a href="/admin#notifications">Notification</a>
-                <a href="/admin#listings">Listing</a>
+                <a href="/admin#bots/bots">Bot</a>
             </div>
         </div>
         <% if (context) { %><a class="ab-item ab-context" href="<%= context[1] %>">
