@@ -753,23 +753,21 @@ img[src="/img/background.jpg"]{
                     margin: .4rem;
                     cursor: pointer;
                     border-radius: 5px;
-                    background: var(--bar-chip);
+                    --chip: var(--bar-chip); // @property in _items.scss
+                    background: var(--chip);
                     font-size: 15px;
                     letter-spacing: 0.05rem;
                     transition: 250ms;
                     white-space: nowrap;
                     color: rgba(255, 255, 255, 0.878);
                     &:hover{
-                        background: var(--bar-chip-strong);
+                        --chip: var(--bar-chip-strong);
                     }
+                    // the Bot filter looks like the other chips, with room for a bot's whole name ("tf2deal Bot #2")
                     &#filter-bot{
-                        border: 1px solid var(--line);
-                        background: var(--bar-chip) !important;
-                        height: calc(1.5rem - 2px);
-                        line-height: calc(1.5rem - 2px);
-                        max-width: 9rem !important; // room for a bot's whole name ("tf2deal Bot #2")
+                        max-width: 9rem !important;
                         &.disabled{
-                            background: var(--bar-chip-strong) !important;
+                            --chip: var(--bar-chip-strong);
                             cursor: default !important;
                             pointer-events: none !important;
                         }
@@ -778,16 +776,6 @@ img[src="/img/background.jpg"]{
                             overflow: hidden;
                             text-overflow: ellipsis;
                             max-width: 9rem;
-                        }
-                        .filter-name{
-                            border-radius: 5px !important;
-                        }
-                        &.selected .filter-name{
-                            left: -1px; // in line with the chip's border
-                            border-radius: 5px 5px 0 0 !important;
-                        }
-                        &:hover{
-                            background: var(--bar-chip-strong) !important;
                         }
                     }
                     .filter-name{
@@ -918,8 +906,11 @@ img[src="/img/background.jpg"]{
                             }
                         }
                     }
-                    // picked: the filter's name sits above the chip as a small tab in the chip's colour, the chip shows the value
+                    // picked: the filter's name is a tab on top of the chip, the chip shows the value. Only the part of the
+                    // tab above the chip is coloured (the colours are see-through, so an overlap would look lighter), and the
+                    // chip's corner under it is square, so tab and chip read as one button.
                     &.selected{
+                        border-top-left-radius: 0;
                         .filter-name{
                             position: absolute;
                             top: -.45rem;
@@ -927,8 +918,8 @@ img[src="/img/background.jpg"]{
                             padding: 0 .35rem;
                             font-size: 10px;
                             line-height: 15px;
-                            border-radius: 5px 5px 0 0 !important;
-                            background: inherit;
+                            border-radius: 5px 5px 0 0;
+                            background: linear-gradient(var(--chip) .45rem, transparent 0);
                             color: var(--ink-3);
                         }
                     }
@@ -984,6 +975,30 @@ img[src="/img/background.jpg"]{
                 border-radius: 0 0 var(--r-sm) var(--r-sm);
                 &.hidden{
                     display: none;
+                }
+                // shown while picked filters wait to be applied: the one filled button in the bar, the size of a chip
+                .apply-filters{
+                    display: block;
+                    &[hidden]{
+                        display: none;
+                    }
+                    height: 1.5rem;
+                    line-height: 1.5rem;
+                    padding: .3rem .7rem;
+                    margin: .3rem;
+                    border: none;
+                    border-radius: 5px;
+                    background: var(--brand);
+                    color: #fff;
+                    font-family: inherit;
+                    font-size: 15px;
+                    letter-spacing: 0.05rem;
+                    white-space: nowrap;
+                    cursor: pointer;
+                    transition: background-color 250ms;
+                    &:hover{
+                        background: var(--brand-hover);
+                    }
                 }
                 .reset-filters{
                     margin: .3rem;

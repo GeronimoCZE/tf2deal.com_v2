@@ -227,7 +227,8 @@
     "can_buy": "Lze koupit",
     "can_sell": "Lze prodat",
     "search_options": "Hledat možnosti...",
-    "reset_filters": "Zrušit filtry"
+    "reset_filters": "Zrušit filtry",
+    "apply_filters": "Použít filtry"
   },
   "classes": {
     "all": "Všechny třídy",

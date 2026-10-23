@@ -2779,8 +2779,45 @@ const clear_items = async (tradeRemoved) => {
     document.querySelector('.btn.trade-btn').classList.remove('confirmed')
 }
 
+// Filters picked in a filter box wait for its "Apply filters" button, so several can be changed with one load.
+// The Bot filter and the search apply at once (setBot, search).
+const picked_filters = { site: new Map(), user: new Map() }
+const party_filters = (party) => (party == 'site' ? SiteTrade.filters : UserTrade.filters)
+// the value set_filter keeps for a picked one
+const kept_value = (filter, value) => (value == 'None') ? null : (filter == 'class' && value != 'All Classes') ? value : String(value).toLowerCase()
+const show_apply = (party) => {
+    const button = document.querySelector(`.apply-filters.${party}`)
+    if(!button){ return }
+    const filters = party_filters(party)
+    button.hidden = ![...picked_filters[party]].some(([filter, value]) => (filters[filter] ?? null) !== kept_value(filter, value))
+    // "reset all" also drops filters that are only picked
+    document.querySelector(`.reset-filters.${party}`)?.classList.toggle('show', !button.hidden || !filtersNull(filters))
+}
+const pick_filter = (party, filter, value) => {
+    picked_filters[party].set(filter, value)
+    show_apply(party)
+}
+const apply_filters = async (party) => {
+    if(trade_req){ return false; }
+    if(party == 'site' && SiteTrade.inventory == undefined){ return false; }
+    if(party == 'user' && UserTrade.inventory == undefined){ return false; }
+    for (const [filter, value] of picked_filters[party]) {
+        await set_filter(party, filter, value, 'init') // 'init': keeps the value without loading
+    }
+    picked_filters[party].clear()
+    show_apply(party)
+    const filters = party_filters(party)
+    filters.page = 0
+    if(party == 'site'){ load_site_inventory(filters.page, 'change') } else { load_user_inventory(filters.page, 'change') }
+}
+
 const reset_filters = async (party, type, reset) => {
     document.querySelector(`div.reset-filters.${party}`).classList.remove('show')
+    if(reset == true){
+        picked_filters[party].clear()
+        const apply = document.querySelector(`.apply-filters.${party}`)
+        if(apply){ apply.hidden = true }
+    }
     
     if(party == 'site' && reset == true){
         set_filter(party, 'quality', 'None', type, reset)
@@ -3540,7 +3577,7 @@ const put_novalue_last = (party) => {
 export {
     load_user_inventory, load_user_inventory_single, load_site_inventory, load_site_inventory_single,
     item_tooltip, render_items,
-    setBot, set_filter, reset_filters, search, item_to_trade, single_item_to_trade, clear_single_items, clear_items, round_ref,
+    setBot, set_filter, pick_filter, apply_filters, reset_filters, search, item_to_trade, single_item_to_trade, clear_single_items, clear_items, round_ref,
     group_assets, stack_sig,
     ks_tiers, ks_name, single_price, price_text,
     create_trade, check_trade,

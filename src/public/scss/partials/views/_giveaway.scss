@@ -1,232 +1,159 @@
-// Giveaway page (view/giveaway.ejs): the current giveaway as one card (item on the left, details and entry on
-// the right), then the previous giveaways as a grid of cards.
+// Giveaway page (view/giveaway.ejs), built like the home page (_home.scss): the giveaway reads like the home intro
+// (the item next to a big heading, the text, the points to do, one green button), the countdown and the entries
+// like the home stats strip, nothing running like the home page's closing box, the previous giveaways like its cards.
 
 .giveaway-ps{
-    max-width: 1180px !important;
-    margin: 1rem auto !important;
+    max-width: 1150px !important;
+    margin: 3rem auto 0 auto !important;
     padding: 0 1.25rem;
     box-sizing: border-box !important;
-    @include lt-sm{ padding: 0 .75rem; }
+    @include lt-sm{ margin-top: 1.5rem !important; padding: 0 .75rem; }
 
+    // the item on the left, everything about it on the right (home .wrapper)
     .gw-hero{
         display: grid;
-        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-        gap: 2.5rem;
-        align-items: stretch;
-        @include panel(2rem);
-        box-sizing: border-box !important;
-        @media (max-width: 900px){ grid-template-columns: 1fr; gap: 1.5rem; padding: 1.5rem; }
-        @include lt-sm{ padding: 1.1rem; border-radius: var(--r-lg); }
-        &.is-empty{ display: block; }
+        grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+        column-gap: 3rem;
+        align-items: center;
+        @media (max-width: 900px){ grid-template-columns: 1fr; row-gap: 1.25rem; }
     }
 
-    // item showcase
+    // no box: the item stands on a soft glow, like the character next to the home intro
     .gw-showcase{
-        position: relative;
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 20rem;
-        border-radius: var(--r-lg);
-        background: radial-gradient(circle at 50% 45%, rgba(var(--tint-rgb), 0.16), rgba(var(--tint-rgb), 0.03) 65%);
-        border: 1px solid transparent;
-        @include lt-sm{ min-height: 15rem; }
-        .gw-image{
-            display: flex;
-            .item-image{
-                width: 15rem;
-                height: 15rem;
-                background-size: cover;
-                background-position: center;
-                object-fit: contain;
-                @include lt-sm{ width: 11rem; height: 11rem; }
-            }
-        }
-    }
-    .gw-live{
-        position: absolute;
-        top: 14px;
-        left: 14px;
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 5px 11px;
-        border-radius: 999px;
-        background: rgba(4, 13, 46, 0.85);
-        border: 1px solid transparent;
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: .06em;
-        text-transform: uppercase;
-        color: var(--ink);
-        i{
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4ad66d;
-            box-shadow: none;
+        aspect-ratio: 1;
+        max-width: 26rem;
+        width: 100%;
+        margin: 0 auto;
+        border-radius: 50%;
+        background: radial-gradient(circle at 50% 50%, rgba(var(--tint-rgb), 0.2), rgba(var(--tint-rgb), 0) 68%);
+        @media (max-width: 900px){ max-width: 16rem; }
+        .item-image{
+            width: 70%;
+            height: auto;
+            aspect-ratio: 1;
+            background-size: cover;
+            background-position: center;
+            object-fit: contain;
         }
     }
 
-    // details
     .gw-info{
         min-width: 0;
-        h1{
-            margin: 0 0 .35rem 0;
-            padding: 0;
-            font-size: 13px !important;
-            font-weight: 700;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            color: var(--ink-3);
-            text-align: left;
-        }
-        h2{
+        // the home hero's status pill
+        .gw-live{
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            width: fit-content;
             margin: 0 0 .9rem 0;
+            padding: .25rem .75rem;
+            border-radius: 999px;
+            font-size: 1rem;
+            color: rgb(74, 222, 74);
+            background: rgba(46, 168, 38, 0.14);
+            i{ width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+        }
+        // the home hero headline, a size smaller: an item name can be long
+        h1{
+            margin: 0 0 1rem 0;
             padding: 0;
             font-family: var(--font-heading);
-            font-size: clamp(1.6rem, 3vw, 2.2rem) !important;
             font-weight: 700;
-            line-height: 1.2;
+            font-size: 2.75rem !important;
+            line-height: 1.1;
             text-align: left;
-            a{ display: inline; color: var(--ink); text-decoration: none; &:hover{ color: var(--violet); } }
+            color: var(--ink);
+            -webkit-text-fill-color: currentColor;
+            @include lt-sm{ font-size: 2rem !important; }
+            a{ display: inline; color: inherit; text-decoration: none; &:hover{ color: var(--violet); } }
         }
+        // the home intro's lead text
         .description{
-            margin: 0 0 1.25rem 0;
+            margin: 0 0 1.5rem 0;
             color: var(--ink-2);
-            font-size: 16px;
+            font-size: 1.1rem;
             line-height: 1.6;
             .ai-note{ display: block; margin-top: .3rem; color: var(--ink-3); font-size: 13px; }
         }
     }
-    .gw-label{
-        display: block;
-        margin-bottom: .45rem;
-        font-size: 12.5px;
-        font-weight: 600;
-        letter-spacing: .04em;
-        text-transform: uppercase;
-        color: var(--ink-3);
-    }
-    .gw-stats{
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem 1.5rem;
-        margin-bottom: 1.5rem;
-        padding: 1rem 1.1rem;
-        border-radius: var(--r-md);
-        background: var(--surface-2);
-        border: 1px solid transparent;
-    }
-    .gw-units{
-        display: flex;
-        gap: .45rem;
-        div{
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 3.4rem;
-            padding: .45rem .3rem;
-            border-radius: var(--r-sm);
-            background: rgba(4, 13, 46, 0.7);
-            border: 1px solid transparent;
-            strong{ font-size: 1.45rem; font-weight: 700; line-height: 1.1; color: var(--ink); font-variant-numeric: tabular-nums; }
-            span{ font-size: 11px; color: var(--ink-3); text-transform: lowercase; }
-        }
-        @include lt-sm{ div{ min-width: 2.9rem; strong{ font-size: 1.2rem; } } }
-    }
-    .gw-countdown.is-done .gw-units{ opacity: .45; }
-    .gw-drawing{ margin-top: .5rem; font-size: 14px; color: var(--ink-2); &[hidden]{ display: none; } }
-    .gw-entries{
-        margin-left: auto;
-        text-align: right;
-        strong{ display: block; font-size: 1.9rem; font-weight: 700; line-height: 1.15; color: var(--ink); font-variant-numeric: tabular-nums; }
-        @include lt-sm{ margin-left: 0; text-align: left; }
-    }
 
     .gw-subtitle{
-        margin: 0 0 .6rem 0;
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--ink);
+        @include section-title;
+        font-size: 1.25rem;
+        margin-bottom: .6rem;
+        @include lt-sm{ font-size: 1.15rem; }
     }
+
+    // the home intro points: one row each, an icon in a circle; the circle turns into a tick or a cross once checked
     .requirements{
-        display: flex;
-        flex-direction: column;
-        gap: .45rem;
-        margin: 0 0 1.4rem 0;
+        display: grid;
+        gap: .6rem;
+        margin: 0 0 1.5rem 0;
         padding: 0;
         list-style: none;
         li{
             display: flex;
             align-items: center;
-            gap: .75rem;
-            padding: .65rem .8rem;
+            gap: .85rem;
+            padding: .75rem 1rem;
             border-radius: var(--r-md);
-            border: 1px solid transparent;
-            background: rgba(4, 13, 46, 0.45);
-            font-size: 15.5px;
+            background: var(--surface);
             color: var(--ink-2);
-            transition: border-color 200ms ease, background 200ms ease;
-            a{ display: inline; color: var(--violet); }
+            font-size: 1.05rem;
+            line-height: 1.45;
+            a{
+                display: inline;
+                color: var(--violet);
+                font-weight: 600;
+                text-decoration: underline;
+                text-decoration-color: transparent;
+                text-underline-offset: 3px;
+                transition: text-decoration-color 150ms ease;
+                &:hover{ text-decoration-color: currentColor; }
+            }
             .gw-check{
                 flex: none;
-                position: relative;
-                width: 22px;
-                height: 22px;
+                display: grid;
+                place-items: center;
+                width: 2.25rem;
+                height: 2.25rem;
                 border-radius: 50%;
-                border: 2px solid rgba(255, 255, 255, 0.22); // the empty checkbox circle
-                box-sizing: border-box !important;
+                background: var(--surface-3);
+                color: var(--violet);
+                font-size: 1rem;
+                transition: background 200ms ease, color 200ms ease;
             }
             &.met{
                 color: var(--ink);
-                .gw-check{
-                    border-color: var(--line);
-                    background: #3fb85a;
-                    &::after{
-                        content: "";
-                        position: absolute;
-                        left: 6px;
-                        top: 2px;
-                        width: 5px;
-                        height: 10px;
-                        border-right: 2px solid #fff; // the tick mark itself, not a frame
-                        border-bottom: 2px solid #fff;
-                        transform: rotate(45deg);
-                    }
-                }
+                .gw-check{ background: rgba(46, 168, 38, 0.2); color: rgb(74, 222, 74); &::before{ content: $icon-checkmark; } }
             }
-            &.unmet{
-                border-color: var(--line);
-                .gw-check{
-                    border-color: var(--line);
-                    &::before, &::after{
-                        content: "";
-                        position: absolute;
-                        left: 8px;
-                        top: 3px;
-                        width: 2px;
-                        height: 12px;
-                        background: #e5484d;
-                        transform: rotate(45deg);
-                    }
-                    &::after{ transform: rotate(-45deg); }
-                }
-            }
+            &.unmet .gw-check{ background: rgba(163, 58, 51, 0.22); color: rgb(240, 120, 110); &::before{ content: $icon-cross; } }
         }
     }
 
-    .enter-btn{
-        @include button(primary);
-        width: 100%;
-        box-sizing: border-box !important;
-        padding: .85rem 1.6rem;
-        font-size: 1.1rem;
-        &:disabled{ cursor: default; }
-        &.entered{
-            background: rgba(63, 184, 90, 0.16);
-            border-color: var(--line);
-            color: #8ee0a2;
+    // the home hero buttons: green for the one main action
+    .buttons{
+        display: flex;
+        flex-wrap: wrap;
+        gap: .75rem;
+        .enter-btn, .start_trading-btn{
+            @include button(success);
+            font-size: 1.15rem;
+            padding: .8rem 1.6rem;
+            @include lt-sm{ font-size: 1rem; padding: .7rem 1rem; }
+        }
+        .enter-btn{
+            &:disabled{ cursor: default; }
+            &.entered{ background: rgba(46, 168, 38, 0.14); color: rgb(74, 222, 74); }
+        }
+        .view-items-btn{
+            @include button(secondary);
+            font-size: 1.15rem;
+            padding: .8rem 1.4rem;
+            @include lt-sm{ font-size: 1rem; padding: .7rem 1rem; }
         }
     }
     .enter-result{
@@ -237,45 +164,101 @@
         &.error{ color: #f08a8d; }
     }
 
-    // no giveaway running
+    // the home stats strip: icon, number above its label
+    .gw-stats{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        margin: 2.5rem 0 0 0;
+        @include panel(.5rem);
+        @include lt-sm{ grid-template-columns: 1fr; }
+        .stat-block{
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            @include lt-sm{ flex-direction: column; align-items: flex-start; gap: .4rem; padding: .9rem; } // like the home strip
+        }
+        .stat-icon{
+            flex: none;
+            font-size: 2.4rem;
+            color: var(--violet);
+            opacity: .85;
+            @include lt-sm{ font-size: 1.8rem; }
+        }
+        .stat-text{
+            display: flex;
+            flex-direction: column-reverse; // number above its label
+            .stat-name{ font-size: .95rem; font-weight: 500; color: var(--ink-3); }
+            .stat-data{
+                font-family: var(--font-heading);
+                font-weight: 700;
+                font-size: 1.75rem;
+                line-height: 1.2;
+                color: var(--ink);
+                font-variant-numeric: tabular-nums;
+                &.gw-units{ @include lt-sm{ font-size: 1.45rem; } }
+            }
+            .gw-drawing{ order: -1; font-size: 15px; color: var(--ink-2); &[hidden]{ display: none; } }
+        }
+        .gw-units{
+            display: flex;
+            flex-wrap: wrap;
+            gap: .1rem .7rem;
+            @include lt-sm{ gap: .1rem .45rem; }
+            span{ display: inline-flex; align-items: baseline; gap: .2rem; }
+            small{ font-family: inherit; font-size: .95rem; font-weight: 500; color: var(--ink-3); }
+        }
+        .gw-countdown.is-done .gw-units{ opacity: .45; }
+    }
+
+    // nothing running: the home page's closing box
     .gw-empty{
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: .5rem;
-        padding: 3rem 1rem;
+        padding: 2.25rem 1.5rem;
+        border-radius: var(--r-lg);
+        background: var(--surface);
         text-align: center;
+        @include lt-sm{ padding: 1.75rem 1rem; }
         .gw-empty-icon{
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 4rem;
-            height: 4rem;
-            margin-bottom: .5rem;
+            display: grid;
+            place-items: center;
+            width: 3.5rem;
+            height: 3.5rem;
+            margin-bottom: .25rem;
             border-radius: 50%;
-            background: var(--surface-2);
-            border: 1px solid transparent;
-            font-size: 1.7rem;
-            color: var(--ink-2);
+            background: var(--surface-3);
+            color: var(--violet);
+            font-size: 1.5rem;
         }
-        h1{ @include page-title; margin: 0; text-align: center; }
-        p{ margin: 0; color: var(--ink-2); font-size: 17px; }
+        h1{
+            @include section-title;
+            margin: 0;
+            font-size: 1.8rem;
+            text-align: center;
+            @include lt-sm{ font-size: 1.5rem; }
+        }
+        p{ margin: 0 0 1rem 0; color: var(--ink-2); font-size: 1.05rem; line-height: 1.5; }
+        .buttons{ justify-content: center; }
     }
 
-    // previous giveaways
+    // previous giveaways: the home cards (item picture on top, heading, then the details)
     .giveaway-history{
-        margin-top: 2.5rem;
+        margin-top: 4rem;
+        @include lt-sm{ margin-top: 3rem; }
         h2{ @include section-title; margin-bottom: 1rem; }
         .giveaways{
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
-            gap: .9rem;
-            @include lt-sm{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+            grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+            gap: 1.5rem;
+            @include lt-sm{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
             .none{
                 grid-column: 1 / -1;
                 padding: 1.5rem;
                 border-radius: var(--r-lg);
-                border: 1px dashed var(--line);
+                background: var(--surface);
                 color: var(--ink-3);
                 text-align: center;
             }
@@ -283,46 +266,43 @@
         .old-giveaway{
             display: flex;
             flex-direction: column;
-            @include panel(.8rem);
+            @include panel(1.5rem);
             box-sizing: border-box !important;
-            .gw-thumb{
-                display: flex;
-                justify-content: center;
-                padding: .6rem 0;
-                border-radius: var(--r-md);
-                background: var(--surface-2);
-                img{ width: 6.5rem; height: 6.5rem; background-size: cover; object-fit: contain; @include lt-sm{ width: 5rem; height: 5rem; } }
+            @include lt-sm{ padding: 1rem; }
+            > img{
+                display: block;
+                width: 8rem;
+                height: 8rem;
+                margin: 0 auto 1rem auto;
+                background-size: cover;
+                object-fit: contain;
+                @include lt-sm{ width: 5.5rem; height: 5.5rem; margin-bottom: .75rem; }
             }
             .name{
-                margin: .7rem 0 .6rem 0;
-                font-size: 15px;
-                font-weight: 600;
-                line-height: 1.3;
+                margin: 0 0 .9rem 0;
+                font-family: var(--font-heading);
+                font-weight: 700;
+                font-size: 1.2rem;
+                line-height: 1.25;
                 color: var(--ink);
                 overflow-wrap: anywhere;
+                @include lt-sm{ font-size: 1.05rem; }
             }
             .winner{
                 display: flex;
                 align-items: center;
-                gap: .55rem;
+                gap: .6rem;
                 margin-top: auto;
-                padding-top: .6rem;
-                border-top: 1px solid var(--line);
-                img{ width: 1.9rem; height: 1.9rem; border-radius: 50%; flex: none; object-fit: cover; }
+                img{ width: 2.25rem; height: 2.25rem; border-radius: 50%; flex: none; object-fit: cover; }
                 .winner-text{
                     display: flex;
                     flex-direction: column;
                     min-width: 0;
-                    small{ font-size: 11.5px; color: var(--ink-3); }
-                    a{ display: block; font-size: 14px; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; &:hover{ color: var(--violet); } }
+                    small{ font-size: .85rem; color: var(--ink-3); }
+                    a{ display: block; font-size: 1rem; font-weight: 600; color: var(--violet); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; &:hover{ color: var(--ink); } }
                 }
             }
-            .date{ margin-top: .45rem; font-size: 12.5px; color: var(--ink-3); }
+            .date{ margin-top: .6rem; font-size: .9rem; color: var(--ink-3); }
         }
     }
-}
-
-@media (prefers-reduced-motion: reduce){
-    .giveaway-ps .gw-live i{ animation: none; }
-    .giveaway-ps .giveaway-history .old-giveaway:hover{ transform: none; }
 }

@@ -1,3 +1,10 @@
+// a filter chip's colour (.filter, here and on /trade): its name tab takes it too, also while it fades on hover
+@property --chip {
+    syntax: "<color>";
+    initial-value: transparent;
+    inherits: true;
+}
+
 .items-ps{
     padding: 1rem !important;
     max-width: 1200px !important;
@@ -95,14 +102,15 @@
             margin: .4rem;
             cursor: pointer;
             border-radius: 5px;
-            background: var(--bar-chip);
+            --chip: var(--bar-chip);
+            background: var(--chip);
             font-size: 15px;
             letter-spacing: 0.05rem;
             transition: 250ms;
             white-space: nowrap;
             color: rgba(255, 255, 255, 0.797);
             &:hover{
-                background: var(--bar-chip-strong);
+                --chip: var(--bar-chip-strong);
             }
             .filter-name{
                 position: relative;
@@ -223,8 +231,11 @@
                     }
                 }
             }
-            // picked: the filter's name sits above the chip as a small tab in the chip's colour, the chip shows the value
+            // picked: the filter's name is a tab on top of the chip, the chip shows the value. Only the part of the
+            // tab above the chip is coloured (the colours are see-through, so an overlap would look lighter), and the
+            // chip's corner under it is square, so tab and chip read as one button.
             &.selected{
+                border-top-left-radius: 0;
                 .filter-name{
                     position: absolute;
                     top: -.45rem;
@@ -232,10 +243,34 @@
                     padding: 0 .35rem;
                     font-size: 10px;
                     line-height: 15px;
-                    border-radius: 5px 5px 0 0 !important;
-                    background: inherit;
+                    border-radius: 5px 5px 0 0;
+                    background: linear-gradient(var(--chip) .45rem, transparent 0);
                     color: var(--ink-3);
                 }
+            }
+        }
+        // shown while picked filters wait to be applied: the one filled button in the bar, the size of a chip
+        .applyFilters{
+            display: block;
+            &[hidden]{
+                display: none;
+            }
+            height: 1.5rem;
+            line-height: 1.5rem;
+            padding: .3rem .7rem;
+            margin: .4rem;
+            border: none;
+            border-radius: 5px;
+            background: var(--brand);
+            color: #fff;
+            font-family: inherit;
+            font-size: 15px;
+            letter-spacing: 0.05rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background-color 250ms;
+            &:hover{
+                background: var(--brand-hover);
             }
         }
         // shown only once a filter is on: one choice fewer while there is nothing to reset (Hick's law)

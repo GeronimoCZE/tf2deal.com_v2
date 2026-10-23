@@ -179,6 +179,10 @@ setTimeout(() => {
         }
     })
 
+    // bot_manager's admin pushes, for the admin panel (settings_socket.js sends them on to the signed-in admins)
+    bots_io.on('admin:changed', (data) => localEmitter.emit('bot_manager:changed', data));
+    bots_io.on('admin:stock_updated', (data) => localEmitter.emit('bot_manager:stock_updated', data));
+
     bots_io.on('disconnect', () => {
         bot_socket.timestamp = Date.now();
         bot_socket.socket = null;

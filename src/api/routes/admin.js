@@ -18,6 +18,7 @@ import * as season from '../../service/season.js';
 import * as notifications from '../../service/notifications.js';
 import * as stock_limits from '../../service/stock_limits.js';
 import * as listings from '../../service/listings.js';
+import * as bot_manager from '../../service/bot_manager.js';
 import * as latest_trades from '../../service/latest_trades.js';
 import { notification_model } from '../../model/Notification.js';
 import { clients as settings_clients } from '../../service/settings_socket.js';
@@ -409,6 +410,15 @@ router.post('/listings/create', db_ready, async (req, res) => {
 router.post('/listings/remove', async (req, res) => {
   const result = await listings.remove(req.body, `admin ${req.user?.steamid || ''}`.trim());
   res.status(result.status == 'ok' ? 200 : 400).json(result);
+});
+
+/* ========================= BOT MANAGER (service/bot_manager.js) ========================= */
+// { event: 'admin:<scope>:<action>', payload } → bot_manager's answer { status: 'ok', data } | { status: 'error', message }.
+// The admin's steamid goes along for bot_manager's audit log.
+
+router.post('/bot_manager', async (req, res) => {
+  const result = await bot_manager.ask(text(req.body?.event, 80), req.body?.payload, req.user?.steamid);
+  res.status(result.status == 'ok' ? 200 : (result.offline ? 503 : 400)).json(result);
 });
 
 /* ========================= INVENTORY VALUE (service/inventory_value.js) ========================= */

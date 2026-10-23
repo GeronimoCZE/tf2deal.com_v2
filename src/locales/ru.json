@@ -227,7 +227,8 @@
     "can_buy": "Можно купить",
     "can_sell": "Можно продать",
     "search_options": "Поиск вариантов...",
-    "reset_filters": "Сбросить фильтры"
+    "reset_filters": "Сбросить фильтры",
+    "apply_filters": "Применить фильтры"
   },
   "classes": {
     "all": "Все классы",

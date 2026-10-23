@@ -227,7 +227,8 @@
     "can_buy": "Pode comprar",
     "can_sell": "Pode vender",
     "search_options": "Buscar opções...",
-    "reset_filters": "Limpar filtros"
+    "reset_filters": "Limpar filtros",
+    "apply_filters": "Aplicar filtros"
   },
   "classes": {
     "all": "Todas as classes",
