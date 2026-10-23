@@ -767,7 +767,7 @@ img[src="/img/background.jpg"]{
                         background: var(--bar-chip) !important;
                         height: calc(1.5rem - 2px);
                         line-height: calc(1.5rem - 2px);
-                        max-width: 5rem !important;
+                        max-width: 9rem !important; // room for a bot's whole name ("tf2deal Bot #2")
                         &.disabled{
                             background: var(--bar-chip-strong) !important;
                             cursor: default !important;
@@ -777,10 +777,14 @@ img[src="/img/background.jpg"]{
                             white-space: nowrap;
                             overflow: hidden;
                             text-overflow: ellipsis;
-                            max-width: 5rem; /* or a fixed value like 120px, depending on your layout */
+                            max-width: 9rem;
                         }
                         .filter-name{
                             border-radius: 5px !important;
+                        }
+                        &.selected .filter-name{
+                            left: -1px; // in line with the chip's border
+                            border-radius: 5px 5px 0 0 !important;
                         }
                         &:hover{
                             background: var(--bar-chip-strong) !important;
@@ -914,13 +918,17 @@ img[src="/img/background.jpg"]{
                             }
                         }
                     }
+                    // picked: the filter's name sits above the chip as a small tab in the chip's colour, the chip shows the value
                     &.selected{
-                        .filter-name, .filter-value{
-                            display: inline-block;
-                        }
                         .filter-name{
-                            margin-right: .4rem;
-                            font-size: 12px;
+                            position: absolute;
+                            top: -.45rem;
+                            left: 0;
+                            padding: 0 .35rem;
+                            font-size: 10px;
+                            line-height: 15px;
+                            border-radius: 5px 5px 0 0 !important;
+                            background: inherit;
                             color: var(--ink-3);
                         }
                     }

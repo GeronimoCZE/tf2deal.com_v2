@@ -844,14 +844,17 @@ addEventListener('DOMContentLoaded', (event) => {
                     })
                 }
                 if(el.classList.contains('fd-value')){
-                    if(fd_value(el) == 'None'){
-                        el.parentElement.parentElement.classList.remove('selected');
-                        el.parentElement.parentElement.querySelector('.filter-value').innerHTML = '';
-                    }
-                    if(fd_value(el) != 'None'){
-                        el.parentElement.parentElement.classList.add('selected');
-                        el.parentElement.parentElement.querySelector('.filter-value').innerHTML = el.innerHTML;
-                        el.parentElement.parentElement.querySelector('.filter-value').setAttribute('style', el.getAttribute('style'))
+                    // the Bot filter shows the bot the trade is with, which may not be the one clicked (trade.js show_bot)
+                    if(el.parentElement.parentElement.id != 'filter-bot'){
+                        if(fd_value(el) == 'None'){
+                            el.parentElement.parentElement.classList.remove('selected');
+                            el.parentElement.parentElement.querySelector('.filter-value').innerHTML = '';
+                        }
+                        if(fd_value(el) != 'None'){
+                            el.parentElement.parentElement.classList.add('selected');
+                            el.parentElement.parentElement.querySelector('.filter-value').innerHTML = el.innerHTML;
+                            el.parentElement.parentElement.querySelector('.filter-value').setAttribute('style', el.getAttribute('style'))
+                        }
                     }
                     el.parentElement.parentElement.classList.remove('open');
                 }

@@ -2124,8 +2124,24 @@ const set_item_trade_btn = (state) => {
 
 let currentBot = null;
 
+// The Bot filter shows the bot the trade is with (picked, or set by the first item added), or nothing
+const show_bot = (steamid) => {
+    const chip = document.querySelector('#filter-bot')
+    if(!chip){ return }
+    chip.classList.toggle('selected', Boolean(steamid))
+    const value = chip.querySelector('.filter-value')
+    value.textContent = steamid ? (SiteTrade.bot_names.get(steamid) || steamid) : ''
+    value.removeAttribute('style')
+}
+
 const setBot = (steamid) => {
-    currentBot = steamid;
+    // with items from a bot in the trade, the trade stays with that bot
+    if(SiteTrade.iit.items.length > 0 && currentBot && steamid !== currentBot){
+        show_bot(currentBot)
+        return
+    }
+    currentBot = steamid || null;
+    show_bot(currentBot)
 
     if(!steamid){ steamid = "None" }
 

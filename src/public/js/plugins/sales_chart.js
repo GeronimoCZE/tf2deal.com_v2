@@ -1,8 +1,9 @@
 import { round_ref } from './trade.js'
 
 // Item page "Sales": how many copies the bots sold each day (bars) and the most common price that day (line).
-// The data is the item's trade_history (each killstreak tier has its own): [{ date, volume, sell, key_price }] per day,
-// written by item_manager after each UTC day. Drawn as plain SVG, sized to the box, and redrawn when the box changes size.
+// The data is the item's trade_history (each killstreak tier has its own), one entry per day, written after each UTC
+// day: item_manager writes [{ date, volume, sell, key_price }], bot_manager [{ date, volume, sell_mode }] (no key
+// price: the item's current one is used). Drawn as plain SVG, sized to the box, and redrawn when the box changes size.
 
 const DAY = 24 * 60 * 60 * 1000
 const NS = 'http://www.w3.org/2000/svg'
@@ -40,6 +41,7 @@ const histories = (item) => {
 
 const init_sales_chart = (box, item) => {
     const data = histories(item)
+    const item_key = num(item?.bptf_data?.update_key_price)
     const plot = box.querySelector('.sales-plot')
     const total_el = box.querySelector('.sales-total')
     const tip = box.querySelector('.sales-tip')
@@ -62,7 +64,9 @@ const init_sales_chart = (box, item) => {
         for (let i = range; i >= 1; i--) {
             const date = day_of(today - i * DAY)
             const e = by_date.get(date)
-            days.push({ date, volume: num(e?.volume), price: e ? num(e.sell ?? e.price) : null, key: num(e?.key_price ?? e?.key) })
+            // a day whose copies had no recorded price has none (no point on the line), never 0 ref
+            const price = num(e?.sell ?? e?.sell_mode ?? e?.price)
+            days.push({ date, volume: num(e?.volume), price: price > 0 ? price : null, key: num(e?.key_price ?? e?.key) || item_key })
         }
         return days
     }
@@ -99,15 +103,15 @@ const init_sales_chart = (box, item) => {
         const bars_h = h * 0.28
 
         // price axis: a little room above and below, three lines
-        const prices = sales.map((d) => d.price)
+        const prices = sales.map((d) => d.price).filter((p) => p !== null)
         const key = sales[sales.length - 1].key
-        let lo = Math.min(...prices), hi = Math.max(...prices)
+        let lo = prices.length ? Math.min(...prices) : 0, hi = prices.length ? Math.max(...prices) : 0
         const span = (hi - lo) || Math.max(hi * 0.1, 1)
         lo = Math.max(lo - span * 0.25, 0); hi = hi + span * 0.25
         const y = (p) => pad.top + price_h - ((p - lo) / (hi - lo)) * price_h
         const in_keys = key > 0 && hi >= key
         const grid = svg('g', { class: 'sales-grid' })
-        for (let i = 0; i <= 2; i++) {
+        for (let i = 0; i <= 2 && prices.length; i++) {
             const value = lo + (hi - lo) * (i / 2)
             const gy = y(value)
             grid.append(svg('line', { x1: pad.left, x2: width - pad.right, y1: gy, y2: gy }))
@@ -139,7 +143,7 @@ const init_sales_chart = (box, item) => {
         })
 
         // price line through the days with sales
-        const points = days.map((d, i) => d.volume > 0 ? [x(i), y(d.price)] : null).filter(Boolean)
+        const points = days.map((d, i) => d.volume > 0 && d.price !== null ? [x(i), y(d.price)] : null).filter(Boolean)
         const line = svg('path', { class: 'sales-line', d: points.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ') })
         root.append(line)
         const dots = svg('g', { class: 'sales-dots' })
@@ -163,12 +167,15 @@ const init_sales_chart = (box, item) => {
             tip.innerHTML = ''
             const date = document.createElement('strong'); date.textContent = long_fmt.format(new Date(d.date))
             const sold = document.createElement('span'); sold.textContent = __('item.sales_sold', { count: d.volume })
-            const price = document.createElement('span'); price.textContent = `${__('item.sales_price')}: ${price_text(d.price, d.key)}`
-            tip.append(date, sold, price)
+            tip.append(date, sold)
+            if (d.price !== null) {
+                const price = document.createElement('span'); price.textContent = `${__('item.sales_price')}: ${price_text(d.price, d.key)}`
+                tip.append(price)
+            }
             tip.hidden = false
             const left = Math.min(Math.max(x(best) - tip.offsetWidth / 2, 0), width - tip.offsetWidth)
             tip.style.left = `${left}px`
-            tip.style.top = `${Math.max(y(d.price) - tip.offsetHeight - 12, 0)}px`
+            tip.style.top = `${Math.max((d.price !== null ? y(d.price) : pad.top + price_h) - tip.offsetHeight - 12, 0)}px`
         }
         hide_tip = () => { tip.hidden = true; guide.setAttribute('visibility', 'hidden'); rects.forEach((rect) => rect.classList.remove('on')) }
         hit.addEventListener('pointermove', show_tip)

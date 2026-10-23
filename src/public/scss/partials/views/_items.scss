@@ -223,13 +223,17 @@
                     }
                 }
             }
+            // picked: the filter's name sits above the chip as a small tab in the chip's colour, the chip shows the value
             &.selected{
-                .filter-name, .filter-value{
-                    display: inline-block;
-                }
                 .filter-name{
-                    margin-right: .4rem;
-                    font-size: 12px;
+                    position: absolute;
+                    top: -.45rem;
+                    left: 0;
+                    padding: 0 .35rem;
+                    font-size: 10px;
+                    line-height: 15px;
+                    border-radius: 5px 5px 0 0 !important;
+                    background: inherit;
                     color: var(--ink-3);
                 }
             }
