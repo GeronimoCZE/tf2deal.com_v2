@@ -453,7 +453,10 @@ const connectDB = async () => {
 
   mongoose.connection.on('disconnected', () => { process.db_status = { connected: false } ;});
   mongoose.connection.on('reconnected', () => { process.db_status = { connected: true } });
-  mongoose.connection.on('connected', () => { process.db_status = { connected: true } });
+  mongoose.connection.on('connected', () => {
+    process.db_status = { connected: true }
+    item_lists.refresh() // the item list is read before the first visitor asks for /items
+  });
 }
 
 const isItemserver = (handshake) => {

@@ -11,35 +11,58 @@
 //                         modal adds these names to the suggestions and shows "copies/limit" next to every name.
 //                         Every suggestion opens a page (no 404s).
 //   ks_page(name)         "Professional Killstreak Rocket Launcher" -> { bases: ['Rocket Launcher', ...], tier: 3 }
-//   refresh()             read the items again now (after the daily sweep marks old items inactive)
+//   refresh()             read the items again now (at the start, and after the daily sweep marks old items inactive)
 
 import crypto from 'crypto'
 import { item_model } from '../model/Item.js'
 import { display_name, to_ref } from './buy_link.js'
 
 const TTL = 60 * 1000
+const FIRST_WAIT = 5 * 1000 // how long a page waits for the very first read before it is shown without the list
+const QUERY_LIMIT = 2 * 60 * 1000 // the database gives up on a read after this long
+const SLOW = 5 * 1000 // reads slower than this are written to the log
 
-// load() at most once per ttl; everyone asking meanwhile waits for the same load. A failed refresh keeps the last list.
-// .reset() makes the next call load again.
-const cached = (load, ttl = TTL) => {
+// load() at most once per ttl, and nobody waits for it once there is a list: an older list is returned at once and read
+// again in the background (a page that waited for a slow read could time out behind Nginx or Cloudflare, 504).
+// Only before the first read does a call wait, at most FIRST_WAIT, then it throws and the caller does without.
+// A failed read keeps the last list. .reload() reads again now.
+const cached = (load, name, ttl = TTL) => {
   let value = null
   let time = 0
   let pending = null
-  const get = async () => {
-    if (value && Date.now() - time < ttl) return value
+  let started = 0
+  const reload = () => {
+    // a read that never ends (the database stopped answering) doesn't stop the next one
+    if (pending && Date.now() - started > QUERY_LIMIT + 30 * 1000) pending = null
     if (!pending) {
-      pending = load()
-        .then((result) => { value = result; time = Date.now(); return result })
-        .finally(() => { pending = null })
+      const began = started = Date.now()
+      const read = load()
+        .then((result) => {
+          value = result
+          time = Date.now()
+          const count = Array.isArray(result) ? result.length : result.cards.length
+          if (time - began > SLOW) console.warn(`${name}: ${count} read in ${((time - began) / 1000).toFixed(1)} s`)
+          return result
+        })
+        .finally(() => { if (pending === read) pending = null })
+      pending = read
     }
+    return pending
+  }
+  const get = async () => {
+    if (value) {
+      if (Date.now() - time >= ttl) reload().catch((error) => console.error(`${name}: read failed, the last list stays:`, error?.message || error))
+      return value
+    }
+    let timer
+    const waited = new Promise((resolve, reject) => { timer = setTimeout(() => reject(new Error(`${name} is still being read`)), FIRST_WAIT) })
     try {
-      return await pending
-    } catch (error) {
-      if (value) return value
-      throw error
+      return await Promise.race([reload(), waited])
+    } finally {
+      clearTimeout(timer)
     }
   }
-  get.reset = () => { time = 0 }
+  get.reload = reload
   return get
 }
 
@@ -52,11 +75,11 @@ const in_stock = cached(async () => {
     sell: { $gt: 0 },
     buy: { $gt: 0 },
     'stock.cur': { $gt: 0 }
-  }, { _id: 0, bp_sku: 1, name: 1, image: 1, type: 1, qualityID: 1, effectID: 1, sell: 1, 'stock.cur': 1, 'bptf_data.update_key_price': 1, classes: 1 }).lean()
+  }, { _id: 0, bp_sku: 1, name: 1, image: 1, type: 1, qualityID: 1, effectID: 1, sell: 1, 'stock.cur': 1, 'bptf_data.update_key_price': 1, classes: 1 }).maxTimeMS(QUERY_LIMIT).lean()
 
   const seen = new Set() // an item stored twice is shown once
   return docs.filter((doc) => doc.bp_sku && !seen.has(doc.bp_sku) && seen.add(doc.bp_sku))
-})
+}, 'Similar items')
 
 // how many classes two items share
 const shared_classes = (a, b) => {
@@ -72,8 +95,12 @@ const best = (docs, main) => docs
   .slice(0, 10)
   .map(({ doc }) => doc)
 
+const NO_SIMILAR = { sameName: [], sameEffect: [], sameTypeQuality: [] }
+
 const similar = async (main) => {
-  const docs = await in_stock()
+  // the item page doesn't wait for the first read: it is shown without similar items instead
+  const docs = await in_stock().catch(() => null)
+  if (!docs) return NO_SIMILAR
   const others = docs.filter((doc) => doc.bp_sku !== main.bp_sku)
 
   const same_effect = Number(main.effectID) > 0 ? others.filter((doc) => Number(doc.effectID) === Number(main.effectID)) : []
@@ -182,7 +209,7 @@ const index = cached(async () => {
     'bptf_data.update_key_price': 1, 'bptf_data.buyorders': 1, 'stock.limit': 1, 'stock.items.ks': 1,
     // the tiers without their sales history (item.killstreak, or item.killstreak.killstreaks in older records)
     ...Object.fromEntries(['ks_tier', 'kt', 'tier', 'buy', 'sell', 'limit', 'stock'].flatMap((field) => [[`killstreak.${field}`, 1], [`killstreak.killstreaks.${field}`, 1]]))
-  }).lean()
+  }).maxTimeMS(QUERY_LIMIT).lean()
 
   // an item stored twice is shown once, the copy with stock
   const by_name = new Map()
@@ -209,7 +236,7 @@ const index = cached(async () => {
     stock,
     built: Date.now()
   }
-})
+}, 'Item list')
 
 const escape_regex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 // "strasse" also finds "Straße" and the other way round, like the old database search
@@ -281,6 +308,10 @@ const stock = async () => {
   return { stock: all.stock, names_version: all.names_version }
 }
 
-const refresh = () => { index.reset(); return index().catch(() => null) }
+// reads the lists again now; the old lists are used until the new ones are ready
+const refresh = () => {
+  in_stock.reload().catch((error) => console.error('Similar items: read failed:', error?.message || error))
+  return index.reload().catch((error) => { console.error('Item list: read failed:', error?.message || error); return null })
+}
 
 export { similar, cards, public_card, names, stock, ks_page, ks_tier, refresh }
