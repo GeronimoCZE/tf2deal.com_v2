@@ -3132,6 +3132,9 @@ async function reset_pures_iit() {
 
 const item_tooltip = async (state, item, party) => {
     const tooltip = document.getElementById('item_tooltip');
+    // the page's content (.main-wrapper) is layered under the footer, so inside it the tooltip went behind the
+    // footer whatever its z-index; moved to <body> it shows above it
+    if(tooltip && tooltip.parentElement !== document.body){ document.body.append(tooltip) }
     if(state == "show"){
         if(item.getAttribute('class').includes('iit') && item.getAttribute('class').includes('pure')){ return false; }    
 

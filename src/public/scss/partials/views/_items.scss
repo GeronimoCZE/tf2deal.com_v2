@@ -1429,28 +1429,29 @@
                 display: flex;
                 flex-wrap: wrap;
                 gap: .5rem;
-                margin: 0 0 0 .5rem;
+                margin: .6rem 0 0 .5rem;
                 @include lt-sm{
                     justify-content: center;
-                    margin: 0 auto;
+                    margin: .6rem auto 0;
                 }
+                // the secondary button's purple (like Sell), so they read as buttons, not as the item's data
                 .item-link{
                     display: inline-flex;
                     align-items: center;
-                    gap: .35rem;
-                    padding: .35rem .75rem;
+                    gap: .4rem;
+                    padding: .5rem .95rem;
                     border-radius: var(--r-sm);
-                    background: var(--surface-2);
-                    color: var(--ink-2);
+                    background: var(--brand-muted);
+                    color: var(--ink);
                     font-size: 14px;
                     font-weight: 600;
                     text-decoration: none;
-                    transition: background 150ms ease, color 150ms ease; // colour only: no border, no size change
-                    &:hover{
-                        background: var(--surface-3);
+                    transition: background 150ms ease; // colour only: no border, no size change
+                    &:hover, &:focus-visible{
+                        background: var(--brand-muted-hover);
                         color: var(--ink);
                     }
-                    span{ color: var(--ink-3); }
+                    span{ color: var(--violet); }
                 }
             }
             .item-btns{
