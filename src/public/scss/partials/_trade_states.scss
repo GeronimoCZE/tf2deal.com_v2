@@ -292,6 +292,25 @@ $tt-line: rgba(255, 255, 255, 0.08);
             .desc-automatic{ font-size: 12.5px; color: var(--ink-3); }
         }
     }
+
+    // "Right-click for details", or "Tap here for details" on touch screens, where the item info window opens
+    // (js/plugins/item_info.js); on touch screens the tooltip then takes taps
+    .tooltip-hint{
+        display: none;
+        padding: 8px 16px 10px 16px;
+        border-top: 1px solid var(--line);
+        font-size: 12.5px;
+        color: var(--ink-3);
+        .hint-touch{ display: none; }
+    }
+    &.has-details .tooltip-hint{ display: block; }
+    @media (hover: none){
+        .tooltip-hint{
+            .hint-mouse{ display: none; }
+            .hint-touch{ display: inline; }
+        }
+        &.has-details{ pointer-events: auto; cursor: pointer; }
+    }
 }
 
 @keyframes offerIn {

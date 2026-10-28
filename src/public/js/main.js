@@ -7,6 +7,7 @@ import * as items from "./plugins/items.js";
 import {init_latest_trades} from "./plugins/latest_trades.js";
 import "./plugins/notifications.js";
 import * as buy_link from "./plugins/buy_link.js";
+import * as item_info from "./plugins/item_info.js";
 import {init_sales_chart} from "./plugins/sales_chart.js";
 
 const particles = JSON.parse(localStorage.getItem('unusual_effects'))
@@ -73,7 +74,8 @@ const modals = {
     "search": { class: "searchbar", lock: false },
     "select_items": { class: "modal select_items", lock: false },
     "trade_offer": { class: "modal trade_offer", lock: false },
-    "buy_link": { class: "modal buy_link", lock: false }
+    "buy_link": { class: "modal buy_link", lock: false },
+    "item_info": { class: "modal item_info", lock: false }
 }
 
 const chat = document.querySelector('#chatRoom')
@@ -870,6 +872,9 @@ addEventListener('DOMContentLoaded', (event) => {
                     trade.item_tooltip('hide')
                 }
             })
+            // right-click on an item (both inventories and the trade window), or a tap on its tooltip: the item info window
+            item_info.watch(document.querySelector('.index-ps'), (el) => el.parentElement.getAttribute('id').replace('-grid', ''))
+            item_info.watch_tooltip()
 
             document.querySelectorAll('.trade-inv-window').forEach(el => {
                 const party = el.classList[1].replace('-window', '')
@@ -1253,6 +1258,9 @@ addEventListener('DOMContentLoaded', (event) => {
                     trade.item_tooltip('hide')
                 }
             })
+            // right-click on a Buy / Sell item, or a tap on its tooltip: the item info window
+            item_info.watch(document.querySelector('.item-page'), () => trade.ItemTrade.party)
+            item_info.watch_tooltip()
 
             document.querySelector('.item-page').addEventListener('click', function(e){
                 if(e.target.classList[0] == 'item' && !e.target.classList.contains('over-stocked')){

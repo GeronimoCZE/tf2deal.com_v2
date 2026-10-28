@@ -1322,7 +1322,13 @@ const single_stock = () => {
 //   - its killstreak tier's price from item.killstreak (the pricing server's estimate; for cheap weapons it is
 //     often the plain weapon's price, so it must not win over the copy's own price),
 //   - the item's price.
-const copy_price = (own, tier, base) => Math.max(Number(own) || 0, Number(tier) || 0, Number(base) || 0);
+// A copy worth less than one scrap is a half-scrap item: the trade counts it as HALF_SCRAP whatever its own price,
+// so it shows the item's half-scrap price (0.05 ref) too, not a copy price like 0.08 the bot server sends with it.
+const copy_price = (own, tier, base) => {
+    const price = Math.max(Number(own) || 0, Number(tier) || 0, Number(base) || 0);
+    if(!is_half_scrap(price)){ return price; }
+    return is_half_scrap(base) ? Number(base) : 0.05;
+}
 
 // price in ref of one asset (or of a tier number) on the item page, the same way as trade_price:
 // the highest of the copy's own price (the bot server's price for that exact copy), its killstreak tier's
@@ -3130,6 +3136,10 @@ async function reset_pures_iit() {
 }
 
 
+// the item the tooltip shows, for the item info window: on touch screens a tap on the tooltip opens it
+// (plugins/item_info.js, set up in main.js)
+const tooltip_item = { el: null, party: null };
+
 const item_tooltip = async (state, item, party) => {
     const tooltip = document.getElementById('item_tooltip');
     // the page's content (.main-wrapper) is layered under the footer, so inside it the tooltip went behind the
@@ -3137,6 +3147,11 @@ const item_tooltip = async (state, item, party) => {
     if(tooltip && tooltip.parentElement !== document.body){ document.body.append(tooltip) }
     if(state == "show"){
         if(item.getAttribute('class').includes('iit') && item.getAttribute('class').includes('pure')){ return false; }    
+        // "Right-click for details" (or "Tap here" on touch screens) where the item info window opens
+        const details = has_details(item, party);
+        tooltip.classList.toggle('has-details', details);
+        tooltip_item.el = details ? item : null;
+        tooltip_item.party = details ? party : null;
 
         if(item.getAttribute('class').includes('item')){
             const showTooltip = (itemDesc) => {
@@ -3168,9 +3183,11 @@ const item_tooltip = async (state, item, party) => {
                             tooltip.querySelector('.item-desc .desc_price .ref_price').style.display = 'block';
                         }
 
-                        if(typeof itemDesc?.custom_name == "string"){
+                        // a renamed copy shows its name ("Name Tag"); the bot server sends it in at.customName
+                        const custom_name = custom_text(Item?.at?.customName) || custom_text(itemDesc?.custom_name);
+                        if(custom_name){
                             tooltip.querySelector('.item-desc .descs_ .desc_cname').style.display = 'flex';
-                            tooltip.querySelector('.item-desc .descs_ .desc_cname .value').textContent = itemDesc?.custom_name;
+                            tooltip.querySelector('.item-desc .descs_ .desc_cname .value').textContent = `"${custom_name}"`;
                         }
 
                         if((typeof itemDesc.buy == "number" || typeof itemDesc.sell == "number") && typeof itemDesc?.bptf_data?.update_key_price == "number"){
@@ -3425,6 +3442,83 @@ const item_tooltip = async (state, item, party) => {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Item details: everything the site knows about one copy, for the item info window (plugins/item_info.js), which
+// opens with a right-click on an item, or a tap on its tooltip on touch screens. On the trade page (party 'user' or
+// 'site': both inventories and the trade window) and on the item page (party 'trade-user' or 'trade-site').
+// ---------------------------------------------------------------------------
+
+// a name or description someone typed on the item: text only, never longer than TF2 allows
+const custom_text = (value) => (typeof value == 'string' && value.trim()) ? value.trim().replace(/^''|''$/g, '').slice(0, 200) : '';
+
+const DETAIL_PARTIES = ['user', 'site', 'trade-user', 'trade-site'];
+const has_details = (item_el, party) => DETAIL_PARTIES.includes(party) && !!item_el?.classList?.contains('item') &&
+    !item_el.classList.contains('pure') && read_assetids(item_el).length > 0;
+
+// Steam's "Inspect in Game..." link, as the bot server keeps it: whole, or with Steam's %owner_steamid% and %assetid%
+// still in it. Only a TF2 inspect link gets through.
+const inspect_link = (link, owner, assetid) => {
+    if(typeof link != 'string') return null;
+    const full = link.trim().replace('%owner_steamid%', owner || '').replace('%assetid%', assetid || '');
+    return /^steam:\/\/rungame\/440\/\d+\/\+tf_econ_item_preview(%20| )[A-Za-z0-9]+$/.test(full) ? full : null;
+}
+
+const item_details = (item_el, party) => {
+    if(!has_details(item_el, party)) return null;
+    const assetid = read_assetids(item_el)[0];
+    const bot = item_el.getAttribute('data-bot');
+    const page = party.startsWith('trade-');
+    const site = party == 'site' || party == 'trade-site';
+
+    let desc, copy;
+    if(page){
+        desc = page_item() || {};
+        copy = ItemTrade.items?.find((c) => c.a == assetid && (!site || !bot || c.ownerId == bot));
+    } else {
+        desc = (site ? SiteTrade : UserTrade).inventory?.find((x) => x.bp_sku == item_el.getAttribute('data-name')) || {};
+        copy = site ? desc?.stock?.items?.find((c) => c.a == assetid) : desc?.user_stock?.find((c) => c.a == assetid);
+    }
+    copy = copy || {};
+    const at = copy.at || {};
+    const owner = site ? (copy.ownerId || bot || '') : ((typeof user != 'undefined' && user != 'no_session') ? user : '');
+    const effects = (() => { try { return JSON.parse(localStorage.getItem('unusual_effects')) || [] } catch (e) { return [] } })();
+    const effectID = Number(desc.effectID ?? item_el.getAttribute('data-effect')) || 0;
+    const list = (value) => (Array.isArray(value) ? value : [value]).filter((v) => typeof v == 'string' && v.trim());
+
+    return {
+        party: site ? 'site' : 'user',
+        name: item_el.getAttribute('data-bp_sku') || desc.bp_sku || item_el.getAttribute('data-name') || '',
+        bp_sku: desc.bp_sku || item_el.getAttribute('data-name') || '',
+        base_name: desc.name || '',
+        steam_sku: desc.steam_sku || '',
+        image: item_el.querySelector('img')?.getAttribute('src') || '',
+        qualityID: String(desc.qualityID ?? item_el.getAttribute('data-quality') ?? ''),
+        effectID,
+        effect: effectID > 0 ? (effects.find((e) => e.ID == effectID)?.name || '') : '',
+        type: desc.type || item_el.getAttribute('data-type') || '',
+        classes: Array.isArray(desc.classes) ? desc.classes : [],
+        craftable: !String(desc.bp_sku || item_el.getAttribute('data-name') || '').includes('Non-Craftable'),
+        ks: Number(copy.ks) || 0,
+        festivized: Number(copy.f) > 0,
+        killstreaker: list(at.killstreaker)[0] || '',
+        sheen: list(at.sheen)[0] || '',
+        paint: list(at.paint)[0] || '',
+        spells: list(at.spells),
+        parts: list(at.strangeParts),
+        custom_name: custom_text(at.customName) || custom_text(desc.custom_name),
+        custom_desc: custom_text(at.customDesc),
+        inspect: inspect_link(at.inspect, owner, assetid),
+        assetid,
+        copies: read_assetids(item_el).length,
+        owner,
+        bot_name: site ? (SiteTrade.bot_names?.get(owner) || '') : '',
+        // what the tile says: the site's price for a bot item, what the bots pay for the visitor's
+        price: Number(item_el.getAttribute('data-price')) || 0,
+        key_price: Number(page ? itemKey : desc?.bptf_data?.update_key_price) || 0,
+        not_buying: item_el.classList.contains('over-stocked')
+    };
+}
+
 // on_result(ok) is called once the site answers (the buy link modal uses it for its button);
 // false is returned when nothing was sent
 const create_trade = async (type, data, on_result) => {
@@ -3579,7 +3673,7 @@ const put_novalue_last = (party) => {
 
 export {
     load_user_inventory, load_user_inventory_single, load_site_inventory, load_site_inventory_single,
-    item_tooltip, render_items,
+    item_tooltip, render_items, tooltip_item, item_details,
     setBot, set_filter, pick_filter, apply_filters, reset_filters, search, item_to_trade, single_item_to_trade, clear_single_items, clear_items, round_ref,
     group_assets, stack_sig,
     ks_tiers, ks_name, single_price, price_text,

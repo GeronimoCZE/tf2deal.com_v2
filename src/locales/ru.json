@@ -156,7 +156,9 @@
     "spells": "Заклинания:",
     "strange_parts": "Strange-детали:",
     "stock_is": "В наличии:",
-    "pure_auto": "Pure автоматически добавляется в текущий обмен."
+    "pure_auto": "Pure автоматически добавляется в текущий обмен.",
+    "details_mouse": "Правый клик — подробности",
+    "details_touch": "Нажмите сюда для подробностей"
   },
   "faq": {
     "title": "Часто задаваемые вопросы",
@@ -543,6 +545,39 @@
       "sign_in_note": "Войдите, чтобы купить этот предмет. После входа вы вернётесь на эту страницу.",
       "note": "Наш бот пришлёт вам предложение обмена в Steam с этим предметом. Проверьте его перед принятием.",
       "from_bot": "Бот: {name}"
+    },
+    "item_info": {
+      "title": "Подробности о предмете",
+      "price_buy": "Вы платите",
+      "price_sell": "Мы платим",
+      "not_buying": "Сейчас мы не покупаем этот предмет.",
+      "quality": "Качество",
+      "type": "Тип",
+      "classes": "Классы",
+      "all_classes": "Все классы",
+      "killstreak": "Killstreak",
+      "killstreaker": "Killstreaker",
+      "sheen": "Сияние",
+      "paint": "Краска",
+      "spells": "Заклинания",
+      "parts": "Странные детали",
+      "festivized": "Festivized",
+      "craftable": "Можно создавать",
+      "yes": "Да",
+      "no": "Нет",
+      "bot": "Бот",
+      "assetid": "ID предмета",
+      "copies": "{count} шт.",
+      "inspect": "Осмотреть в игре",
+      "no_inspect": "У этого предмета нет ссылки для осмотра",
+      "links": "Ссылки",
+      "item_page": "Страница предмета",
+      "bptf_prices": "Цены на backpack.tf",
+      "bptf_history": "История на backpack.tf",
+      "wiki": "TF2 Wiki",
+      "market": "Торговая площадка Steam",
+      "inventory": "Инвентарь Steam",
+      "close": "Закрыть"
     }
   },
   "items": {

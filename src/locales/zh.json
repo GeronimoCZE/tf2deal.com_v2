@@ -156,7 +156,9 @@
     "spells": "法术：",
     "strange_parts": "Strange 部件：",
     "stock_is": "库存为",
-    "pure_auto": "通货（钥匙和金属）会自动添加到当前交易中。"
+    "pure_auto": "通货（钥匙和金属）会自动添加到当前交易中。",
+    "details_mouse": "右键查看详情",
+    "details_touch": "点击此处查看详情"
   },
   "faq": {
     "title": "常见问题",
@@ -543,6 +545,39 @@
       "sign_in_note": "登录后即可购买此物品，登录后会回到此页面。",
       "note": "我们的机器人会向你发送此物品的 Steam 交易报价，接受前请先核对。",
       "from_bot": "来自 {name}"
+    },
+    "item_info": {
+      "title": "物品详情",
+      "price_buy": "您支付",
+      "price_sell": "我们支付",
+      "not_buying": "我们目前不收购此物品。",
+      "quality": "品质",
+      "type": "类型",
+      "classes": "兵种",
+      "all_classes": "全兵种",
+      "killstreak": "Killstreak",
+      "killstreaker": "Killstreaker",
+      "sheen": "光泽",
+      "paint": "油漆",
+      "spells": "法术",
+      "parts": "奇异部件",
+      "festivized": "Festivized",
+      "craftable": "可合成",
+      "yes": "是",
+      "no": "否",
+      "bot": "机器人",
+      "assetid": "物品 ID",
+      "copies": "{count} 件",
+      "inspect": "在游戏中检视",
+      "no_inspect": "此物品没有检视链接",
+      "links": "链接",
+      "item_page": "物品页面",
+      "bptf_prices": "backpack.tf 价格",
+      "bptf_history": "backpack.tf 历史",
+      "wiki": "TF2 Wiki",
+      "market": "Steam 市场",
+      "inventory": "Steam 库存",
+      "close": "关闭"
     }
   },
   "items": {

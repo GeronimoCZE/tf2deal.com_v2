@@ -156,7 +156,9 @@
     "spells": "Zauber:",
     "strange_parts": "Strange Parts:",
     "stock_is": "Der Bestand liegt bei",
-    "pure_auto": "Pure wird automatisch zum aktuellen Trade hinzugefügt."
+    "pure_auto": "Pure wird automatisch zum aktuellen Trade hinzugefügt.",
+    "details_mouse": "Rechtsklick für Details",
+    "details_touch": "Hier tippen für Details"
   },
   "faq": {
     "title": "Häufig gestellte Fragen",
@@ -543,6 +545,39 @@
       "sign_in_note": "Melde dich an, um diesen Gegenstand zu kaufen. Danach kommst du auf diese Seite zurück.",
       "note": "Unser Bot schickt dir ein Steam-Tauschangebot für diesen Gegenstand. Prüfe es, bevor du es annimmst.",
       "from_bot": "Von {name}"
+    },
+    "item_info": {
+      "title": "Item-Details",
+      "price_buy": "Du zahlst",
+      "price_sell": "Wir zahlen",
+      "not_buying": "Wir kaufen dieses Item gerade nicht.",
+      "quality": "Qualität",
+      "type": "Typ",
+      "classes": "Klassen",
+      "all_classes": "Alle Klassen",
+      "killstreak": "Killstreak",
+      "killstreaker": "Killstreaker",
+      "sheen": "Sheen",
+      "paint": "Farbe",
+      "spells": "Zauber",
+      "parts": "Strange-Teile",
+      "festivized": "Festivized",
+      "craftable": "Herstellbar",
+      "yes": "Ja",
+      "no": "Nein",
+      "bot": "Bot",
+      "assetid": "Asset-ID",
+      "copies": "{count} Stück",
+      "inspect": "Im Spiel ansehen",
+      "no_inspect": "Kein Ansehen-Link für dieses Item",
+      "links": "Links",
+      "item_page": "Item-Seite",
+      "bptf_prices": "Preise auf backpack.tf",
+      "bptf_history": "Verlauf auf backpack.tf",
+      "wiki": "TF2 Wiki",
+      "market": "Steam-Markt",
+      "inventory": "Steam-Inventar",
+      "close": "Schließen"
     }
   },
   "items": {

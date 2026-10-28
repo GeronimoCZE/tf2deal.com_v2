@@ -156,7 +156,9 @@
     "spells": "Kouzla:",
     "strange_parts": "Strange Parts:",
     "stock_is": "Stav skladu je",
-    "pure_auto": "Pure se automaticky přidá do aktuální výměny."
+    "pure_auto": "Pure se automaticky přidá do aktuální výměny.",
+    "details_mouse": "Pravým tlačítkem zobrazíte detail",
+    "details_touch": "Klepněte sem pro detail"
   },
   "faq": {
     "title": "Často kladené dotazy",
@@ -543,6 +545,39 @@
       "sign_in_note": "Pro nákup se přihlaste. Potom se vrátíte na tuto stránku.",
       "note": "Náš bot vám pošle nabídku výměny na Steamu. Před přijetím ji zkontrolujte.",
       "from_bot": "Od {name}"
+    },
+    "item_info": {
+      "title": "Detail předmětu",
+      "price_buy": "Zaplatíte",
+      "price_sell": "Zaplatíme",
+      "not_buying": "Tento předmět teď nevykupujeme.",
+      "quality": "Kvalita",
+      "type": "Typ",
+      "classes": "Třídy",
+      "all_classes": "Všechny třídy",
+      "killstreak": "Killstreak",
+      "killstreaker": "Killstreaker",
+      "sheen": "Sheen",
+      "paint": "Barva",
+      "spells": "Kouzla",
+      "parts": "Strange části",
+      "festivized": "Festivized",
+      "craftable": "Lze craftit",
+      "yes": "Ano",
+      "no": "Ne",
+      "bot": "Bot",
+      "assetid": "ID předmětu",
+      "copies": "{count} kusů",
+      "inspect": "Prohlédnout ve hře",
+      "no_inspect": "Tento předmět nemá odkaz na prohlédnutí",
+      "links": "Odkazy",
+      "item_page": "Stránka předmětu",
+      "bptf_prices": "Ceny na backpack.tf",
+      "bptf_history": "Historie na backpack.tf",
+      "wiki": "TF2 Wiki",
+      "market": "Steam Market",
+      "inventory": "Inventář na Steamu",
+      "close": "Zavřít"
     }
   },
   "items": {
