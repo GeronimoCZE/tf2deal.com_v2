@@ -51,7 +51,12 @@ const cached = (load, name, ttl = TTL) => {
   }
   const get = async () => {
     if (value) {
-      if (Date.now() - time >= ttl) reload().catch((error) => console.error(`${name}: read failed, the last list stays:`, error?.message || error))
+      if (Date.now() - time >= ttl) {
+        // every page asks while a read runs: the failure is written to the log once, by the page that started it
+        const before = pending
+        const read = reload()
+        if (read !== before) read.catch((error) => console.error(`${name}: read failed, the last list stays:`, error?.message || error))
+      }
       return value
     }
     let timer
@@ -209,21 +214,36 @@ const index = cached(async () => {
 
   // an item stored twice is shown once, the copy with stock
   const by_name = new Map()
-  for await (const doc of cursor) {
-    if (!doc.bp_sku) continue
-    const copies = doc.stock?.items?.length || 0
-    const kept = by_name.get(doc.bp_sku)
-    if (kept && copies <= kept.copies) continue
-    by_name.set(doc.bp_sku, {
-      copies,
-      active: doc.status == 1,
-      limit: Number(doc.stock?.limit) || 0,
-      // the /items list: active items and the ones the bots hold copies of (status 2 items only have a page)
-      cards: doc.status == 1 || copies > 0 ? item_cards(doc) : [],
-      // the item page's similar items: the ones in stock
-      similar: Number(doc.stock?.cur) > 0 ? similar_entry(doc) : null
-    })
+  // A read slower than QUERY_LIMIT stops where it is and the last list stays. On a busy database, reads that went on
+  // after that ran side by side with the next ones (cached starts a new read after QUERY_LIMIT + 30 s) and their lists
+  // added up until the site ran out of memory.
+  let too_slow = false
+  const timer = setTimeout(() => {
+    too_slow = true
+    by_name.clear() // a read stuck waiting for the database keeps nothing meanwhile
+    Promise.resolve().then(() => cursor.close()).catch(() => {})
+  }, QUERY_LIMIT)
+  try {
+    for await (const doc of cursor) {
+      if (too_slow) break
+      if (!doc.bp_sku) continue
+      const copies = doc.stock?.items?.length || 0
+      const kept = by_name.get(doc.bp_sku)
+      if (kept && copies <= kept.copies) continue
+      by_name.set(doc.bp_sku, {
+        copies,
+        active: doc.status == 1,
+        limit: Number(doc.stock?.limit) || 0,
+        // the /items list: active items and the ones the bots hold copies of (status 2 items only have a page)
+        cards: doc.status == 1 || copies > 0 ? item_cards(doc) : [],
+        // the item page's similar items: the ones in stock
+        similar: Number(doc.stock?.cur) > 0 ? similar_entry(doc) : null
+      })
+    }
+  } finally {
+    clearTimeout(timer)
   }
+  if (too_slow) throw new Error(`still reading after ${QUERY_LIMIT / 1000} s`)
   const pages = [...by_name.values()]
   const cards = pages.flatMap((page) => page.cards)
   // the items the bots trade; what's in stock (other items and killstreak versions too) comes with stock(), which the

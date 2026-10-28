@@ -65,11 +65,15 @@ const build = async () => {
   // the items the bots really trade (the same rule as the item page's noindex), each one once, in every language
   const items = await Items.find(fn.SITEMAP_ITEMS_QUERY, { _id: 0, bp_sku: 1 }).lean()
   const names = [...new Set(items.map((item) => item.bp_sku).filter(Boolean))].sort()
-  const item_urls = names.flatMap((bp_sku) => LANGS.map((lang) => ({ ...ITEM, loc: page_url(lang, '/items/' + encodeURIComponent(bp_sku)) })))
+  // only the items that fit in the file get their URLs made (all of them were 275,000 URLs in a test with 45,000 items)
+  const room = Math.max(MAX_URLS - pages.length - blog.length, 0)
+  const item_urls = names.slice(0, Math.ceil(room / LANGS.length))
+    .flatMap((bp_sku) => LANGS.map((lang) => ({ ...ITEM, loc: page_url(lang, '/items/' + encodeURIComponent(bp_sku)) })))
 
-  const urls = [...pages, ...blog, ...item_urls]
-  if (urls.length > MAX_URLS) console.log(`Sitemap: ${urls.length} URLs, only the first ${MAX_URLS} fit in one file`)
-  return { time: Date.now(), xml: urlset(urls.slice(0, MAX_URLS)), urls: Math.min(urls.length, MAX_URLS) }
+  const total = pages.length + blog.length + names.length * LANGS.length
+  if (total > MAX_URLS) console.log(`Sitemap: ${total} URLs, only the first ${MAX_URLS} fit in one file`)
+  const urls = [...pages, ...blog, ...item_urls].slice(0, MAX_URLS)
+  return { time: Date.now(), xml: urlset(urls), urls: urls.length }
 }
 
 // the sitemap, rebuilt when older than CACHE_MS (one build at a time; a failed build keeps the last good one while it
