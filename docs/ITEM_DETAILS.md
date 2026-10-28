@@ -1,7 +1,7 @@
 # Item details: custom names, custom descriptions, inspect links
 
 A right-click on an item on the trade page or on the item page (Buy / Sell) opens a window with everything about
-that copy: quality, type, classes, killstreak, paint, spells, parts, its asset ID, links (item page, backpack.tf,
+that copy: quality, type, classes, killstreak, paint, spells, parts, the bot, links (item page, backpack.tf,
 TF2 Wiki, Steam Market, Steam inventory) and **Inspect in game**. On phones and tablets a tap on the item's tooltip
 opens it. A renamed item also shows its custom name in the tooltip.
 

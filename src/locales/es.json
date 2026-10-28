@@ -566,8 +566,6 @@
       "yes": "Sí",
       "no": "No",
       "bot": "Bot",
-      "assetid": "ID del objeto",
-      "copies": "{count} copias",
       "inspect": "Inspeccionar en el juego",
       "no_inspect": "Este objeto no tiene enlace de inspección",
       "links": "Enlaces",
