@@ -1,7 +1,8 @@
 // One XML sitemap, built from the database when a search engine asks (no file on disk): /sitemap.xml.
 // The main pages come first with the highest priority, then blog posts, then every item page at 0.4,
 // each in every language it exists in. /sitemap_index.xml and the old /sitemaps/*.xml files redirect to it.
-// The built file is kept for CACHE_MS, so a crawler doesn't query the database on every request.
+// The built file is used for CACHE_MS, so a crawler doesn't query the database on every request, and let go after twice
+// that (it can be several MB, and crawlers ask for it rarely).
 
 import { item_model as Items } from '../model/Item.js'
 import { blog_model } from '../model/Blog.js'
@@ -71,11 +72,16 @@ const build = async () => {
   return { time: Date.now(), xml: urlset(urls.slice(0, MAX_URLS)), urls: Math.min(urls.length, MAX_URLS) }
 }
 
-// the sitemap, rebuilt when older than CACHE_MS (one build at a time; a failed build keeps the last good one)
+// the sitemap, rebuilt when older than CACHE_MS (one build at a time; a failed build keeps the last good one while it
+// is still kept)
 const current = async () => {
   if (cache && Date.now() - cache.time < CACHE_MS) return cache
   building = building || build()
-    .then((built) => { cache = built; return built })
+    .then((built) => {
+      cache = built
+      setTimeout(() => { if (cache === built) cache = null }, 2 * CACHE_MS).unref()
+      return built
+    })
     .catch((error) => {
       console.log('Sitemap build failed:', error?.message || error)
       if (cache) return cache

@@ -110,11 +110,16 @@ export const build_name_index = (list) => {
   return index
 }
 
-let names_cache = { index: null, loaded: 0 }
+// kept while translations run (a sweep translates many texts in a row), then let go: it holds every item name
+const NAMES_KEEP = 15 * 60 * 1000
+let names_cache = { index: null, loaded: 0, timer: null }
 const load_names = async () => {
-  if (names_cache.index && Date.now() - names_cache.loaded < 60 * 60 * 1000) return names_cache.index // refreshed hourly
+  if (names_cache.index && Date.now() - names_cache.loaded < NAMES_KEEP) return names_cache.index
   const list = [...await item_model.distinct('bp_sku'), ...await item_model.distinct('name')]
-  names_cache = { index: build_name_index(list), loaded: Date.now() }
+  clearTimeout(names_cache.timer)
+  const timer = setTimeout(() => { names_cache = { index: null, loaded: 0, timer: null } }, NAMES_KEEP)
+  timer.unref()
+  names_cache = { index: build_name_index(list), loaded: Date.now(), timer }
   return names_cache.index
 }
 

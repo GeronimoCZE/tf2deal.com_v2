@@ -1,7 +1,6 @@
 import express from 'express';
 import SteamID from 'steamid';
 import rateLimit from 'express-rate-limit';
-import apicache from 'apicache';
 import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -39,7 +38,6 @@ for (const method of ['get', 'post']) {
   }));
 }
 
-const cache = apicache.middleware;
 
 const inv_limiter = rateLimit({
   windowMs: 5 * 60 * 1000,
@@ -252,8 +250,6 @@ router.post('/inventory', isLogged, inv_limiter, async (req, res) => {
         return response.json() 
       })
       .then((response) => {
-        console.log(response);
-        
         res_sent = true;
         if(response?.success == 1){
           if(app.users.has(steamid)){
@@ -307,8 +303,6 @@ router.post('/inventory/:bp_sku', isLogged, inv_limiter, async (req, res) => {
         return response.json() 
       })
       .then((response) => {
-        console.log(response);
-        
         res_sent = true;
         if(response?.success == 1){
           if(app.users.has(steamid)){

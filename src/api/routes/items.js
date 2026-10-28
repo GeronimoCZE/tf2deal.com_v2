@@ -2,15 +2,12 @@ import express from 'express';
 export const router = express.Router();
 
 import rateLimit from 'express-rate-limit';
-import apicache from 'apicache';
 import mongoose from 'mongoose';
 import {item_model as Instance} from '../../model/Item.js'; // add .js if using ES modules with Node
 import { type } from 'os';
 import { log } from 'console';
 import { safe_equal } from '../../service/settings.js';
 import * as item_lists from '../../service/item_lists.js';
-
-const cache = apicache.middleware;
 
 // the /items list asks again on every filter change, so a few quick clicks have to fit
 const items_rate_limit = rateLimit({

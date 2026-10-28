@@ -1,6 +1,7 @@
 // Item lists that many page views share, kept in memory for a short while. Item pages, the /items pages, the item
 // list API and the search modal then cost one small lookup each, instead of a pass over the whole item collection per
-// request (search engines open thousands of item pages in a row).
+// request (search engines open thousands of item pages in a row). All of them come from one read of the items, at most
+// once a minute.
 //
 //   similar(item)         the item page's "similar items": same name, same unusual effect, same type and quality
 //   cards(filters, sort)  the /items list (/api/items and the plain-HTML /items pages): a card per item, plus a card per
@@ -40,8 +41,7 @@ const cached = (load, name, ttl = TTL) => {
         .then((result) => {
           value = result
           time = Date.now()
-          const count = Array.isArray(result) ? result.length : result.cards.length
-          if (time - began > SLOW) console.warn(`${name}: ${count} read in ${((time - began) / 1000).toFixed(1)} s`)
+          if (time - began > SLOW) console.warn(`${name}: ${result.cards.length} read in ${((time - began) / 1000).toFixed(1)} s`)
           return result
         })
         .finally(() => { if (pending === read) pending = null })
@@ -68,18 +68,11 @@ const cached = (load, name, ttl = TTL) => {
 
 /* ========================= SIMILAR ITEMS ========================= */
 
-// The priced items the bots have in stock: the only ones the similar-item rows show
-const in_stock = cached(async () => {
-  const docs = await item_model.find({
-    $or: [{ status: { $in: [1, 2] } }, { 'stock.items.0': { $exists: true } }],
-    sell: { $gt: 0 },
-    buy: { $gt: 0 },
-    'stock.cur': { $gt: 0 }
-  }, { _id: 0, bp_sku: 1, name: 1, image: 1, type: 1, qualityID: 1, effectID: 1, sell: 1, 'stock.cur': 1, 'bptf_data.update_key_price': 1, classes: 1 }).maxTimeMS(QUERY_LIMIT).lean()
-
-  const seen = new Set() // an item stored twice is shown once
-  return docs.filter((doc) => doc.bp_sku && !seen.has(doc.bp_sku) && seen.add(doc.bp_sku))
-}, 'Similar items')
+// what a similar-item card shows of an item the bots have in stock (index() keeps one per such item)
+const similar_entry = (doc) => ({
+  bp_sku: doc.bp_sku, name: doc.name, image: doc.image, type: doc.type, qualityID: doc.qualityID, effectID: doc.effectID,
+  sell: doc.sell, stock: { cur: doc.stock.cur }, bptf_data: { update_key_price: doc.bptf_data?.update_key_price }, classes: doc.classes
+})
 
 // how many classes two items share
 const shared_classes = (a, b) => {
@@ -99,9 +92,10 @@ const NO_SIMILAR = { sameName: [], sameEffect: [], sameTypeQuality: [] }
 
 const similar = async (main) => {
   // the item page doesn't wait for the first read: it is shown without similar items instead
-  const docs = await in_stock().catch(() => null)
-  if (!docs) return NO_SIMILAR
-  const others = docs.filter((doc) => doc.bp_sku !== main.bp_sku)
+  const all = await index().catch(() => null)
+  if (!all) return NO_SIMILAR
+  // the priced items the bots have in stock: the only ones the similar-item rows show
+  const others = all.in_stock.filter((doc) => doc.bp_sku !== main.bp_sku)
 
   const same_effect = Number(main.effectID) > 0 ? others.filter((doc) => Number(doc.effectID) === Number(main.effectID)) : []
 
@@ -196,36 +190,48 @@ const item_cards = (doc) => {
   return list.filter((card) => !(card.sell / card.buy > 30) && !(card.sell > 100000 * 100))
 }
 
-// every priced item whose page opens (routes/router.js find_page_item), read at most once a minute
+// every priced item whose page opens (routes/router.js find_page_item), read at most once a minute.
+// The items come from the database a few hundred at a time and only what the lists need is kept of each: with the
+// whole collection loaded at once, every read made the site's memory jump by hundreds of MB.
 const index = cached(async () => {
   // without the database the last list stays (cached keeps it), and a request doesn't wait for a reconnect
   if (process.db_status?.connected !== true) throw new Error('no database')
-  const docs = await item_model.find({
+  const cursor = item_model.find({
     $or: [{ status: { $in: [1, 2] } }, { 'stock.items.0': { $exists: true } }],
     sell: { $gt: 0 },
     buy: { $gt: 0 }
   }, {
     _id: 0, bp_sku: 1, name: 1, type: 1, classes: 1, qualityID: 1, effectID: 1, image: 1, status: 1, buy: 1, sell: 1,
-    'bptf_data.update_key_price': 1, 'bptf_data.buyorders': 1, 'stock.limit': 1, 'stock.items.ks': 1,
+    'bptf_data.update_key_price': 1, 'bptf_data.buyorders': 1, 'stock.limit': 1, 'stock.cur': 1, 'stock.items.ks': 1,
     // the tiers without their sales history (item.killstreak, or item.killstreak.killstreaks in older records)
     ...Object.fromEntries(['ks_tier', 'kt', 'tier', 'buy', 'sell', 'limit', 'stock'].flatMap((field) => [[`killstreak.${field}`, 1], [`killstreak.killstreaks.${field}`, 1]]))
-  }).maxTimeMS(QUERY_LIMIT).lean()
+  }).maxTimeMS(QUERY_LIMIT).lean().cursor({ batchSize: 500 })
 
   // an item stored twice is shown once, the copy with stock
   const by_name = new Map()
-  for (const doc of docs) {
+  for await (const doc of cursor) {
+    if (!doc.bp_sku) continue
+    const copies = doc.stock?.items?.length || 0
     const kept = by_name.get(doc.bp_sku)
-    if (doc.bp_sku && (!kept || (doc.stock?.items?.length || 0) > (kept.stock?.items?.length || 0))) by_name.set(doc.bp_sku, doc)
+    if (kept && copies <= kept.copies) continue
+    by_name.set(doc.bp_sku, {
+      copies,
+      active: doc.status == 1,
+      limit: Number(doc.stock?.limit) || 0,
+      // the /items list: active items and the ones the bots hold copies of (status 2 items only have a page)
+      cards: doc.status == 1 || copies > 0 ? item_cards(doc) : [],
+      // the item page's similar items: the ones in stock
+      similar: Number(doc.stock?.cur) > 0 ? similar_entry(doc) : null
+    })
   }
   const pages = [...by_name.values()]
-  // the /items list: active items and the ones the bots hold copies of (status 2 items only have a page)
-  const cards = pages.filter((doc) => doc.status == 1 || (doc.stock?.items?.length || 0) > 0).flatMap(item_cards)
+  const cards = pages.flatMap((page) => page.cards)
   // the items the bots trade; what's in stock (other items and killstreak versions too) comes with stock(), which the
   // browser asks for every time the search opens, so the names (a long list) only change when items go (in)active
-  const active = pages.filter((doc) => doc.status == 1)
-  const names = active.map((doc) => doc.bp_sku)
+  const active = [...by_name].filter(([, page]) => page.active)
+  const names = active.map(([name]) => name)
   // how many copies the bots keep at most: a killstreak tier with its own limit counts on its own (as the Can sell filter)
-  const limits = Object.fromEntries(active.map((doc) => [doc.bp_sku, Number(doc.stock?.limit) || 0]))
+  const limits = Object.fromEntries(active.map(([name, page]) => [name, page.limit]))
   const card_limit = (card) => card.ks > 0 && card.tier_limit !== null ? card.tier_limit : card.limit
   const stock = Object.fromEntries(cards.filter((card) => card.count > 0).map((card) => [card.bp_sku, [card.count, card_limit(card)]]))
   return {
@@ -234,6 +240,7 @@ const index = cached(async () => {
     limits,
     names_version: crypto.createHash('sha1').update(JSON.stringify([names, limits])).digest('hex').slice(0, 12),
     stock,
+    in_stock: pages.map((page) => page.similar).filter(Boolean),
     built: Date.now()
   }
 }, 'Item list')
@@ -275,16 +282,23 @@ const ORDERS = {
 }
 
 // the cards for one set of filters, sorted; the same filters ask again while scrolling, so the result is kept
-// until the item list is read again
-const sorted = new Map()
+// until the item list is read again. Then all of them go: a kept list from an older read kept that whole read in memory.
+const SORTED_MAX = 50
+const sorted = { built: 0, lists: new Map() }
 const cards = async (filters = {}, sort) => {
   const all = await index()
+  if (all.built > sorted.built) {
+    sorted.lists.clear()
+    sorted.built = all.built
+  }
   const key = JSON.stringify([filters, sort])
-  const kept = sorted.get(key)
-  if (kept && kept.built === all.built) return kept.list
+  const kept = all.built === sorted.built && sorted.lists.get(key)
+  if (kept) return kept
   const list = all.cards.filter(matches(filters)).sort(ORDERS[sort] || ORDERS.default)
-  if (sorted.size > 100) sorted.clear()
-  sorted.set(key, { built: all.built, list })
+  if (all.built === sorted.built) {
+    if (sorted.lists.size >= SORTED_MAX) sorted.lists.delete(sorted.lists.keys().next().value) // the oldest goes
+    sorted.lists.set(key, list)
+  }
   return list
 }
 
@@ -309,9 +323,6 @@ const stock = async () => {
 }
 
 // reads the lists again now; the old lists are used until the new ones are ready
-const refresh = () => {
-  in_stock.reload().catch((error) => console.error('Similar items: read failed:', error?.message || error))
-  return index.reload().catch((error) => { console.error('Item list: read failed:', error?.message || error); return null })
-}
+const refresh = () => index.reload().catch((error) => { console.error('Item list: read failed:', error?.message || error); return null })
 
 export { similar, cards, public_card, names, stock, ks_page, ks_tier, refresh }
