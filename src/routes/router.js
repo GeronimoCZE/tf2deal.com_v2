@@ -1,6 +1,5 @@
 import * as fn from '../fn.js'
 
-import apicache from 'apicache'
 import mongoose from 'mongoose'
 import crypto from 'crypto'
 import * as app from '../app.js'
@@ -15,7 +14,6 @@ import * as item_lists from '../service/item_lists.js'
 import { localize_path, LANG_TAGS } from '../i18n.js'
 import { isNumberObject } from 'util/types'
 
-const cache = apicache.middleware
 
 const home = async (req, res, next) => {
   if(req.path == '/'){

@@ -1,7 +1,6 @@
 import bodyParser from 'body-parser';
 import * as express from 'express';
 import rateLimit from 'express-rate-limit';
-import * as apicache from 'apicache'
 import mongoose from "mongoose";
 import fetch from 'node-fetch'
 
@@ -36,9 +35,6 @@ for (const method of ['get', 'post']) {
   }));
 }
 
-
-//configure apicache 
-let cache = apicache.middleware
 
 const inv_limiter = rateLimit({
   windowMs: 10 * 60 * 1000,
@@ -196,8 +192,6 @@ router.post('/bots/inventory/:bp_sku', inv_limiter, (req, res) => {
         return response.json() 
       })
       .then((response) => {
-        console.log(response);
-        
         if(response?.success == 1){
           res.status(200).json(response)
         } else {

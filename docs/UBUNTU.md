@@ -57,12 +57,19 @@ shares one rate limit and people get blocked.
 ## 5. Start it and keep it running after reboots
 
 ```bash
-pm2 start src/app.js --name tf2deal
+pm2 start ecosystem.config.cjs
 pm2 save
 pm2 startup     # run the command it prints
 ```
 
-The site listens on port 8080. Check it with `pm2 logs tf2deal`.
+The site listens on port 8080. Check it with `pm2 logs tf2deal`, and its memory with `pm2 ls`.
+
+`ecosystem.config.cjs` caps the site's memory (Node otherwise lets it grow towards 2 GB before cleaning up). A site
+that was started with `pm2 start src/app.js` before this file existed runs without the cap; switch it once:
+
+```bash
+cd ~/tf2deal && pm2 delete tf2deal && pm2 start ecosystem.config.cjs && pm2 save
+```
 
 ## 6. Get updates later
 

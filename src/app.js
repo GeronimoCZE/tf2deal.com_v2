@@ -12,10 +12,8 @@ import cookieParser from 'cookie-parser'
 import session from 'express-session'
 import mongoose from 'mongoose'
 import rateLimit from 'express-rate-limit'
-import apicache from 'apicache'
 import compression from 'compression'
 import fetch from 'node-fetch'
-import csrf from 'csurf'
 import EventEmitter from 'events'
 import { promisify } from 'util'
 import crypto from 'crypto'
@@ -258,8 +256,13 @@ if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
 const SESSION_SECRET = (process.env.SESSION_SECRET && process.env.SESSION_SECRET.length >= 32) ? process.env.SESSION_SECRET : crypto.randomBytes(48).toString('hex')
 
 app.use(cookieParser());
+// Sign-ins are kept in memory. That store forgets an expired one only when its browser comes back, so the ones
+// nobody comes back to are cleared every hour (all() drops every expired one).
+const session_store = new session.MemoryStore()
+setInterval(() => session_store.all(() => {}), 60 * 60 * 1000).unref()
 const sessionMiddleware = session({
   key: 'session_id',
+  store: session_store,
   secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,

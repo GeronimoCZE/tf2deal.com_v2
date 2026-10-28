@@ -45,16 +45,21 @@ export const copy_value = (doc, copy, key_ref) => {
     }
 }
 
-// every copy the bots hold, valued; each copy (bot + assetid) once
+// every copy the bots hold, valued; each copy (bot + assetid) once. The items come a few hundred at a time, with only
+// the fields a value needs (not the copies' pictures and attributes, nor the tiers' sales history).
 export const value_items = async (key_price) => {
-    const docs = await Items.find(
+    const docs = Items.find(
         { $or: [{ 'stock.items.0': { $exists: true } }, { 'stock.cur': { $gt: 0 } }] },
-        { bp_sku: 1, buy: 1, sell: 1, stock: 1, killstreak: 1, 'bptf_data.update_key_price': 1 }
-    ).lean()
+        {
+            bp_sku: 1, buy: 1, sell: 1, 'stock.cur': 1, 'stock.items.a': 1, 'stock.items.ownerId': 1, 'stock.items.ks': 1, 'stock.items.sell': 1,
+            'bptf_data.update_key_price': 1,
+            ...Object.fromEntries(['ks_tier', 'kt', 'tier', 'buy', 'sell'].flatMap((field) => [[`killstreak.${field}`, 1], [`killstreak.killstreaks.${field}`, 1]]))
+        }
+    ).lean().cursor({ batchSize: 500 })
     const items = { count: 0, sell: 0, buy: 0, unpriced: 0 }
     const bots = {}
     const seen = new Set()
-    for (const doc of docs) {
+    for await (const doc of docs) {
         if (PURE_NAMES.has(doc.bp_sku)) continue // keys and metal are counted from the bot server
         const key_ref = num(doc.bptf_data?.update_key_price) || key_price
         const copies = Array.isArray(doc.stock?.items) && doc.stock.items.length > 0
