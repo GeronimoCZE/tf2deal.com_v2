@@ -3,6 +3,7 @@
 //   .modal  + .trade_offer   trade offer progress (js/plugins/trade.js -> tradeOfferConnection)
 //   .modal  + .select_items  how many items of a stack to add/remove (js/plugins/trade.js -> open_qty_picker)
 //   .modal  + .buy_link      direct buy link /buy/<assetid>: the item, or a picker (js/plugins/buy_link.js)
+//   .modal  + .item_info     one copy of an item: its details, links and inspect link (js/plugins/item_info.js)
 // A modal is a plain solid card on the dimmed page: no glow, no blur, no slide. Inside it, lines and boxes are
 // used only where they mean something (the search field, the choices of a picker); the rest is just text.
 
@@ -186,9 +187,10 @@
     }
     &.select_items .modal{ max-width: 400px; }
     &.buy_link .modal{ max-width: 460px; }
+    &.item_info .modal{ max-width: 480px; }
 
     // the buttons at the bottom of a modal: a quiet way out on the left, the one main action on the right
-    .qty-actions, .bl-actions, .offer-actions{
+    .qty-actions, .bl-actions, .offer-actions, .ii-actions{
         display: flex;
         justify-content: flex-end;
         gap: 10px;
@@ -210,7 +212,7 @@
             cursor: pointer;
             transition: background 150ms ease, color 150ms ease;
         }
-        .qty-cancel, .bl-cancel, .offer-btn.ghost{
+        .qty-cancel, .bl-cancel, .offer-btn.ghost, .ii-close{
             background: transparent;
             color: var(--ink-2);
             &:hover{ background: var(--surface-2); color: var(--ink); }
@@ -393,7 +395,7 @@
         align-items: center;
         gap: 14px;
     }
-    .qty-thumb, .bl-thumb{
+    .qty-thumb, .bl-thumb, .ii-thumb{
         display: flex;
         align-items: center;
         justify-content: center;
@@ -568,10 +570,97 @@
         }
     }
 
+    // ---------- item info (right-click on an item, or a tap on its tooltip) ----------
+    .item-info{
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+    .ii-head{
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .ii-thumb{ width: 64px; height: 64px; }
+    .ii-name{
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+        strong{ color: var(--ink); font-size: 1.02rem; line-height: 1.3; overflow-wrap: anywhere; }
+    }
+    .ii-custom{ font-size: .95rem; font-style: italic; color: var(--ink); overflow-wrap: anywhere; }
+    .ii-custom-desc{ font-size: .85rem; font-style: italic; color: var(--ink-2); overflow-wrap: anywhere; }
+    .ii-effect{ font-size: 13px; font-weight: 600; color: var(--ink-2); }
+    .ii-price{
+        margin: 0;
+        font-size: .95rem;
+        color: var(--ink-2);
+        strong{ color: var(--ink); }
+    }
+    .ii-facts{
+        margin: 0;
+        font-size: .9rem;
+    }
+    .ii-fact{
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 7px 0;
+        border-top: 1px solid var(--line);
+        &:first-child{ border-top: none; padding-top: 0; }
+        dt{ flex: none; color: var(--ink-3); }
+        dd{ margin: 0; color: var(--ink); text-align: right; overflow-wrap: anywhere; }
+    }
+    // the window's one main action
+    .ii-inspect{
+        display: block;
+        box-sizing: border-box !important;
+        padding: 11px 18px;
+        border-radius: var(--r-md);
+        background: var(--go);
+        color: #fff;
+        font-size: .95rem;
+        font-weight: 700;
+        text-align: center;
+        text-decoration: none;
+        transition: background 150ms ease;
+        &:hover{ background: var(--go-hover); }
+        &.off{
+            background: var(--surface-2);
+            color: var(--ink-3);
+            cursor: default;
+            small{ display: block; margin-top: 2px; font-size: 12.5px; font-weight: 500; }
+        }
+    }
+    .ii-links{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    // the item page's link buttons (views/_items.scss .item-link)
+    .ii-link{
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .5rem .95rem;
+        border-radius: var(--r-sm);
+        background: var(--brand-muted);
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 150ms ease;
+        &:hover, &:focus-visible{ background: var(--brand-muted-hover); }
+        span{ color: var(--violet); }
+    }
+    .ii-actions{ margin-top: 2px; }
+
     @include lt-sm{
         padding: 12px;
         .bl-item{ gap: 10px; }
         .qty-thumb, .bl-thumb{ width: 50px; height: 50px; }
+        .ii-thumb{ width: 56px; height: 56px; }
     }
 }
 

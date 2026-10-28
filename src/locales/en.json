@@ -156,7 +156,9 @@
     "spells": "Spells:",
     "strange_parts": "Strange Parts:",
     "stock_is": "The stock is",
-    "pure_auto": "Pure is automatically added to the current trade."
+    "pure_auto": "Pure is automatically added to the current trade.",
+    "details_mouse": "Right-click for details",
+    "details_touch": "Tap here for details"
   },
   "faq": {
     "title": "Frequently Asked Questions",
@@ -543,6 +545,39 @@
       "sign_in_note": "Sign in to buy this item. You'll come back to this page after.",
       "note": "Our bot sends you a Steam trade offer for this item. Check it before you accept.",
       "from_bot": "From {name}"
+    },
+    "item_info": {
+      "title": "Item details",
+      "price_buy": "You pay",
+      "price_sell": "We pay",
+      "not_buying": "We don't buy this item right now.",
+      "quality": "Quality",
+      "type": "Type",
+      "classes": "Classes",
+      "all_classes": "All classes",
+      "killstreak": "Killstreak",
+      "killstreaker": "Killstreaker",
+      "sheen": "Sheen",
+      "paint": "Paint",
+      "spells": "Spells",
+      "parts": "Strange parts",
+      "festivized": "Festivized",
+      "craftable": "Craftable",
+      "yes": "Yes",
+      "no": "No",
+      "bot": "Bot",
+      "assetid": "Asset ID",
+      "copies": "{count} copies",
+      "inspect": "Inspect in game",
+      "no_inspect": "No inspect link for this item",
+      "links": "Links",
+      "item_page": "Item page",
+      "bptf_prices": "backpack.tf prices",
+      "bptf_history": "backpack.tf history",
+      "wiki": "TF2 Wiki",
+      "market": "Steam Market",
+      "inventory": "Steam inventory",
+      "close": "Close"
     }
   },
   "items": {

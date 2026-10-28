@@ -156,7 +156,9 @@
     "spells": "Sorts :",
     "strange_parts": "Pièces Strange :",
     "stock_is": "Le stock est de",
-    "pure_auto": "Le pure est automatiquement ajouté à l'échange en cours."
+    "pure_auto": "Le pure est automatiquement ajouté à l'échange en cours.",
+    "details_mouse": "Clic droit pour les détails",
+    "details_touch": "Touchez ici pour les détails"
   },
   "faq": {
     "title": "Foire aux questions",
@@ -543,6 +545,39 @@
       "sign_in_note": "Connectez-vous pour acheter cet objet. Vous reviendrez ensuite sur cette page.",
       "note": "Notre bot vous envoie une offre d'échange Steam pour cet objet. Vérifiez-la avant de l'accepter.",
       "from_bot": "De {name}"
+    },
+    "item_info": {
+      "title": "Détails de l'objet",
+      "price_buy": "Vous payez",
+      "price_sell": "Nous payons",
+      "not_buying": "Nous n'achetons pas cet objet pour le moment.",
+      "quality": "Qualité",
+      "type": "Type",
+      "classes": "Classes",
+      "all_classes": "Toutes les classes",
+      "killstreak": "Killstreak",
+      "killstreaker": "Killstreaker",
+      "sheen": "Reflet",
+      "paint": "Peinture",
+      "spells": "Sorts",
+      "parts": "Pièces étrange",
+      "festivized": "Festivized",
+      "craftable": "Fabricable",
+      "yes": "Oui",
+      "no": "Non",
+      "bot": "Bot",
+      "assetid": "ID de l'objet",
+      "copies": "{count} exemplaires",
+      "inspect": "Inspecter en jeu",
+      "no_inspect": "Pas de lien d'inspection pour cet objet",
+      "links": "Liens",
+      "item_page": "Page de l'objet",
+      "bptf_prices": "Prix sur backpack.tf",
+      "bptf_history": "Historique sur backpack.tf",
+      "wiki": "TF2 Wiki",
+      "market": "Marché Steam",
+      "inventory": "Inventaire Steam",
+      "close": "Fermer"
     }
   },
   "items": {
