@@ -41,8 +41,10 @@ const links = (info) => {
     const quality = quality_name(info.qualityID) || 'Unique'
     const market_name = info.steam_sku || info.name
     const list = []
-    if(info.party == 'site' && !TD_PATH.startsWith('/items/')){
-        list.push({ href: lurl('/items/' + encodeURIComponent(info.name)), text: __('item_info.item_page'), local: true })
+    // the item's page (a killstreak copy opens its tier's page), for the visitor's items too; not on an item page itself
+    if(!TD_PATH.startsWith('/items/') && info.bp_sku){
+        const page = info.ks > 0 ? trade.create_sku(info.bp_sku, info.qualityID, 0, info.ks) : info.bp_sku
+        list.push({ href: lurl('/items/' + encodeURIComponent(page)), text: __('item_info.item_page'), local: true })
     }
     list.push({ href: `https://backpack.tf/stats/${encodeURIComponent(quality)}/${encodeURIComponent(bptf_name)}/Tradable/${info.craftable ? 'Craftable' : 'Non-Craftable'}${info.effectID > 0 ? '/' + info.effectID : ''}`, text: __('item_info.bptf_prices') })
     list.push({ href: `https://backpack.tf/item/${encodeURIComponent(info.assetid)}`, text: __('item_info.bptf_history') })
@@ -100,7 +102,6 @@ const open = (item_el, party) => {
                 ${fact(__('item_info.festivized'), info.festivized ? __('item_info.yes') : '')}
                 ${fact(__('item_info.craftable'), info.craftable ? '' : __('item_info.no'))}
                 ${fact(__('item_info.bot'), bot)}
-                ${fact(__('item_info.assetid'), info.copies > 1 ? `${info.assetid} (${__('item_info.copies', { count: info.copies })})` : info.assetid)}
             </dl>
             ${inspect}
             <div class="ii-links" role="group" aria-label="${esc(__('item_info.links'))}">

@@ -3509,7 +3509,6 @@ const item_details = (item_el, party) => {
         custom_desc: custom_text(at.customDesc),
         inspect: inspect_link(at.inspect, owner, assetid),
         assetid,
-        copies: read_assetids(item_el).length,
         owner,
         bot_name: site ? (SiteTrade.bot_names?.get(owner) || '') : '',
         // what the tile says: the site's price for a bot item, what the bots pay for the visitor's

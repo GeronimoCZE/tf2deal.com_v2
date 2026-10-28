@@ -566,8 +566,6 @@
       "yes": "Yes",
       "no": "No",
       "bot": "Bot",
-      "assetid": "Asset ID",
-      "copies": "{count} copies",
       "inspect": "Inspect in game",
       "no_inspect": "No inspect link for this item",
       "links": "Links",

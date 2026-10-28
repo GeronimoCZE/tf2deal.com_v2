@@ -566,8 +566,6 @@
       "yes": "是",
       "no": "否",
       "bot": "机器人",
-      "assetid": "物品 ID",
-      "copies": "{count} 件",
       "inspect": "在游戏中检视",
       "no_inspect": "此物品没有检视链接",
       "links": "链接",
