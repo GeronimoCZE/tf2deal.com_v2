@@ -74,8 +74,8 @@
                                     <% const show_bptf = info.item?.bptf_data?.price > 0 || info.item?.type === "tool kit" || info.item?.type == "warpaint" || String(info.item?.type || '').includes('skin') %>
                                     <% if (show_bptf) { %>
                                     <div class="item-links" role="group" aria-label="<%= __('item.links') %>">
-                                        <%# backpack.tf price page: /stats/<quality>/<name>/Tradable/<Craftable|Non-Craftable>[/<effect>] %>
-                                        <a class="item-link bptf" rel="nofollow noopener" target="_blank" href="https://backpack.tf/stats/<%= encodeURIComponent(info.shown.quality || 'Unique') %>/<%= encodeURIComponent(info.item?.name || '') %>/Tradable/<%= info.item?.craftable === 'Non-Craftable' ? 'Non-Craftable' : 'Craftable' %><%= Number(info.item?.effectID) > 0 ? '/' + Number(info.item.effectID) : '' %>">backpack.tf <span aria-hidden="true">↗</span></a>
+                                        <%# backpack.tf price page of this version of the item (service/bptf_link.js) %>
+                                        <a class="item-link bptf" rel="nofollow noopener" target="_blank" href="<%= info.bptf_url %>">backpack.tf <span aria-hidden="true">↗</span></a>
                                     <% if (info.item?.bptf_data?.price > 0) { %>
                                         <a class="item-link tf2wiki" rel="noopener" target="_blank" href="https://wiki.teamfortress.com/wiki/<%= encodeURIComponent(info.item?.name || '') %>">TF2 Wiki <span aria-hidden="true">↗</span></a>
                                     <% } %>
@@ -353,46 +353,6 @@
             if($('img.image').attr('effect-id') != "0"){
                 $('img.image').attr('style', `background-image: url(https://api.backpack.tf/images/440/particles/${$('img.image').attr('effect-id')}_188x188.png);`)
             }
-
-            const bptf_stats = $('.desc.bptf .val')
-            let bptf_url = 'https://backpack.tf/stats/';
-            const type = item?.type || ''
-
-            const price_raw = bptf_stats.parent().attr('value') / bptf_stats.parent().attr('key_price')
-
-            const price_string = (price_raw >= 1) ? `${Number(price_raw).toFixed(1)} keys` : `${round_ref(price_raw * bptf_stats.parent().attr('key_price'))} ref`
-
-            if(['tool unusualifier', 'tool strangifier', 'crate'].includes(type)){
-                if(type == "crate" && !item.bp_sku.includes(' #')){
-                    bptf_stats.attr('href', bptf_url + `${encodeURIComponent(itemAttr.Quality[item.qualityID].name)}/${encodeURIComponent(item.name)}/Tradable/${item.craftable}`)
-                }
-                else {
-                    bptf_stats.attr('href', bptf_url + `${encodeURIComponent(itemAttr.Quality[item.qualityID].name)}/${encodeURIComponent(item.name)}/Tradable/${item.craftable}/${item.priceindex}`)
-                }
-            } else if (type.includes("skin") || type.includes("warpaint")){
-                let wear = ' ' + item.bp_sku.match(/\([^)]*\)/g)
-                let name = String(item.name + wear).replace(' War Paint', ' %7C War Paint')
-
-                let weapons = ['Grenade Launcher','Shotgun','Revolver','Wrench','Sniper Rifle','Scattergun','Knife','Minigun','SMG','Rocket Launcher','Pistol','Medi Gun','Stickybomb Launcher','Flame Thrower']
-                const match = weapons.find(w => item.name.includes(w));
-
-                if (match) {
-                    name = String(item.name + wear).replace(` ${match} `, ` %7C ${match} `)
-                }                
-
-                bptf_stats.attr('href', bptf_url + `${encodeURIComponent(itemAttr.Quality[item.qualityID].name)}/${name}/Tradable/${item.craftable}${item.qualityID == "5" ? '/'+item.priceindex : ''}`)
-            } else if (type == "tool kit"){
-                let prefix = "0-"
-
-                if(item.name.includes('Professional Killstreak ')){ prefix = "3-" }
-                else if(item.name.includes('Specialized Killstreak ')){ prefix = "2-" }
-                else if(item.name.includes('Killstreak ')){ prefix = "1-" }
-
-                bptf_stats.attr('href', bptf_url + `${encodeURIComponent(itemAttr.Quality[item.qualityID].name)}/Killstreak Kit/Tradable/${item.craftable}/${prefix + item.priceindex}`)
-            } else {
-                bptf_stats.attr('href', bptf_url + `${encodeURIComponent(itemAttr.Quality[item.qualityID].name)}/${encodeURIComponent(item.name)}/Tradable/${item.craftable}${item.qualityID == "5" ? '/'+item.priceindex : ''}`)
-            }
-
 
             // "show older prices": three more rows per click
             $('.change_table .row.more').on('click', function(){

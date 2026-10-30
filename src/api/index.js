@@ -9,6 +9,7 @@ import * as mw from './api_mw.js'
 import * as item_lists from '../service/item_lists.js'
 
 import {effect_model} from '../model/Effect.js'
+import { item_model } from '../model/Item.js'
 import {skin_model} from '../model/Skin.js'
 import {warpaint_model} from '../model/Warpaint.js'
 import {trade_model} from '../model/Trade.js'
@@ -21,6 +22,7 @@ import * as settings from '../service/settings.js'
 import * as notifications from '../service/notifications.js'
 import * as buy_link from '../service/buy_link.js'
 import * as latest_trades from '../service/latest_trades.js'
+import { bptf_link, FIELDS as BPTF_FIELDS } from '../service/bptf_link.js'
 import UserModel from '../model/User.js'
 import { log } from 'console';
 
@@ -363,6 +365,21 @@ router.post('/rating', mw.isLogged, rating_limiter, async (req, res) => {
 
 router.get('/unusual_effects', async (req, res) => {
   res.json(await effect_model.find({}))
+});
+
+// The item window's backpack.tf link (public/js/plugins/item_info.js): the price page of that version of the item, which
+// needs what the database keeps of it (a Strangifier's or Kit's item, a crate's series: service/bptf_link.js).
+// ?sku=<bp_sku>&ks=<killstreak tier>&f=1 (festivized); name, q (quality ID) and e (effect ID) are used for an item the
+// database doesn't have. It only ever leads to backpack.tf.
+router.get('/backpack_tf', async (req, res) => {
+  const text = (value) => typeof value === 'string' ? value.slice(0, 200) : ''
+  const sku = text(req.query.sku)
+  const ks = [1, 2, 3].includes(Number(req.query.ks)) ? Number(req.query.ks) : 0
+  const item = sku && process.db_status?.connected === true
+    ? await item_model.findOne({ bp_sku: sku }, BPTF_FIELDS).lean().maxTimeMS(10 * 1000).catch(() => null)
+    : null
+  res.redirect(302, bptf_link(item || { bp_sku: sku, name: text(req.query.name) || sku, qualityID: text(req.query.q), effectID: text(req.query.e) },
+    { ks, festivized: req.query.f === '1' }))
 });
 
 router.use((req, res, next) => {
