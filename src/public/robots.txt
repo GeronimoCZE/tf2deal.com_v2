@@ -1,4 +1,49 @@
+# TF2Deal.com: automated TF2 item trading. Search engines and AI assistants are welcome to read and cite the public
+# pages (items, prices, trade guide, blog). A short guide for AI agents: https://tf2deal.com/llms.txt
+# Every page also answers in Markdown when asked for it with the header "Accept: text/markdown".
+
+# Content Signals (https://contentsignals.org): search = show in search results, ai-input = use the pages in AI
+# answers (RAG, grounding), ai-train = use them to train AI models.
 User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
+Disallow: /admin
+Disallow: /auth/
+Disallow: /login
+Disallow: /logout
+Disallow: /theme/
+Disallow: /buy/
+Disallow: /profile
+Disallow: /*/profile
+Disallow: /support
+Disallow: /*/support
+
+# AI search and assistant crawlers: same rules, named so they know they are welcome
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Amazonbot
+User-agent: meta-externalagent
+User-agent: DuckAssistBot
+User-agent: MistralAI-User
+User-agent: CCBot
+Allow: /
+Disallow: /admin
+Disallow: /auth/
+Disallow: /login
+Disallow: /logout
+Disallow: /theme/
+Disallow: /buy/
+Disallow: /profile
+Disallow: /*/profile
+Disallow: /support
+Disallow: /*/support
 
 Sitemap: https://tf2deal.com/sitemap.xml

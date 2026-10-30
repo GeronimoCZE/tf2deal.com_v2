@@ -30,6 +30,7 @@ import { bot_socket, createSocket, item_socket } from './service/socket.js'
 import * as seasons from './service/season.js'
 import { ticket_model } from './model/Ticket.js'
 import * as sitemap from './service/sitemap.js'
+import * as markdown from './service/markdown.js'
 import * as inventory_value from './service/inventory_value.js'
 import * as item_lists from './service/item_lists.js'
 
@@ -324,6 +325,7 @@ app.use((req, res, next) => {
 
 // 5. Language (/de/..., /cs/... -> see i18n.js), then SEO data for the page
 app.use(i18n.middleware)
+app.use(markdown.middleware(fn.site_url)) // pages in Markdown for AI agents (Accept: text/markdown), Link header
 app.use((req, res, next) => {
   const page_path = fn.clean_path(req.path)
   res.locals.page_path = page_path
@@ -458,7 +460,8 @@ const connectDB = async () => {
   mongoose.connection.on('reconnected', () => { process.db_status = { connected: true } });
   mongoose.connection.on('connected', () => {
     process.db_status = { connected: true }
-    item_lists.refresh() // the item list is read before the first visitor asks for /items
+    // the item list is read before the first visitor asks for /items, then the sitemap is built from it
+    item_lists.refresh().then(() => sitemap.warm())
   });
 }
 

@@ -1,10 +1,10 @@
-// One XML sitemap, built from the database when a search engine asks (no file on disk): /sitemap.xml.
+// One XML sitemap, built from the database and the in-memory item list (no file on disk): /sitemap.xml.
 // The main pages come first with the highest priority, then blog posts, then every item page at 0.4,
 // each in every language it exists in. /sitemap_index.xml and the old /sitemaps/*.xml files redirect to it.
-// The built file is used for CACHE_MS, so a crawler doesn't query the database on every request, and let go after twice
-// that (it can be several MB, and crawlers ask for it rarely).
+// The built file is used for CACHE_MS and always answered at once (see current()), so Cloudflare and search engines
+// never wait for the database.
 
-import { item_model as Items } from '../model/Item.js'
+import * as item_lists from './item_lists.js'
 import { blog_model } from '../model/Blog.js'
 import { localize_path, LANGS } from '../i18n.js'
 import { available_langs } from './translate.js'
@@ -44,27 +44,55 @@ const urlset = (urls) => '<?xml version="1.0" encoding="UTF-8"?>\n' +
 
 const page_url = (lang, p) => fn.site_url + localize_path(lang, p)
 
-let cache = null   // { time, xml, urls }
+let cache = null    // { time, xml, urls, complete }
 let building = null
+let last_blog = []  // the blog part of the last good build, used while the database doesn't answer
 
+const BLOG_WAIT = 10 * 1000   // how long the blog posts may take to read
+const FIRST_WAIT = 5 * 1000   // how long a request waits for the very first build (Cloudflare and crawlers give up)
+
+const timeout = (promise, ms, what) => {
+  let timer
+  return Promise.race([
+    promise,
+    new Promise((resolve, reject) => { timer = setTimeout(() => reject(new Error(`${what}: no answer after ${ms / 1000} s`)), ms) })
+  ]).finally(() => clearTimeout(timer))
+}
+
+const main_pages = () => [
+  ...PAGES.flatMap((p) => LANGS.map((lang) => ({ ...p, loc: page_url(lang, p.path) }))),
+  ...ENGLISH_ONLY.map((p) => ({ ...p, loc: fn.site_url + p.path }))
+]
+
+// The items come from the item list the site keeps in memory (service/item_lists.js), not from a read of the whole
+// item collection: on a busy database that read took longer than Cloudflare waits, and the sitemap timed out.
 const build = async () => {
-  const pages = [
-    ...PAGES.flatMap((p) => LANGS.map((lang) => ({ ...p, loc: page_url(lang, p.path) }))),
-    ...ENGLISH_ONLY.map((p) => ({ ...p, loc: fn.site_url + p.path }))
-  ]
+  const pages = main_pages()
+  let complete = true
 
   // published blog posts, in every language they exist in (the original + AI translations, see service/translate.js)
-  const posts = await blog_model.find({ published: true }, { slug: 1, lang: 1, source_hash: 1, translations: 1, updated: 1 }).lean()
-  const blog = posts.flatMap((post) => available_langs(post).map((lang) => ({
-    loc: page_url(lang, `/blog/${encodeURIComponent(post.slug)}`),
-    lastmod: post.updated > 0 ? day(post.updated) : '',
-    changefreq: 'weekly',
-    priority: '0.5'
-  })))
+  let blog = last_blog
+  try {
+    if (process.db_status?.connected !== true) throw new Error('no database') // mongoose would wait for a reconnect
+    const posts = await timeout(blog_model.find({ published: true }, { slug: 1, lang: 1, source_hash: 1, translations: 1, updated: 1 }).maxTimeMS(BLOG_WAIT).lean(), BLOG_WAIT, 'blog posts')
+    blog = last_blog = posts.flatMap((post) => available_langs(post).map((lang) => ({
+      loc: page_url(lang, `/blog/${encodeURIComponent(post.slug)}`),
+      lastmod: post.updated > 0 ? day(post.updated) : '',
+      changefreq: 'weekly',
+      priority: '0.5'
+    })))
+  } catch (error) {
+    complete = false
+    console.log('Sitemap: blog posts not read, the last ones stay:', error?.message || error)
+  }
 
   // the items the bots really trade (the same rule as the item page's noindex), each one once, in every language
-  const items = await Items.find(fn.SITEMAP_ITEMS_QUERY, { _id: 0, bp_sku: 1 }).lean()
-  const names = [...new Set(items.map((item) => item.bp_sku).filter(Boolean))].sort()
+  let names = []
+  try {
+    names = await item_lists.sitemap_names()
+  } catch (error) {
+    complete = false // the item list isn't read yet: the sitemap goes out without items and is built again soon
+  }
   // only the items that fit in the file get their URLs made (all of them were 275,000 URLs in a test with 45,000 items)
   const room = Math.max(MAX_URLS - pages.length - blog.length, 0)
   const item_urls = names.slice(0, Math.ceil(room / LANGS.length))
@@ -73,17 +101,15 @@ const build = async () => {
   const total = pages.length + blog.length + names.length * LANGS.length
   if (total > MAX_URLS) console.log(`Sitemap: ${total} URLs, only the first ${MAX_URLS} fit in one file`)
   const urls = [...pages, ...blog, ...item_urls].slice(0, MAX_URLS)
-  return { time: Date.now(), xml: urlset(urls), urls: urls.length }
+  return { time: Date.now(), xml: urlset(urls), urls: urls.length, complete }
 }
 
-// the sitemap, rebuilt when older than CACHE_MS (one build at a time; a failed build keeps the last good one while it
-// is still kept)
-const current = async () => {
-  if (cache && Date.now() - cache.time < CACHE_MS) return cache
+// one build at a time; a failed build keeps the last good one
+const rebuild = () => {
   building = building || build()
     .then((built) => {
       cache = built
-      setTimeout(() => { if (cache === built) cache = null }, 2 * CACHE_MS).unref()
+      setTimeout(() => { if (cache === built) cache = null }, 6 * CACHE_MS).unref() // a few MB nobody asked for in an hour
       return built
     })
     .catch((error) => {
@@ -95,23 +121,40 @@ const current = async () => {
   return building
 }
 
+// The sitemap is answered at once whenever there is one, even an old one, and built again in the background when it
+// is older than CACHE_MS (a sitemap without items, or with old blog posts, after a minute). Only the very first request
+// waits for a build, at most FIRST_WAIT, and then gets the main pages and blog posts.
+const current = async () => {
+  if (cache) {
+    const age = Date.now() - cache.time
+    if (age >= (cache.complete ? CACHE_MS : 60 * 1000)) rebuild().catch(() => {})
+    return cache
+  }
+  try {
+    return await timeout(rebuild(), FIRST_WAIT, 'sitemap')
+  } catch (error) {
+    return { xml: urlset([...main_pages(), ...last_blog]), complete: false }
+  }
+}
+
 // Express handlers
-const send = (res, xml) => {
+const send = (res, xml, complete) => {
   res.set('Content-Type', 'application/xml; charset=utf-8')
-  res.set('Cache-Control', 'public, max-age=600')
+  res.set('Cache-Control', `public, max-age=${complete ? 600 : 60}`)
+  res.set('X-Robots-Tag', 'noindex') // the sitemap itself is not a search result
   res.send(xml)
 }
 
 export const handler = async (req, res) => {
-  try {
-    send(res, (await current()).xml)
-  } catch (error) {
-    res.status(503).set('Retry-After', '600').send('Sitemap not available right now')
-  }
+  const map = await current()
+  send(res, map.xml, map.complete)
 }
+
+// build it right after the start, so the first crawler doesn't wait
+export const warm = () => rebuild().catch(() => {})
 
 // the sitemap index and its files from before everything was in one file (also old files still on the server's disk)
 export const redirect = (req, res) => res.redirect(301, '/sitemap.xml')
 
-// drop the cached sitemap (the next request builds a new one)
-export const clear = () => { cache = null }
+// the items or blog posts changed: the next request still gets the current sitemap and starts a new build
+export const clear = () => { if (cache) cache.time = 0 }
