@@ -8,6 +8,7 @@ import { item_model } from '../model/Item.js'
 import { blog_model } from '../model/Blog.js'
 import { giveaway_model } from '../model/Giveaway.js'
 import * as translate from '../service/translate.js'
+import { bptf_link } from '../service/bptf_link.js'
 import * as stats from '../service/stats.js'
 import * as buy from '../service/buy_link.js'
 import * as item_lists from '../service/item_lists.js'
@@ -276,6 +277,7 @@ const item_page = async (req, res) => {
         result: result,
         key_price: app.key_price,
         shown,
+        bptf_url: bptf_link(main, { ks }), // the backpack.tf button: that version's price page (a crate's series, a kit's weapon, ...)
         // SEO
         description: fn.item_description(main, req.__),
         path: ks ? `/items/${encodeURIComponent(page_name)}` : item_path,

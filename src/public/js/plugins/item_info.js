@@ -34,11 +34,14 @@ const price_words = (ref, key_price) => {
     return `${metal} ref`
 }
 
+// backpack.tf's price page of this version of the item: the site builds it (api/index.js /api/backpack_tf), as it needs
+// what the database keeps of the item (a crate's series, the item a Strangifier or Kit is for)
+const bptf_href = (info, name) => '/api/backpack_tf?' + new URLSearchParams({
+    sku: info.bp_sku, ks: String(info.ks || 0), f: info.festivized ? '1' : '0', name, q: info.qualityID, e: String(info.effectID || 0)
+})
+
 const links = (info) => {
     const name = base_name(info)
-    // backpack.tf's name for the item: Festivized and the killstreak tier come before it
-    const bptf_name = [info.festivized ? 'Festivized' : '', KS_NAMES[info.ks] || '', name].filter(Boolean).join(' ')
-    const quality = quality_name(info.qualityID) || 'Unique'
     const market_name = info.steam_sku || info.name
     const list = []
     // the item's page (a killstreak copy opens its tier's page), for the visitor's items too; not on an item page itself
@@ -46,7 +49,7 @@ const links = (info) => {
         const page = info.ks > 0 ? trade.create_sku(info.bp_sku, info.qualityID, 0, info.ks) : info.bp_sku
         list.push({ href: lurl('/items/' + encodeURIComponent(page)), text: __('item_info.item_page'), local: true })
     }
-    list.push({ href: `https://backpack.tf/stats/${encodeURIComponent(quality)}/${encodeURIComponent(bptf_name)}/Tradable/${info.craftable ? 'Craftable' : 'Non-Craftable'}${info.effectID > 0 ? '/' + info.effectID : ''}`, text: __('item_info.bptf_prices') })
+    list.push({ href: bptf_href(info, name), text: __('item_info.bptf_prices') })
     list.push({ href: `https://backpack.tf/item/${encodeURIComponent(info.assetid)}`, text: __('item_info.bptf_history') })
     if(name){ list.push({ href: `https://wiki.teamfortress.com/wiki/${encodeURIComponent(name.replace(/^The /, '').replace(/ /g, '_'))}`, text: __('item_info.wiki') }) }
     list.push({ href: `https://steamcommunity.com/market/search?appid=440&q=${encodeURIComponent(market_name)}`, text: __('item_info.market') })

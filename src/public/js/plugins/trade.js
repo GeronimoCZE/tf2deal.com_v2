@@ -54,8 +54,6 @@ const UserTrade = new Trade_Object(); // => save both invs in localstorage for T
 const SiteTrade = new Trade_Object();
 const ItemTrade = new Item_Trade_Object();
 
-const unusual_effects = localStorage.getItem('unusual_effects')
-
 UserTrade.global_stock = []
 UserTrade.stock = []
 SiteTrade.iit.bots = []
@@ -3266,20 +3264,10 @@ const item_tooltip = async (state, item, party) => {
                         tooltip.querySelector('.item-desc .desc_price .key_price .unit').textContent = key_count == 1 ? 'key' : 'keys'
                         tooltip.querySelector('.item-desc .desc_price .ref_price').classList.toggle('no-unit', isNaN(Number(tooltip.querySelector('.item-desc .desc_price .ref_price #ref_amount').textContent)))
 
-                        if(party.includes('show-') && itemDesc.qualityID == "5" && itemDesc.effectID > 0){
-                            const effect = JSON.parse(unusual_effects)?.find(eff => eff["ID"] == itemDesc.effectID)
-                            if(effect){
-                                tooltip.querySelector('.item-desc .desc_effect').style.display = 'block';
-                                tooltip.querySelector('.item-desc .desc_effect').textContent = `★ ${effect["ID"]}`;
-                            }
-                        }
-    
-                        if(itemDesc.quality == 'Unusual' && itemDesc.effect != ""){
-                            /* tooltip.querySelector('.item-desc .desc_effect').style.display = 'block';
-                            tooltip.querySelector('.item-desc .desc_effect').textContent = `★ ${itemDesc.effect}`; */
-                        } else {
-                            tooltip.querySelector('.item-desc .desc_effect').style.display = 'none';
-                        }
+                        // the unusual effect: hats, taunts, weapons and war paints ("★ Burning Flames")
+                        const effect = effect_name(itemDesc.effectID ?? item.getAttribute('data-effect'));
+                        tooltip.querySelector('.item-desc .desc_effect').style.display = effect ? 'block' : 'none';
+                        tooltip.querySelector('.item-desc .desc_effect').textContent = effect ? `★ ${effect}` : '';
 
                         tooltip.querySelector('.item-desc .descs_ .desc_type .value').textContent = itemAttr.Types[itemDesc.type];
                         
@@ -3497,6 +3485,12 @@ const inspect_link = (link, owner, assetid) => {
     return /^steam:\/\/rungame\/440\/\d+\/\+tf_econ_item_preview(%20| )[A-Za-z0-9]+$/.test(full) ? full : null;
 }
 
+// an unusual effect's name from its ID (the list head.ejs keeps in localStorage); '' for none
+const effect_name = (id) => {
+    if(!(Number(id) > 0)) return '';
+    try { return (JSON.parse(localStorage.getItem('unusual_effects')) || []).find((e) => e.ID == id)?.name || '' } catch (e) { return '' }
+}
+
 const item_details = (item_el, party) => {
     if(!has_details(item_el, party)) return null;
     const assetid = read_assetids(item_el)[0];
@@ -3515,7 +3509,6 @@ const item_details = (item_el, party) => {
     copy = copy || {};
     const at = copy.at || {};
     const owner = site ? (copy.ownerId || bot || '') : ((typeof user != 'undefined' && user != 'no_session') ? user : '');
-    const effects = (() => { try { return JSON.parse(localStorage.getItem('unusual_effects')) || [] } catch (e) { return [] } })();
     const effectID = Number(desc.effectID ?? item_el.getAttribute('data-effect')) || 0;
     const list = (value) => (Array.isArray(value) ? value : [value]).filter((v) => typeof v == 'string' && v.trim());
 
@@ -3528,7 +3521,7 @@ const item_details = (item_el, party) => {
         image: item_el.querySelector('img')?.getAttribute('src') || '',
         qualityID: String(desc.qualityID ?? item_el.getAttribute('data-quality') ?? ''),
         effectID,
-        effect: effectID > 0 ? (effects.find((e) => e.ID == effectID)?.name || '') : '',
+        effect: effect_name(effectID),
         type: desc.type || item_el.getAttribute('data-type') || '',
         classes: Array.isArray(desc.classes) ? desc.classes : [],
         craftable: !String(desc.bp_sku || item_el.getAttribute('data-name') || '').includes('Non-Craftable'),
