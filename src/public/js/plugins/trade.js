@@ -107,7 +107,11 @@ socket.on('TradeOffer', (res) => {
         
     try {
         if(typeof res === "object" && res !== null){
-                        
+            // the bot server couldn't send the offer it was creating (a stock limit, no bot free, ...);
+            // "already_processing" is a second request for a trade that is still being created, which goes on
+            if(res.status == 'failed_to_send' && res.reason != 'already_processing' && waiting_for_offer()){
+                tradeOfferConnection({ status: 'error', reason: res.reason }, 'change')
+            }
         } else {
             tradeoffer.offer = null;
             localStorage.removeItem(`tradeoffer${user}`)
@@ -417,6 +421,28 @@ const offer_status = (raw) => {
     return ['loading', '']
 }
 
+// The bot server answers a status check (getTradeOffer, every 15 s while an offer is open) with "canceled" and no offer
+// whenever it hasn't made the user an offer yet: also while the trade still waits in its queue or the bots' and the
+// user's inventories are being loaded, which can take a while. While the modal says the offer is being created, and
+// until WAIT_FOR_OFFER has passed since the trade was requested, that answer means "not made yet" and the modal keeps
+// waiting. ("pending" is an offer that exists and waits for Steam Guard: a "canceled" then is real.)
+const WAIT_FOR_OFFER = 5 * 60 * 1000
+const WAITING_STATES = ['loading', 'creating']
+const parse_offer = (offer) => {
+    try {
+        while (typeof offer === "string") { offer = JSON.parse(offer) }
+        return (typeof offer === "object" && offer !== null) ? offer : null
+    } catch (error) {
+        return null
+    }
+}
+const waiting_for_offer = () => WAITING_STATES.includes(offer_status(parse_offer(tradeoffer.offer)?.status)[0])
+const not_sent_yet = (incoming) => {
+    const current = parse_offer(tradeoffer.offer)
+    return offer_status(incoming?.status)[0] == 'canceled' && !incoming?.offer && waiting_for_offer() &&
+        Date.now() - (Number(current?.requested) || 0) < WAIT_FOR_OFFER
+}
+
 // progress line at the top of the trade modal: create -> accept on Steam -> done
 const FLOW_STEP = { loading: 0, creating: 0, pending: 0, waitingApproval: 0, sent: 1, accepted: 2 }
 let last_flow_step = 0
@@ -523,6 +549,15 @@ document.addEventListener('click', async (e) => {
 })
 
 const tradeOfferConnection = async (offer, action) => {
+
+    const incoming = parse_offer(offer)
+    if (action === "change" && not_sent_yet(incoming)) { return }
+    // while the offer is being created, when the trade was requested is kept (for not_sent_yet)
+    if (incoming && WAITING_STATES.includes(offer_status(incoming.status)[0])) {
+        const current = parse_offer(tradeoffer.offer)
+        incoming.requested = Number(incoming.requested) || (waiting_for_offer() && Number(current?.requested)) || Date.now()
+        offer = incoming
+    }
 
     // Save offer correctly (avoid double JSON.stringify)
     if (offer) {
@@ -3278,17 +3313,16 @@ const item_tooltip = async (state, item, party) => {
                             tooltip.querySelector('.item-desc .descs_ .desc_paint .value').textContent = paint;
                         }
 
-                        if(Item?.ks > 0){
-                            const killstreaker = (Item?.at?.hasOwnProperty('killstreaker')) ? Item.at['killstreaker'] : null
-                            const sheen = (Item?.at?.hasOwnProperty('sheen')) ? Item.at['sheen'] : null
-                            if(killstreaker){ 
-                                tooltip.querySelector('.item-desc .descs_ .desc_killstreaker').style.display = 'flex';
-                                tooltip.querySelector('.item-desc .descs_ .desc_killstreaker .value').textContent = killstreaker;
-                            }
-                            if(sheen){ 
-                                tooltip.querySelector('.item-desc .descs_ .desc_sheen').style.display = 'flex';
-                                tooltip.querySelector('.item-desc .descs_ .desc_sheen .value').textContent = sheen;
-                            }
+                        // killstreak weapons and killstreak kits (a kit carries them too, with no killstreak tier of its own)
+                        const killstreaker = (Item?.at?.hasOwnProperty('killstreaker')) ? Item.at['killstreaker'] : null
+                        const sheen = (Item?.at?.hasOwnProperty('sheen')) ? Item.at['sheen'] : null
+                        if(killstreaker){
+                            tooltip.querySelector('.item-desc .descs_ .desc_killstreaker').style.display = 'flex';
+                            tooltip.querySelector('.item-desc .descs_ .desc_killstreaker .value').textContent = killstreaker;
+                        }
+                        if(sheen){
+                            tooltip.querySelector('.item-desc .descs_ .desc_sheen').style.display = 'flex';
+                            tooltip.querySelector('.item-desc .descs_ .desc_sheen .value').textContent = sheen;
                         }
 
                         tooltip.querySelector('.item-desc .desc_festivized').style.display = 'none';
@@ -3610,8 +3644,7 @@ const create_trade = async (type, data, on_result) => {
                 if(data?.status === "waitingApproval"){
                     tradeOfferConnection({ status: "waitingApproval", offer: null, priceChanges: data?.priceChanges }, 'open')
                 } else {
-                    localStorage.setItem(`tradeoffer${user}`, JSON.stringify({ status: "creating", created: Date.now() }))
-                    tradeOfferConnection({ status: "creating" }, 'open')
+                    tradeOfferConnection({ status: "creating", requested: Date.now() }, 'open')
                 }
 
                 iziToast.success({
