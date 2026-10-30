@@ -35,7 +35,12 @@
     <link rel="canonical" href="<%= seo_url %>">
 <% if (!seo_index) { %>
     <meta name="robots" content="noindex">
-<% } else if (!info?.no_hreflang) { for (const alt of (info?.alternates || alternates(seo_site, seo_path))) { %>
+<% } else { %>
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<% } %>
+    <%# the same page as Markdown, for AI agents (src/service/markdown.js) %>
+    <link rel="alternate" type="text/markdown" href="<%= seo_url %>">
+<% if (seo_index && !info?.no_hreflang) { for (const alt of (info?.alternates || alternates(seo_site, seo_path))) { %>
     <link rel="alternate" hreflang="<%= alt.hreflang %>" href="<%= alt.href %>">
 <% } } %>
     <meta property="og:type" content="<%= info?.og_type || 'website' %>">
@@ -45,7 +50,11 @@
     <meta property="og:description" content="<%= seo_description %>">
     <meta property="og:url" content="<%= seo_url %>">
     <meta property="og:image" content="<%= seo_image %>">
+    <meta property="og:image:alt" content="<%= seo_title %>">
     <meta name="twitter:card" content="<%= info?.image ? 'summary' : 'summary_large_image' %>">
+    <meta name="twitter:title" content="<%= seo_title %>">
+    <meta name="twitter:description" content="<%= seo_description %>">
+    <meta name="twitter:image" content="<%= seo_image %>">
     <meta name="theme-color" content="#3f2a77">
     <meta name="trustpilot-one-time-domain-verification-id" content="52e55ef4-45c6-4737-9d51-05ac93a6f222"/>
     <meta name="msvalidate.01" content="9195A6F398D088FC940A29A7FBEC7B6C" />
@@ -78,6 +87,7 @@
         name: 'TF2Deal.com',
         url: seo_site + '/',
         publisher: { '@id': seo_org['@id'] },
+        inLanguage: Object.values(locals.lang_tags || { en: 'en' }),
         // the item search: /items?name=... lists the matching items
         potentialAction: {
             '@type': 'SearchAction',

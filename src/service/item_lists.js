@@ -11,12 +11,14 @@
 //   stock()               { name: [copies, limit] } of every card in stock (killstreak tiers included): the search
 //                         modal adds these names to the suggestions and shows "copies/limit" next to every name.
 //                         Every suggestion opens a page (no 404s).
+//   sitemap_names()       the items whose pages belong in the sitemap (fn.item_indexable), sorted by name
 //   ks_page(name)         "Professional Killstreak Rocket Launcher" -> { bases: ['Rocket Launcher', ...], tier: 3 }
 //   refresh()             read the items again now (at the start, and after the daily sweep marks old items inactive)
 
 import crypto from 'crypto'
 import { item_model } from '../model/Item.js'
 import { display_name, to_ref } from './buy_link.js'
+import * as fn from '../fn.js'
 
 const TTL = 60 * 1000
 const FIRST_WAIT = 5 * 1000 // how long a page waits for the very first read before it is shown without the list
@@ -229,9 +231,12 @@ const index = cached(async () => {
       if (!doc.bp_sku) continue
       const copies = doc.stock?.items?.length || 0
       const kept = by_name.get(doc.bp_sku)
-      if (kept && copies <= kept.copies) continue
+      // the page belongs in the sitemap when any record of the item does (as SITEMAP_ITEMS_QUERY on the database)
+      const indexable = fn.item_indexable(doc) || Boolean(kept?.indexable)
+      if (kept && copies <= kept.copies) { kept.indexable = indexable; continue }
       by_name.set(doc.bp_sku, {
         copies,
+        indexable,
         active: doc.status == 1,
         limit: Number(doc.stock?.limit) || 0,
         // the /items list: active items and the ones the bots hold copies of (status 2 items only have a page)
@@ -261,6 +266,7 @@ const index = cached(async () => {
     names_version: crypto.createHash('sha1').update(JSON.stringify([names, limits])).digest('hex').slice(0, 12),
     stock,
     in_stock: pages.map((page) => page.similar).filter(Boolean),
+    indexable: [...by_name].filter(([, page]) => page.indexable).map(([name]) => name).sort(),
     built: Date.now()
   }
 }, 'Item list')
@@ -343,6 +349,8 @@ const stock = async () => {
 }
 
 // reads the lists again now; the old lists are used until the new ones are ready
+const sitemap_names = async () => (await index()).indexable
+
 const refresh = () => index.reload().catch((error) => { console.error('Item list: read failed:', error?.message || error); return null })
 
-export { similar, cards, public_card, names, stock, ks_page, ks_tier, refresh }
+export { similar, cards, public_card, names, stock, sitemap_names, ks_page, ks_tier, refresh }

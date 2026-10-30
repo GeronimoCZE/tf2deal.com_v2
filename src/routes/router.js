@@ -139,9 +139,12 @@ const items = async (req, res, next) => {
       return res.redirect(301, req.lurl('/items') + (query.toString() ? '?' + query.toString() : ''))
     }
 
+    // ?name= (the site search and the SearchAction in the page data): the matching items, also without JavaScript
+    const name = String(query.get('name') || '').trim().slice(0, 100)
+
     let list = null
     try {
-      if (process.db_status.connected === true) list = await item_lists.cards()
+      if (process.db_status.connected === true) list = await item_lists.cards(name ? { name } : {})
     } catch (err) {
       console.error('Item list failed:', err?.message || err)
     }
@@ -172,8 +175,27 @@ const items = async (req, res, next) => {
         promtLogin: true,
         description: req.__('desc.items'),
         path: page > 1 ? `/items?page=${page}` : '/items', // canonical + hreflang: filters are left out, the page number stays
+        noindex: Boolean(name), // search results are not search results of their own
+        // the items on this page, for search engines and AI assistants (schema.org ItemList)
+        json_ld: cards.length > 0 ? {
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: req.__('title.items'),
+          url: fn.site_url + req.lurl(page > 1 ? `/items?page=${page}` : '/items'),
+          isPartOf: { '@id': fn.site_url + '/#website' },
+          mainEntity: {
+            '@type': 'ItemList',
+            numberOfItems: all.length,
+            itemListElement: cards.map((card, i) => ({
+              '@type': 'ListItem',
+              position: (page - 1) * ITEMS_PER_PAGE + i + 1,
+              name: card.name,
+              url: fn.site_url + req.lurl('/items/' + encodeURIComponent(card.bp_sku))
+            }))
+          }
+        } : undefined,
         item_count: list ? all.length : null,
-        list: list ? { cards, page, pages, per_page: ITEMS_PER_PAGE } : null
+        list: list ? { cards, page, pages, per_page: ITEMS_PER_PAGE, name } : null
       })
     )
   } catch (err) {

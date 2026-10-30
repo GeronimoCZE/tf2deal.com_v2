@@ -166,20 +166,11 @@ const socketCallback = (onSuccess, onTimeout, timeout) => {
 //   - the bots buy it (status 1) and it is a basic variant, not an unusual effect combination.
 // Unusual effect combinations count only while one is in stock: there are thousands of them, and without stock
 // their pages are the same text with another effect name. The other item pages still work, with `noindex`.
-// SITEMAP_ITEMS_QUERY is the same rule for the database (shown page + this rule); keep the two the same.
+// The sitemap takes its items from service/item_lists.js, which applies this rule to every item it reads.
 const item_in_stock = (item) => Number(item?.stock?.cur) > 0 || (Array.isArray(item?.stock?.items) && item.stock.items.length > 0)
 const item_indexable = (item, in_stock = item_in_stock(item)) => Boolean(item) &&
   Number(item.buy) > 0 && Number(item.sell) > 0 &&
   (Boolean(in_stock) || (Number(item.status) === 1 && !(Number(item.effectID) > 0)))
-
-const SITEMAP_ITEMS_QUERY = {
-  buy: { $gt: 0 },
-  sell: { $gt: 0 },
-  $and: [
-    { $or: [{ status: { $in: [1, 2] } }, { 'stock.items.0': { $exists: true } }] }, // the page is shown
-    { $or: [{ 'stock.cur': { $gt: 0 } }, { 'stock.items.0': { $exists: true } }, { status: 1, effectID: { $not: { $gt: 0 } } }] }
-  ]
-}
 
 // TF2 quality names (item words stay English on every language version, like the item names)
 const QUALITY_NAMES = { 0: 'Normal', 1: 'Genuine', 3: 'Vintage', 5: 'Unusual', 6: 'Unique', 7: 'Community', 8: 'Valve', 9: 'Self-Made', 11: 'Strange', 13: 'Haunted', 14: "Collector's", 15: 'Decorated Weapon' }
@@ -371,7 +362,6 @@ export {
   markdown_excerpt,
   item_in_stock,
   item_indexable,
-  SITEMAP_ITEMS_QUERY,
   quality_name,
   item_alt,
   faq_json_ld,

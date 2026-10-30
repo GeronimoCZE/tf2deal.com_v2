@@ -43,6 +43,14 @@ Only the Steam bots listed on the [About page](https://tf2deal.com/about) belong
 - [Blog](https://tf2deal.com/blog): news, guides and updates about TF2 trading.
 - [Sitemap](https://tf2deal.com/sitemap.xml): all indexed pages, in every language.
 
+## For AI agents
+
+- Every page answers in Markdown when asked with the header `Accept: text/markdown` (same URL, same content as the page's main part). Browsers get HTML as usual.
+- Search items without JavaScript: https://tf2deal.com/items?name=Team%20Captain lists the matching items with stock and price (60 per page, `&page=2`, ...).
+- An item page states the item's buy and sell price in keys and refined metal, the stock and the price history. Prices change over time: read them from the page, don't remember them.
+- Trading needs a Steam sign-in and a Steam trade offer accepted by the user in Steam. An agent can't trade for someone; it can find items, prices and stock and link the user to the right page.
+- Public pages may be crawled, indexed and quoted (see https://tf2deal.com/robots.txt). Pages behind the Steam sign-in (profile, trades, support tickets) are not public.
+
 ## Help
 
 - [FAQ](https://tf2deal.com/#faq): common questions (on the home page).
