@@ -115,6 +115,20 @@
             @include lt-sm{
                 font-size: 2.1rem !important;
             }
+            // "Automated TF2 trade bots": a small line above the headline
+            .kicker{
+                display: block;
+                margin-bottom: .5rem;
+                font-size: 1rem;
+                font-weight: 700;
+                letter-spacing: .08em;
+                text-transform: uppercase;
+                color: var(--violet);
+                -webkit-text-fill-color: currentColor;
+                @include lt-sm{
+                    font-size: .8rem;
+                }
+            }
         }
         .trade-status{
             display: inline-flex;

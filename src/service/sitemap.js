@@ -10,6 +10,7 @@ import { blog_model } from '../model/Blog.js'
 import { localize_path, LANGS } from '../i18n.js'
 import { available_langs } from './translate.js'
 import * as fn from '../fn.js'
+import * as indexnow from './indexnow.js'
 
 const CACHE_MS = 10 * 60 * 1000
 const MAX_URLS = 50000 // the most one sitemap file may hold
@@ -133,7 +134,17 @@ const build = async () => {
   const total = pages.length + blog.length + names.length * LANGS.length
   if (total > MAX_URLS) console.log(`Sitemap: ${total} URLs, only the first ${MAX_URLS} fit in one file`)
   const urls = [...pages, ...blog, ...item_urls].slice(0, MAX_URLS)
+  if (complete) announce(urls, item_urls)
   return { time: Date.now(), xml: urlset(urls), urls: urls.length, complete }
+}
+
+// IndexNow (Bing / Edge): the whole sitemap once a day at most, then the item pages that are new in it
+let announced = null // the item URLs of the last sitemap sent or compared
+const announce = (urls, item_urls) => {
+  const locs = item_urls.map((u) => u.loc)
+  if (!announced) indexnow.submit_all(urls.map((u) => u.loc))
+  else indexnow.submit(locs.filter((loc) => !announced.has(loc)))
+  announced = new Set(locs)
 }
 
 // one build at a time; a failed build keeps the last good one

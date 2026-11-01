@@ -308,7 +308,7 @@ const item_description = (item, __ = t_for(DEFAULT_LANG)) => {
 }
 
 // The home page FAQ (views/home.ejs: the same questions, in the same order) as schema.org FAQPage, in the page language
-const HOME_FAQ = [['how_q', 'how_a'], ['limits_q', 'limits_a'], ['pure_q', 'pure_a_html'], ['money_q', 'money_a_html'],
+const HOME_FAQ = [['how_q', 'how_a'], ['bot_q', 'bot_a'], ['sell_q', 'sell_a'], ['limits_q', 'limits_a'], ['pure_q', 'pure_a_html'], ['money_q', 'money_a_html'],
   ['deposits_q', 'deposits_a_html'], ['refunds_q', 'refunds_a_html'], ['legit_q', 'legit_a_html'], ['owner_q', 'owner_a']]
 const plain_text = (html) => String(html || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').replace(/\s+([.,;:!?。，；：！？])/g, '$1').trim()
 const faq_json_ld = (__) => ({

@@ -71,11 +71,11 @@
     "legal": "Legal"
   },
   "title": {
-    "home": "TF2deal.com - Sitio web de intercambio automatizado de Team Fortress 2",
+    "home": "Bot de trade de TF2 y web de trading automático | TF2Deal.com",
     "trade_offer": "TF2Deal.com - Tu oferta de intercambio",
     "trade": "TF2Deal.com - Intercambia objetos de TF2",
-    "items": "TF2Deal.com - Objetos",
-    "items_page": "TF2Deal.com - Objetos (página {page})",
+    "items": "Precios de objetos de TF2 – Compra y vende | TF2Deal.com",
+    "items_page": "Precios de objetos de TF2 (página {page}) | TF2Deal.com",
     "not_found": "404 - No encontrado - TF2deal.com",
     "giveaway": "TF2Deal.com - Sorteo 🎁",
     "blog": "TF2Deal.com - Blog",
@@ -91,11 +91,11 @@
     "register": "Regístrate en TF2deal.com",
     "error": "Error - TF2Deal.com",
     "development": "Sitio web en desarrollo - TF2Deal.com",
-    "item": "{name} - Precio e intercambio | TF2Deal.com",
+    "item": "Comprar y vender {name} – Precio en TF2 | TF2Deal.com",
     "cookies": "TF2Deal.com - Política de cookies"
   },
   "desc": {
-    "default": "Web de trading de TF2 con bots automáticos. Compra, vende e intercambia objetos de TF2: sombreros, unusuals, armas, burlas y llaves a precios justos en llaves y ref.",
+    "default": "Web de bots de trade de TF2: compra, vende e intercambia objetos de TF2 con bots automáticos de Steam. Sombreros, unusuals, armas, burlas y llaves por llaves y ref, oferta en segundos.",
     "trade": "Intercambia objetos de TF2 con nuestros bots de trading de TF2: elige objetos de ambos inventarios, paga con llaves o metal refinado y recibe una oferta de Steam en segundos.",
     "items": "Precios y stock de objetos de TF2 en tiempo real. Compra y vende sombreros, unusuals, armas, burlas y más por llaves y ref con trading de TF2 al instante en TF2Deal.com.",
     "blog": "Noticias, guías y precios del trading de TF2 de TF2Deal.com, la web de bots de intercambio de TF2.",
@@ -163,7 +163,7 @@
   "faq": {
     "title": "Preguntas frecuentes",
     "how_q": "¿Cómo funciona?",
-    "how_a": "TF2deal.com es un sitio web de intercambio de Team Fortress 2. Puedes intercambiar tus objetos por los nuestros.",
+    "how_a": "Elige los objetos en la página de Intercambio o en la página de un objeto. Nuestros bots de trade de TF2 revisan el intercambio y te envían una oferta de Steam en segundos. Acéptala en Steam y listo.",
     "limits_q": "¿Límites de intercambio?",
     "limits_a": "Actualmente puedes intercambiar un máximo de 10 objetos por cada lado. Pure: hasta 550 llaves, refs por valor de 2 llaves, 27 recs y 18 scraps.",
     "pure_q": "¿Puedo intercambiar objetos por pure?",
@@ -177,7 +177,11 @@
     "legit_q": "¿Estafa o legítimo?",
     "legit_a_html": "Sé que en el pasado hubo una estafa que usaba el dominio tf2deal.com {link}. Me enteré después de comprar el dominio, y el nombre me gustaba demasiado como para cambiarlo. Así que sí, este tf2deal.com <span>es legítimo</span>.",
     "owner_q": "¿Quién gestiona este sitio web?",
-    "owner_a": "El sitio lo gestiona una sola persona: Nikolas Malík (yo). Un apasionado jugador de TF2, comerciante de objetos y desarrollador web autodidacta que vive en Chequia (Europa Central)."
+    "owner_a": "El sitio lo gestiona una sola persona: Nikolas Malík (yo). Un apasionado jugador de TF2, comerciante de objetos y desarrollador web autodidacta que vive en Chequia (Europa Central).",
+    "bot_q": "¿Qué es un bot de trade de TF2?",
+    "bot_a": "Una cuenta de Steam manejada por un programa que intercambia objetos de Team Fortress 2 por sí sola, a cualquier hora. Los bots de TF2Deal.com aparecen en la página Acerca de; nadie más intercambia en nombre del sitio.",
+    "sell_q": "¿Cómo vendo objetos de TF2 por llaves?",
+    "sell_a": "Inicia sesión con Steam, abre la página del objeto o la página de Intercambio y elige tu objeto. Los bots pagan en llaves y metal refinado al precio indicado, siempre que compren ese objeto."
   },
   "home": {
     "hero_html": "¡Intercambia, compra y vende<br> tus objetos de TF2!",
@@ -189,8 +193,8 @@
     "stat_trades": "Intercambios hoy",
     "stat_items": "Objetos disponibles",
     "stat_bots": "Bots de Steam",
-    "intro_title": "¡Intercambio de Team Fortress 2 y mucho más!",
-    "intro_1": "TF2deal.com es un sitio web de intercambio automatizado de objetos de TF2 que usa bots de Steam. Su objetivo principal es ofrecer intercambios de objetos justos y seguros.",
+    "intro_title": "Una web de trading de TF2 automática con bots de Steam",
+    "intro_1": "TF2deal.com es una web de trade de TF2 atendida por bots automáticos: compran, venden e intercambian objetos de Team Fortress 2 contigo y te envían la oferta de intercambio de Steam en segundos. Su objetivo principal es ofrecer intercambios justos y seguros.",
     "intro_2": "Todo ello con una amplia variedad de objetos de TF2 compatibles.",
     "intro_3_html": "Puedes intercambiar <a href=\"{url}\">varios objetos</a> (hasta 10 a la vez)",
     "intro_4_html": "O comprar y vender <a href=\"{url}\">un solo tipo de objeto</a> por pure (según el stock)",
@@ -205,7 +209,8 @@
     "tools_text": "¿Quieres ampliar tu inventario? ¿Darle un killstreaker a tu arma? ¡Tenemos lo que buscas!",
     "tools_link": "Ver todas las herramientas",
     "cta_title": "¿Listo para tradear?",
-    "cta_text": "Elige tus objetos y nuestros bots te envían la oferta de intercambio en Steam."
+    "cta_text": "Elige tus objetos y nuestros bots te envían la oferta de intercambio en Steam.",
+    "hero_kicker": "Bots de trade de TF2 automáticos"
   },
   "filters": {
     "none": "Ninguno",
@@ -423,7 +428,10 @@
     "items": {
       "invalid_input": "Valor de filtro no válido.",
       "latest_updates": "Últimas actualizaciones",
-      "item_database": "Base de datos de objetos"
+      "item_database": "Base de datos de objetos",
+      "loading_slow": "Todavía se están cargando los objetos…",
+      "load_failed": "No se pudieron cargar los objetos.",
+      "try_again": "Reintentar"
     },
     "offer": {
       "loading_title": "Cargando oferta de intercambio...",
@@ -579,7 +587,7 @@
     }
   },
   "items": {
-    "h1": "Base de datos de objetos",
+    "h1": "Base de datos de objetos de TF2",
     "found_html": "Objetos encontrados: {count}",
     "end": "Has llegado al final.",
     "none": "No se encontraron objetos...",
