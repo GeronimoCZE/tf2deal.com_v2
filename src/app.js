@@ -213,8 +213,9 @@ const static_headers = (res) => {
 
 // the XML sitemap, built from the database on request (before the static files, so old sitemap files left on disk
 // are never served)
-app.get('/sitemap.xml', sitemap.handler)
-app.get(['/sitemap_index.xml', '/sitemaps/:file'], sitemap.redirect)
+app.get('/sitemap.xml', sitemap.handler) // the sitemap index
+app.get('/sitemaps/:file', sitemap.file)
+app.get('/sitemap_index.xml', sitemap.redirect)
 app.get('/:file.txt', indexnow.key_file) // the IndexNow key file, when INDEXNOW_KEY is set (service/indexnow.js)
 
 // Fonts and images rarely change, so browsers keep them for a month (give a changed picture a new name); everything
