@@ -102,6 +102,9 @@ export const find = async (assetid) => {
         ks: Number(asset?.ks) || 0,
         festivized: !!asset?.f,
         details: details(asset),
+        // the corner marks on its picture
+        spells: words(asset?.at?.spells).length > 0,
+        parts: words(asset?.at?.strangeParts).length > 0,
         sell,
         price: fn.price_text(sell, key_ref)
       })

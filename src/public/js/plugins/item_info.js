@@ -83,7 +83,7 @@ const open = (item_el, party) => {
     modal.querySelector('.modal_content').innerHTML = `
         <div class="item-info">
             <div class="ii-head">
-                <span class="ii-thumb q-${esc(info.qualityID)}"${thumb_bg}><img src="${esc(info.image)}" alt=""></span>
+                <span class="ii-thumb q-${esc(info.qualityID)}"${thumb_bg}><img src="${esc(info.image)}" alt="">${trade.marks_html(info.spells.length > 0, info.parts.length > 0)}</span>
                 <div class="ii-name">
                     <strong class="ii-title" translate="no">${esc(info.name)}</strong>
                     ${info.custom_name ? `<span class="ii-custom" translate="no">"${esc(info.custom_name)}"</span>` : ''}

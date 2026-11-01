@@ -987,7 +987,7 @@ addEventListener('DOMContentLoaded', (event) => {
                             '.item-grid #site-grid').offset().top + $('.item-grid #site-grid').
                                 outerHeight() - window.innerHeight) {
             
-                            await trade.load_site_inventory(trade.SiteTrade.filters.page, 'change')
+                            await trade.load_site_inventory('next', 'change')
                         }
                     }
                 }
@@ -1007,7 +1007,7 @@ addEventListener('DOMContentLoaded', (event) => {
             $('#site-item-grid').scroll(async function() {
                 if($('.item-grid #site-grid').offset() != undefined && $('.item-grid #site-grid .invisible-item').offset() != undefined){
                     if($('.item-grid #site-grid .invisible-item').isInViewport(75)){            
-                        await trade.load_site_inventory(trade.SiteTrade.filters.page, 'change')
+                        await trade.load_site_inventory('next', 'change')
                     }
                 }
             })
