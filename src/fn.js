@@ -166,7 +166,8 @@ const socketCallback = (onSuccess, onTimeout, timeout) => {
 //   - the bots buy it (status 1) and it is a basic variant, not an unusual effect combination.
 // Unusual effect combinations count only while one is in stock: there are thousands of them, and without stock
 // their pages are the same text with another effect name. The other item pages still work, with `noindex`.
-// The sitemap takes its items from service/item_lists.js, which applies this rule to every item it reads.
+// The sitemap takes its items from service/item_lists.js, which applies this rule to every item it reads, or from the
+// database with the same rule (ITEMS_QUERY in service/sitemap.js).
 const item_in_stock = (item) => Number(item?.stock?.cur) > 0 || (Array.isArray(item?.stock?.items) && item.stock.items.length > 0)
 const item_indexable = (item, in_stock = item_in_stock(item)) => Boolean(item) &&
   Number(item.buy) > 0 && Number(item.sell) > 0 &&

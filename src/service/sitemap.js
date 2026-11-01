@@ -5,6 +5,7 @@
 // never wait for the database.
 
 import * as item_lists from './item_lists.js'
+import { item_model as Items } from '../model/Item.js'
 import { blog_model } from '../model/Blog.js'
 import { localize_path, LANGS } from '../i18n.js'
 import { available_langs } from './translate.js'
@@ -26,6 +27,16 @@ const ENGLISH_ONLY = [
   { path: '/terms-of-service', changefreq: 'yearly', priority: '0.5' },
   { path: '/cookies', changefreq: 'yearly', priority: '0.5' }
 ]
+// the items whose pages belong in the sitemap, for the database: the page is shown (routes/router.js find_page_item)
+// and fn.item_indexable says yes (item_lists.js applies that rule to the items it reads); keep the three the same
+const ITEMS_QUERY = {
+  buy: { $gt: 0 },
+  sell: { $gt: 0 },
+  $and: [
+    { $or: [{ status: { $in: [1, 2] } }, { 'stock.items.0': { $exists: true } }] },
+    { $or: [{ 'stock.cur': { $gt: 0 } }, { 'stock.items.0': { $exists: true } }, { status: 1, effectID: { $not: { $gt: 0 } } }] }
+  ]
+}
 // item pages: prices and stock change all the time
 const ITEM = { changefreq: 'always', priority: '0.4' }
 
@@ -46,8 +57,11 @@ const page_url = (lang, p) => fn.site_url + localize_path(lang, p)
 
 let cache = null    // { time, xml, urls, complete }
 let building = null
-let last_blog = []  // the blog part of the last good build, used while the database doesn't answer
+let last_blog = []
+let last_items = [] // the item names of the last good build
+let last_source = ''  // the blog part of the last good build, used while the database doesn't answer
 
+const ITEMS_WAIT = 5 * 60 * 1000 // how long the item names may take to read from the database (in the background)
 const BLOG_WAIT = 10 * 1000   // how long the blog posts may take to read
 const FIRST_WAIT = 5 * 1000   // how long a request waits for the very first build (Cloudflare and crawlers give up)
 
@@ -87,11 +101,29 @@ const build = async () => {
   }
 
   // the items the bots really trade (the same rule as the item page's noindex), each one once, in every language
-  let names = []
+  // From the item list when it is read; when it isn't (still reading, or its reads stop at 2 min on a slow database),
+  // straight from the database: only the names, and this runs in the background, never while a request waits.
+  let names = null
+  let source = 'item list'
   try {
     names = await item_lists.sitemap_names()
-  } catch (error) {
-    complete = false // the item list isn't read yet: the sitemap goes out without items and is built again soon
+  } catch (error) {}
+  if (!names?.length) {
+    source = 'database'
+    try {
+      if (process.db_status?.connected !== true) throw new Error('no database')
+      names = (await Items.distinct('bp_sku', ITEMS_QUERY).maxTimeMS(ITEMS_WAIT)).filter(Boolean).sort()
+    } catch (error) {
+      console.log('Sitemap: item names not read:', error?.message || error)
+    }
+  }
+  if (names?.length) {
+    if (source != last_source) console.log(`Sitemap: ${names.length} items from the ${source}`)
+    last_items = names
+    last_source = source
+  } else {
+    names = last_items // the last ones read, and the sitemap is built again in a minute
+    complete = false
   }
   // only the items that fit in the file get their URLs made (all of them were 275,000 URLs in a test with 45,000 items)
   const room = Math.max(MAX_URLS - pages.length - blog.length, 0)
