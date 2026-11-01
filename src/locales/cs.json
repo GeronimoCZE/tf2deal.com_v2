@@ -423,7 +423,10 @@
     "items": {
       "invalid_input": "Neplatná hodnota filtru.",
       "latest_updates": "Nejnovější aktualizace",
-      "item_database": "Databáze předmětů"
+      "item_database": "Databáze předmětů",
+      "loading_slow": "Předměty se stále načítají…",
+      "load_failed": "Předměty se nepodařilo načíst.",
+      "try_again": "Zkusit znovu"
     },
     "offer": {
       "loading_title": "Načítání nabídky k výměně...",

@@ -423,7 +423,10 @@
     "items": {
       "invalid_input": "筛选值无效。",
       "latest_updates": "最新更新",
-      "item_database": "物品数据库"
+      "item_database": "物品数据库",
+      "loading_slow": "物品仍在加载中…",
+      "load_failed": "无法加载物品。",
+      "try_again": "重试"
     },
     "offer": {
       "loading_title": "正在加载交易报价……",

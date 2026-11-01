@@ -9,10 +9,13 @@ import { log } from 'console';
 import { safe_equal } from '../../service/settings.js';
 import * as item_lists from '../../service/item_lists.js';
 
-// the /items list asks again on every filter change, so a few quick clicks have to fit
+// the /items list asks again on every filter change, so a few quick clicks have to fit (the page itself waits at
+// least 1 s between requests, public/js/plugins/items.js). Each signed-in user has a limit of their own, so visitors
+// behind one address (a school, a mobile network) don't use up each other's.
 const items_rate_limit = rateLimit({
   windowMs: 10 * 1000,
   max: 15,
+  keyGenerator: (req) => req.user?.steamid ? `user:${req.user.steamid}` : req.ip,
   standardHeaders: true,
   legacyHeaders: false,
   message: (req) => ({ status: "error", message: req.__ ? req.__('api.too_many_requests') : "Too many requests! Try again later..." })
@@ -96,10 +99,11 @@ router.post('/', items_rate_limit, async (req, res) => {
       const list = await item_lists.cards(filters, text('sort'))
       res.status(200).json({ status: "ok", item_count: list.length, response: list.slice(skip, skip + limit).map(item_lists.public_card) });
     } catch {
-      res.status(500).json({ status: "error", message: "db error" });
+      // the item list isn't read yet (service/item_lists.js): the page asks again after Retry-After
+      res.status(503).set('Retry-After', '10').json({ status: "error", message: "db error" });
     }
   } else {
-    res.status(500).json({ status: "error", message: "db error" });
+    res.status(503).set('Retry-After', '10').json({ status: "error", message: "db error" });
   }
 });
 

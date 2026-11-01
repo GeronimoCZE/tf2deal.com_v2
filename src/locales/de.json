@@ -423,7 +423,10 @@
     "items": {
       "invalid_input": "Ungültiger Filterwert.",
       "latest_updates": "Neueste Updates",
-      "item_database": "Item-Datenbank"
+      "item_database": "Item-Datenbank",
+      "loading_slow": "Die Items werden noch geladen…",
+      "load_failed": "Die Items konnten nicht geladen werden.",
+      "try_again": "Erneut versuchen"
     },
     "offer": {
       "loading_title": "Tauschangebot wird geladen...",

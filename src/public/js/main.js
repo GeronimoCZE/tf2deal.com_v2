@@ -1023,8 +1023,6 @@ addEventListener('DOMContentLoaded', (event) => {
     }
 
     if(TD_PATH.includes('/items')){
-            let next_api_request = Date.now()
-            let req_reserved = false;
 
             // Picked filters wait for "Apply filters", so several can be set with one load. The search applies at once
             // and keeps the filters that are applied (the URL), not the picked ones.
@@ -1052,19 +1050,7 @@ addEventListener('DOMContentLoaded', (event) => {
                 document.querySelector('.item-content').classList.remove('loaded')
                 document.querySelector('.item-content').classList.remove('last-page')
                 document.querySelector('.item-content').classList.remove('no-items')    
-                if(next_api_request <= Date.now()){
-                    req_reserved = true
-                    items.get_items(items_page)
-                    next_api_request = Date.now() + 3000
-                    req_reserved = false                
-                } else {
-                    req_reserved = true
-                    setTimeout(() => {
-                        items.get_items(items_page)
-                        next_api_request = Date.now() + 3000
-                        req_reserved = false                    
-                    }, next_api_request - Date.now());
-                }
+                items.get_items(items_page) // items.js paces the requests
             }
             
 
@@ -1132,8 +1118,6 @@ addEventListener('DOMContentLoaded', (event) => {
             } else {
                 let items_page = 0;
                 let validInputs = true;
-                let next_api_request = Date.now()
-                let req_reserved = false
                 
                 for (const entry of urlParams.entries()) {
                     const filterEl = document.querySelector(`.filter[filter=${entry[0]}]`)
@@ -1166,16 +1150,7 @@ addEventListener('DOMContentLoaded', (event) => {
                     items.list.page = server_page * (Number(server_list.dataset.perPage) / 15) - 1
                 } else {
                     document.querySelector('.item-content').classList.remove('loaded')
-                    req_reserved = true
-                    setTimeout(() => {
-                        items.get_items(items_page, validInputs).then(() => {
-                        },
-                        () => {
-                            
-                        })
-                        next_api_request = Date.now() + 3000
-                        req_reserved = false
-                    }, 1000);
+                    setTimeout(() => items.get_items(items_page, validInputs).catch(() => {}), 1000)
                 }
                 
                 document.querySelector('form#user-input-filter').addEventListener('submit', function(e){
@@ -1196,42 +1171,15 @@ addEventListener('DOMContentLoaded', (event) => {
                     document.querySelector('.item-content').classList.remove('loaded')
                     document.querySelector('.item-content').classList.remove('last-page')
                     document.querySelector('.item-content').classList.remove('no-items')
-                    if(next_api_request <= Date.now()){
-                        req_reserved = true
-                        items.get_items(items_page)
-                        next_api_request = Date.now() + 3000
-                        req_reserved = false                
-                    } else {
-                        req_reserved = true
-                        setTimeout(() => {
-                            items.get_items(items_page)
-                            next_api_request = Date.now() + 3000
-                            req_reserved = false                    
-                        }, next_api_request - Date.now());
-                    }
+                    items.get_items(items_page) // items.js paces the requests
                 })  
                 
                 $(window).on('resize scroll', function() {
-                    if($('.item-loader').isInViewport(100)){
+                    // after a failed load the list waits for its Try again button (items.js)
+                    if($('.item-loader').isInViewport(100) && !document.querySelector('.item-content.load-failed')){
                         if(!$('.item-loader').hasClass('loading')){
                             $('.item-loader').addClass('loading')
-                            if(req_reserved == false){
-                                if(next_api_request <= Date.now()){
-                                    req_reserved = true
-                                    items.get_items(items.list.page + 1).catch(() => {}) // "last page" ends the list
-                                    next_api_request = Date.now() + 3000
-                                    req_reserved = false                
-                                } else {
-                                    req_reserved = true
-                                    setTimeout(() => {
-                                        items.get_items(items.list.page + 1).catch(() => {}) // "last page" ends the list
-                                        next_api_request = Date.now() + 3000
-                                        req_reserved = false                    
-                                    }, next_api_request - Date.now());
-                                }
-                            }
-                        } else {
-
+                            items.get_items(items.list.page + 1).catch(() => {}) // "last page" ends the list; items.js paces the requests
                         }
                     }
                 });

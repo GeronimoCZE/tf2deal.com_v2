@@ -402,6 +402,58 @@
         .end{
             display: none;
         }
+        // "still loading" / "couldn't be loaded" + Try again (public/js/plugins/items.js status)
+        .item-status{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: .6rem;
+            width: 100%;
+            padding: .5rem 0;
+            text-align: center;
+            color: rgb(194, 194, 194);
+            &[hidden]{
+                display: none;
+            }
+            button{
+                padding: .3rem .8rem;
+                border: none;
+                border-radius: 5px;
+                background: var(--brand-muted);
+                color: #fff;
+                font-family: inherit;
+                font-size: 15px;
+                cursor: pointer;
+                transition: background-color 250ms;
+                &:hover{
+                    background: var(--brand-muted-hover);
+                }
+                &[hidden]{
+                    display: none;
+                }
+            }
+        }
+        // before the first items: the big loader fills the list, the line sits under its spinner
+        &:not(.loaded) .item-status{
+            position: absolute;
+            top: 390px;
+            left: 0;
+            @include lt-sm{
+                top: 240px;
+            }
+        }
+        &.load-failed{
+            .item-loader{
+                display: none;
+            }
+            &:not(.loaded) .item-status{
+                top: 300px;
+                @include lt-sm{
+                    top: 40px;
+                }
+            }
+        }
         &.loaded{
             display: block;
             flex-direction: row;

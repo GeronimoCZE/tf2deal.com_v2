@@ -423,7 +423,10 @@
     "items": {
       "invalid_input": "Valeur de filtre invalide.",
       "latest_updates": "Dernières mises à jour",
-      "item_database": "Base de données d'objets"
+      "item_database": "Base de données d'objets",
+      "loading_slow": "Chargement des objets en cours…",
+      "load_failed": "Impossible de charger les objets.",
+      "try_again": "Réessayer"
     },
     "offer": {
       "loading_title": "Chargement de l'offre d'échange...",

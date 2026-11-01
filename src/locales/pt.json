@@ -423,7 +423,10 @@
     "items": {
       "invalid_input": "Valor de filtro inválido.",
       "latest_updates": "Últimas atualizações",
-      "item_database": "Banco de dados de itens"
+      "item_database": "Banco de dados de itens",
+      "loading_slow": "Ainda carregando os itens…",
+      "load_failed": "Não foi possível carregar os itens.",
+      "try_again": "Tentar novamente"
     },
     "offer": {
       "loading_title": "Carregando oferta de troca...",

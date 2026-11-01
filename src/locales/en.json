@@ -423,7 +423,10 @@
     "items": {
       "invalid_input": "Invalid filter value.",
       "latest_updates": "Latest Updates",
-      "item_database": "Item Database"
+      "item_database": "Item Database",
+      "loading_slow": "Still loading the items…",
+      "load_failed": "The items couldn't be loaded.",
+      "try_again": "Try again"
     },
     "offer": {
       "loading_title": "Loading trade offer...",
