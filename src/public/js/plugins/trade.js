@@ -186,22 +186,22 @@ function playSound(src, volume = 1) {
     });
 }
 
-let last_load = {
-    filters: JSON.stringify({})
-}
+// What the bots' inventory grid shows: its filters (all but the page) and how many pages of the bot server's list
+// (50 items each) are in it. Scrolling to its end loads the next page of the same filters; a filter change starts
+// again from page 1.
+const site_shown = { filters: null, pages: 0 }
+const site_filters_key = () => { const { page, ...filters } = SiteTrade.filters; return JSON.stringify(filters) }
+// visitors who aren't signed in see this many pages (the site's /api/bots/inventory answers no more)
+const SITE_PAGES_SIGNED_OUT = 2
 
 let processing_site_inventory = false;
+// page: 'next' for the next page of what the grid shows (scrolling to its end), anything else for page 1
+// change: 'change' once the page is set up (the first load also resets the filter menus)
+// reload: page 1 again even when the filters are what the grid shows (the reload button, after a trade)
 const load_site_inventory = async (page, change, reload) => {
 
     if(processing_site_inventory){ return; }
     processing_site_inventory = true;
-
-    if(reload){
-        SiteTrade.filters.page = 0;
-
-    } else {
-        SiteTrade.filters.page = SiteTrade.filters.page + 1
-    }
 
     if(typeof SiteTrade.filters.quality == "string"){
         SiteTrade.filters.quality = itemAttr.Quality[SiteTrade.filters.quality[0].toUpperCase() + SiteTrade.filters.quality.slice(1)]?.id || null;
@@ -212,9 +212,25 @@ const load_site_inventory = async (page, change, reload) => {
         
     }
 
-    if(SiteTrade.filters.page == 0 || SiteTrade.filters.page == 1){
-        SiteTrade.filters.page = 1
+    const filters_key = site_filters_key()
+    const next = page === 'next' && filters_key === site_shown.filters
+    // the grid already shows every page, or these filters (a filter set to the value it had)
+    if((next && fetched_all_pages) || (!next && !reload && filters_key === site_shown.filters)){
+        processing_site_inventory = false;
+        return;
     }
+    const ask = next ? site_shown.pages + 1 : 1
+    if(user === "no_session" && ask > SITE_PAGES_SIGNED_OUT){
+        fetched_all_pages = true;
+        $('.item-grid #site-grid .invisible-item').remove()
+        iziToast.error({
+            title: __('common.error'),
+            message: __('trade.login_to_browse')
+        });
+        processing_site_inventory = false;
+        return;
+    }
+    SiteTrade.filters.page = ask
     
     let Settings = {
         "async": true,
@@ -239,32 +255,14 @@ const load_site_inventory = async (page, change, reload) => {
         return;
     }
 
-    if(user === "no_session" && page > 4){
-        iziToast.error({
-            title: __('common.error'),
-            message: __('trade.login_to_browse')
-        });
-        processing_site_inventory = false;
-        return;
-    }
-
-    if(last_load.filters == JSON.stringify(SiteTrade.filters) && !reload){
-        processing_site_inventory = false;
-        return;
-    } else {
-        SiteTrade.filters.page = 1;
-    }
-
     const make_request = () => {
         $.ajax(Settings)
         .fail(async function (response){
             processing_site_inventory = false;
             $('.item-grid #site-grid .invisible-item').remove()
 
-            if(page == 0){
-                render_items('site', 'error', page, change)
-            } else {
-                SiteTrade.filters.page = SiteTrade.filters.page - 1
+            if(ask == 1){
+                render_items('site', 'error', 0, change)
             }
             if(response.statusText == 'Too Many Requests'){
                 iziToast.error({
@@ -280,7 +278,6 @@ const load_site_inventory = async (page, change, reload) => {
         })
         .done(async function (response) {
             processing_site_inventory = false;
-            last_load.filters = JSON.stringify(SiteTrade.filters);
             document.querySelectorAll('.filter-btn').forEach((btn) => {
                 if(!btn.parentElement.querySelector('.filter-box').classList.contains('hidden')){
                     btn.parentElement.querySelector('.filter-box').classList.toggle('hidden')
@@ -300,8 +297,11 @@ const load_site_inventory = async (page, change, reload) => {
                     }
                     document.querySelector('#filter-bot').classList.remove('disabled')
                 }
-                if(await response != "error"){
-                    if(Array.isArray(SiteTrade.inventory)){} else { SiteTrade.inventory = [] }
+                if(Array.isArray(response?.inventory?.items)){
+                    site_shown.filters = filters_key
+                    site_shown.pages = ask
+                    // items stay known after a filter change: the trade can hold items the grid no longer shows
+                    if(!Array.isArray(SiteTrade.inventory)){ SiteTrade.inventory = [] }
                     if( response.inventory.items.length < response?.page_limit ){ fetched_all_pages = true }
         
                     let new_items = []
@@ -314,13 +314,13 @@ const load_site_inventory = async (page, change, reload) => {
                     SiteTrade.inventory = [...SiteTrade.inventory, ...new_items];
                     
                     SiteTrade.pure = response.inventory.pure;
-                    render_items('site', await response, page, change, fetched_all_pages)
+                    await render_items('site', response, ask - 1, change, fetched_all_pages)
+                    setTimeout(fill_site_grid, 50)
                 }
                 else{
-                    if(page == 0){
-                        render_items('site', await response, page, change, fetched_all_pages)
+                    if(ask == 1){
+                        render_items('site', response, 0, change, fetched_all_pages)
                     } else {
-                        SiteTrade.filters.page = SiteTrade.filters.page - 1
                         iziToast.error({
                             title: __('trade.items_error_title'),
                             message: __('common.try_later')
@@ -332,8 +332,8 @@ const load_site_inventory = async (page, change, reload) => {
                     title: __('common.error'),
                     message: __('trade.items_error')
                 });
-                if(page == 0){
-                    render_items('site', 'error', page, change)
+                if(ask == 1){
+                    render_items('site', 'error', 0, change)
                 }
             }
 
@@ -342,7 +342,7 @@ const load_site_inventory = async (page, change, reload) => {
             
     }    
 
-    if(page < 2){
+    if(ask == 1){
         $(`.loading-items#site-loading`).removeClass('hidden')
         await delay(1000)
         site_inventory_load = Date.now()
@@ -352,6 +352,18 @@ const load_site_inventory = async (page, change, reload) => {
         await delay(1000)
         site_inventory_load = Date.now()
         make_request()
+    }
+}
+
+// When the grid's box isn't full (a page with few items, a tall screen), there's nothing to scroll, so the next page
+// loads by itself while the end of the grid is on screen.
+const fill_site_grid = () => {
+    const box = document.querySelector('#site-item-grid')
+    const end = box?.querySelector('#site-grid .invisible-item')
+    if(!end || fetched_all_pages || processing_site_inventory){ return }
+    const { top } = end.getBoundingClientRect()
+    if(top < Math.min(box.getBoundingClientRect().bottom, window.innerHeight) + 75){
+        load_site_inventory('next', 'change')
     }
 }
 
@@ -1232,6 +1244,18 @@ export const item_alt = (name, qualityID) => {
     return text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
 }
 
+// A copy's picture: Steam's own picture of a painted or festivized copy (the bot server sends it as icon_url), else the
+// item's picture from the database
+export const copy_image = (copy, fallback) => copy?.icon_url ? img_prefix + copy.icon_url : fallback
+
+// Small marks in the corner of a copy's tile: Halloween spells and strange parts, side by side when it has both
+// (styles: scss/partials/_tile_marks.scss). The tooltip and the item window name them.
+export const marks_html = (spell, part) => (spell || part)
+    ? `<span class="tile-marks" aria-hidden="true">${spell ? '<i class="mark spell"></i>' : ''}${part ? '<i class="mark part"></i>' : ''}</span>`
+    : ''
+const has_words = (value) => Array.isArray(value) ? value.some((v) => typeof v == 'string' && v.trim()) : (typeof value == 'string' && !!value.trim())
+export const copy_marks = (copy) => marks_html(has_words(copy?.at?.spells), has_words(copy?.at?.strangeParts))
+
 export const create_sku = (bp_sku, qualityID, f, ks) => {
     if(f === 0 && ks === 0){ return bp_sku; }
 
@@ -1736,13 +1760,10 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
 
        for (const asset of assets) {        
             if(item_desc){
-                let item_image = item_desc.image;
-                if(asset?.icon_url){
-                    item_image = img_prefix + asset?.icon_url;
-                }
+                let item_image = copy_image(asset, item_desc.image);
 
                 const ks_class = (asset?.ks > 0) ? `ks${asset?.ks}`:"";
-                grid.append($(`<div class="item q-${item_desc?.qualityID} ${craftable} ${ks_class}" data-assetid="${asset.a}" data-quality="${item_desc?.qualityID}" data-effect="${item_desc?.effectID}" data-name="${item_desc.bp_sku}" data-bp_sku="${create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks)}" data-type="${item_desc?.type}" data-price="${single_price(asset, true)}" data-classes="${classes}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks), item_desc?.qualityID)}"></div>`)   )
+                grid.append($(`<div class="item q-${item_desc?.qualityID} ${craftable} ${ks_class}" data-assetid="${asset.a}" data-quality="${item_desc?.qualityID}" data-effect="${item_desc?.effectID}" data-name="${item_desc.bp_sku}" data-bp_sku="${create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks)}" data-type="${item_desc?.type}" data-price="${single_price(asset, true)}" data-classes="${classes}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks), item_desc?.qualityID)}">${copy_marks(asset)}</div>`)   )
             }         
         }
 
@@ -1762,14 +1783,11 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
         }
 
        for (const asset of assets) {
-            let item_image = item_desc.image;
-            if(asset?.icon_url){
-                item_image = img_prefix + asset?.icon_url;
-            }
+            let item_image = copy_image(asset, item_desc.image);
 
             const ks_class = (asset?.ks > 0) ? `ks${asset?.ks}`:"";
             if(item_desc){
-                grid.append($(`<div class="item q-${item_desc?.qualityID} ${craftable} ${ks_class}" data-assetid="${asset.a}" data-bot="${asset.ownerId}" data-quality="${item_desc?.qualityID}" data-effect="${item_desc?.effectID}" data-name="${item_desc.bp_sku}" data-bp_sku="${create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks)}" data-type="${item_desc?.type}" data-price="${single_price(asset, false)}" data-classes="${classes}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks), item_desc?.qualityID)}"></div>`)   )
+                grid.append($(`<div class="item q-${item_desc?.qualityID} ${craftable} ${ks_class}" data-assetid="${asset.a}" data-bot="${asset.ownerId}" data-quality="${item_desc?.qualityID}" data-effect="${item_desc?.effectID}" data-name="${item_desc.bp_sku}" data-bp_sku="${create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks)}" data-type="${item_desc?.type}" data-price="${single_price(asset, false)}" data-classes="${classes}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks), item_desc?.qualityID)}">${copy_marks(asset)}</div>`)   )
             }
         }
 
@@ -1835,6 +1853,12 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
     }
     const items_ = items.inventory.items;
     
+    if(items.inventory.items.length == 0 && page > 0){
+        // a next page without items (the last page had exactly 50): the grid stays as it is, without its end marker
+        $(`.item-grid #${party}-grid .invisible-item`).remove()
+        loading.addClass('hidden')
+        return false;
+    }
     if(items.inventory.items.length == 0){
         // display items
 
@@ -1875,10 +1899,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     const in_trade_count = all_ids.filter(id => site_iit_assetids.includes(id)).length;
                     const remaining = all_ids.length - in_trade_count;
 
-                    let item_image = item.image;
-                    if(rep?.icon_url){
-                        item_image = img_prefix + rep?.icon_url;
-                    }
+                    const item_image = copy_image(rep, item.image);
 
                     const ks_class = (rep?.ks > 0) ? `ks${rep?.ks}`:"";
                     const stacked_class = (remaining > 1) ? "stacked" : "";
@@ -1886,7 +1907,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     const bg_style = (item.effectID > 0) ? `style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"` : "";
                     const sig = stack_sig(rep, item.bp_sku);
 
-                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-bot="${rep?.ownerId || ''}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'sell')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${badge}</div>`)
+                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-bot="${rep?.ownerId || ''}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'sell')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${copy_marks(rep)}${badge}</div>`)
 
                     if(page < 1){
                         grid.append(item_el)
@@ -1914,10 +1935,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     const in_trade_count = all_ids.filter(id => user_iit_assetids.includes(id)).length;
                     const remaining = all_ids.length - in_trade_count;
 
-                    let item_image = item.image;
-                    if(rep?.icon_url){
-                        item_image = img_prefix + rep?.icon_url;
-                    }
+                    const item_image = copy_image(rep, item.image);
 
                     const ks_class = (rep?.ks > 0) ? `ks${rep?.ks}`:"";
                     const stacked_class = (remaining > 1) ? "stacked" : "";
@@ -1925,7 +1943,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     const bg_style = (item.effectID > 0) ? `style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"` : "";
                     const sig = stack_sig(rep, item.bp_sku);
 
-                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class} ${overstocked}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'buy')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${badge}</div>`)
+                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class} ${overstocked}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'buy')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${copy_marks(rep)}${badge}</div>`)
 
                     if(page < 1){
                         grid.append(item_el)

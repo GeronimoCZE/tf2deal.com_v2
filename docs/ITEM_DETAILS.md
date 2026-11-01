@@ -75,3 +75,26 @@ const attachments = {
 
 3. Restart the bot server. Visitors' inventories show the new details on their next load. Copies the bots already
 hold get them once the bot server reads them from Steam again; until then they show no custom name or inspect link.
+
+## Painted items: their own picture
+
+Item tiles (trade page, trade window, item page, latest trades, the item and buy link windows) show a copy's own Steam
+picture when the copy comes with `icon_url`, so a painted hat shows its paint colour. Without `icon_url` the tile shows
+the item's picture from the database, which is always unpainted. Spells and strange parts show as small marks in the
+tile's top left corner (a purple sparkle, an orange cog), read from `at.spells` and `at.strangeParts`, which the bot
+server already sends.
+
+The bot server only keeps `icon_url` for festivized copies today. In `src/bot/logicHandler.js` (`buildItems`), keep it
+for painted copies too, in both branches:
+
+```js
+// first branch (data.descriptions):
+icon_url: ((festivized || paint) && desc?.icon_url) ? desc?.icon_url : null,
+
+// second branch (an array of items):
+icon_url: ((festivized || paint) && asset?.icon_url) ? asset?.icon_url : null,
+```
+
+`paint` is the paint name `buildItems` already reads for `at.paint`, and everything after `buildItems` already carries
+`icon_url` along (bot stock, visitors' inventories, trade records). Restart the bot server: visitors' inventories get
+the painted pictures on their next load, the bots' own copies once the bot server reads them from Steam again.

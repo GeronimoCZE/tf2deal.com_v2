@@ -1,0 +1,30 @@
+// Small marks in the top left corner of an item tile (js/plugins/trade.js copy_marks): the copy has Halloween spells
+// (a purple sparkle) or strange parts (an orange cog), side by side when it has both. The killstreak tier sits in the
+// top right corner. Also on the picture in the item window and the buy link window.
+.ii-thumb, .bl-thumb{ position: relative; }
+.item .tile-marks, .ii-thumb .tile-marks, .bl-thumb .tile-marks{
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.6);
+    line-height: 0;
+    pointer-events: none;
+    .mark{
+        display: block;
+        width: 12px;
+        height: 12px;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+    }
+    .mark.spell{
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23c9a2ff' d='M8 .5Q9 7 15.5 8Q9 9 8 15.5Q7 9 .5 8Q7 7 8 .5Z'/%3E%3C/svg%3E");
+    }
+    .mark.part{
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23e2803f' fill-rule='evenodd' d='M13.2 6.2L15.42 6.37L15.42 9.63L13.2 9.8L12.95 10.4L14.4 12.1L12.1 14.4L10.4 12.95L9.8 13.2L9.63 15.42L6.37 15.42L6.2 13.2L5.6 12.95L3.9 14.4L1.6 12.1L3.05 10.4L2.8 9.8L.58 9.63L.58 6.37L2.8 6.2L3.05 5.6L1.6 3.9L3.9 1.6L5.6 3.05L6.2 2.8L6.37 .58L9.63 .58L9.8 2.8L10.4 3.05L12.1 1.6L14.4 3.9L12.95 5.6ZM8 5.6a2.4 2.4 0 1 0 0 4.8a2.4 2.4 0 1 0 0-4.8Z'/%3E%3C/svg%3E");
+    }
+}

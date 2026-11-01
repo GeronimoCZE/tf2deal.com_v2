@@ -1,4 +1,4 @@
-import { round_ref, create_sku, group_assets, item_alt } from './trade.js'
+import { round_ref, create_sku, group_assets, item_alt, copy_image, copy_marks } from './trade.js'
 
 // Renders finished trades (home page "Latest trades" and Profile -> Trades).
 // Identical assets are stacked into one tile with a count, the same way the /trade page does it.
@@ -87,9 +87,10 @@ const item_tiles = (side, price_field, key_value, factor = 1, paid = 0) => {
             const recorded = rep?.[price_field] ? rep[price_field] : item?.[price_field]
             const price = (num(recorded) > 0) ? num(recorded) * factor : (paid > 0 ? round_ref(paid) : recorded)
             const badge = (count > 1) ? `<div class="stack-count">${count}</div>` : ""
+            const picture = copy_image(rep, image) // a painted copy: its own picture
 
             // the tile opens the item's page (its base item: the page offers the killstreak tiers)
-            tiles.push(`<a href="${esc(window.lurl('/items/' + encodeURIComponent(item?.bp_sku || '')))}" class="item q-${esc(item?.qualityID)} ${craftable} ${count > 1 ? 'stacked' : ''}" data-assetids="${esc(group.map(a => a?.a).join(','))}" data-key="${esc(key_value)}" data-quality="${esc(item?.qualityID)}" data-effect="${esc(item?.effectID)}" data-name="${esc(item.bp_sku)}" data-bp_sku="${esc(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks))}" data-type="${esc(item?.type)}" data-price="${esc(price)}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${num(item?.effectID)}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${esc(image)}" alt="${item_alt(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${badge}</a>`)
+            tiles.push(`<a href="${esc(window.lurl('/items/' + encodeURIComponent(item?.bp_sku || '')))}" class="item q-${esc(item?.qualityID)} ${craftable} ${count > 1 ? 'stacked' : ''}" data-assetids="${esc(group.map(a => a?.a).join(','))}" data-key="${esc(key_value)}" data-quality="${esc(item?.qualityID)}" data-effect="${esc(item?.effectID)}" data-name="${esc(item.bp_sku)}" data-bp_sku="${esc(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks))}" data-type="${esc(item?.type)}" data-price="${esc(price)}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${num(item?.effectID)}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${esc(picture)}" alt="${item_alt(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${copy_marks(rep)}${badge}</a>`)
         }
     }
     return tiles
