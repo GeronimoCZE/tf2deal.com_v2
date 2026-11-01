@@ -71,11 +71,11 @@
     "legal": "Legal"
   },
   "title": {
-    "home": "TF2deal.com - Automated Team Fortress 2 trading website",
+    "home": "TF2 Trade Bot & Automated TF2 Trading Site | TF2Deal.com",
     "trade_offer": "TF2Deal.com - Your Trade Offer",
     "trade": "TF2Deal.com - Trade TF2 items",
-    "items": "TF2Deal.com - Items",
-    "items_page": "TF2Deal.com - Items (page {page})",
+    "items": "TF2 Item Prices – Buy & Sell TF2 Items | TF2Deal.com",
+    "items_page": "TF2 Item Prices (page {page}) | TF2Deal.com",
     "not_found": "404 - Not found - TF2deal.com",
     "giveaway": "TF2Deal.com - Giveaway 🎁",
     "blog": "TF2Deal.com - Blog",
@@ -91,11 +91,11 @@
     "register": "Register on TF2deal.com",
     "error": "Error - TF2Deal.com",
     "development": "Website in development - TF2Deal.com",
-    "item": "{name} - Price & Trade | TF2Deal.com",
+    "item": "Buy & Sell {name} – TF2 Price | TF2Deal.com",
     "cookies": "TF2Deal.com - Cookie Policy"
   },
   "desc": {
-    "default": "TF2 trading site with automated trade bots. Buy, sell and trade TF2 items: hats, unusuals, weapons, taunts and keys at fair prices in keys and ref.",
+    "default": "TF2 trade bot site: buy, sell and trade TF2 items with automated Steam trade bots. Hats, unusuals, weapons, taunts and keys for keys and ref, trade offers in seconds.",
     "trade": "Trade TF2 items with our TF2 trade bots: pick items from both inventories, pay in keys or refined metal and get a Steam trade offer in seconds.",
     "items": "Live TF2 item prices and stock. Buy and sell TF2 hats, unusuals, weapons, taunts and more for keys and ref with instant TF2 trading on TF2Deal.com.",
     "blog": "TF2 trading news, guides and price updates from TF2Deal.com, the automated TF2 trade bot site.",
@@ -163,7 +163,7 @@
   "faq": {
     "title": "Frequently Asked Questions",
     "how_q": "How does this work?",
-    "how_a": "TF2deal.com is a Team Fortress 2 trading website. You can trade your items for our items.",
+    "how_a": "Pick the items you want on the Trade page or on an item's page. Our TF2 trade bots check the trade and send you a Steam trade offer within seconds. Accept it in Steam and the trade is done.",
     "limits_q": "Trade limitations?",
     "limits_a": "Currently you can trade a maximum of 10 items on each side. Pure up to 550 keys, 2 keys worth of refs, 27 recs & 18 scraps.",
     "pure_q": "Can I trade items for pure?",
@@ -177,7 +177,11 @@
     "legit_q": "Scam or legit?",
     "legit_a_html": "I'm aware of a scam that used the domain tf2deal.com in the past {link}. I found out after buying the domain, and I liked the name too much to change it. So yes, this tf2deal.com <span>is legit</span>.",
     "owner_q": "Who runs this website?",
-    "owner_a": "The site is run by a single person: Nikolas Malík (me). A passionate TF2 player, trader and self-taught web developer based in Czechia (Central Europe)."
+    "owner_a": "The site is run by a single person: Nikolas Malík (me). A passionate TF2 player, trader and self-taught web developer based in Czechia (Central Europe).",
+    "bot_q": "What is a TF2 trade bot?",
+    "bot_a": "A Steam account run by software that trades Team Fortress 2 items on its own, at any time of day. TF2Deal.com's trade bots are listed on the About page; nobody else trades for the site.",
+    "sell_q": "How do I sell TF2 items for keys?",
+    "sell_a": "Sign in with Steam, open the item's page or the Trade page and pick your item. The bots pay in keys and refined metal at the price shown, as long as they are buying that item."
   },
   "home": {
     "hero_html": "Trade, buy and sell<br> your TF2 items!",
@@ -189,8 +193,8 @@
     "stat_trades": "Trades Today",
     "stat_items": "Items Available",
     "stat_bots": "Steam Bots",
-    "intro_title": "Team Fortress 2 trading and much more!",
-    "intro_1": "TF2deal.com is an automated TF2 item trading website using Steam bots. Its main purpose is to provide fair and secure item trades.",
+    "intro_title": "An automated TF2 trading site with Steam trade bots",
+    "intro_1": "TF2deal.com is a TF2 trade site run by automated trade bots: they buy, sell and trade Team Fortress 2 items with you and send the Steam trade offer within seconds. Its main purpose is to provide fair and secure item trades.",
     "intro_2": "All of that with a wide range of supported TF2 items.",
     "intro_3_html": "You can trade <a href=\"{url}\">multiple items</a> (up to 10 at a time)",
     "intro_4_html": "Or buy and sell <a href=\"{url}\">one type of an item</a> for pure (limited by stock)",
@@ -205,7 +209,8 @@
     "tools_text": "Looking to expand your inventory? Give your gun a killstreaker? We've got you covered!",
     "tools_link": "Show all tools",
     "cta_title": "Ready to trade?",
-    "cta_text": "Pick your items and our bots send you the trade offer on Steam."
+    "cta_text": "Pick your items and our bots send you the trade offer on Steam.",
+    "hero_kicker": "Automated TF2 trade bots"
   },
   "filters": {
     "none": "None",
@@ -582,7 +587,7 @@
     }
   },
   "items": {
-    "h1": "Item Database",
+    "h1": "TF2 Item Database",
     "found_html": "{count} items found",
     "end": "You've reached the end.",
     "none": "No matching items found...",

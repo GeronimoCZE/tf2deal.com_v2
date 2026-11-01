@@ -71,11 +71,11 @@
     "legal": "Legal"
   },
   "title": {
-    "home": "TF2deal.com - Site automatizado de trocas de Team Fortress 2",
+    "home": "Bot de trade de TF2 e site de trading automático | TF2Deal.com",
     "trade_offer": "TF2Deal.com - Sua oferta de troca",
     "trade": "TF2Deal.com - Troque itens de TF2",
-    "items": "TF2Deal.com - Itens",
-    "items_page": "TF2Deal.com - Itens (página {page})",
+    "items": "Preços de itens de TF2 – Compre e venda | TF2Deal.com",
+    "items_page": "Preços de itens de TF2 (página {page}) | TF2Deal.com",
     "not_found": "404 - Não encontrado - TF2deal.com",
     "giveaway": "TF2Deal.com - Sorteio 🎁",
     "blog": "TF2Deal.com - Blog",
@@ -91,11 +91,11 @@
     "register": "Cadastre-se no TF2deal.com",
     "error": "Erro - TF2Deal.com",
     "development": "Site em desenvolvimento - TF2Deal.com",
-    "item": "{name} - Preço e troca | TF2Deal.com",
+    "item": "Comprar e vender {name} – Preço no TF2 | TF2Deal.com",
     "cookies": "TF2Deal.com - Política de cookies"
   },
   "desc": {
-    "default": "Site de trading de TF2 com bots automáticos. Compre, venda e troque itens de TF2: chapéus, unusuals, armas, provocações e chaves a preço justo em chaves e ref.",
+    "default": "Site de bots de trade de TF2: compre, venda e troque itens de TF2 com bots automáticos da Steam. Chapéus, unusuals, armas, provocações e chaves por chaves e ref, oferta em segundos.",
     "trade": "Troque itens de TF2 com nossos bots de trading de TF2: escolha itens dos dois inventários, pague com chaves ou metal refinado e receba uma oferta da Steam em segundos.",
     "items": "Preços e estoque de itens de TF2 ao vivo. Compre e venda chapéus, unusuals, armas, provocações e mais por chaves e ref com trading de TF2 instantâneo no TF2Deal.com.",
     "blog": "Notícias, guias e preços do trading de TF2 do TF2Deal.com, o site de bots de troca de TF2.",
@@ -163,7 +163,7 @@
   "faq": {
     "title": "Perguntas frequentes",
     "how_q": "Como funciona?",
-    "how_a": "O TF2deal.com é um site de trocas de Team Fortress 2. Você pode trocar seus itens pelos nossos.",
+    "how_a": "Escolha os itens na página de Troca ou na página de um item. Nossos bots de trade de TF2 conferem a troca e enviam uma oferta da Steam em segundos. Aceite-a na Steam e pronto.",
     "limits_q": "Limites de troca?",
     "limits_a": "Atualmente, você pode trocar no máximo 10 itens de cada lado. Pure: até 550 chaves, o equivalente a 2 chaves em refs, 27 recs e 18 scraps.",
     "pure_q": "Posso trocar itens por pure?",
@@ -177,7 +177,11 @@
     "legit_q": "É golpe ou é confiável?",
     "legit_a_html": "Sei que, no passado, um golpe usou o domínio tf2deal.com {link}. Descobri isso depois de comprar o domínio e gostei demais do nome para trocá-lo. Então sim, este tf2deal.com <span>é confiável</span>.",
     "owner_q": "Quem administra este site?",
-    "owner_a": "O site é administrado por uma única pessoa: Nikolas Malík (eu). Jogador apaixonado de TF2, trader e desenvolvedor web autodidata, morando na Tchéquia (Europa Central)."
+    "owner_a": "O site é administrado por uma única pessoa: Nikolas Malík (eu). Jogador apaixonado de TF2, trader e desenvolvedor web autodidata, morando na Tchéquia (Europa Central).",
+    "bot_q": "O que é um bot de trade de TF2?",
+    "bot_a": "Uma conta da Steam controlada por um programa que troca itens de Team Fortress 2 sozinha, a qualquer hora. Os bots do TF2Deal.com estão listados na página Sobre; ninguém mais negocia pelo site.",
+    "sell_q": "Como vendo itens de TF2 por chaves?",
+    "sell_a": "Entre com a Steam, abra a página do item ou a página de Troca e escolha seu item. Os bots pagam em chaves e metal refinado pelo preço mostrado, enquanto estiverem comprando esse item."
   },
   "home": {
     "hero_html": "Troque, compre e venda<br> seus itens de TF2!",
@@ -189,8 +193,8 @@
     "stat_trades": "Trocas hoje",
     "stat_items": "Itens disponíveis",
     "stat_bots": "Bots da Steam",
-    "intro_title": "Trocas de Team Fortress 2 e muito mais!",
-    "intro_1": "O TF2deal.com é um site automatizado de trocas de itens de TF2 que usa bots da Steam. Seu principal objetivo é oferecer trocas de itens justas e seguras.",
+    "intro_title": "Um site de trading de TF2 automático com bots da Steam",
+    "intro_1": "O TF2deal.com é um site de trade de TF2 operado por bots automáticos: eles compram, vendem e trocam itens de Team Fortress 2 com você e enviam a oferta de troca da Steam em segundos. O principal objetivo é oferecer trocas justas e seguras.",
     "intro_2": "Tudo isso com uma grande variedade de itens de TF2 suportados.",
     "intro_3_html": "Você pode trocar <a href=\"{url}\">vários itens</a> (até 10 por vez)",
     "intro_4_html": "Ou comprar e vender <a href=\"{url}\">um tipo de item</a> por pure (limitado pelo estoque)",
@@ -205,7 +209,8 @@
     "tools_text": "Quer expandir seu inventário? Colocar um killstreaker na sua arma? Temos o que você precisa!",
     "tools_link": "Ver todas as ferramentas",
     "cta_title": "Pronto para trocar?",
-    "cta_text": "Escolha seus itens e nossos bots enviam a oferta de troca na Steam."
+    "cta_text": "Escolha seus itens e nossos bots enviam a oferta de troca na Steam.",
+    "hero_kicker": "Bots de trade de TF2 automáticos"
   },
   "filters": {
     "none": "Nenhum",
@@ -582,7 +587,7 @@
     }
   },
   "items": {
-    "h1": "Banco de dados de itens",
+    "h1": "Banco de dados de itens de TF2",
     "found_html": "Itens encontrados: {count}",
     "end": "Você chegou ao fim.",
     "none": "Nenhum item encontrado...",

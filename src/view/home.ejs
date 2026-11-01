@@ -25,6 +25,8 @@
                     </div> 
                     <div class="home-text">
                         <h1 class="main-text fade-in">
+                            <%# what people search for ("tf2 trade bot"), as a small line above the headline %>
+                            <span class="kicker"><%= __('home.hero_kicker') %></span>
                             <%- __('home.hero_html') %>
                         </h1>
                         <div class="trade-status <%- trading %> fade-in"><span class="icon icon-signal"></span> 
@@ -183,6 +185,14 @@
                             <section>
                                 <h3 class="header"><span class="icon icon-arrow_down"></span> <%= __('faq.how_q') %></h3>
                                 <div class="body"><%= __('faq.how_a') %></div>
+                            </section>
+                            <section>
+                                <h3 class="header"><span class="icon icon-arrow_down"></span> <%= __('faq.bot_q') %></h3>
+                                <div class="body"><%= __('faq.bot_a') %></div>
+                            </section>
+                            <section>
+                                <h3 class="header"><span class="icon icon-arrow_down"></span> <%= __('faq.sell_q') %></h3>
+                                <div class="body"><%= __('faq.sell_a') %></div>
                             </section>
                             <section>
                                 <h3 class="header"><span class="icon icon-arrow_down"></span> <%= __('faq.limits_q') %></h3>

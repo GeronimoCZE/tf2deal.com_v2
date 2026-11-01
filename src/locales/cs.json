@@ -71,11 +71,11 @@
     "legal": "Právní informace"
   },
   "title": {
-    "home": "TF2deal.com - Automatizované obchodování v Team Fortress 2",
+    "home": "TF2 Trade Bot a automatizovaný TF2 trading | TF2Deal.com",
     "trade_offer": "TF2Deal.com - Vaše nabídka k výměně",
     "trade": "TF2Deal.com - Výměna TF2 předmětů",
-    "items": "TF2Deal.com - Předměty",
-    "items_page": "TF2Deal.com - Předměty (strana {page})",
+    "items": "Ceny TF2 předmětů – kupte a prodejte TF2 předměty | TF2Deal.com",
+    "items_page": "Ceny TF2 předmětů (strana {page}) | TF2Deal.com",
     "not_found": "404 - Nenalezeno - TF2deal.com",
     "giveaway": "TF2Deal.com - Soutěž 🎁",
     "blog": "TF2Deal.com - Blog",
@@ -91,11 +91,11 @@
     "register": "Registrace na TF2deal.com",
     "error": "Chyba - TF2Deal.com",
     "development": "Web ve vývoji - TF2Deal.com",
-    "item": "{name} - Cena a výměna | TF2Deal.com",
+    "item": "Koupit a prodat {name} – cena v TF2 | TF2Deal.com",
     "cookies": "TF2Deal.com - Zásady používání cookies"
   },
   "desc": {
-    "default": "TF2 trading s automatickými trade boty. Kupujte, prodávejte a vyměňujte TF2 předměty: klobouky, unusualy, zbraně, taunty i klíče za férové ceny v klíčích a ref.",
+    "default": "TF2 trade bot web: kupujte, prodávejte a vyměňujte TF2 předměty s automatickými Steam trade boty. Klobouky, unusualy, zbraně, taunty i klíče za klíče a ref, nabídka do pár sekund.",
     "trade": "Vyměňujte TF2 předměty s našimi TF2 trade boty: vyberte předměty z obou inventářů, plaťte klíči nebo refined metalem a nabídku na Steamu dostanete během pár sekund.",
     "items": "Aktuální ceny a sklad TF2 předmětů. Kupujte a prodávejte TF2 klobouky, unusualy, zbraně, taunty a další za klíče a ref s okamžitým TF2 tradingem na TF2Deal.com.",
     "blog": "Novinky, návody a cenové aktuality o TF2 tradingu od TF2Deal.com, webu s automatickými TF2 trade boty.",
@@ -163,7 +163,7 @@
   "faq": {
     "title": "Často kladené dotazy",
     "how_q": "Jak to funguje?",
-    "how_a": "TF2deal.com je web pro obchodování v Team Fortress 2. Své předměty můžete vyměnit za naše.",
+    "how_a": "Vyberte předměty na stránce Výměna nebo na stránce předmětu. Naše TF2 trade boty výměnu zkontrolují a během pár sekund vám pošlou Steam nabídku k výměně. Přijměte ji ve Steamu a je hotovo.",
     "limits_q": "Omezení výměn?",
     "limits_a": "V současnosti můžete vyměnit maximálně 10 předmětů na každé straně. Pure až 550 klíčů, ref v hodnotě 2 klíčů, 27 rec a 18 scrap.",
     "pure_q": "Mohu vyměnit předměty za pure?",
@@ -177,7 +177,11 @@
     "legit_q": "Podvod, nebo seriózní web?",
     "legit_a_html": "Vím o podvodu, který v minulosti používal doménu tf2deal.com {link}. Zjistil jsem to až po koupi domény a název se mi líbil příliš na to, abych ho měnil. Takže ano, tento tf2deal.com <span>je seriózní</span>.",
     "owner_q": "Kdo tento web provozuje?",
-    "owner_a": "Web provozuje jediný člověk: Nikolas Malík (já). Nadšený hráč a obchodník v TF2 a webový vývojář samouk z Česka (střední Evropa)."
+    "owner_a": "Web provozuje jediný člověk: Nikolas Malík (já). Nadšený hráč a obchodník v TF2 a webový vývojář samouk z Česka (střední Evropa).",
+    "bot_q": "Co je TF2 trade bot?",
+    "bot_a": "Steam účet ovládaný programem, který sám obchoduje s předměty z Team Fortress 2, kdykoli během dne. Trade boty TF2Deal.com najdete na stránce O nás; nikdo jiný za web neobchoduje.",
+    "sell_q": "Jak prodat TF2 předměty za klíče?",
+    "sell_a": "Přihlaste se přes Steam, otevřete stránku předmětu nebo stránku Výměna a vyberte svůj předmět. Boty platí klíči a refined metalem za uvedenou cenu, pokud daný předmět vykupují."
   },
   "home": {
     "hero_html": "Vyměňujte, kupujte a prodávejte<br> své TF2 předměty!",
@@ -189,8 +193,8 @@
     "stat_trades": "Výměn dnes",
     "stat_items": "Dostupných předmětů",
     "stat_bots": "Steam botů",
-    "intro_title": "Obchodování v Team Fortress 2 a mnohem víc!",
-    "intro_1": "TF2deal.com je automatizovaný web pro obchodování s TF2 předměty pomocí Steam botů. Jeho hlavním cílem je zajistit férové a bezpečné výměny předmětů.",
+    "intro_title": "Automatizovaný TF2 trading se Steam trade boty",
+    "intro_1": "TF2deal.com je TF2 trade web, který obsluhují automatické trade boty: kupují, prodávají a vyměňují s vámi předměty z Team Fortress 2 a pošlou vám Steam nabídku k výměně během pár sekund. Hlavním cílem je zajistit férové a bezpečné výměny předmětů.",
     "intro_2": "A to vše se širokou nabídkou podporovaných TF2 předmětů.",
     "intro_3_html": "Můžete vyměnit <a href=\"{url}\">více předmětů</a> (až 10 najednou)",
     "intro_4_html": "Nebo kupovat a prodávat <a href=\"{url}\">jeden typ předmětu</a> za pure (omezeno skladem)",
@@ -205,7 +209,8 @@
     "tools_text": "Chcete rozšířit svůj inventář? Dát své zbrani killstreaker? Máme pro vás řešení!",
     "tools_link": "Zobrazit všechny nástroje",
     "cta_title": "Připraveni obchodovat?",
-    "cta_text": "Vyberte si předměty a naši boti vám pošlou nabídku obchodu na Steamu."
+    "cta_text": "Vyberte si předměty a naši boti vám pošlou nabídku obchodu na Steamu.",
+    "hero_kicker": "Automatické TF2 trade boty"
   },
   "filters": {
     "none": "Žádné",
@@ -582,7 +587,7 @@
     }
   },
   "items": {
-    "h1": "Databáze předmětů",
+    "h1": "Databáze TF2 předmětů",
     "found_html": "Nalezeno předmětů: {count}",
     "end": "Jste na konci seznamu.",
     "none": "Nenalezeny žádné odpovídající předměty...",

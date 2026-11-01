@@ -47,6 +47,8 @@
                                 </div>
                                 <div class="item-details">
                                     <h1 class="item-name" id="item-name" translate="no"><%= info.page_name || info.item?.bp_sku %></h1>
+                                    <%# what the item costs to buy and sell, in words: the line search results quote (info.description) %>
+                                    <% if (info.description) { %><p class="item-lead"><%= info.description %></p><% } %>
                                     <div class="item-desc">
                                         <%# the item's data is written here by the server (routes/router.js item_page, info.shown) %>
                                         <div class="desc">

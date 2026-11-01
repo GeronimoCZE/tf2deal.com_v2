@@ -31,6 +31,7 @@ import * as seasons from './service/season.js'
 import { ticket_model } from './model/Ticket.js'
 import * as sitemap from './service/sitemap.js'
 import * as markdown from './service/markdown.js'
+import * as indexnow from './service/indexnow.js'
 import * as inventory_value from './service/inventory_value.js'
 import * as item_lists from './service/item_lists.js'
 
@@ -214,6 +215,7 @@ const static_headers = (res) => {
 // are never served)
 app.get('/sitemap.xml', sitemap.handler)
 app.get(['/sitemap_index.xml', '/sitemaps/:file'], sitemap.redirect)
+app.get('/:file.txt', indexnow.key_file) // the IndexNow key file, when INDEXNOW_KEY is set (service/indexnow.js)
 
 // Fonts and images rarely change, so browsers keep them for a month (give a changed picture a new name); everything
 // else is checked on each visit
