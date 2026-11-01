@@ -1,8 +1,11 @@
-// One XML sitemap, built from the database and the in-memory item list (no file on disk): /sitemap.xml.
-// The main pages come first with the highest priority, then blog posts, then every item page at 0.4,
-// each in every language it exists in. /sitemap_index.xml and the old /sitemaps/*.xml files redirect to it.
-// The built file is used for CACHE_MS and always answered at once (see current()), so Cloudflare and search engines
-// never wait for the database.
+// The XML sitemap, built from the database and the in-memory item list (no file on disk). One file may hold 50,000
+// URLs and every item page exists in 8 languages, so /sitemap.xml is a sitemap index of:
+//   /sitemaps/main.xml               the main pages (highest priority first) and the blog posts, in every language
+//   /sitemaps/items-<lang>-<n>.xml   every item page in one language, ITEMS_PER_FILE per file (Search Console then
+//                                    shows how many pages of each language are indexed)
+// What goes in them is read again every CACHE_MS and always answered at once (see current()), so Cloudflare and search
+// engines never wait for the database; each file is written out when it is asked for. /sitemap_index.xml and old
+// file names redirect to /sitemap.xml.
 
 import * as item_lists from './item_lists.js'
 import { item_model as Items } from '../model/Item.js'
@@ -13,7 +16,7 @@ import * as fn from '../fn.js'
 import * as indexnow from './indexnow.js'
 
 const CACHE_MS = 10 * 60 * 1000
-const MAX_URLS = 50000 // the most one sitemap file may hold
+const ITEMS_PER_FILE = 40000 // a sitemap file may hold 50,000 URLs
 
 // main pages in every language, highest priority first; documents that only exist in English once
 const PAGES = [
@@ -54,9 +57,15 @@ const urlset = (urls) => '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '</url>\n').join('') +
   '</urlset>\n'
 
-const page_url = (lang, p) => fn.site_url + localize_path(lang, p)
+const sitemapindex = (locs) => '<?xml version="1.0" encoding="UTF-8"?>\n' +
+  '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+  locs.map((loc) => `<sitemap>\n<loc>${xml_escape(loc)}</loc>\n</sitemap>\n`).join('') +
+  '</sitemapindex>\n'
 
-let cache = null    // { time, xml, urls, complete }
+const page_url = (lang, p) => fn.site_url + localize_path(lang, p)
+const item_url = (lang, bp_sku) => page_url(lang, '/items/' + encodeURIComponent(bp_sku))
+
+let cache = null    // { time, main, names, complete }
 let building = null
 let last_blog = []
 let last_items = [] // the item names of the last good build
@@ -126,25 +135,17 @@ const build = async () => {
     names = last_items // the last ones read, and the sitemap is built again in a minute
     complete = false
   }
-  // only the items that fit in the file get their URLs made (all of them were 275,000 URLs in a test with 45,000 items)
-  const room = Math.max(MAX_URLS - pages.length - blog.length, 0)
-  const item_urls = names.slice(0, Math.ceil(room / LANGS.length))
-    .flatMap((bp_sku) => LANGS.map((lang) => ({ ...ITEM, loc: page_url(lang, '/items/' + encodeURIComponent(bp_sku)) })))
-
-  const total = pages.length + blog.length + names.length * LANGS.length
-  if (total > MAX_URLS) console.log(`Sitemap: ${total} URLs, only the first ${MAX_URLS} fit in one file`)
-  const urls = [...pages, ...blog, ...item_urls].slice(0, MAX_URLS)
-  if (complete) announce(urls, item_urls)
-  return { time: Date.now(), xml: urlset(urls), urls: urls.length, complete }
+  const main = [...pages, ...blog]
+  if (complete) announce(main, names)
+  return { time: Date.now(), main, names, complete }
 }
 
 // IndexNow (Bing / Edge): the whole sitemap once a day at most, then the item pages that are new in it
-let announced = null // the item URLs of the last sitemap sent or compared
-const announce = (urls, item_urls) => {
-  const locs = item_urls.map((u) => u.loc)
-  if (!announced) indexnow.submit_all(urls.map((u) => u.loc))
-  else indexnow.submit(locs.filter((loc) => !announced.has(loc)))
-  announced = new Set(locs)
+let announced = null // the item names of the last sitemap sent or compared
+const announce = (main, names) => {
+  if (!announced) indexnow.submit_all([...main.map((u) => u.loc), ...LANGS.flatMap((lang) => names.map((name) => item_url(lang, name)))])
+  else indexnow.submit(names.filter((name) => !announced.has(name)).flatMap((name) => LANGS.map((lang) => item_url(lang, name))))
+  announced = new Set(names)
 }
 
 // one build at a time; a failed build keeps the last good one
@@ -152,7 +153,7 @@ const rebuild = () => {
   building = building || build()
     .then((built) => {
       cache = built
-      setTimeout(() => { if (cache === built) cache = null }, 6 * CACHE_MS).unref() // a few MB nobody asked for in an hour
+      setTimeout(() => { if (cache === built) cache = null }, 6 * CACHE_MS).unref() // let go when nobody asked in an hour
       return built
     })
     .catch((error) => {
@@ -166,7 +167,7 @@ const rebuild = () => {
 
 // The sitemap is answered at once whenever there is one, even an old one, and built again in the background when it
 // is older than CACHE_MS (a sitemap without items, or with old blog posts, after a minute). Only the very first request
-// waits for a build, at most FIRST_WAIT, and then gets the main pages and blog posts.
+// waits for a build, at most FIRST_WAIT, and then gets the main pages and blog posts without items.
 const current = async () => {
   if (cache) {
     const age = Date.now() - cache.time
@@ -176,7 +177,7 @@ const current = async () => {
   try {
     return await timeout(rebuild(), FIRST_WAIT, 'sitemap')
   } catch (error) {
-    return { xml: urlset([...main_pages(), ...last_blog]), complete: false }
+    return { main: [...main_pages(), ...last_blog], names: last_items, complete: false }
   }
 }
 
@@ -188,15 +189,35 @@ const send = (res, xml, complete) => {
   res.send(xml)
 }
 
+// the item files of one language: items-en-1.xml, items-en-2.xml, ...
+const item_files = (names) => {
+  const count = Math.ceil(names.length / ITEMS_PER_FILE)
+  return LANGS.flatMap((lang) => Array.from({ length: count }, (_, i) => `items-${lang}-${i + 1}.xml`))
+}
+
+// /sitemap.xml: the index of the files
 export const handler = async (req, res) => {
   const map = await current()
-  send(res, map.xml, map.complete)
+  send(res, sitemapindex(['main.xml', ...item_files(map.names)].map((file) => `${fn.site_url}/sitemaps/${file}`)), map.complete)
+}
+
+// /sitemaps/<file>: one file of the index; a name it doesn't list (old files from before the index) goes to the index
+export const file = async (req, res) => {
+  const map = await current()
+  const name = String(req.params.file || '')
+  if (name == 'main.xml') return send(res, urlset(map.main), map.complete)
+  const m = name.match(/^items-([a-z]{2})-(\d{1,4})\.xml$/)
+  const part = m && LANGS.includes(m[1]) ? map.names.slice((m[2] - 1) * ITEMS_PER_FILE, m[2] * ITEMS_PER_FILE) : []
+  // the item names aren't read yet (just after a restart): "try again later" keeps the file in search engines' lists
+  if (!part.length && m && !map.complete) return res.status(503).set('Retry-After', '120').send('Sitemap not ready yet')
+  if (!part.length) return redirect(req, res)
+  send(res, urlset(part.map((bp_sku) => ({ ...ITEM, loc: item_url(m[1], bp_sku) }))), map.complete)
 }
 
 // build it right after the start, so the first crawler doesn't wait
 export const warm = () => rebuild().catch(() => {})
 
-// the sitemap index and its files from before everything was in one file (also old files still on the server's disk)
+// /sitemap_index.xml and old sitemap file names (also old files still on the server's disk)
 export const redirect = (req, res) => res.redirect(301, '/sitemap.xml')
 
 // the items or blog posts changed: the next request still gets the current sitemap and starts a new build
