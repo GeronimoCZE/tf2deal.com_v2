@@ -9,6 +9,8 @@
         const itemStock = <%- JSON.stringify(info.item?.stock ?? null).replace(/</g, '\\u003c') %>;
         // a killstreak tier's page (/items/Professional Killstreak ...) opens with that tier picked
         const itemKsTier = <%- JSON.stringify(info.ks_tier || 0) %>;
+        // a weapon's killstreak tiers are items of their own: tier -> the name of its page (null for other items)
+        const itemTierPages = <%- JSON.stringify(info.tier_pages || null).replace(/</g, '\\u003c') %>;
     </script>
     <%- include('./partials/head.ejs') %>
     <body class="<%= season_class %>">
