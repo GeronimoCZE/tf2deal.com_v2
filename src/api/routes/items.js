@@ -100,7 +100,7 @@ router.post('/', items_rate_limit, async (req, res) => {
       res.status(200).json({ status: "ok", item_count: list.length, response: list.slice(skip, skip + limit).map(item_lists.public_card) });
     } catch {
       // the item list isn't read yet (service/item_lists.js): the page asks again after Retry-After
-      res.status(503).set('Retry-After', '10').json({ status: "error", message: "db error" });
+      res.status(503).set('Retry-After', '10').json({ status: "error", message: "db error", item_list: item_lists.status() });
     }
   } else {
     res.status(503).set('Retry-After', '10').json({ status: "error", message: "db error" });

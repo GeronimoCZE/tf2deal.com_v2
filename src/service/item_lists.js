@@ -1,7 +1,7 @@
 // Item lists that many page views share, kept in memory for a short while. Item pages, the /items pages, the item
 // list API and the search modal then cost one small lookup each, instead of a pass over the whole item collection per
 // request (search engines open thousands of item pages in a row). All of them come from one read of the items, at most
-// once a minute.
+// once a minute, done in short steps (index); until the first read is done, the lists show what it has read so far.
 //
 //   similar(item)         the item page's "similar items": same name, same unusual effect, same type and quality
 //   cards(filters, sort)  the /items list (/api/items and the plain-HTML /items pages): a card per item, plus a card per
@@ -17,6 +17,7 @@
 //   ks_items(doc)         true for a weapon whose killstreak tiers item_manager prices as items of their own
 //   tier_indexable(...)   whether a killstreak tier's page belongs in search engines (and the sitemap)
 //   refresh()             read the items again now (at the start, and after the daily sweep marks old items inactive)
+//   status()              how the reads go (for the logs and the "not ready" answers of the item APIs)
 
 import crypto from 'crypto'
 import { item_model } from '../model/Item.js'
@@ -24,55 +25,95 @@ import { display_name, to_ref } from './buy_link.js'
 import * as fn from '../fn.js'
 
 const TTL = 60 * 1000
+const MAX_WAIT = 15 * 60 * 1000 // a slow database is read again at most this long after the last read
 const FIRST_WAIT = 5 * 1000 // how long a page waits for the very first read before it is shown without the list
-const QUERY_LIMIT = 2 * 60 * 1000 // the database gives up on a read after this long
+const STEP = 1000 // items per database query: the items are read a step at a time, never in one long query
+const MIN_STEP = 100
+const STEP_LIMIT = 60 * 1000 // the database gives up on one step after this long (the step is then made smaller)
+const PARTIAL_EVERY = 2 * 1000 // during the very first read, the items read so far are shown, renewed this often
 const SLOW = 5 * 1000 // reads slower than this are written to the log
+const PROGRESS_EVERY = 30 * 1000 // a slow first read says how far it got this often
 
-// load() at most once per ttl, and nobody waits for it once there is a list: an older list is returned at once and read
-// again in the background (a page that waited for a slow read could time out behind Nginx or Cloudflare, 504).
-// Only before the first read does a call wait, at most FIRST_WAIT, then it throws and the caller does without.
-// A failed read keeps the last list. .reload() reads again now.
+const seconds = (ms) => `${(ms / 1000).toFixed(1)} s`
+
+// load() at most once per `wait` (ttl, or twice as long as the last read took when that is longer, so a slow database
+// isn't read without a break), and nobody waits for it once there is a list: an older list is returned at once and
+// read again in the background (a page that waited for a slow read could time out behind Nginx or Cloudflare, 504).
+// Only before the first read does a call wait, at most FIRST_WAIT. Meanwhile the first read shows what it has read so
+// far (a list marked partial); with nothing read yet the call throws and the caller does without.
+// A failed read keeps the last list. .reload() reads again now; .state says how the reads go.
+//
+// load(read) gets { first, alive(), step(count), partial(result) }: first = no full list yet; alive() turns false when
+// a newer read took over (the old one stops at its next step); step() after every query (a read that hasn't heard
+// from the database for STEP_LIMIT + 30 s is taken over); partial() shows what the first read has so far.
 const cached = (load, name, ttl = TTL) => {
   let value = null
   let time = 0
+  let wait = ttl
   let pending = null
-  let started = 0
+  let current = 0 // the newest read
+  let heard = 0   // when the running read last heard from the database
+  const state = { reading_since: 0, read_so_far: 0, last_read: 0, last_took: 0, last_error: '', failed_at: 0 }
   const reload = () => {
-    // a read that never ends (the database stopped answering) doesn't stop the next one
-    if (pending && Date.now() - started > QUERY_LIMIT + 30 * 1000) pending = null
+    // a read whose database stopped answering doesn't stop the next one
+    if (pending && Date.now() - heard > STEP_LIMIT + 30 * 1000) {
+      console.warn(`${name}: no answer from the database for ${seconds(Date.now() - heard)}, reading again`)
+      pending = null
+    }
     if (!pending) {
-      const began = started = Date.now()
-      const read = load()
+      const id = ++current
+      const began = heard = state.reading_since = Date.now()
+      state.read_so_far = 0
+      const first = !value || Boolean(value.partial)
+      const read = load({
+        first,
+        alive: () => id === current,
+        step: (count) => { if (id === current) { heard = Date.now(); state.read_so_far = count } },
+        partial: (result) => { if (id === current && (!value || value.partial)) { value = result; time = Date.now() } }
+      })
         .then((result) => {
+          const took = Date.now() - began
           value = result
           time = Date.now()
-          if (time - began > SLOW) console.warn(`${name}: ${result.cards.length} read in ${((time - began) / 1000).toFixed(1)} s`)
+          wait = Math.min(Math.max(ttl, 2 * took), MAX_WAIT)
+          Object.assign(state, { last_read: time, last_took: took, last_error: '' })
+          if (first || took > SLOW) console.log(`${name}: ${result.items} items (${result.cards.length} cards) read in ${seconds(took)}`)
           return result
+        }, (error) => {
+          // a read a newer one took over stops quietly
+          if (id === current) {
+            const message = String(error?.message || error)
+            Object.assign(state, { last_error: message, failed_at: Date.now() })
+            console.error(`${name}: read failed after ${seconds(Date.now() - began)} (${state.read_so_far} items read), the last list stays:`, message)
+          }
+          throw error
         })
-        .finally(() => { if (pending === read) pending = null })
+        .finally(() => {
+          if (pending === read) { pending = null; state.reading_since = 0 }
+        })
       pending = read
     }
     return pending
   }
   const get = async () => {
     if (value) {
-      if (Date.now() - time >= ttl) {
-        // every page asks while a read runs: the failure is written to the log once, by the page that started it
-        const before = pending
-        const read = reload()
-        if (read !== before) read.catch((error) => console.error(`${name}: read failed, the last list stays:`, error?.message || error))
-      }
+      // a failed read is written to the log by reload()
+      if (Date.now() - time >= wait) reload().catch(() => {})
       return value
     }
     let timer
-    const waited = new Promise((resolve, reject) => { timer = setTimeout(() => reject(new Error(`${name} is still being read`)), FIRST_WAIT) })
+    const waited = new Promise((resolve) => { timer = setTimeout(() => resolve(null), FIRST_WAIT) })
     try {
-      return await Promise.race([reload(), waited])
+      const result = await Promise.race([reload(), waited])
+      if (result || value) return result || value // the full list, or what the first read has so far
+      throw new Error(`${name} is still being read`)
     } finally {
       clearTimeout(timer)
     }
   }
   get.reload = reload
+  get.state = state
+  get.current = () => value
   return get
 }
 
@@ -233,58 +274,44 @@ const item_cards = (doc) => {
   return list.filter((card) => !(card.sell / card.buy > 30) && !(card.sell > 100000 * 100))
 }
 
-// every priced item whose page opens (routes/router.js find_page_item), read at most once a minute.
-// The items come from the database a few hundred at a time and only what the lists need is kept of each: with the
-// whole collection loaded at once, every read made the site's memory jump by hundreds of MB.
-const index = cached(async () => {
-  // without the database the last list stays (cached keeps it), and a request doesn't wait for a reconnect
-  if (process.db_status?.connected !== true) throw new Error('no database')
-  const cursor = item_model.find({
-    $or: [{ status: { $in: [1, 2] } }, { 'stock.items.0': { $exists: true } }],
-    sell: { $gt: 0 },
-    buy: { $gt: 0 }
-  }, {
-    _id: 0, bp_sku: 1, name: 1, type: 1, classes: 1, qualityID: 1, effectID: 1, image: 1, status: 1, buy: 1, sell: 1,
-    'bptf_data.update_key_price': 1, 'bptf_data.buyorders': 1, 'stock.limit': 1, 'stock.cur': 1, 'stock.items.ks': 1,
-    // the tiers without their sales and price history (item.killstreak, or item.killstreak.killstreaks in older records)
-    ...Object.fromEntries(['ks_tier', 'kt', 'tier', 'buy', 'sell', 'limit', 'stock', 'source', 'buyorders'].flatMap((field) => [[`killstreak.${field}`, 1], [`killstreak.killstreaks.${field}`, 1]]))
-  }).maxTimeMS(QUERY_LIMIT).lean().cursor({ batchSize: 500 })
+// every priced item whose page opens (routes/router.js find_page_item)
+const ITEMS_QUERY = {
+  $or: [{ status: { $in: [1, 2] } }, { 'stock.items.0': { $exists: true } }],
+  sell: { $gt: 0 },
+  buy: { $gt: 0 }
+}
+// only what the lists need of each item: with whole items loaded, every read made the site's memory jump by hundreds of MB
+const FIELDS = {
+  _id: 1, bp_sku: 1, name: 1, type: 1, classes: 1, qualityID: 1, effectID: 1, image: 1, status: 1, buy: 1, sell: 1,
+  'bptf_data.update_key_price': 1, 'bptf_data.buyorders': 1, 'stock.limit': 1, 'stock.cur': 1, 'stock.items.ks': 1,
+  // the tiers without their sales and price history (item.killstreak, or item.killstreak.killstreaks in older records)
+  ...Object.fromEntries(['ks_tier', 'kt', 'tier', 'buy', 'sell', 'limit', 'stock', 'source', 'buyorders'].flatMap((field) => [[`killstreak.${field}`, 1], [`killstreak.killstreaks.${field}`, 1]]))
+}
 
-  // an item stored twice is shown once, the copy with stock
-  const by_name = new Map()
-  // A read slower than QUERY_LIMIT stops where it is and the last list stays. On a busy database, reads that went on
-  // after that ran side by side with the next ones (cached starts a new read after QUERY_LIMIT + 30 s) and their lists
-  // added up until the site ran out of memory.
-  let too_slow = false
-  const timer = setTimeout(() => {
-    too_slow = true
-    by_name.clear() // a read stuck waiting for the database keeps nothing meanwhile
-    Promise.resolve().then(() => cursor.close()).catch(() => {})
-  }, QUERY_LIMIT)
-  try {
-    for await (const doc of cursor) {
-      if (too_slow) break
-      if (!doc.bp_sku) continue
-      const copies = doc.stock?.items?.length || 0
-      const kept = by_name.get(doc.bp_sku)
-      // the page belongs in the sitemap when any record of the item does (as SITEMAP_ITEMS_QUERY on the database)
-      const indexable = fn.item_indexable(doc) || Boolean(kept?.indexable)
-      if (kept && copies <= kept.copies) { kept.indexable = indexable; continue }
-      by_name.set(doc.bp_sku, {
-        copies,
-        indexable,
-        active: doc.status == 1,
-        limit: Number(doc.stock?.limit) || 0,
-        // the /items list: active items and the ones the bots hold copies of (status 2 items only have a page)
-        cards: doc.status == 1 || copies > 0 ? item_cards(doc) : [],
-        // the item page's similar items: the ones in stock
-        similar: Number(doc.stock?.cur) > 0 ? similar_entry(doc) : null
-      })
-    }
-  } finally {
-    clearTimeout(timer)
-  }
-  if (too_slow) throw new Error(`still reading after ${QUERY_LIMIT / 1000} s`)
+const timed_out = (error) => error?.code === 50 || /MaxTimeMS|time ?limit|timed out/i.test(String(error?.message || ''))
+
+// one item into the lists being read (an item stored twice is shown once, the copy with stock)
+const add_item = (by_name, doc) => {
+  if (!doc.bp_sku) return
+  const copies = doc.stock?.items?.length || 0
+  const kept = by_name.get(doc.bp_sku)
+  // the page belongs in the sitemap when any record of the item does (as ITEMS_QUERY in service/sitemap.js)
+  const indexable = fn.item_indexable(doc) || Boolean(kept?.indexable)
+  if (kept && copies <= kept.copies) { kept.indexable = indexable; return }
+  by_name.set(doc.bp_sku, {
+    copies,
+    indexable,
+    active: doc.status == 1,
+    limit: Number(doc.stock?.limit) || 0,
+    // the /items list: active items and the ones the bots hold copies of (status 2 items only have a page)
+    cards: doc.status == 1 || copies > 0 ? item_cards(doc) : [],
+    // the item page's similar items: the ones in stock
+    similar: Number(doc.stock?.cur) > 0 ? similar_entry(doc) : null
+  })
+}
+
+// the lists from the items read; partial: the first read isn't done yet (the sitemap waits for a whole list)
+const build = (by_name, partial = false) => {
   const pages = [...by_name.values()]
   const cards = pages.flatMap((page) => page.cards)
   const tier_cards = cards.filter((card) => card.ks > 0)
@@ -299,6 +326,8 @@ const index = cached(async () => {
   const limits = Object.fromEntries([...active.map(([name, page]) => [name, page.limit]), ...traded_tiers.map((card) => [card.bp_sku, card_limit(card)])])
   const stock = Object.fromEntries(cards.filter((card) => card.count > 0).map((card) => [card.bp_sku, [card.count, card_limit(card)]]))
   return {
+    items: by_name.size,
+    partial,
     cards,
     names,
     limits,
@@ -309,6 +338,52 @@ const index = cached(async () => {
     indexable: [...[...by_name].filter(([, page]) => page.indexable).map(([name]) => name), ...tier_cards.filter((card) => card.indexable).map((card) => card.bp_sku)].sort(),
     built: Date.now()
   }
+}
+
+// The items, read a step (STEP items) at a time in _id order, each step a short query of its own. One query over the
+// whole collection had to finish within 2 minutes, and on a busy or slow database it never did, so the list was never
+// ready and /items showed no cards. A step the database can't answer within STEP_LIMIT is tried again smaller; a read
+// that a newer one took over stops at its next step, so two reads never pile up in memory.
+const index = cached(async (read) => {
+  const by_name = new Map()
+  let last_id = null
+  let count = 0
+  let size = STEP
+  let shown = Date.now()
+  let told = Date.now()
+  const began = Date.now()
+  for (;;) {
+    // without the database the last list stays (cached keeps it), and a request doesn't wait for a reconnect
+    if (process.db_status?.connected !== true) throw new Error('no database')
+    if (!read.alive()) throw new Error('a newer read took over')
+    let docs
+    try {
+      docs = await item_model.find(last_id === null ? ITEMS_QUERY : { ...ITEMS_QUERY, _id: { $gt: last_id } }, FIELDS)
+        .sort({ _id: 1 }).limit(size).maxTimeMS(STEP_LIMIT).lean()
+    } catch (error) {
+      if (timed_out(error) && size > MIN_STEP) {
+        size = Math.max(MIN_STEP, Math.floor(size / 4))
+        console.warn(`Item list: the database is slow, reading ${size} items at a time`)
+        read.step(count)
+        continue
+      }
+      throw error
+    }
+    for (const doc of docs) add_item(by_name, doc)
+    count += docs.length
+    read.step(count)
+    if (docs.length < size) break
+    last_id = docs[docs.length - 1]._id
+    if (read.first && Date.now() - shown >= PARTIAL_EVERY) {
+      read.partial(build(by_name, true))
+      shown = Date.now()
+    }
+    if (read.first && Date.now() - told >= PROGRESS_EVERY) {
+      console.log(`Item list: still reading, ${count} items so far (${seconds(Date.now() - began)})`)
+      told = Date.now()
+    }
+  }
+  return build(by_name)
 }, 'Item list')
 
 const escape_regex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -388,9 +463,35 @@ const stock = async () => {
   return { stock: all.stock, names_version: all.names_version }
 }
 
+// the sitemap waits for a whole list (meanwhile service/sitemap.js reads the names from the database)
+const sitemap_names = async () => {
+  const all = await index()
+  if (all.partial) throw new Error('the item list is still being read')
+  return all.indexable
+}
+
+// how the item list reads go: { ready, partial, items, cards, reading_for_s, read_so_far, last_read_s_ago, last_read_took_s,
+// last_error }. The item APIs send it when they answer 503, so a look at /api/item_stock says why the list isn't there.
+const status = () => {
+  const value = index.current()
+  const state = index.state
+  const ago = (time) => time > 0 ? Math.round((Date.now() - time) / 1000) : null
+  return {
+    ready: Boolean(value) && !value.partial,
+    partial: Boolean(value?.partial),
+    items: value?.items ?? 0,
+    cards: value?.cards.length ?? 0,
+    reading_for_s: ago(state.reading_since),
+    read_so_far: state.reading_since > 0 ? state.read_so_far : null,
+    last_read_s_ago: ago(state.last_read),
+    last_read_took_s: state.last_took > 0 ? Math.round(state.last_took / 100) / 10 : null,
+    last_error: state.last_error || null,
+    last_error_s_ago: state.last_error ? ago(state.failed_at) : null
+  }
+}
+
 // reads the lists again now; the old lists are used until the new ones are ready
-const sitemap_names = async () => (await index()).indexable
 
-const refresh = () => index.reload().catch((error) => { console.error('Item list: read failed:', error?.message || error); return null })
+const refresh = () => index.reload().catch(() => null) // a failed read is written to the log by cached()
 
-export { similar, cards, public_card, names, stock, sitemap_names, ks_page, ks_tier, tiers_of, ks_items, tier_indexable, refresh }
+export { similar, cards, public_card, names, stock, sitemap_names, ks_page, ks_tier, tiers_of, ks_items, tier_indexable, refresh, status }
