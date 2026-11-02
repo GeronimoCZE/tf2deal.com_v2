@@ -63,7 +63,8 @@ router.get('/item_names', async (req, res) => {
     const { names, limits, version } = await item_lists.names()
     res.send({ item_names: names, limits, version })
   } catch {
-    res.status(503).send({ status: 'error', message: 'db error' })
+    // the item list isn't read yet: why (service/item_lists.js status)
+    res.status(503).set('Retry-After', '10').send({ status: 'error', message: 'db error', item_list: item_lists.status() })
   }
 });
 
@@ -73,7 +74,7 @@ router.get('/item_stock', async (req, res) => {
   try {
     res.send(await item_lists.stock())
   } catch {
-    res.status(503).send({ status: 'error', message: 'db error' })
+    res.status(503).set('Retry-After', '10').send({ status: 'error', message: 'db error', item_list: item_lists.status() })
   }
 });
 

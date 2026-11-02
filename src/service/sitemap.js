@@ -111,7 +111,7 @@ const build = async () => {
   }
 
   // the items the bots really trade (the same rule as the item page's noindex), each one once, in every language
-  // From the item list when it is read; when it isn't (still reading, or its reads stop at 2 min on a slow database),
+  // From the item list when it is read; when it isn't (its first read isn't done yet, or the reads fail),
   // straight from the database: only the names, and this runs in the background, never while a request waits.
   let names = null
   let source = 'item list'
