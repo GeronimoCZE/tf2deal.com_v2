@@ -334,6 +334,7 @@ const item_page = async (req, res) => {
           '@graph': [
             {
               '@type': 'BreadcrumbList',
+              '@id': page_url + '#breadcrumb',
               itemListElement: [
                 { '@type': 'ListItem', position: 1, name: req.__('footer.home'), item: fn.site_url + req.lurl('/') },
                 { '@type': 'ListItem', position: 2, name: req.__('nav.items'), item: fn.site_url + req.lurl('/items') },
@@ -341,25 +342,26 @@ const item_page = async (req, res) => {
               ]
             },
             {
-              // The item and what the bots offer. Prices are in TF2 keys and refined metal, and search engines take
-              // only ISO 4217 currencies (USD, EUR, ...), so the offer has no price: the description says it in words.
-              // Google's "Product snippets" report will list these pages as missing a price: they get no price snippet.
-              '@type': 'Product',
-              '@id': page_url + '#item',
-              name: page_item.bp_sku,
+              // The page and the item it is about. Not a schema.org Product with an Offer: Google takes a Product with
+              // an Offer as something sold for money and needs its price in an ISO 4217 currency (USD, EUR, ...), which
+              // a TF2 item traded for keys and refined metal doesn't have. Without one, Search Console marked every
+              // item page "valid with issues" (Product snippets and Merchant listings: 1 invalid item). The prices
+              // are in the page and in the description, in words.
+              '@type': 'ItemPage',
+              '@id': page_url + '#page',
               url: page_url,
-              image: images.length > 0 ? images : undefined,
+              name: page_item.bp_sku,
               description,
-              category: shown.type || undefined,
-              additionalProperty: [
-                shown.quality && { '@type': 'PropertyValue', name: req.__('filters.quality'), value: shown.quality },
-                shown.classes.length > 0 && { '@type': 'PropertyValue', name: req.__('item.classes'), value: shown.classes.join(', ') }
-              ].filter(Boolean),
-              offers: {
-                '@type': 'Offer',
+              isPartOf: { '@id': fn.site_url + '/#website' },
+              breadcrumb: { '@id': page_url + '#breadcrumb' },
+              about: {
+                '@type': 'Thing',
+                '@id': page_url + '#item',
+                name: page_item.bp_sku,
                 url: page_url,
-                availability: (own_page ? shown_stock.cur : stock.cur) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-                seller: { '@id': fn.site_url + '/#organization' }
+                image: images.length > 0 ? images : undefined,
+                description,
+                keywords: [shown.quality, shown.type, ...shown.classes].filter(Boolean).join(', ') || undefined
               }
             }
           ]
