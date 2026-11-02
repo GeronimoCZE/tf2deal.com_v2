@@ -1347,7 +1347,8 @@ const ks_tiers = (src = page_item(), key_ref) => {
         let stock = (typeof entry?.stock == 'object' && entry.stock) ? entry.stock : (entry?.stock !== undefined ? { cur: Number(entry.stock) || 0 } : null);
         // the pricing server keeps each tier's own limit next to its stock ({ stock: 0, limit: 1 })
         if(typeof entry?.limit == 'number'){ stock = { ...(stock || { cur: 0 }), limit: entry.limit }; }
-        return { tier, buy: ks_ref(entry?.buy, key_ref), sell: ks_ref(entry?.sell, key_ref), stock, bp_sku: entry?.bp_sku || ks_name(tier, src), updated: entry?.updated };
+        // updated: when the pricing server last priced the tier (item_manager writes `priced`)
+        return { tier, buy: ks_ref(entry?.buy, key_ref), sell: ks_ref(entry?.sell, key_ref), stock, bp_sku: entry?.bp_sku || ks_name(tier, src), updated: entry?.updated ?? entry?.priced };
     }).filter(entry => entry.tier >= 1 && entry.tier <= 3).sort((a, b) => a.tier - b.tier);
 }
 
@@ -1373,6 +1374,21 @@ const single_stock = () => {
     const stock = ItemTrade.stock || itemStock || {};
     return { cur: Number(stock.cur) || 0, limit: Number(stock.limit) || 0 };
 }
+
+// /trade page: the stock a copy of the visitor's item counts against when the bots buy it, as on the item page: its
+// killstreak tier's own stock and limit when the item has them (item_manager prices a weapon's tiers as items of their
+// own, each held up to its own limit), else the item's. key: the tier whose stock it is (0 = the item's).
+const copy_stock = (item_obj, ks) => {
+    const tier = Number(ks) || 0;
+    const entry = (tier > 0) ? ks_tiers(item_obj, item_obj?.bptf_data?.update_key_price).find(t => t.tier == tier) : null;
+    if(typeof entry?.stock?.limit == 'number'){ return { key: tier, cur: Number(entry.stock.cur) || 0, limit: entry.stock.limit }; }
+    return { key: 0, cur: item_obj?.stock?.cur, limit: item_obj?.stock?.limit };
+}
+// the visitor's copies of the item in the trade that count against the same stock
+const in_trade_against = (item_obj, key) => UserTrade.iit.items.filter(itm => itm.bp_sku == item_obj?.bp_sku && copy_stock(item_obj, itm.ks).key == key);
+// the visitor's tiles of the item whose copies count against that stock
+const tiles_against = (item_obj, key) => Array.from(document.querySelectorAll(`#user-item-grid .item[data-name="${item_obj?.bp_sku}"]`))
+    .filter(el => copy_stock(item_obj, el.getAttribute('data-ks')).key == key);
 
 // The price of one copy: the highest of
 //   - its own price, which the bot server sends with each copy (it includes the killstreak, paint, spells, ...),
@@ -1923,8 +1939,6 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
 
             if('bp_sku' in item && 'buy' in item){
                 const craftable = (item?.bp_sku?.includes('Non-Craftable')) ? "non-craftable":"craftable"
-                const in_trade_all = UserTrade.iit.items.filter(itm => itm.bp_sku == item.bp_sku)
-                const overstocked = (item?.stock?.cur + in_trade_all?.length >= item?.stock?.limit) ? 'over-stocked':''
 
                 const asset_groups = group_assets(item.user_stock)
 
@@ -1943,7 +1957,11 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     const bg_style = (item.effectID > 0) ? `style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"` : "";
                     const sig = stack_sig(rep, item.bp_sku);
 
-                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class} ${overstocked}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'buy')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${copy_marks(rep)}${badge}</div>`)
+                    // a killstreak copy counts against its tier's own stock (copy_stock)
+                    const held = copy_stock(item, rep?.ks);
+                    const overstocked = (held.cur + in_trade_against(item, held.key).length >= held.limit) ? 'over-stocked':''
+
+                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class} ${overstocked}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-ks="${Number(rep?.ks) || 0}" data-classid="${item?.classid}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'buy')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${copy_marks(rep)}${badge}</div>`)
 
                     if(page < 1){
                         grid.append(item_el)
@@ -2288,8 +2306,9 @@ const item_to_trade = async (party, action, item) => {
                             }
                         }
 
-                        const in_trade_now = UserTrade.iit.items.filter(itm => itm.bp_sku == item.getAttribute('data-name'))
-                        const overstocked = (item_obj?.stock?.cur + in_trade_now?.length >= item_obj?.stock?.limit) ? true:false
+                        const held = copy_stock(item_obj, asset.ks) // a killstreak copy: its tier's own stock
+                        const in_trade_now = in_trade_against(item_obj, held.key)
+                        const overstocked = (held.cur + in_trade_now.length >= held.limit) ? true:false
                         if(overstocked){
                             iziToast.error({
                                 title: __('trade.stock_limit_title'),
@@ -2302,10 +2321,9 @@ const item_to_trade = async (party, action, item) => {
                         add_to_trade_panel('user', item, asset);
                         added++;
 
-                        const overstocked_now = (item_obj?.stock?.cur + in_trade_now?.length + 1 >= item_obj?.stock?.limit) ? true:false
+                        const overstocked_now = (held.cur + in_trade_now.length + 1 >= held.limit) ? true:false
                         if(overstocked_now){
-                            const all_items = document.querySelectorAll(`#user-item-grid .item[data-name="${item.getAttribute('data-name')}"]`)
-                            all_items.forEach(itm => {
+                            tiles_against(item_obj, held.key).forEach(itm => {
                                 itm.classList.add('over-stocked')
                             })
                         }
@@ -2337,12 +2355,11 @@ const item_to_trade = async (party, action, item) => {
                 const finish_remove = (qty) => {
                     remove_from_stack('user', item, qty);
 
-                    const bp_sku = item.getAttribute('data-name');
-                    const in_trade_now = UserTrade.iit.items.filter(itm => itm.bp_sku == bp_sku)
-                    const overstocked = (item_obj?.stock?.cur + in_trade_now?.length >= item_obj?.stock?.limit) ? true:false
+                    const held = copy_stock(item_obj, item.getAttribute('data-ks'))
+                    const in_trade_now = in_trade_against(item_obj, held.key)
+                    const overstocked = (held.cur + in_trade_now.length >= held.limit) ? true:false
                     if(!overstocked){
-                        const all_items = document.querySelectorAll(`#user-item-grid .item[data-name="${bp_sku}"]`)
-                        all_items.forEach(itm => {
+                        tiles_against(item_obj, held.key).forEach(itm => {
                             itm.classList.remove('over-stocked')
                         })
                     }

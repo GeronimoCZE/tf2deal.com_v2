@@ -1269,10 +1269,12 @@ addEventListener('DOMContentLoaded', (event) => {
             const sales_box = document.getElementById('item-sales')
             const sales_chart = sales_box ? init_sales_chart(sales_box, item) : null
 
+            // a weapon's killstreak tiers are items of their own, each with its own page (price history, sales, address)
+            const tier_pages = (typeof itemTierPages == 'object' && itemTierPages) ? itemTierPages : null
             const show_tier = (tier) => {
                 const entry = ks_tiers.find(t => t.tier == tier)
                 const current_tier = entry ? entry.tier : 0
-                current_item = (current_tier > 0) ? entry.bp_sku : item.bp_sku
+                current_item = (current_tier > 0) ? (tier_pages?.[current_tier] || entry.bp_sku) : item.bp_sku
 
                 trade.ItemTrade.tier = current_tier
                 trade.ItemTrade.stock = (current_tier > 0 && entry?.stock) ? { cur: entry.stock.cur, limit: entry.stock.limit ?? itemStock?.limit } : null
@@ -1304,7 +1306,14 @@ addEventListener('DOMContentLoaded', (event) => {
                     option.textContent = itemAttr.killstreaks[entry.tier].trim() // item words stay English, like item names
                     ks_select.appendChild(option)
                 }
-                ks_select.addEventListener('change', () => show_tier(Number(ks_select.value)))
+                ks_select.addEventListener('change', () => {
+                    show_tier(Number(ks_select.value))
+                    // a weapon's tier: open that item's page; a skin's tiers are versions shown on the skin's page
+                    if(tier_pages){
+                        const tier = trade.ItemTrade.tier
+                        location.assign(lurl('/items/' + encodeURIComponent(tier > 0 ? (tier_pages[tier] || current_item) : item.bp_sku)))
+                    }
+                })
                 // a link to e.g. /items/Professional Killstreak Rocket Launcher opens with that tier picked
                 const linked = ks_tiers.find(t => t.bp_sku === item_name) || ks_tiers.find(t => t.tier == itemKsTier)
                 show_tier(linked ? linked.tier : 0)

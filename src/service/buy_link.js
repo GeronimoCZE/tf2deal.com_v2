@@ -45,14 +45,18 @@ const sell_price = (doc, asset, key_ref) => {
 }
 
 // "Rocket Launcher" + festivized + tier 3 -> "Festivized Professional Killstreak Rocket Launcher",
-// "Strange Rocket Launcher" -> "Strange Professional Killstreak Rocket Launcher"
+// "Strange Rocket Launcher" -> "Strange Professional Killstreak Rocket Launcher",
+// "Non-Craftable Strange Rocket Launcher" -> "Non-Craftable Strange Professional Killstreak Rocket Launcher" (backpack.tf's
+// order, the name item_manager prices the tier by)
 export const display_name = (bp_sku, asset) => {
   const words = [asset?.f ? 'Festivized' : '', KS_NAMES[Number(asset?.ks) || 0] || ''].filter(Boolean).join(' ')
   if (!words) return bp_sku
-  const name = String(bp_sku || '')
+  const full = String(bp_sku || '')
+  const craft = full.startsWith('Non-Craftable ') ? 'Non-Craftable ' : ''
+  const name = full.slice(craft.length)
   const quality = QUALITY_WORDS.find((q) => name.startsWith(q + ' '))
-  if (quality) return `${quality} ${words} ${name.slice(quality.length + 1)}`
-  return `${words} ${name.replace(/^The /, '')}`
+  if (quality) return `${craft}${quality} ${words} ${name.slice(quality.length + 1)}`
+  return `${craft}${words} ${name.replace(/^The /, '')}`
 }
 
 const words = (value) => (Array.isArray(value) ? value : [value]).filter((v) => typeof v == 'string' && v.trim()).map((v) => v.trim().slice(0, 60))

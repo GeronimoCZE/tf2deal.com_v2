@@ -62,7 +62,11 @@ const Instance = mongoose.Schema({
             items: []
         }
     }, /* global for all ks-versions (every ks has it's limitations) */
-    killstreak: { // used for weapons in form { ks_tier, buy, sell, stock, trade_history }
+    // used for weapons in form { ks_tier, kt, bp_sku, buy, sell, stock, limit, trade_history }. item_manager prices each tier
+    // of a weapon (not skins) from its own backpack.tf listings as an item of its own and adds source ('bptf' = from its
+    // listings, 'kit' / 'tier median' = the kit estimate), listable, buyorders, sellorders, priced, price_history
+    // (service/item_lists.js ks_items)
+    killstreak: {
         type: Array,
         default: []
     },

@@ -240,17 +240,18 @@ const item_page = async (req, res) => {
     }
 
     let main = await find_page_item(item_sku)
-    // "Professional Killstreak Rocket Launcher": the Rocket Launcher's page with that tier picked, when the item has it
+    // "Professional Killstreak Rocket Launcher": a killstreak tier of the Rocket Launcher, when the item has it
     let ks = 0
-    let ks_entry = null
+    let tier = null      // the tier, prices in ref (item_lists.tiers_of)
+    let ks_entry = null  // ... as the item stores it
     const ks_name = main ? null : item_lists.ks_page(item_sku)
     for (const base of ks_name?.bases || []) {
       const doc = await find_page_item(base)
-      const tiers = Array.isArray(doc?.killstreak) ? doc.killstreak : (doc?.killstreak?.killstreaks || [])
-      ks_entry = tiers.find((entry) => item_lists.ks_tier(entry?.ks_tier ?? entry?.kt ?? entry?.tier) === ks_name.tier)
-      if (ks_entry) {
+      tier = doc ? item_lists.tiers_of(doc).get(ks_name.tier) || null : null
+      if (tier) {
         main = doc
         ks = ks_name.tier
+        ks_entry = tier.entry
         break
       }
     }
@@ -258,7 +259,15 @@ const item_page = async (req, res) => {
     if (!main) {
       return res.status(404).render('404', fn.res_data(!!req.user, req.user, user_cookie, req.__('title.not_found')))
     }
-    const page_name = ks ? String(item_sku) : main.bp_sku
+    // A weapon's killstreak tier is an item of its own (item_manager prices it from its own backpack.tf listings,
+    // item_lists.ks_items): its own page, under its backpack.tf name. A skin's tier is a version of the skin: the skin's
+    // page with that tier picked, pointed to the skin's page.
+    const own_page = ks > 0 && item_lists.ks_items(main)
+    const page_name = own_page ? buy.display_name(main.bp_sku, { ks }) : ks ? String(item_sku) : main.bp_sku
+    // one address per tier: "Professional Killstreak Non-Craftable Rocket Launcher" -> "Non-Craftable Professional ..."
+    if (own_page && page_name !== String(item_sku)) {
+      return res.redirect(301, req.lurl(`/items/${encodeURIComponent(page_name)}`))
+    }
 
     // stock.items isn't loaded (it can be long): look only when the stock count doesn't already say so
     const in_stock = fn.item_in_stock(main) || ![1, 2].includes(Number(main.status)) ||
@@ -268,7 +277,9 @@ const item_page = async (req, res) => {
       [group, list.map((item) => ({ ...item, price: fn.list_price_text(item.sell, item.bptf_data?.update_key_price) }))]))
     const item_path = `/items/${encodeURIComponent(main.bp_sku)}`
     const item_url = fn.site_url + req.lurl(item_path)
-    // a killstreak tier's page is the item's page with that tier picked, so search engines are pointed to the item's
+    // a skin's killstreak tier page is the skin's page with that tier picked, so search engines are pointed to the skin's
+    const page_path = ks ? `/items/${encodeURIComponent(page_name)}` : item_path
+    const page_url = own_page ? fn.site_url + req.lurl(page_path) : item_url
     const key_price = Number(main.bptf_data?.update_key_price) || 0
     const stock = { cur: Number(main.stock?.cur) || 0, limit: Number(main.stock?.limit) || 0 }
     // its pictures as full addresses (structured data needs them; a stored "ms/..." short form is left out)
@@ -277,16 +288,26 @@ const item_page = async (req, res) => {
     // on a killstreak tier's page: that tier's prices and stock, as public/js/main.js show_tier sets them
     const tier_stock = ks_entry?.stock && typeof ks_entry.stock == 'object' ? ks_entry.stock : (ks_entry?.stock !== undefined ? { cur: ks_entry?.stock } : null)
     const shown_stock = tier_stock ? { cur: Number(tier_stock.cur) || 0, limit: Number(ks_entry.limit ?? tier_stock.limit ?? stock.limit) || 0 } : stock
+    // a tier's price, never under the clean item's (as public/js/plugins/trade.js copy_price)
+    const page_sell = Math.max(tier?.sell || 0, Number(main.sell) || 0)
+    const page_buy = Math.max(tier?.buy || 0, Number(main.buy) || 0)
     const shown = {
       quality: fn.quality_name(main.qualityID),
       type: fn.item_type_text(main.type, req.__),
       classes: fn.class_names(main.classes, req.__),
-      buy_price: fn.list_price_text(Math.max(buy.to_ref(ks_entry?.sell, key_price), main.sell), key_price), // the visitor buys at our sell price
-      sell_price: fn.list_price_text(Math.max(buy.to_ref(ks_entry?.buy, key_price), main.buy), key_price), // ... and sells to us at our buy price
+      buy_price: fn.list_price_text(page_sell, key_price), // the visitor buys at our sell price
+      sell_price: fn.list_price_text(page_buy, key_price), // ... and sells to us at our buy price
       stock: shown_stock.cur,
       can_sell: Math.max(shown_stock.limit - shown_stock.cur, 0),
-      price_history: fn.price_history_rows(main.price_history)
+      // a tier priced from its own listings has its own history ("buy|sell|key|time", as the item's)
+      price_history: fn.price_history_rows(own_page ? ks_entry?.price_history : main.price_history)
     }
+    // what the page is about, for search engines: the tier with its own name, prices and stock
+    const page_item = own_page ? { ...main, bp_sku: page_name, sell: page_sell, buy: page_buy, stock: { cur: shown_stock.cur } } : main
+    const description = fn.item_description(page_item, req.__)
+    // a tier's page is indexed as an item of its own (item_lists.tier_indexable): copies of it in stock, or bought
+    const tier_in_stock = own_page && (shown_stock.cur > 0 || Boolean(await item_model.exists({ _id: main._id, 'stock.items.ks': ks })))
+    const noindex = own_page ? !item_lists.tier_indexable(main, tier, tier_in_stock ? 1 : 0) : !fn.item_indexable(main, in_stock)
 
     res.render(
       'item_page',
@@ -295,16 +316,18 @@ const item_page = async (req, res) => {
         promtLogin: true,
         item: main,
         ks_tier: ks,
+        // the killstreak select opens each tier's own page (public/js/main.js)
+        tier_pages: item_lists.ks_items(main) ? Object.fromEntries([...item_lists.tiers_of(main).keys()].map((t) => [t, buy.display_name(main.bp_sku, { ks: t })])) : null,
         page_name,
         result: result,
         key_price: app.key_price,
         shown,
         bptf_url: bptf_link(main, { ks }), // the backpack.tf button: that version's price page (a crate's series, a kit's weapon, ...)
         // SEO
-        description: fn.item_description(main, req.__),
-        path: ks ? `/items/${encodeURIComponent(page_name)}` : item_path,
-        ...(ks && { canonical: item_url, no_hreflang: true }),
-        noindex: !fn.item_indexable(main, in_stock), // only items the bots really trade (fn.item_indexable)
+        description,
+        path: page_path,
+        ...(ks && !own_page && { canonical: item_url, no_hreflang: true }),
+        noindex, // only items the bots really trade (fn.item_indexable, item_lists.tier_indexable)
         image: main.image_large || main.image,
         json_ld: {
           '@context': 'https://schema.org',
@@ -314,7 +337,7 @@ const item_page = async (req, res) => {
               itemListElement: [
                 { '@type': 'ListItem', position: 1, name: req.__('footer.home'), item: fn.site_url + req.lurl('/') },
                 { '@type': 'ListItem', position: 2, name: req.__('nav.items'), item: fn.site_url + req.lurl('/items') },
-                { '@type': 'ListItem', position: 3, name: main.bp_sku, item: item_url }
+                { '@type': 'ListItem', position: 3, name: page_item.bp_sku, item: page_url }
               ]
             },
             {
@@ -322,11 +345,11 @@ const item_page = async (req, res) => {
               // only ISO 4217 currencies (USD, EUR, ...), so the offer has no price: the description says it in words.
               // Google's "Product snippets" report will list these pages as missing a price: they get no price snippet.
               '@type': 'Product',
-              '@id': item_url + '#item',
-              name: main.bp_sku,
-              url: item_url,
+              '@id': page_url + '#item',
+              name: page_item.bp_sku,
+              url: page_url,
               image: images.length > 0 ? images : undefined,
-              description: fn.item_description(main, req.__),
+              description,
               category: shown.type || undefined,
               additionalProperty: [
                 shown.quality && { '@type': 'PropertyValue', name: req.__('filters.quality'), value: shown.quality },
@@ -334,8 +357,8 @@ const item_page = async (req, res) => {
               ].filter(Boolean),
               offers: {
                 '@type': 'Offer',
-                url: item_url,
-                availability: stock.cur > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                url: page_url,
+                availability: (own_page ? shown_stock.cur : stock.cur) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
                 seller: { '@id': fn.site_url + '/#organization' }
               }
             }
