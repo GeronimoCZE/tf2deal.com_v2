@@ -42,6 +42,15 @@ const group_id64 = async () => {
     return id64
 }
 
+// the group's page on steamcommunity.com, for "Join our Steam group" links
+const group_url = () => {
+    const setting = String(process.env.STEAM_GROUP_ID || '').trim() || DEFAULT_GROUP
+    if(/^https?:\/\/steamcommunity\.com\/(groups|gid)\/[^/?#\s]+/i.test(setting)){ return setting.replace(/^http:/i, 'https:').replace(/[?#].*$/, '').replace(/\/+$/, '') }
+    if(/^\d{17,}$/.test(setting)){ return `https://steamcommunity.com/gid/${setting}` }
+    if(/^\d+$/.test(setting)){ return `https://steamcommunity.com/gid/${(STEAM_GROUP_64_BASE + BigInt(setting)).toString()}` }
+    return `https://steamcommunity.com/groups/${encodeURIComponent(setting)}`
+}
+
 // the player's groups from the Steam Web API: true / false, or null when Steam doesn't tell (private profile, API down)
 const listed_in_group = async (steamid, id64) => {
     try {
@@ -179,4 +188,4 @@ const finish_due = async () => {
     await remove_due().catch((error) => console.log('giveaway: removing the posts failed', error.message))
 }
 
-export { in_steam_group, check_requirements, refresh_state, draw_winner, finish_due }
+export { in_steam_group, group_url, check_requirements, refresh_state, draw_winner, finish_due }

@@ -177,6 +177,14 @@ body.theme-white{
         &.g-elite .collection-grade{ color: #c0302f; }
     }
 
+    // the rating stars after a trade: grey until picked (the pale stars of the dark look vanish on white)
+    .modal_overlay .rating-stars{
+        .rate-star{ color: rgba(21, 23, 43, 0.2); }
+        .rate-star.is-on{ color: #f5b400; }
+        &:hover .rate-star{ color: rgba(21, 23, 43, 0.2); }
+        .rate-star:hover, .rate-star:hover ~ .rate-star{ color: #f5b400; }
+    }
+
     // trade page
     .no-items, .inventory-message{ color: var(--ink-3) !important; }
     .key-section .amount, .ref-section .amount{ color: var(--ink) !important; }

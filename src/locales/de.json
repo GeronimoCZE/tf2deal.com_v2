@@ -597,6 +597,11 @@
       "update_text": "Du siehst eine ältere Version dieser Seite. Lade sie neu, um die neueste zu bekommen.",
       "reload": "Neu laden",
       "close": "Schließen"
+    },
+    "steam_group": {
+      "title": "Tritt unserer Steam-Gruppe bei",
+      "text": "Dort posten wir unsere Gewinnspiele, und manche Gewinnspiele sind nur für Gruppenmitglieder.",
+      "join": "Gruppe beitreten"
     }
   },
   "items": {

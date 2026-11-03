@@ -597,6 +597,11 @@
       "update_text": "Vous consultez une ancienne version de cette page. Rechargez-la pour obtenir la plus récente.",
       "reload": "Recharger",
       "close": "Fermer"
+    },
+    "steam_group": {
+      "title": "Rejoignez notre groupe Steam",
+      "text": "Nous y publions nos concours, et certains concours sont réservés aux membres du groupe.",
+      "join": "Rejoindre le groupe"
     }
   },
   "items": {

@@ -558,6 +558,41 @@ document.addEventListener('click', async (e) => {
     }
 })
 
+/* ---------- after a trade: ask people who aren't in the Steam group to join it ---------- */
+
+// GET /api/user/steam_group (api/routes/user.js) answers member: true / false / null (Steam can't tell: ask nothing).
+// One check per page; a "not in it" answer is checked again after 2 minutes (they may have joined in between).
+let group_check = null
+const steam_group_slot = () => user == 'no_session' ? '' : '<div class="group-invite-slot" aria-live="polite"></div>'
+const fill_group_invite = (root) => {
+    const slot = root?.querySelector('.group-invite-slot')
+    if(!slot){ return }
+    if(!group_check || (group_check.done && group_check.member !== true && Date.now() - group_check.time > 2 * 60 * 1000)){
+        const check = { time: Date.now(), done: false, member: null, url: '' }
+        check.promise = fetch('/api/user/steam_group', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+            .then((r) => r.ok ? r.json() : null)
+            .catch(() => null)
+            .then((data) => {
+                check.done = true
+                check.member = typeof data?.member == 'boolean' ? data.member : null
+                check.url = /^https:\/\/steamcommunity\.com\//.test(data?.url || '') ? data.url : ''
+                return check
+            })
+        group_check = check
+    }
+    group_check.promise.then(({ member, url }) => {
+        if(member !== false || !url || !slot.isConnected || slot.firstChild){ return }
+        slot.innerHTML = `<div class="group-invite">
+            <span class="icon-steam_circle gi-icon" aria-hidden="true"></span>
+            <div class="gi-words">
+                <p class="gi-title">${__('steam_group.title')}</p>
+                <p class="gi-text">${__('steam_group.text')}</p>
+            </div>
+            <a class="gi-join" href="${url.replace(/"/g, '&quot;')}" target="_blank" rel="noopener">${__('steam_group.join')}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v2h3.6l-9.8 9.8 1.4 1.4L19 6.4V10h2V3zm5 16H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2z"/></svg></a>
+        </div>`
+    })
+}
+
 const tradeOfferConnection = async (offer, action) => {
 
     const incoming = parse_offer(offer)
@@ -696,18 +731,20 @@ const tradeOfferConnection = async (offer, action) => {
         case "accepted":
             modal_title = __('offer.accepted_title');
             modal_html = state(visual('success', 'check'), __('offer.accepted_thanks'), __('offer.accepted_enjoy'), `
-                ${rating_box(tradeoffer.offer?.offer?.offerID || tradeoffer.offer?.offerID)}`);
+                ${rating_box(tradeoffer.offer?.offer?.offerID || tradeoffer.offer?.offerID)}
+                ${steam_group_slot()}`);
             break;
 
         case "canceled":
             modal_title = __('offer.canceled_title');
-            modal_html = state(visual('neutral', 'cross'), __('offer.canceled'), __('offer.canceled_hint'));
+            modal_html = state(visual('neutral', 'cross'), __('offer.canceled'), __('offer.canceled_hint'), steam_group_slot());
             break;
 
         case "declined":
             modal_title = __('offer.declined_title');
             modal_html = state(visual('neutral', 'cross'), __('offer.declined'),
-                status_detail == 'hold' ? __('offer.declined_hold') : status_detail == 'counter' ? __('offer.declined_counter') : __('offer.retry_hint'));
+                status_detail == 'hold' ? __('offer.declined_hold') : status_detail == 'counter' ? __('offer.declined_counter') : __('offer.retry_hint'),
+                steam_group_slot());
             break;
 
         case "invalid":
@@ -833,6 +870,9 @@ const tradeOfferConnection = async (offer, action) => {
             .classList.add('active');
     }
 
+
+    // accepted / canceled / declined: the Steam group card, for people who aren't in the group
+    if(action === "open" || action === "change"){ fill_group_invite(modal) }
 
     try {
         document.querySelector(".modal #approveTrade").addEventListener('click', (e) => {

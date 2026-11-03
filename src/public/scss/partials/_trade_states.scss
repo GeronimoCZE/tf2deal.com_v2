@@ -341,3 +341,45 @@ $tt-line: rgba(255, 255, 255, 0.08);
 }
 .index-ps .trade-note{ flex-basis: 98%; max-width: 46rem; }
 .item-page .trade-note{ max-width: calc(100% - 2rem - 2px); margin: .6rem auto 0; padding-left: 1rem; padding-right: 1rem; }
+
+/* ---------- after a trade: join the Steam group (js/plugins/trade.js, only for people not in it) ---------- */
+// a quiet box under the result (and under the rating): the group's link is the one thing in it
+.modal_overlay .group-invite-slot:empty{ display: none; }
+.modal_overlay .group-invite{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    animation: offerIn 200ms ease-out;
+    .gi-icon{ flex: none; font-size: 28px; line-height: 1; color: var(--ink-2); }
+    .gi-words{ flex: 1; min-width: 0; }
+    .gi-title{ margin: 0; font-size: .95rem; font-weight: 700; line-height: 1.35; color: var(--ink); }
+    .gi-text{ margin: 2px 0 0 0; font-size: .88rem; line-height: 1.45; color: var(--ink-3); }
+    .gi-join{
+        display: inline-flex;
+        flex: none;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 14px;
+        border-radius: var(--r-md);
+        background: var(--brand-muted);
+        color: var(--ink);
+        font-size: .9rem;
+        font-weight: 700;
+        line-height: 1.3;
+        white-space: nowrap;
+        text-decoration: none;
+        transition: background 150ms ease;
+        svg{ width: 14px; height: 14px; flex: none; fill: currentColor; opacity: .8; }
+        &:hover{ background: var(--brand-muted-hover); }
+        &:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
+    }
+    // phones: the button goes under the text, full width
+    @media screen and (max-width: 520px){
+        flex-wrap: wrap;
+        .gi-words{ flex-basis: calc(100% - 40px); }
+        .gi-join{ width: 100%; justify-content: center; box-sizing: border-box !important; }
+    }
+}

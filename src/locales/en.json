@@ -597,6 +597,11 @@
       "update_text": "You're viewing an older version of this page. Reload to get the newest one.",
       "reload": "Reload",
       "close": "Close"
+    },
+    "steam_group": {
+      "title": "Join our Steam group",
+      "text": "We post our giveaways there, and some giveaways are only for group members.",
+      "join": "Join the group"
     }
   },
   "items": {
