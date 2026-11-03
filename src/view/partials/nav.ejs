@@ -5,7 +5,8 @@
         <div class="nav-wrapper">
           <div class="nav-section left">
             <a href="<%= lurl('/') %>" id="nav_logotype">
-                <img src="/img/logotype-528.webp" width="528" height="100" alt="TF2Deal" class="logotype">
+                <%# White has a dark-lettered copy of the logo (same picture, the white letters made ink) %>
+                <img src="<%= locals.season_class == 'theme-white' ? '/img/logotype-dark-528.webp' : '/img/logotype-528.webp' %>" width="528" height="100" alt="TF2Deal" class="logotype">
             </a>
             <div class="nav-mobile-actions">
             <% if(user){ %><button type="button" class="nav-bell nav-bell-mobile" data-notif-bell title="<%= __('nav.notifications') %>" aria-label="<%= __('nav.notifications') %>" aria-haspopup="dialog" aria-expanded="false">
@@ -90,7 +91,7 @@
                     </div>
                 </div>
                 <%# the visitor's own theme: /theme/<choice> saves it (app.js, service/season.js); Automatic follows the site %>
-                <% const theme_opts = ['auto', 'off', 'summer', 'halloween', 'smissmas'].map((code) => [code, __('nav.theme_' + (code == 'off' ? 'night' : code))]) %>
+                <% const theme_opts = ['auto', 'off', 'midnight', 'white', 'summer', 'halloween', 'smissmas'].map((code) => [code, __('nav.theme_' + (code == 'off' ? 'night' : code))]) %>
                 <div class="dropdown-container dc-themeSelect">
                     <div class="themeSelect" id="themeSelect" title="<%= __('nav.theme') %>">
                         <span class="theme-swatch theme-<%= theme %>" aria-hidden="true"></span>

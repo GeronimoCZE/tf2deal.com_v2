@@ -75,7 +75,7 @@
         </div>
         <div class="foo-credits">
             <a href="<%= lurl('/') %>" class="foo-logo">
-                <img src="/img/logotype-528.webp" width="528" height="100" loading="lazy" alt="TF2Deal" class="logotype">
+                <img src="<%= locals.season_class == 'theme-white' ? '/img/logotype-dark-528.webp' : '/img/logotype-528.webp' %>" width="528" height="100" loading="lazy" alt="TF2Deal" class="logotype">
             </a>
             <span class="text-block copyright">© <span id="current_year"></span></span>
             <div class="social-media">

@@ -574,9 +574,10 @@ dialog.site-settings{
         span{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         &:hover{ background: var(--surface-3); color: var(--ink); }
     }
+    // four a row: Automatic and the three everyday looks, then the three TF2 events
     .ss-themes{
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: .5rem;
     }
     .ss-theme{
