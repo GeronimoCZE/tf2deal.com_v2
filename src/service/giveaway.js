@@ -22,34 +22,33 @@ const community_xml = async (path) => {
     }
 }
 
-// STEAM_GROUP_ID as the group's 64-bit id (<groupID64> in its memberslistxml); its 32-bit id, URL name
-// (tradetf2deal) or whole steamcommunity.com/groups/... address work too. Without it: the group the giveaway page links to.
-const DEFAULT_GROUP = 'tradetf2deal'
-let group = { setting: null, id64: null }
+// "Our Steam group": the one the footer, the giveaway page and the trade window link to. The group check (giveaway
+// requirement, "Join our Steam group" after a trade) looks players up in this group. STEAM_GROUP_ID is only where
+// giveaway announcements are posted (service/giveaway_posts.js); if it names another group, the log says so.
+const GROUP_NAME = 'tradetf2deal'
+const GROUP_URL = `https://steamcommunity.com/groups/${GROUP_NAME}`
+let group_id = null // its 64-bit id (<groupID64> in its memberslistxml), read once
+let group_loading = null
 const group_id64 = async () => {
-    const setting = String(process.env.STEAM_GROUP_ID || '').trim() || DEFAULT_GROUP
-    if(group.setting === setting && group.id64){ return group.id64 }
-
-    let id64 = null
-    if(/^\d{17,}$/.test(setting)){ id64 = setting }
-    else if(/^\d+$/.test(setting)){ id64 = (STEAM_GROUP_64_BASE + BigInt(setting)).toString() }
-    else {
-        const name = setting.replace(/^https?:\/\/steamcommunity\.com\/groups\//i, '').replace(/[/?#].*$/, '')
-        const xml = await community_xml(`/groups/${encodeURIComponent(name)}/memberslistxml/?xml=1`)
-        id64 = xml?.match(/<groupID64>(\d+)<\/groupID64>/)?.[1] || null
-    }
-    group = { setting, id64 }
-    return id64
+    if(group_id){ return group_id }
+    group_loading ||= (async () => {
+        const xml = await community_xml(`/groups/${GROUP_NAME}/memberslistxml/?xml=1`)
+        const id64 = xml?.match(/<groupID64>(\d+)<\/groupID64>/)?.[1] || null
+        if(id64){
+            group_id = id64
+            const setting = String(process.env.STEAM_GROUP_ID || '').trim()
+            const setting64 = /^\d{17,}$/.test(setting) ? setting : /^\d+$/.test(setting) ? (STEAM_GROUP_64_BASE + BigInt(setting)).toString() : null
+            if(setting64 && setting64 !== id64){
+                console.warn(`Steam group: STEAM_GROUP_ID ${setting} is not ${GROUP_URL} (its id is ${id64}). Giveaway announcements go to STEAM_GROUP_ID; set it to ${id64} to post in ${GROUP_NAME}.`)
+            }
+        }
+        return id64
+    })().finally(() => { group_loading = null })
+    return group_loading
 }
 
 // the group's page on steamcommunity.com, for "Join our Steam group" links
-const group_url = () => {
-    const setting = String(process.env.STEAM_GROUP_ID || '').trim() || DEFAULT_GROUP
-    if(/^https?:\/\/steamcommunity\.com\/(groups|gid)\/[^/?#\s]+/i.test(setting)){ return setting.replace(/^http:/i, 'https:').replace(/[?#].*$/, '').replace(/\/+$/, '') }
-    if(/^\d{17,}$/.test(setting)){ return `https://steamcommunity.com/gid/${setting}` }
-    if(/^\d+$/.test(setting)){ return `https://steamcommunity.com/gid/${(STEAM_GROUP_64_BASE + BigInt(setting)).toString()}` }
-    return `https://steamcommunity.com/groups/${encodeURIComponent(setting)}`
-}
+const group_url = () => GROUP_URL
 
 // the player's groups from the Steam Web API: true / false, or null when Steam doesn't tell (private profile, API down)
 const listed_in_group = async (steamid, id64) => {

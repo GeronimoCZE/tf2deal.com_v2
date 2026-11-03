@@ -51,7 +51,7 @@ const short = (error) => String(error?.message || error || 'Unknown error').slic
 
 /* ========================= STEAM GROUP ========================= */
 
-// STEAM_GROUP_ID can be the 32-bit or the 64-bit group id (like in service/giveaway.js)
+// STEAM_GROUP_ID can be the 32-bit or the 64-bit group id (the group check in service/giveaway.js always uses tradetf2deal)
 const steam_group64 = () => {
     const id = String(process.env.STEAM_GROUP_ID || '').trim()
     if(!/^\d+$/.test(id)){ throw new Error('STEAM_GROUP_ID has to be the group\'s id number') }
