@@ -630,7 +630,11 @@
     "cant_trade_now": "The current situation doesn't allow us to trade this item!",
     "reload_inventory": "Reload inventory",
     "no_price_history": "No price changes yet.",
-    "links": "More about this item"
+    "links": "More about this item",
+    "collection": "Collection",
+    "collection_count": "{count} items",
+    "this_item": "This item",
+    "this_war_paint": "This item's war paint"
   },
   "giveaway": {
     "current": "Current giveaway",

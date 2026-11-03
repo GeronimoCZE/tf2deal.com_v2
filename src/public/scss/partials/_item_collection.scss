@@ -1,0 +1,123 @@
+// The item page's TF2 collection (view/item_page.ejs, routes/router.js): a "Collection" line in the item's data and,
+// further down, the collection's items as a dense list like TF2's own collection tooltip: each item once, highest
+// grade first, the grade as a coloured edge (the item tiles' quality edge, turned on its side) and as a word.
+.item-page{
+    .desc.collection{
+        max-width: 17rem;
+        .val a{
+            display: inline;
+            color: var(--violet);
+            text-decoration: underline;
+            text-underline-offset: .15rem;
+            &:hover{ color: var(--ink); }
+        }
+    }
+
+    .item-header.collection{
+        align-items: baseline;
+        gap: .2rem .7rem;
+        .collection-count{
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 400;
+            color: var(--ink-3);
+        }
+    }
+
+    .collection-list{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+        gap: .4rem;
+        list-style: none;
+    }
+    .collection-row{
+        display: block;
+        margin: 0;
+        padding: 0;
+        min-width: 0;
+
+        &.g-civilian{ --grade: #B0C3D9; --grade-text: #B0C3D9; }
+        &.g-freelance{ --grade: #5E98D9; --grade-text: #7fb0e6; }
+        &.g-mercenary{ --grade: #4B69FF; --grade-text: #8197ff; }
+        &.g-commando{ --grade: #8847FF; --grade-text: #a983ff; }
+        &.g-assassin{ --grade: #D32CE6; --grade-text: #e278ef; }
+        &.g-elite{ --grade: #EB4B4B; --grade-text: #f17d7d; }
+    }
+    .collection-item{
+        position: relative;
+        display: grid;
+        grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+        align-items: center;
+        gap: .75rem;
+        padding: .45rem .75rem .45rem .6rem;
+        border-radius: var(--r-md);
+        background: var(--tile);
+        color: var(--ink);
+        transition: background 150ms ease;
+        // the grade
+        &::before{
+            content: '';
+            position: absolute;
+            left: 0;
+            top: .55rem;
+            bottom: .55rem;
+            width: 3px;
+            border-radius: 0 2px 2px 0;
+            background: var(--grade, transparent);
+        }
+    }
+    a.collection-item{
+        &:hover{ background: var(--tile-hover); }
+        &:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
+    }
+    // the item this page is about: lighter, with an edge, and not a link
+    .collection-row.current .collection-item{
+        background: var(--surface-3);
+        outline: 1px solid var(--line-strong);
+        outline-offset: -1px;
+    }
+    .collection-img{
+        display: block;
+        width: 3.25rem;
+        height: 3.25rem;
+        object-fit: contain;
+        background-size: cover; // an unusual effect behind the picture
+        background-position: center;
+    }
+    .collection-text{
+        display: flex;
+        flex-direction: column;
+        gap: .15rem;
+        min-width: 0;
+    }
+    .collection-name{
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 14px;
+        line-height: 1.3;
+        color: var(--ink);
+        overflow-wrap: anywhere;
+    }
+    .collection-meta{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 .6rem;
+        font-size: 12.5px;
+        line-height: 1.35;
+        color: var(--ink-3);
+    }
+    .collection-grade{
+        color: var(--grade-text, var(--ink-3));
+        font-weight: 600;
+    }
+    .collection-here{ color: var(--ink-2); }
+    .collection-stock{ color: #70B04A; }
+    .collection-price{
+        font-size: 14px;
+        color: var(--ink);
+        white-space: nowrap;
+        text-align: right;
+    }
+}

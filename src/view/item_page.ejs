@@ -67,6 +67,13 @@
                                             <div class="val class"><% for (const name of info.shown.classes) { %><span class="class-el"><%= name %></span><% } %></div>
                                         </div>
                                         <% } %>
+                                        <% if (info.collection) { %>
+                                        <%# the item's TF2 collection; the list of its items is further down %>
+                                        <div class="desc collection">
+                                            <div class="name"><%= __('item.collection') %></div>
+                                            <div class="val" translate="no"><% if (info.collection.items.length > 0) { %><a href="#collection"><%= info.collection.name %></a><% } else { %><%= info.collection.name %><% } %></div>
+                                        </div>
+                                        <% } %>
             <!--                             <% if (info.item?.effectID) { %>
                                             <div class="desc effect">
                                                 <div class="name">EffectID</div>
@@ -160,6 +167,43 @@
                                     <% }) %>
                                 </div>
                             </div>
+
+                            <% if (info.collection && info.collection.items.length > 0) { %>
+                            <%# the item's TF2 collection (item_manager's item_collection): each item once, in its plainest
+                                version, highest grade first; this item shown as this page shows it %>
+                            <div class="item-header collection" id="collection" style="margin-top: 2rem">
+                                <span translate="no"><%= info.collection.name %></span>
+                                <span class="collection-count"><%= __('item.collection_count', { count: info.collection.items.length }) %></span>
+                            </div>
+                            <div class="item_content collection">
+                                <ul class="collection-list">
+                                <% info.collection.items.forEach((row) => { %>
+                                    <% const effect_bg = Number(row.effectID) > 0 ? `background-image: url(https://api.backpack.tf/images/440/particles/${Number(row.effectID)}_94x94.png);` : '' %>
+                                    <%# the item's name, and which version of it the row opens ("Factory New", "Strange") %>
+                                    <% const sku = String(row.bp_sku), base = String(row.name || '') %>
+                                    <% const version = base && sku.includes(base) && sku != base ? sku.replace(base, ' ').replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim() : '' %>
+                                    <% const title = version || sku == base ? base : sku %>
+                                    <li class="collection-row<%= row.current ? ' current' : '' %><%= row.grade ? ' g-' + row.grade : '' %>">
+                                        <% if (row.current) { %><div class="collection-item" aria-current="page"><% } else { %><a class="collection-item" href="<%= lurl('/items/' + encodeURIComponent(row.bp_sku)) %>"><% } %>
+                                            <img src="<%= row.image %>" alt="<%= item_alt(row) %>" loading="lazy" class="collection-img"<% if (effect_bg) { %> style="<%= effect_bg %>"<% } %>>
+                                            <span class="collection-text">
+                                                <span class="collection-name" translate="no" title="<%= sku %>"><%= title %></span>
+                                                <% if (row.grade || version || row.current || row.paint_of_item || row.stock > 0) { %>
+                                                <span class="collection-meta">
+                                                    <% if (row.grade) { %><span class="collection-grade" translate="no"><%= row.grade[0].toUpperCase() + row.grade.slice(1) %></span><% } %>
+                                                    <% if (version) { %><span class="collection-version" translate="no"><%= version %></span><% } %>
+                                                    <% if (row.current) { %><span class="collection-here"><%= __('item.this_item') %></span><% } else if (row.paint_of_item) { %><span class="collection-here"><%= __('item.this_war_paint') %></span><% } %>
+                                                    <% if (row.stock > 0) { %><span class="collection-stock"><%= __('item.in_stock', { count: row.stock }) %></span><% } %>
+                                                </span>
+                                                <% } %>
+                                            </span>
+                                            <span class="collection-price"><%= row.price %></span>
+                                        <% if (row.current) { %></div><% } else { %></a><% } %>
+                                    </li>
+                                <% }) %>
+                                </ul>
+                            </div>
+                            <% } %>
 
                             <% if (info.result.sameName.length > 0) { %>
                             <div class="item-header similarName" style="margin-top: 2rem">

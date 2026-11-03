@@ -302,6 +302,29 @@ const item_page = async (req, res) => {
       // a tier priced from its own listings has its own history ("buy|sell|key|time", as the item's)
       price_history: fn.price_history_rows(own_page ? ks_entry?.price_history : main.price_history)
     }
+    // the item's TF2 collection (item_manager writes item_collection) and the collection's other items, this one
+    // shown as the page shows it. A war-painted weapon is in its war paint's collection; the list has the war paint.
+    const collection_name = typeof main.item_collection === 'string' ? main.item_collection.trim() : ''
+    let collection = null
+    if (collection_name) {
+      const war_painted = /warpaint skin/i.test(String(main.type || ''))
+      const own_row = { bp_sku: page_name, name: main.name, image: main.image, qualityID: main.qualityID, effectID: main.effectID, grade: item_lists.grade_of(main.grade), price: shown.buy_price, stock: shown.stock, current: true }
+      let found = false
+      const items = (await item_lists.collection(collection_name)).slice(0, 80).map((entry) => {
+        if (!war_painted && entry.name === main.name) { found = true; return { ...own_row, grade: own_row.grade || entry.grade } }
+        return { ...entry, price: fn.list_price_text(entry.sell, entry.key_price), current: false }
+      })
+      // the war paint of a war-painted weapon (the longest paint name its name starts with: "... Mk.II")
+      if (war_painted) {
+        const paint = items.filter((row) => / War Paint$/.test(row.name) && String(main.name).startsWith(row.name.slice(0, -' War Paint'.length) + ' '))
+          .sort((a, b) => b.name.length - a.name.length)[0]
+        if (paint) paint.paint_of_item = true
+      } else if (items.length > 0 && !found) {
+        items.push(own_row) // not in the list (yet): still one of the collection
+        items.sort(item_lists.collection_order)
+      }
+      collection = { name: collection_name, items }
+    }
     // what the page is about, for search engines: the tier with its own name, prices and stock
     const page_item = own_page ? { ...main, bp_sku: page_name, sell: page_sell, buy: page_buy, stock: { cur: shown_stock.cur } } : main
     const description = fn.item_description(page_item, req.__)
@@ -322,6 +345,7 @@ const item_page = async (req, res) => {
         result: result,
         key_price: app.key_price,
         shown,
+        collection, // { name, items } or null (view/item_page.ejs)
         bptf_url: bptf_link(main, { ks }), // the backpack.tf button: that version's price page (a crate's series, a kit's weapon, ...)
         // SEO
         description,

@@ -630,7 +630,11 @@
     "cant_trade_now": "La situation actuelle ne nous permet pas d'échanger cet objet !",
     "reload_inventory": "Recharger l'inventaire",
     "no_price_history": "Aucun changement de prix pour l'instant.",
-    "links": "En savoir plus sur cet objet"
+    "links": "En savoir plus sur cet objet",
+    "collection": "Collection",
+    "collection_count": "Objets : {count}",
+    "this_item": "Cet objet",
+    "this_war_paint": "Peinture de guerre de cet objet"
   },
   "giveaway": {
     "current": "Concours en cours",

@@ -630,7 +630,11 @@
     "cant_trade_now": "Aufgrund der aktuellen Lage können wir dieses Item nicht tauschen!",
     "reload_inventory": "Inventar neu laden",
     "no_price_history": "Noch keine Preisänderungen.",
-    "links": "Mehr zu diesem Item"
+    "links": "Mehr zu diesem Item",
+    "collection": "Sammlung",
+    "collection_count": "Items: {count}",
+    "this_item": "Dieses Item",
+    "this_war_paint": "Kriegsbemalung dieses Items"
   },
   "giveaway": {
     "current": "Aktuelles Gewinnspiel",

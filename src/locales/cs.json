@@ -630,7 +630,11 @@
     "cant_trade_now": "Aktuální situace nám neumožňuje tento předmět vyměnit!",
     "reload_inventory": "Znovu načíst inventář",
     "no_price_history": "Cena se zatím neměnila.",
-    "links": "Více o tomto předmětu"
+    "links": "Více o tomto předmětu",
+    "collection": "Kolekce",
+    "collection_count": "Předmětů: {count}",
+    "this_item": "Tento předmět",
+    "this_war_paint": "War Paint tohoto předmětu"
   },
   "giveaway": {
     "current": "Aktuální soutěž",
