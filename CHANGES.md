@@ -110,6 +110,9 @@ server restarts. The old built-in default is gone, because anyone who knew it co
 - **Server-to-server keys:**
   - The checks for the bot/item server and the `/api/items` client keys use constant-time comparisons.
   - They now refuse access when the key is missing from `.env`. Before, a missing `CLIENT_TOKEN` let everyone in.
+  - (2026-11-03) The `/api/items` client keys are gone again: the /items page sent them from its public script, so
+    they kept no one out, and a `.env` with other values made every visitor's /items page show no cards ("you have
+    no access to this api"). `CLIENT_TOKEN` and `CLIENT_SECRET` are no longer used; the rate limit stays.
 
 ## Crashes and overload
 - **Crash on malformed requests:**
