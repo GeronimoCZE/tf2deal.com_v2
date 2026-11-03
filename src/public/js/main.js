@@ -371,8 +371,6 @@ addEventListener('DOMContentLoaded', (event) => {
         }
     });
     
-    const cli_token='awe46awe42aw1!sada!@clia_sdssdas_qweqw98d4dqwd21/as';
-    const cli_secret='!!!!!!!asadas@q5qwe5qw4ew62qwe13qwe89qwe4666qw3';
    if(promtLogin == 'true' && user != 'no_session'){
         if(user_tradeurl == ``){
             let tradeurl_submited = false

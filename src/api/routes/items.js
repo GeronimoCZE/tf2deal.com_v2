@@ -6,7 +6,6 @@ import mongoose from 'mongoose';
 import {item_model as Instance} from '../../model/Item.js'; // add .js if using ES modules with Node
 import { type } from 'os';
 import { log } from 'console';
-import { safe_equal } from '../../service/settings.js';
 import * as item_lists from '../../service/item_lists.js';
 
 // the /items list asks again on every filter change, so a few quick clicks have to fit (the page itself waits at
@@ -64,13 +63,14 @@ const item_config = {
     }
 }
 
-router.use('/', (req, res, next) => {
-  // safe_equal is false when the .env value is missing, so an unset CLIENT_TOKEN no longer lets everyone in
-  if (safe_equal(req.body?.client_token, process.env.CLIENT_TOKEN) && safe_equal(req.body?.client_secret, process.env.CLIENT_SECRET)) {
-    next();
-  } else {
-    res.status(500).json({ status: "error", message: 'you have no access to this api' });
-  }
+// No token check (Nikolas, 2026-11-03). The /items page sent a "client token and secret" written into its public
+// script, so anyone could read them, and the server compared them with CLIENT_TOKEN / CLIENT_SECRET from .env: once
+// the .env values were changed or missing, every visitor's /items page got "you have no access to this api" and
+// showed no cards. The list is public (the plain-HTML /items pages show the same cards); the rate limit stays.
+
+// the list is asked for with POST (public/js/plugins/items.js); opened in the browser it says so
+router.get('/', (req, res) => {
+  res.status(405).set('Allow', 'POST').json({ status: "error", message: 'The item list is asked for with POST by the /items page. To see it, open /items.' });
 });
 
 router.post('/', items_rate_limit, async (req, res) => {

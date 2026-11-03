@@ -11,9 +11,6 @@ function normalizeGerman(str) {
         .replace(/[\u0300-\u036f]/g, ''); // Remove diacritic marks
 }
 
-const cli_token='awe46awe42aw1!sada!@clia_sdssdas_qweqw98d4dqwd21/as';
-const cli_secret='!!!!!!!asadas@q5qwe5qw4ew62qwe13qwe89qwe4666qw3';
-
 // the /api/items page (15 items each) the list shows up to; main.js asks for list.page + 1 while scrolling.
 // The server sends the first items as plain HTML (views/items.ejs), main.js sets list.page to match them.
 const list = { page: 0 }
@@ -79,8 +76,6 @@ const get_items = (page, validInputs, reset = page === 0) => {
     const urlParams = new URLSearchParams(queryString);
     urlParams.delete('page') // the plain-HTML page number (/items?page=2) isn't a filter
     const paramsObject = { page: page }
-    paramsObject['client_token'] = cli_token
-    paramsObject['client_secret'] = cli_secret
 
     if(urlParams.size > 0){
         $('#resetFilters').addClass('active').prop('disabled', false)
