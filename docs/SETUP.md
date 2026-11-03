@@ -35,9 +35,11 @@ to delete it by hand.
 
 ### Steam group
 
-- `STEAM_GROUP_ID`: the group's id number. Open `https://steamcommunity.com/groups/YOURGROUP/memberslistxml/?xml=1`
-  and copy the number in `<groupID64>`. The giveaway's group check also takes the group's URL name, and uses
-  `tradetf2deal` (the group the giveaway page links to) when this is empty. It looks players up in the group's
+- `STEAM_GROUP_ID`: the id number of the group the announcements go to. Open
+  `https://steamcommunity.com/groups/tradetf2deal/memberslistxml/?xml=1` and copy the number in `<groupID64>`.
+  If it names another group, the site writes the right number to the log (`pm2 logs tf2deal`, line "Steam group: ...").
+- The group check (giveaway requirement, "Join our Steam group" after a trade) and every group link always use
+  `https://steamcommunity.com/groups/tradetf2deal`, whatever `STEAM_GROUP_ID` says. It looks players up in the group's
   public member list, so players with a private Steam profile can join too.
 - `STEAM_GROUP_ACCOUNT` and `STEAM_GROUP_PASSWORD`: the sign-in name and password of the Steam account that posts.
   - It has to be an **officer of the group**: on the group page open the members list, click the account and
