@@ -597,6 +597,11 @@
       "update_text": "您正在查看此页面的旧版本。请重新加载以获取最新版本。",
       "reload": "重新加载",
       "close": "关闭"
+    },
+    "steam_group": {
+      "title": "加入我们的 Steam 组",
+      "text": "我们会在组里发布抽奖，部分抽奖仅限组成员参加。",
+      "join": "加入 Steam 组"
     }
   },
   "items": {

@@ -597,6 +597,11 @@
       "update_text": "Díváte se na starší verzi této stránky. Načtěte ji znovu a uvidíte tu nejnovější.",
       "reload": "Načíst znovu",
       "close": "Zavřít"
+    },
+    "steam_group": {
+      "title": "Připojte se k naší Steam skupině",
+      "text": "Zveřejňujeme v ní naše soutěže a některé soutěže jsou jen pro členy skupiny.",
+      "join": "Přidat se do skupiny"
     }
   },
   "items": {

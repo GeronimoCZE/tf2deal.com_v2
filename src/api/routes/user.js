@@ -20,7 +20,7 @@ import { site_shape } from '../../service/trade_records.js';
 import { item_model } from '../../model/Item.js';
 import { ticket_model } from '../../model/Ticket.js';
 import { giveaway_model } from '../../model/Giveaway.js';
-import { check_requirements } from '../../service/giveaway.js';
+import { check_requirements, in_steam_group, group_url } from '../../service/giveaway.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -343,6 +343,27 @@ router.get('/trades', isLogged, async (req, res) => {
   } catch (error) {
     res.status(500).json({ status: 'error', message: req.__('api.load_trades_failed') })
   }
+})
+
+// After a trade (accepted, canceled or declined) the trade window asks people who aren't in the site's Steam group to
+// join it (public/js/plugins/trade.js). member: true / false, or null when Steam can't tell (private profile and the
+// member list can't be read): then the window asks nothing. Answers are kept a while, so a few trades in a row
+// don't ask Steam every time; someone who isn't in is checked again sooner (they may have just joined).
+const group_checks = new Map() // steamid -> { member, time }
+router.get('/steam_group', isLogged, per_user(10*60*1000, 40), async (req, res) => {
+  const steamid = String(req.user.steamid)
+  const kept = group_checks.get(steamid)
+  const fresh = kept && Date.now() - kept.time < (kept.member ? 60 : 2) * 60 * 1000
+  let member = fresh ? kept.member : null
+  if(!fresh){
+    member = await in_steam_group(steamid).catch(() => null)
+    if(member !== null){
+      if(group_checks.size > 5000){ group_checks.clear() }
+      group_checks.set(steamid, { member, time: Date.now() })
+      User.updateOne({ steamid }, { $set: { group_member: member } }).catch(() => {})
+    }
+  }
+  res.set('Cache-Control', 'no-store').json({ status: 'ok', member, url: group_url() })
 })
 
 router.get('/wishlist', isLogged, async (req, res) => {

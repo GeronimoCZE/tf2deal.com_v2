@@ -597,6 +597,11 @@
       "update_text": "Estás viendo una versión anterior de esta página. Recárgala para obtener la más reciente.",
       "reload": "Recargar",
       "close": "Cerrar"
+    },
+    "steam_group": {
+      "title": "Únete a nuestro grupo de Steam",
+      "text": "Allí publicamos nuestros sorteos, y algunos sorteos son solo para miembros del grupo.",
+      "join": "Unirse al grupo"
     }
   },
   "items": {
