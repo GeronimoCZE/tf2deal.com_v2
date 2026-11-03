@@ -56,7 +56,7 @@
     <meta name="twitter:title" content="<%= seo_title %>">
     <meta name="twitter:description" content="<%= seo_description %>">
     <meta name="twitter:image" content="<%= seo_image %>">
-    <meta name="theme-color" content="#3f2a77">
+    <meta name="theme-color" content="<%= ({ 'theme-midnight': '#000000', 'theme-white': '#ffffff' })[locals.season_class] || '#3f2a77' %>">
     <meta name="trustpilot-one-time-domain-verification-id" content="52e55ef4-45c6-4737-9d51-05ac93a6f222"/>
     <meta name="msvalidate.01" content="9195A6F398D088FC940A29A7FBEC7B6C" />
 

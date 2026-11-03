@@ -112,7 +112,8 @@ body::before{
 }
 // Boxes are solid in the normal look: the aurora showed through the see-through ones and made their text hard to
 // read. These are the colours of _design.scss as they looked over the night sky (rgb(10, 16, 50)).
-body:not(.season-summer):not(.season-halloween):not(.season-smissmas){
+// Midnight and White have solid boxes of their own (partials/_themes.scss).
+body:not(.season-summer):not(.season-halloween):not(.season-smissmas):not(.theme-midnight):not(.theme-white){
     --surface: rgb(4, 11, 40);
     --tile: rgb(24, 30, 78);
     --tile-hover: rgb(37, 43, 104);
@@ -840,6 +841,7 @@ span.lang{
 @import './partials/item_collection';
 @import './partials/admin_bar';
 @import './partials/seasons';
+@import './partials/themes';
 
 #openChat {
     position: fixed;

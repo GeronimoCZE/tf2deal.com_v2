@@ -322,9 +322,12 @@ app.get('/theme/:choice', (req, res) => {
 })
 app.locals.season_class = ''
 app.locals.theme = 'auto'
+// the admin pages are made for the dark looks: a visitor who picked White sees them in the normal look
+const DARK_ONLY_PAGES = /^\/(?:[a-z]{2}\/)?(?:admin|login)(?:\/|$)/
 app.use((req, res, next) => {
   res.locals.theme = seasons.theme_choice(req)
-  res.locals.season_class = seasons.body_class(res.locals.theme) // '' = the normal look, else season-summer / -halloween / -smissmas
+  res.locals.season_class = seasons.body_class(res.locals.theme) // '' = the normal look, else season-summer / -halloween / -smissmas, theme-midnight / theme-white
+  if (res.locals.season_class == 'theme-white' && DARK_ONLY_PAGES.test(req.path)) { res.locals.season_class = '' }
   next()
 })
 
