@@ -1,8 +1,9 @@
-// The XML sitemap, built from the database and the in-memory item list (no file on disk). One file may hold 50,000
-// URLs and every item page exists in 8 languages, so /sitemap.xml is a sitemap index of:
+// The XML sitemap, built from the database and the in-memory item list (no file on disk). /sitemap.xml is a sitemap
+// index of:
 //   /sitemaps/main.xml               the main pages (highest priority first) and the blog posts, in every language
-//   /sitemaps/items-<lang>-<n>.xml   every item page in one language, ITEMS_PER_FILE per file (Search Console then
-//                                    shows how many pages of each language are indexed)
+//   /sitemaps/items-en-<n>.xml       every item page once, its English address only (Nikolas, 2026-11-03: not the
+//                                    same item in 8 languages), ITEMS_PER_FILE per file (a file may hold 50,000 URLs)
+// The item pages in other languages still exist and are linked from each page (hreflang); they are just not listed.
 // What goes in them is read again every CACHE_MS and always answered at once (see current()), so Cloudflare and search
 // engines never wait for the database; each file is written out when it is asked for. /sitemap_index.xml and old
 // file names redirect to /sitemap.xml.
@@ -43,6 +44,7 @@ const ITEMS_QUERY = {
 }
 // item pages: prices and stock change all the time
 const ITEM = { changefreq: 'always', priority: '0.4' }
+const ITEM_LANG = 'en' // the item pages are listed in English only
 
 const xml_escape = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&apos;').replace(/"/g, '&quot;')
 const day = (time) => new Date(time).toISOString().slice(0, 10)
@@ -110,7 +112,7 @@ const build = async () => {
     console.log('Sitemap: blog posts not read, the last ones stay:', error?.message || error)
   }
 
-  // the items the bots really trade (the same rule as the item page's noindex), each one once, in every language
+  // the items the bots really trade (the same rule as the item page's noindex), each one once, in English
   // From the item list when it is read; when it isn't (its first read isn't done yet, or the reads fail),
   // straight from the database: only the names, and this runs in the background, never while a request waits.
   let names = null
@@ -140,11 +142,12 @@ const build = async () => {
   return { time: Date.now(), main, names, complete }
 }
 
-// IndexNow (Bing / Edge): the whole sitemap once a day at most, then the item pages that are new in it
+// IndexNow (Bing / Edge): the whole sitemap once a day at most, then the item pages that are new in it (English, as
+// the sitemap lists them)
 let announced = null // the item names of the last sitemap sent or compared
 const announce = (main, names) => {
-  if (!announced) indexnow.submit_all([...main.map((u) => u.loc), ...LANGS.flatMap((lang) => names.map((name) => item_url(lang, name)))])
-  else indexnow.submit(names.filter((name) => !announced.has(name)).flatMap((name) => LANGS.map((lang) => item_url(lang, name))))
+  if (!announced) indexnow.submit_all([...main.map((u) => u.loc), ...names.map((name) => item_url(ITEM_LANG, name))])
+  else indexnow.submit(names.filter((name) => !announced.has(name)).map((name) => item_url(ITEM_LANG, name)))
   announced = new Set(names)
 }
 
@@ -189,10 +192,10 @@ const send = (res, xml, complete) => {
   res.send(xml)
 }
 
-// the item files of one language: items-en-1.xml, items-en-2.xml, ...
+// the item files: items-en-1.xml, items-en-2.xml, ...
 const item_files = (names) => {
   const count = Math.ceil(names.length / ITEMS_PER_FILE)
-  return LANGS.flatMap((lang) => Array.from({ length: count }, (_, i) => `items-${lang}-${i + 1}.xml`))
+  return Array.from({ length: count }, (_, i) => `items-${ITEM_LANG}-${i + 1}.xml`)
 }
 
 // /sitemap.xml: the index of the files
@@ -201,15 +204,17 @@ export const handler = async (req, res) => {
   send(res, sitemapindex(['main.xml', ...item_files(map.names)].map((file) => `${fn.site_url}/sitemaps/${file}`)), map.complete)
 }
 
-// /sitemaps/<file>: one file of the index; a name it doesn't list (old files from before the index) goes to the index
+// /sitemaps/<file>: one file of the index; a name it doesn't list (old files from before the index, the item files of
+// the other languages listed before 2026-11-03) goes to the index
 export const file = async (req, res) => {
   const map = await current()
   const name = String(req.params.file || '')
   if (name == 'main.xml') return send(res, urlset(map.main), map.complete)
   const m = name.match(/^items-([a-z]{2})-(\d{1,4})\.xml$/)
-  const part = m && LANGS.includes(m[1]) ? map.names.slice((m[2] - 1) * ITEMS_PER_FILE, m[2] * ITEMS_PER_FILE) : []
+  const listed = m && m[1] == ITEM_LANG
+  const part = listed ? map.names.slice((m[2] - 1) * ITEMS_PER_FILE, m[2] * ITEMS_PER_FILE) : []
   // the item names aren't read yet (just after a restart): "try again later" keeps the file in search engines' lists
-  if (!part.length && m && !map.complete) return res.status(503).set('Retry-After', '120').send('Sitemap not ready yet')
+  if (!part.length && listed && !map.complete) return res.status(503).set('Retry-After', '120').send('Sitemap not ready yet')
   if (!part.length) return redirect(req, res)
   send(res, urlset(part.map((bp_sku) => ({ ...ITEM, loc: item_url(m[1], bp_sku) }))), map.complete)
 }
