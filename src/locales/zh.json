@@ -584,6 +584,17 @@
       "market": "Steam 市场",
       "inventory": "Steam 库存",
       "close": "关闭"
+    },
+    "connection": {
+      "offline_title": "您已离线",
+      "offline_text": "请检查您的网络连接。此页面上的内容可能已过时。",
+      "reconnecting_title": "未连接到 TF2Deal.com",
+      "reconnecting_text": "正在尝试重新连接。在此之前实时更新已暂停。",
+      "back": "已重新连接",
+      "update_title": "TF2Deal.com 已更新",
+      "update_text": "您正在查看此页面的旧版本。请重新加载以获取最新版本。",
+      "reload": "重新加载",
+      "close": "关闭"
     }
   },
   "items": {
@@ -619,7 +630,11 @@
     "cant_trade_now": "当前情况下我们无法交易此物品！",
     "reload_inventory": "重新加载库存",
     "no_price_history": "暂无价格变动。",
-    "links": "关于此物品的更多信息"
+    "links": "关于此物品的更多信息",
+    "collection": "收藏系列",
+    "collection_count": "物品：{count}",
+    "this_item": "此物品",
+    "this_war_paint": "此物品的战争涂装"
   },
   "giveaway": {
     "current": "当前抽奖",

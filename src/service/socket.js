@@ -4,6 +4,7 @@ import * as app from '../app.js'
 import { log } from "console";
 import { createSettingsSocket } from "./settings_socket.js";
 import * as latest_trades from "./latest_trades.js";
+import { site_version } from "./site_version.js";
 
 
 const bot_socket = { timestamp: 0, socket: null}
@@ -48,6 +49,8 @@ const createSocket = (io) => {
     latest_trades.start(io); // home page "Latest trades": new trades live, duplicate records cleaned up
     
     io.on('connection', async socket => {
+        // the version the server runs: a tab opened before an update sees it differs and offers a reload (js/connection.js)
+        socket.emit('site_version', site_version)
         socket = await identify_socket(socket);
 
         console.log(socket.handshake?.type, socket.id);

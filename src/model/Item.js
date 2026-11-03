@@ -40,6 +40,9 @@ const Instance = mongoose.Schema({
     name: { type: String }, // default name (sug name) => use to find similar items
     qualityID: { type: String },
     grade: { type: String, default: 'false'},
+    // the item's TF2 collection ("Concealed Killer Collection"), written by item_manager (its services/collections.js);
+    // the item page lists the collection (service/item_lists.js collection). Named so because `collection` is taken in mongoose.
+    item_collection: { type: String },
     effectID: { type: Number },
     defindex: { type: Array }, // array 
     priceindex: { type: Number, default: 0 },

@@ -584,6 +584,17 @@
       "market": "Mercado de Steam",
       "inventory": "Inventario de Steam",
       "close": "Cerrar"
+    },
+    "connection": {
+      "offline_title": "Estás sin conexión",
+      "offline_text": "Revisa tu conexión a internet. Lo que ves aquí puede no estar actualizado.",
+      "reconnecting_title": "Sin conexión con TF2Deal.com",
+      "reconnecting_text": "Intentando reconectar. Las actualizaciones en vivo están en pausa hasta entonces.",
+      "back": "Conectado de nuevo",
+      "update_title": "TF2Deal.com se ha actualizado",
+      "update_text": "Estás viendo una versión anterior de esta página. Recárgala para obtener la más reciente.",
+      "reload": "Recargar",
+      "close": "Cerrar"
     }
   },
   "items": {
@@ -619,7 +630,11 @@
     "cant_trade_now": "¡La situación actual no nos permite intercambiar este objeto!",
     "reload_inventory": "Recargar inventario",
     "no_price_history": "Todavía no hay cambios de precio.",
-    "links": "Más sobre este objeto"
+    "links": "Más sobre este objeto",
+    "collection": "Colección",
+    "collection_count": "Objetos: {count}",
+    "this_item": "Este objeto",
+    "this_war_paint": "Pintura de guerra de este objeto"
   },
   "giveaway": {
     "current": "Sorteo actual",

@@ -16,6 +16,7 @@
 //   tiers_of(doc)         an item's killstreak tiers: Map tier -> { tier, buy, sell (ref), limit, source, buyorders, entry }
 //   ks_items(doc)         true for a weapon whose killstreak tiers item_manager prices as items of their own
 //   tier_indexable(...)   whether a killstreak tier's page belongs in search engines (and the sitemap)
+//   collection(name)      the items of a TF2 collection (item_manager's item_collection), one per item, highest grade first
 //   refresh()             read the items again now (at the start, and after the daily sweep marks old items inactive)
 //   status()              how the reads go (for the logs and the "not ready" answers of the item APIs)
 
@@ -161,6 +162,67 @@ const similar = async (main) => {
   }
 }
 
+/* ========================= COLLECTIONS ========================= */
+
+// item_manager writes each item's TF2 collection to item_collection ("Concealed Killer Collection"; its
+// services/collections.js, from TF2's own game files): cosmetics, taunts and weapons by defindex (so every quality,
+// effect and killstreak version of an item has it), decorated weapons by their paint kit, war paints and war-painted
+// weapons by their war paint. The item page lists the collection: each item once, in its plainest version.
+const GRADES = { civilian: 1, freelance: 2, mercenary: 3, commando: 4, assassin: 5, elite: 6 }
+const WEARS = ['Factory New', 'Minimal Wear', 'Field-Tested', 'Well-Worn', 'Battle Scarred']
+
+// "Elite", "Elite Grade", "elite" -> "elite"; null for none ('false' in older records)
+const grade_of = (value) => {
+  const grade = String(value ?? '').replace(/\s*grade$/i, '').trim().toLowerCase()
+  return GRADES[grade] ? grade : null
+}
+
+// lower = plainer: no unusual effect, craftable, not Australium, not Strange, no killstreak, not Festivized, the best
+// wear, Unique or Decorated quality
+const plain_rank = (doc) => {
+  const sku = String(doc.bp_sku || '')
+  const wear = WEARS.findIndex((w) => sku.includes(`(${w})`))
+  return (Number(doc.effectID) > 0 ? 1000 : 0) + (/^Non-Craftable /.test(sku) ? 500 : 0) + (/australium/i.test(String(doc.type || '')) ? 300 : 0) +
+    (/^(Non-Craftable )?Strange /.test(sku) ? 200 : 0) + (/Killstreak /.test(sku) ? 100 : 0) + (/Festivized /.test(sku) ? 50 : 0) +
+    Math.max(wear, 0) * 10 + ([6, 15].includes(Number(doc.qualityID)) ? 0 : 5)
+}
+
+// what the collection list keeps of an item. A war-painted weapon ("Sweet Dreams Sniper Rifle") is in its war paint's
+// collection, but the list shows the war paint itself ("Sweet Dreams War Paint"), as TF2 does.
+const collection_entry = (doc) => {
+  const collection = typeof doc.item_collection === 'string' ? doc.item_collection.trim() : ''
+  if (!collection || /warpaint skin/i.test(String(doc.type || ''))) return null
+  return {
+    collection, name: String(doc.name || doc.bp_sku), bp_sku: doc.bp_sku, image: doc.image, type: doc.type,
+    qualityID: doc.qualityID, effectID: doc.effectID, grade: grade_of(doc.grade), sell: Number(doc.sell) || 0,
+    key_price: Number(doc.bptf_data?.update_key_price) || 0, stock: Number(doc.stock?.cur) || 0, rank: plain_rank(doc)
+  }
+}
+
+// collection name -> its items: one per item name (the plainest version, then the one in stock), highest grade first
+const collection_lists = (pages) => {
+  const groups = new Map()
+  for (const { collection: entry } of pages) {
+    if (!entry) continue
+    let group = groups.get(entry.collection)
+    if (!group) groups.set(entry.collection, group = new Map())
+    const kept = group.get(entry.name)
+    if (!kept || entry.rank < kept.rank || (entry.rank === kept.rank && (entry.stock > kept.stock || (entry.stock === kept.stock && entry.bp_sku < kept.bp_sku)))) {
+      group.set(entry.name, entry)
+    }
+  }
+  return new Map([...groups].map(([name, group]) => [name, [...group.values()].sort(collection_order)]))
+}
+// highest grade first, then by name
+const collection_order = (a, b) => (GRADES[b.grade] || 0) - (GRADES[a.grade] || 0) || String(a.name).localeCompare(String(b.name))
+
+// the items of a collection; [] while the list isn't read yet (the item page then names the collection only)
+const collection = async (name) => {
+  if (!name) return []
+  const all = await index().catch(() => null)
+  return all?.collections?.get(String(name)) || []
+}
+
 /* ========================= /items + search modal ========================= */
 
 const KS_TIERS = { 1: 'Killstreak', 2: 'Specialized Killstreak', 3: 'Professional Killstreak' }
@@ -284,6 +346,7 @@ const ITEMS_QUERY = {
 const FIELDS = {
   _id: 1, bp_sku: 1, name: 1, type: 1, classes: 1, qualityID: 1, effectID: 1, image: 1, status: 1, buy: 1, sell: 1,
   'bptf_data.update_key_price': 1, 'bptf_data.buyorders': 1, 'stock.limit': 1, 'stock.cur': 1, 'stock.items.ks': 1,
+  item_collection: 1, grade: 1, // the item page's collection list (collection_entry)
   // the tiers without their sales and price history (item.killstreak, or item.killstreak.killstreaks in older records)
   ...Object.fromEntries(['ks_tier', 'kt', 'tier', 'buy', 'sell', 'limit', 'stock', 'source', 'buyorders'].flatMap((field) => [[`killstreak.${field}`, 1], [`killstreak.killstreaks.${field}`, 1]]))
 }
@@ -306,7 +369,9 @@ const add_item = (by_name, doc) => {
     // the /items list: active items and the ones the bots hold copies of (status 2 items only have a page)
     cards: doc.status == 1 || copies > 0 ? item_cards(doc) : [],
     // the item page's similar items: the ones in stock
-    similar: Number(doc.stock?.cur) > 0 ? similar_entry(doc) : null
+    similar: Number(doc.stock?.cur) > 0 ? similar_entry(doc) : null,
+    // the item page's collection list
+    collection: collection_entry(doc)
   })
 }
 
@@ -334,6 +399,7 @@ const build = (by_name, partial = false) => {
     names_version: crypto.createHash('sha1').update(JSON.stringify([names, limits])).digest('hex').slice(0, 12),
     stock,
     in_stock: pages.map((page) => page.similar).filter(Boolean),
+    collections: collection_lists(pages),
     // item pages, and the pages of killstreak tiers that are items of their own (tier_indexable)
     indexable: [...[...by_name].filter(([, page]) => page.indexable).map(([name]) => name), ...tier_cards.filter((card) => card.indexable).map((card) => card.bp_sku)].sort(),
     built: Date.now()
@@ -494,4 +560,4 @@ const status = () => {
 
 const refresh = () => index.reload().catch(() => null) // a failed read is written to the log by cached()
 
-export { similar, cards, public_card, names, stock, sitemap_names, ks_page, ks_tier, tiers_of, ks_items, tier_indexable, refresh, status }
+export { similar, cards, public_card, names, stock, sitemap_names, ks_page, ks_tier, tiers_of, ks_items, tier_indexable, collection, collection_order, grade_of, refresh, status }

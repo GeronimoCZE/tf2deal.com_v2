@@ -1,0 +1,103 @@
+// "You're offline" / "Not connected to TF2Deal.com" / "TF2Deal.com has been updated" (js/connection.js).
+// A solid card in the bottom left corner, like the cookie banner: it floats over the page, so it gets the dialog
+// colour and an edge. The dot says which case it is at a glance.
+.connection-bar{
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 10002; // over the cookie banner and its settings window
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    width: max-content;
+    max-width: 27rem;
+    padding: .7rem .7rem .7rem 1rem;
+    background: var(--dialog);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-lg);
+    color: var(--ink-2);
+    font-size: 14px;
+    line-height: 1.4;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease, bottom 200ms ease;
+    &:empty{ padding: 0; border: none; } // nothing wrong: nothing there (it stays in the page for screen readers)
+    &.show{ opacity: 1; pointer-events: auto; }
+    &[data-state="back"]{ padding-right: 1rem; }
+    @media screen and (max-width: 760px){ // the cookie banner's phone width
+        left: .5rem;
+        right: .5rem;
+        bottom: .5rem;
+        width: auto;
+        max-width: none;
+    }
+
+    .connection-dot{
+        flex: none;
+        align-self: flex-start;
+        width: 9px;
+        height: 9px;
+        margin-top: 6px; // centred on the first line (15px title, line height 1.4)
+        border-radius: 50%;
+        background: var(--ink-3);
+    }
+    &[data-state="offline"] .connection-dot{ background: #e0675c; }
+    &[data-state="reconnecting"] .connection-dot{ background: #e3a13b; animation: connectionWait 1.4s ease-in-out infinite; }
+    &[data-state="update"] .connection-dot{ background: #b88ef7; } // not var(--violet): a theme may make it green
+    &[data-state="back"] .connection-dot{ background: var(--green); }
+
+    .connection-text{
+        flex: 1;
+        min-width: 0;
+        strong{ display: block; color: var(--ink); font-size: 15px; font-weight: 600; }
+        span{ display: block; margin-top: .1rem; }
+    }
+
+    .connection-reload{
+        flex: none;
+        padding: .5rem .95rem;
+        border: none;
+        border-radius: var(--r-md);
+        background: var(--go);
+        color: #fff;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background 150ms ease;
+        &:hover{ background: var(--go-hover); }
+    }
+    .connection-close{
+        flex: none;
+        align-self: flex-start;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: none;
+        border-radius: var(--r-sm);
+        background: transparent;
+        color: var(--ink-3);
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        transition: background 150ms ease, color 150ms ease;
+        &:hover{ background: var(--surface-3); color: var(--ink); }
+    }
+    button:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
+
+    // phones: the text keeps the row (next to the dot and the close button), Reload goes under it
+    @media screen and (max-width: 760px){
+        flex-wrap: wrap;
+        .connection-text{ flex: 1 1 calc(100% - 9px - 28px - 1.6rem - 4px); } // 4px spare for rounding
+        .connection-reload{ order: 1; margin-left: calc(9px + .8rem); } // after the close button, on a line of its own
+    }
+}
+
+@keyframes connectionWait{
+    0%, 100%{ opacity: 1; }
+    50%{ opacity: .35; }
+}
+@media (prefers-reduced-motion: reduce){
+    .connection-bar[data-state="reconnecting"] .connection-dot{ animation: none; }
+}

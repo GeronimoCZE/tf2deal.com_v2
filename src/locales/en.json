@@ -584,6 +584,17 @@
       "market": "Steam Market",
       "inventory": "Steam inventory",
       "close": "Close"
+    },
+    "connection": {
+      "offline_title": "You're offline",
+      "offline_text": "Check your internet connection. What you see here may be out of date.",
+      "reconnecting_title": "Not connected to TF2Deal.com",
+      "reconnecting_text": "Trying to reconnect. Live updates are paused until then.",
+      "back": "Connected again",
+      "update_title": "TF2Deal.com has been updated",
+      "update_text": "You're viewing an older version of this page. Reload to get the newest one.",
+      "reload": "Reload",
+      "close": "Close"
     }
   },
   "items": {
@@ -619,7 +630,11 @@
     "cant_trade_now": "The current situation doesn't allow us to trade this item!",
     "reload_inventory": "Reload inventory",
     "no_price_history": "No price changes yet.",
-    "links": "More about this item"
+    "links": "More about this item",
+    "collection": "Collection",
+    "collection_count": "{count} items",
+    "this_item": "This item",
+    "this_war_paint": "This item's war paint"
   },
   "giveaway": {
     "current": "Current giveaway",

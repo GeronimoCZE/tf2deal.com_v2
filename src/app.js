@@ -34,6 +34,7 @@ import * as markdown from './service/markdown.js'
 import * as indexnow from './service/indexnow.js'
 import * as inventory_value from './service/inventory_value.js'
 import * as item_lists from './service/item_lists.js'
+import { site_version } from './service/site_version.js'
 
 const DOMAIN = 'localhost' 
 const PORT = 8080; // change to 8080
@@ -225,6 +226,7 @@ app.use('/img', express.static(path.join(__dirname, 'public/img'), { maxAge: '30
 app.use(express.static(path.join(__dirname,'public'), { setHeaders: static_headers }));
 
 app.locals.site_url = fn.site_url
+app.locals.site_version = site_version // pages and the socket both carry it; a tab older than the server offers a reload
 app.locals.item_alt = fn.item_alt // alt text of item pictures: item_alt(item)
 Object.assign(app.locals, i18n.default_locals) // English for pages rendered before the language middleware
 app.set('view engine','ejs');
