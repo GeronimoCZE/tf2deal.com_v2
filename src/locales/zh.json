@@ -584,6 +584,17 @@
       "market": "Steam 市场",
       "inventory": "Steam 库存",
       "close": "关闭"
+    },
+    "connection": {
+      "offline_title": "您已离线",
+      "offline_text": "请检查您的网络连接。此页面上的内容可能已过时。",
+      "reconnecting_title": "未连接到 TF2Deal.com",
+      "reconnecting_text": "正在尝试重新连接。在此之前实时更新已暂停。",
+      "back": "已重新连接",
+      "update_title": "TF2Deal.com 已更新",
+      "update_text": "您正在查看此页面的旧版本。请重新加载以获取最新版本。",
+      "reload": "重新加载",
+      "close": "关闭"
     }
   },
   "items": {

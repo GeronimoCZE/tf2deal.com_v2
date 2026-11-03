@@ -584,6 +584,17 @@
       "market": "Marché Steam",
       "inventory": "Inventaire Steam",
       "close": "Fermer"
+    },
+    "connection": {
+      "offline_title": "Vous êtes hors ligne",
+      "offline_text": "Vérifiez votre connexion internet. Ce que vous voyez ici n'est peut-être plus à jour.",
+      "reconnecting_title": "Non connecté à TF2Deal.com",
+      "reconnecting_text": "Reconnexion en cours. Les mises à jour en direct sont en pause d'ici là.",
+      "back": "De nouveau connecté",
+      "update_title": "TF2Deal.com a été mis à jour",
+      "update_text": "Vous consultez une ancienne version de cette page. Rechargez-la pour obtenir la plus récente.",
+      "reload": "Recharger",
+      "close": "Fermer"
     }
   },
   "items": {

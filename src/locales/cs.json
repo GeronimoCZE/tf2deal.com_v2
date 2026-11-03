@@ -584,6 +584,17 @@
       "market": "Steam Market",
       "inventory": "Inventář na Steamu",
       "close": "Zavřít"
+    },
+    "connection": {
+      "offline_title": "Jste offline",
+      "offline_text": "Zkontrolujte připojení k internetu. To, co tu vidíte, nemusí být aktuální.",
+      "reconnecting_title": "Nejste připojeni k TF2Deal.com",
+      "reconnecting_text": "Zkoušíme se znovu připojit. Živé aktualizace jsou do té doby pozastavené.",
+      "back": "Znovu připojeno",
+      "update_title": "TF2Deal.com byl aktualizován",
+      "update_text": "Díváte se na starší verzi této stránky. Načtěte ji znovu a uvidíte tu nejnovější.",
+      "reload": "Načíst znovu",
+      "close": "Zavřít"
     }
   },
   "items": {

@@ -4,6 +4,7 @@
     <script>
         // texts for the page scripts: __('trade.max_items'), lurl('/items') -> /de/items (see src/i18n.js)
         window.TD_LANG = '<%= lang %>';
+        window.TD_VERSION = '<%= locals.site_version || '' %>'; // see service/site_version.js
         window.TD_I18N = <%- locals.client_i18n || '{}' %>;
         window.TD_PATH = location.pathname.replace(/^\/(<%= langs.filter((l) => l != 'en').join('|') %>)(?=\/|$)/, '') || '/';
         window.__ = function (key, vars) {
@@ -106,6 +107,7 @@
     <script src="<%= vendor.micromodal %>" defer></script>
     <script src="<%= vendor.socket_io %>" defer></script>
     <script src="<%= asset('/js/socket.js') %>" defer></script>
+    <script src="<%= asset('/js/connection.js') %>" defer></script>
     <% if (season_class == 'season-smissmas') { %><script src="<%= asset('/js/blizzard.js') %>" defer></script><% } %>
     <link rel="preload" href="/font/rubik-700-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/font/icomoon.woff2?k1nzd2" as="font" type="font/woff2" crossorigin>

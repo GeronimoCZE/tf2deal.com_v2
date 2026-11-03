@@ -584,6 +584,17 @@
       "market": "Steam Market",
       "inventory": "Steam inventory",
       "close": "Close"
+    },
+    "connection": {
+      "offline_title": "You're offline",
+      "offline_text": "Check your internet connection. What you see here may be out of date.",
+      "reconnecting_title": "Not connected to TF2Deal.com",
+      "reconnecting_text": "Trying to reconnect. Live updates are paused until then.",
+      "back": "Connected again",
+      "update_title": "TF2Deal.com has been updated",
+      "update_text": "You're viewing an older version of this page. Reload to get the newest one.",
+      "reload": "Reload",
+      "close": "Close"
     }
   },
   "items": {
