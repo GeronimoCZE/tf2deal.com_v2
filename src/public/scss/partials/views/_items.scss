@@ -2430,3 +2430,33 @@
         }
     }
 }
+// Hover on an item card (/items, similar items): a faint glow of the item's quality colour rising from the quality
+// edge at the bottom. It fades in (no movement), under the picture and the words.
+a.item_card{
+    --card-q: transparent;
+    position: relative;
+    isolation: isolate;
+    &.q-0{ --card-q: #B2B2B2; }
+    &.q-1{ --card-q: #4D7455; }
+    &.q-3{ --card-q: #476291; }
+    &.q-5{ --card-q: #8650AC; }
+    &.q-6{ --card-q: #FFD700; }
+    &.q-7, &.q-9{ --card-q: #70B04A; }
+    &.q-8{ --card-q: #A50F79; }
+    &.q-11{ --card-q: #CF6A32; }
+    &.q-13{ --card-q: #38F3AB; }
+    &.q-14{ --card-q: #AA0000; }
+    &.q-15{ --card-q: var(--q-decorated, #FAFAFA); }
+    &::before{
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        pointer-events: none;
+        background: radial-gradient(120% 70% at 50% 100%, color-mix(in srgb, var(--card-q) 13%, transparent), transparent 75%);
+        opacity: 0;
+        transition: opacity .25s ease;
+    }
+    &:hover::before, &:focus-visible::before, &:target::before{ opacity: 1; }
+}

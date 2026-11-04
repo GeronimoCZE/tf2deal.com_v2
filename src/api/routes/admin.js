@@ -28,6 +28,7 @@ import { bot_socket, item_socket } from '../../service/socket.js';
 import * as app from '../../app.js';
 import { has_admin_session } from '../../mw.js';
 import * as inventory_value from '../../service/inventory_value.js';
+import * as memory from '../../service/memory.js';
 
 export const router = express.Router();
 
@@ -316,6 +317,7 @@ router.get('/overview', async (req, res) => {
   res.json({ status: 'ok', overview: {
     db,
     uptime: Math.round(process.uptime()),
+    memory: memory.summary(),
     bot_server: bot_socket.socket ? 'online' : 'offline',
     item_server: item_socket.socket ? 'online' : 'offline',
     bots: Array.isArray(app.fp_data.bots) ? app.fp_data.bots.length : 0,

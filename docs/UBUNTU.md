@@ -71,6 +71,11 @@ that was started with `pm2 start src/app.js` before this file existed runs witho
 cd ~/tf2deal && pm2 delete tf2deal && pm2 start ecosystem.config.cjs && pm2 save
 ```
 
+To see whether the cap is on: Admin → Overview shows "Website memory", with "no heap cap" after it when the site runs
+without it, and the log says so at every start (`pm2 logs tf2deal --lines 300 | grep Memory`: "heap limit 268 MB" is the
+cap; about 2,000 MB or more means it is off). The site also gives freed memory back to the server every few minutes
+when it has grown (service/memory.js, log lines "Memory: 230 MB -> 145 MB ...").
+
 ## 6. Get updates later
 
 After a change is merged on GitHub:
