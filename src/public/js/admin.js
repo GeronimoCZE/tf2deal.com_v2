@@ -463,6 +463,7 @@
                             <li><span>Item server</span>${pill(o.item_server == 'online')}</li>
                             <li><span>Apps on the settings socket</span><strong>${num(live.clients.length || o.settings_clients)}</strong></li>
                             <li><span>Website uptime</span><strong>${uptime(o.uptime)}</strong></li>
+                            ${o.memory ? `<li><span>Website memory</span><strong title="${num(o.memory.heap_used)} MB of it is in use; the rest is freed memory given back every few minutes">${num(o.memory.rss)} MB${o.memory.capped ? '' : ' · no heap cap'}</strong></li>` : ''}
                         </ul>
                     </div>
                     <div class="admin-card">

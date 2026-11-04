@@ -1,14 +1,17 @@
 // PM2 settings for the site (docs/UBUNTU.md): pm2 start ecosystem.config.cjs
 //
-// Left alone, Node lets its memory grow towards 2 GB before it cleans up properly, so the site showed 800 MB in PM2
-// while it used far less. With the cap it cleans up sooner and stays around 200-300 MB. 256 MB is well above what the
-// site keeps (about 100 MB with 45,000 items in the database); raise it if the logs ever say "heap out of memory".
+// Left alone, Node lets its memory grow towards 2 GB before it cleans up properly, so the site showed 500-800 MB in
+// PM2 while it used far less. With the cap it cleans up sooner. 256 MB is well above what the site keeps (about 60 MB
+// with 48,000 items in the database); raise it if the logs ever say "heap out of memory".
+// A smaller young heap (--max-semi-space-size, the space new objects start in; Node's default is 16 MB) keeps the
+// site about 40 MB smaller while search engines open pages, for slightly more frequent tiny clean-ups.
+// Measured with 48,000 items and a search engine opening 25 pages a second: 190-200 MB while crawled, 147 MB after.
 module.exports = {
   apps: [{
     name: 'tf2deal',
     script: 'src/app.js',
     cwd: __dirname,
-    node_args: '--max-old-space-size=256',
+    node_args: '--max-old-space-size=256 --max-semi-space-size=4',
     env: {
       MALLOC_ARENA_MAX: '2' // fewer memory pools outside the heap, less memory left unused between them
     },
