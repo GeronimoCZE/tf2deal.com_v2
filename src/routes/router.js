@@ -60,7 +60,7 @@ const buy_link = async (req, res) => {
     image: one.image_large
   } : {}
 
-  res.render('home', fn.res_data(!!req.user, req.user, user_cookie, one ? req.__('title.item', { name: one.name }) : 'Home', {
+  res.render('home', fn.res_data(!!req.user, req.user, user_cookie, one ? fn.item_title(one.name, req.__) : 'Home', {
     view: 'home',
     ...seo,
     key_price: app.key_price,
@@ -173,7 +173,7 @@ const items = async (req, res, next) => {
       fn.res_data(!!req.user, req.user, user_cookie, page > 1 ? req.__('title.items_page', { page }) : req.__('title.items'), {
         view: 'items',
         promtLogin: true,
-        description: req.__('desc.items'),
+        description: page > 1 ? req.__('desc.items_page', { page }) : req.__('desc.items'), // each page its own (Bing: identical descriptions)
         path: page > 1 ? `/items?page=${page}` : '/items', // canonical + hreflang: filters are left out, the page number stays
         noindex: Boolean(name), // search results are not search results of their own
         // the items on this page, for search engines and AI assistants (schema.org ItemList)
@@ -334,7 +334,7 @@ const item_page = async (req, res) => {
 
     res.render(
       'item_page',
-      fn.res_data(!!req.user, req.user, user_cookie, req.__('title.item', { name: page_name }), {
+      fn.res_data(!!req.user, req.user, user_cookie, fn.item_title(page_name, req.__), {
         view: 'item_page',
         promtLogin: true,
         item: main,
@@ -464,10 +464,10 @@ const blog = async (req, res, next) => {
 
     res.render(
       'blog',
-      fn.res_data(!!req.user, req.user, user_cookie, req.__('title.blog'), {
+      fn.res_data(!!req.user, req.user, user_cookie, page > 0 ? req.__('title.blog_page', { page: page + 1 }) : req.__('title.blog'), {
         view: 'blog',
         promtLogin: true,
-        description: req.__('desc.blog'),
+        description: page > 0 ? req.__('desc.blog_page', { page: page + 1 }) : req.__('desc.blog'), // ?page=1 is the second page
         path: page > 0 ? `/blog?page=${page}` : '/blog',
         posts: posts.slice(0, BLOG_PAGE_SIZE),
         page,

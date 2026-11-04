@@ -289,7 +289,7 @@
                         else if(["701","702","703","704"].includes(effect["ID"])){ type = 'weapon' }
 
                         $('.admin-data').append(`<div class='item-instance'>
-                            <img class='image' src='https://backpack.tf/images/440/particles/${effect["ID"]}_94x94.png' loading="lazy"> 
+                            <img class='image' src='https://backpack.tf/images/440/particles/${effect["ID"]}_94x94.png' alt='' loading="lazy"> 
                             <span class='type'>${type}</span>
                             <span class='name'>${effect.name}</span>
                             ${(effect.active == 'true') ? '<div class="btn remove">Remove</div>':'<div class="btn add">Add</div>'}

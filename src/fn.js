@@ -293,6 +293,13 @@ const price_text = (ref, key_price) => {
 
 // Meta description for an item page: real prices and stock, so every item page has its own text.
 // `__` translates (req.__ for the page language); prices stay in keys/ref.
+// An item page's title, at most TITLE_MAX characters when the name allows: Bing's SEO report flags longer titles and
+// Google cuts them. "Buy & Sell {name} – TF2 Price | TF2Deal.com", then without "– TF2 Price", then "Buy {name} | ...";
+// a name too long for even that is the title on its own.
+const TITLE_MAX = 70
+const item_title = (name, __ = t_for(DEFAULT_LANG)) =>
+  ['title.item', 'title.item_short', 'title.item_shorter'].map((key) => __(key, { name })).find((title) => title.length <= TITLE_MAX) || String(name)
+
 const item_description = (item, __ = t_for(DEFAULT_LANG)) => {
   const name = item.bp_sku
   const key = Number(item.bptf_data?.update_key_price) || 0
@@ -360,6 +367,7 @@ export {
   canonical_url,
   price_text,
   item_description,
+  item_title,
   markdown_excerpt,
   item_in_stock,
   item_indexable,
