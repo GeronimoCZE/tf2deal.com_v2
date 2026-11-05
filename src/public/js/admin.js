@@ -745,6 +745,129 @@
         return () => { clearInterval(timer); window.removeEventListener('resize', on_resize) }
     }
 
+    /* ========================= FLIPS ========================= */
+
+    // Each item copy the bots sold, against what they paid for it (service/flips.js). Same periods as Inventory value.
+    const fl_state = { period: '7d', from: '', to: '' }
+    const fl_range = () => {
+        const now = Date.now()
+        if(fl_state.period == 'custom'){
+            const from = Date.parse(fl_state.from + 'T00:00:00')
+            const to = Date.parse(fl_state.to + 'T23:59:59')
+            return { from: Number.isFinite(from) ? from : now - 7 * IV_DAY, to: Number.isFinite(to) ? Math.min(to, now) : now }
+        }
+        const d = new Date(now)
+        if(fl_state.period == '1m'){ d.setMonth(d.getMonth() - 1); return { from: d.getTime(), to: now } }
+        if(fl_state.period == '1y'){ d.setFullYear(d.getFullYear() - 1); return { from: d.getTime(), to: now } }
+        return { from: now - (fl_state.period == '1d' ? 1 : 7) * IV_DAY, to: now }
+    }
+    // 5400000 -> "1.5 h", 3 days -> "3 days"
+    const fl_held = (ms) => {
+        if(ms == null){ return '–' }
+        const h = ms / 3600000
+        if(h < 1){ return `${Math.max(1, Math.round(ms / 60000))} min` }
+        if(h < 48){ return `${Math.round(h * 10) / 10} h` }
+        return `${Math.round(h / 24 * 10) / 10} days`
+    }
+    const fl_profit = (ref, key) => ref == null ? '<span class="muted">–</span>' : `<span class="${ref > 0.005 ? 'fl-up' : ref < -0.005 ? 'fl-down' : ''}">${iv_money(ref, key, true)}</span>`
+
+    const flips_section = async (root) => {
+        root.innerHTML = head('Flips', 'Every item copy the bots sold, against what they paid for it. The bots\' saved trades are read every 2 minutes.', '<button id="fl-check">Check now</button>') +
+            `<div class="iv-filters">
+                <div class="admin-segment" role="radiogroup" aria-label="Period" id="fl-period">${IV_PERIODS.map(([v, t]) => `<button type="button" role="radio" data-period="${v}">${t}</button>`).join('')}</div>
+                <div class="iv-custom" id="fl-custom" hidden>
+                    <label>From <input type="date" id="fl-from"></label>
+                    <label>To <input type="date" id="fl-to"></label>
+                </div>
+            </div>
+            <div id="fl-body"><div class="admin-loading"><span class="admin-spinner"></span> Loading…</div></div>`
+
+        const today = new Date(), week = new Date(Date.now() - 7 * IV_DAY)
+        const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+        if(!fl_state.from){ fl_state.from = ymd(week); fl_state.to = ymd(today) }
+        root.querySelector('#fl-from').value = fl_state.from
+        root.querySelector('#fl-to').value = fl_state.to
+        root.querySelector('#fl-from').max = root.querySelector('#fl-to').max = ymd(today)
+
+        let data = null
+        const paint = () => {
+            root.querySelectorAll('#fl-period button').forEach((b) => b.setAttribute('aria-checked', b.dataset.period == fl_state.period))
+            root.querySelector('#fl-custom').hidden = fl_state.period != 'custom'
+            const box = root.querySelector('#fl-body')
+            if(!data){ return }
+            if(data.status != 'ok'){ box.innerHTML = `<p class="admin-error">${esc(data.message)}</p>`; return }
+            const st = data.state || {}
+            const status_line = `<p class="muted small iv-status">Last checked ${esc(ago(st.last))}${st.error && st.error_at > st.last ? ` · <span class="iv-error">Last try failed: ${esc(st.error)} (${esc(ago(st.error_at))})</span>` : ''}</p>`
+            const s = data.summary, key = data.key_price
+            if(!s.flips && !s.unknown){
+                box.innerHTML = `<div class="admin-card"><p class="admin-empty">No sold copies in this period. Flips are counted from the trades the bots save: on the first run from the saved trades of the last 3 weeks, then as trades come in.</p></div>${status_line}`
+                return
+            }
+            const dir = s.average > 0.005 ? 'up' : s.average < -0.005 ? 'down' : 'flat'
+            const arrow = { up: '▲', down: '▼', flat: '■' }[dir]
+            const period_name = fl_state.period == 'custom' ? 'this period' : `the last ${IV_PERIODS.find(([v]) => v == fl_state.period)[1]}`
+            const names = data.bot_names || {}
+            box.innerHTML = `<div class="iv-kpis">
+                    <div class="iv-hero ${dir}">
+                        <span class="label">Average profit per flip, ${esc(period_name)}</span>
+                        <strong>${s.average == null ? '–' : iv_money(s.average, key, true)}</strong>
+                        <span class="sub">${s.margin == null ? '' : `<b>${arrow} ${Math.abs(s.margin).toFixed(1)}%</b> on what the bots paid · `}${num(s.flips)} flip${s.flips == 1 ? '' : 's'}${s.held != null ? ` · held ${esc(fl_held(s.held))} on average` : ''}</span>
+                    </div>
+                    ${stat('Total profit', s.flips ? iv_money(s.profit, key, true) : '–', `${num(s.wins)} with profit · ${num(s.losses)} at a loss`)}
+                    ${stat('Flips', num(s.flips), s.unknown ? `${num(s.unknown)} more sold without a known bought price` : 'every sold copy has a bought price')}
+                    ${stat('Bought prices', `${num(s.paid)} exact`, `${num(s.estimated)} estimated from saved purchases`)}
+                    ${stat('Time held', fl_held(s.held), 'from buying to selling')}
+                </div>
+                <div class="admin-card fl-card">
+                    <h3>By item <span class="muted">(most flipped first)</span></h3>
+                    ${data.items.length ? `<div class="fl-scroll"><table class="iv-bots fl-table"><tr><th>Item</th><th>Flips</th><th>Avg profit</th><th>Margin</th><th>Total</th><th>Held</th></tr>
+                        ${data.items.map((i) => `<tr><td class="fl-name"><a href="/items/${encodeURIComponent(i.bp_sku)}" target="_blank" rel="noopener" translate="no">${esc(i.name)}</a></td><td>${num(i.flips)}${i.unknown ? ` <span class="muted" title="Sold without a known bought price">+${num(i.unknown)}</span>` : ''}</td><td>${fl_profit(i.average, key)}</td><td>${i.margin == null ? '–' : `${i.margin > 0 ? '+' : ''}${i.margin}%`}</td><td>${fl_profit(i.profit, key)}</td><td>${esc(fl_held(i.held))}</td></tr>`).join('')}
+                        </table></div>` : '<p class="admin-empty">No sold copy in this period has a known bought price.</p>'}
+                </div>
+                <div class="admin-card fl-card">
+                    <h3>Latest sold copies <span class="muted">(newest ${num(data.recent.length)})</span></h3>
+                    <div class="fl-scroll"><table class="iv-bots fl-table"><tr><th>Sold</th><th>Item</th><th>Paid</th><th>Sold for</th><th>Profit</th><th>Held</th></tr>
+                    ${data.recent.map((r) => `<tr><td title="${esc(names[r.bot] || r.bot)}">${esc(when(r.sold_at))}</td><td class="fl-name" translate="no">${esc(r.name)}</td><td>${r.cost == null ? '<span class="muted" title="Bought price not known">–</span>' : `${r.source == 'trade' ? '<span class="muted" title="Estimated: the oldest saved purchase of this item">≈</span> ' : ''}${iv_money(r.cost, key)}`}</td><td>${iv_money(r.sold, key)}</td><td>${fl_profit(r.profit, key)}</td><td>${esc(fl_held(r.held))}</td></tr>`).join('')}
+                    </table></div>
+                </div>
+                <p class="muted small">Prices are counted in keys and ref as the items were priced, so a key price change between buying and selling isn't profit or loss; they're shown at today's key price (1 key = ${esc(iv_ref(key))}). Exact bought prices come from the bot server's record of what it paid for each copy; copies it has no record of get the oldest saved purchase of the same item (≈).</p>
+                ${status_line}`
+        }
+
+        const load = async () => {
+            const body = root.querySelector('#fl-body')
+            body.classList.add('is-loading')
+            const { from, to } = fl_range()
+            data = await api(`/api/admin/flips?from=${from}&to=${to}`)
+            body.classList.remove('is-loading')
+            paint()
+        }
+
+        root.querySelector('#fl-period').addEventListener('click', (e) => {
+            const v = e.target.closest('[data-period]')?.dataset.period
+            if(!v || v == fl_state.period){ return }
+            fl_state.period = v
+            paint(); load()
+        })
+        for(const id of ['#fl-from', '#fl-to']){
+            root.querySelector(id).addEventListener('change', () => {
+                fl_state.from = root.querySelector('#fl-from').value
+                fl_state.to = root.querySelector('#fl-to').value
+                if(fl_state.from && fl_state.to && fl_state.from <= fl_state.to){ load() }
+            })
+        }
+        root.querySelector('#fl-check').addEventListener('click', async (e) => {
+            e.target.disabled = true
+            const res = await api('/api/admin/flips/collect', {})
+            e.target.disabled = false
+            if(toast(res, 'Checked.')){ load() }
+        })
+        paint()
+        await load()
+        const timer = setInterval(() => { if(!document.hidden && fl_state.period != 'custom'){ load() } }, 2 * 60 * 1000)
+        return () => clearInterval(timer)
+    }
+
     /* ========================= SETTINGS ========================= */
 
     const LEVELS = [['info', 'Info'], ['warning', 'Warning'], ['danger', 'Important']]
@@ -1938,7 +2061,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
 
     /* ========================= ROUTER ========================= */
 
-    const sections = { overview, value: inventory_value, settings: settings_section, stock: stock_section, listings: listings_section, users, ratings, trades: trade_records, notifications: notifications_section, tickets: (root) => tickets(root), blog, giveaways }
+    const sections = { overview, value: inventory_value, flips: flips_section, settings: settings_section, stock: stock_section, listings: listings_section, users, ratings, trades: trade_records, notifications: notifications_section, tickets: (root) => tickets(root), blog, giveaways }
     let route_id = 0
     let cleanup = null
 

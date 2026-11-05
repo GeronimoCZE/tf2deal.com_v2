@@ -33,6 +33,7 @@ import * as sitemap from './service/sitemap.js'
 import * as markdown from './service/markdown.js'
 import * as indexnow from './service/indexnow.js'
 import * as inventory_value from './service/inventory_value.js'
+import * as flips from './service/flips.js'
 import * as item_lists from './service/item_lists.js'
 import * as memory from './service/memory.js'
 import { site_version } from './service/site_version.js'
@@ -817,6 +818,7 @@ setInterval(async () => {
 
 seasons.start(); // reads this year's TF2 event dates from teamfortress.com
 inventory_value.start(); // Admin -> Inventory value: what the bots hold, measured every 15 minutes
+flips.start(); // Admin -> Flips: each copy the bots sold against what they paid for it, every 2 minutes
 memory.start(); // gives memory the site no longer uses back to the server (service/memory.js)
 
 app.use((err, req, res, next) => {

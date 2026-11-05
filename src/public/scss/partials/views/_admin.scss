@@ -1021,7 +1021,7 @@ $admin-two-cards: 1099px;   // below this cards stack in one column
         &.down b{ color: #f0958b; }
         &.flat b{ color: var(--ink-3); }
     }
-    .iv-kpis .admin-stat strong{ font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+    .iv-kpis .admin-stat strong{ font-size: 1.35rem; font-variant-numeric: tabular-nums; white-space: normal; } // "6 keys 40 ref" wraps on phones
 
     .iv-chart-card h3, .iv-chart-card + .admin-card h3{
         margin: 0 0 .8rem 0;
@@ -1072,6 +1072,22 @@ $admin-two-cards: 1099px;   // below this cards stack in one column
         .iv-sum td{ font-weight: 600; color: var(--ink); border-bottom: none; }
     }
     .iv-status{ margin-top: .8rem; }
+
+    // Admin -> Flips (js/admin.js flips_section): two tables under the same figures as Inventory value
+    #fl-body{ transition: opacity 150ms ease; }
+    #fl-body.is-loading{ opacity: .55; }
+    .fl-card{
+        margin-bottom: 1rem;
+        h3{ margin: 0 0 .8rem 0; .muted{ font-weight: 400; font-size: 13px; } }
+    }
+    .fl-scroll{ max-height: 30rem; overflow: auto; }
+    .fl-table{
+        td{ white-space: nowrap; }
+        td.fl-name{ white-space: normal; min-width: 14ch; overflow-wrap: anywhere; }
+        a{ color: var(--ink); }
+    }
+    .fl-up{ color: #6fd28a; }
+    .fl-down{ color: #f0958b; }
     .iv-error{ color: #f0958b; }
 }
 
