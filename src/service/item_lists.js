@@ -286,7 +286,9 @@ const tier_listed = (doc, t, copies) => copies > 0 || (tier_traded(doc, t) && !(
 const tier_indexable = (doc, t, copies) => Boolean(t) && ks_items(doc) && tier_listed(doc, t, copies)
 
 // tools that are never craftable are shown without "Non-Craftable"
-const shown_name = (name, type) => ['unusualifier', 'strange filter', 'tool kit'].some((t) => String(type || '').toLowerCase().includes(t)) ? name.replace('Non-Craftable ', '') : name
+// Non-Craftable left out of the shown name of unusualifiers, strange filters, kits, kit fabricators and chemistry sets
+// (they are all Non-Craftable)
+const shown_name = (name, type) => ['unusualifier', 'strange filter', 'tool kit', 'chemistry set'].some((t) => String(type || '').toLowerCase().includes(t)) ? name.replace('Non-Craftable ', '') : name
 
 // The cards of one item: the item itself, and each killstreak tier (item.killstreak) on the list (tier_listed).
 // A tier's copies count on its own card; copies of a tier the item has no entry for count on the item's card, as on

@@ -135,7 +135,9 @@
     "strange_filter": "Strange-Filter",
     "strange_part": "Strange Part",
     "paint": "Farbe",
-    "kit": "Kit"
+    "kit": "Kit",
+    "chemistry_set": "Chemistry Set",
+    "kit_fabricator": "Kit Fabricator"
   },
   "coming_soon": {
     "title": "Demnächst verfügbar!",

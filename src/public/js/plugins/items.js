@@ -217,7 +217,7 @@ const show = (res, reset, resolve, reject) => {
                         let price_string = (keys > 0) ? `${keys} key ${metals} ref`:`${metals} ref`;
                         let craft = ''
                         let name = item.bp_sku
-                        if(['unusualifier', 'strange filter', 'tool kit'].some((typ) => item.type.toLowerCase().includes(typ))){
+                        if(['unusualifier', 'strange filter', 'tool kit', 'chemistry set'].some((typ) => item.type.toLowerCase().includes(typ))){
                             name = name.replace('Non-Craftable ', '')
                         }
 
@@ -253,7 +253,7 @@ const show = (res, reset, resolve, reject) => {
                         let price_string = (keys > 0) ? `${keys} key ${metals} ref`:`${metals} ref`
                         let craft = ''
                         let name = item.bp_sku
-                        if(['unusualifier', 'strange filter', 'tool kit'].some((typ) => item.type.toLowerCase().includes(typ))){
+                        if(['unusualifier', 'strange filter', 'tool kit', 'chemistry set'].some((typ) => item.type.toLowerCase().includes(typ))){
                             name = name.replace('Non-Craftable ', '')
                         }
                         // if(name.startsWith('Non-Craftable ')){ craft = 'non-craftable'; name = name.replace('Non-Craftable ', '')}

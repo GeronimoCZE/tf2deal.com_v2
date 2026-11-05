@@ -195,7 +195,8 @@ const TYPE_KEYS = {
   'weapon primary skin': 'primary_weapon_skin', 'weapon secondary skin': 'secondary_weapon_skin', 'weapon melee skin': 'melee_weapon_skin',
   'weapon primary skin warpaint': 'primary_weapon_skin', 'weapon secondary skin warpaint': 'secondary_weapon_skin', 'weapon melee skin warpaint': 'melee_weapon_skin',
   'warpaint': 'war_paint', 'tool unusualifier': 'unusualifier', 'tool strangifier': 'strangifier', 'tool key': 'key',
-  'tool strange filter': 'strange_filter', 'tool strange part': 'strange_part', 'tool paint': 'paint', 'tool kit': 'kit'
+  'tool strange filter': 'strange_filter', 'tool strange part': 'strange_part', 'tool paint': 'paint', 'tool kit': 'kit',
+  'tool chemistry set': 'chemistry_set', 'tool kit fabricator': 'kit_fabricator'
 }
 // "weapon primary" -> "Primary Weapon" in the page language; an unknown type is shown as it is
 const item_type_text = (type, __) => TYPE_KEYS[String(type || '').toLowerCase()] ? __('item_types.' + TYPE_KEYS[String(type).toLowerCase()]) : String(type || '')
