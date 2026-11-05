@@ -18,6 +18,9 @@
 //   tier_indexable(...)   whether a killstreak tier's page belongs in search engines (and the sitemap)
 //   collection(name)      the items of a TF2 collection (item_manager's item_collection), one per item, highest grade first
 //   refresh()             read the items again now (at the start, and after the daily sweep marks old items inactive)
+//   start()               the stock pass: every STOCK_EVERY, and soon after bot_manager recounts stock (stock_changed()),
+//                         the items with copies are read again on their own, so the stock counts don't wait for the next
+//                         full read (which a slow database puts up to 15 minutes apart)
 //   status()              how the reads go (for the logs and the "not ready" answers of the item APIs)
 
 import crypto from 'crypto'
@@ -115,6 +118,8 @@ const cached = (load, name, ttl = TTL) => {
   get.reload = reload
   get.state = state
   get.current = () => value
+  // a list patched between reads (stock_pass): shown at once; the next full read still comes when it is due
+  get.replace = (result) => { if (value && !value.partial) value = result }
   return get
 }
 
@@ -404,6 +409,7 @@ const build = (by_name, partial = false) => {
     collections: collection_lists(pages),
     // item pages, and the pages of killstreak tiers that are items of their own (tier_indexable)
     indexable: [...[...by_name].filter(([, page]) => page.indexable).map(([name]) => name), ...tier_cards.filter((card) => card.indexable).map((card) => card.bp_sku)].sort(),
+    by_name, // for the stock pass, which patches the items with copies
     built: Date.now()
   }
 }
@@ -453,6 +459,79 @@ const index = cached(async (read) => {
   }
   return build(by_name)
 }, 'Item list')
+
+/* ========================= STOCK PASS ========================= */
+
+// The full read above takes from seconds to minutes (it reads every item), and comes again once the list is older than
+// a minute, or twice as long as the last read took (at most 15 minutes), so /items and the search showed stock counts
+// that old. The stock pass reads only the items with copies (HELD_QUERY) and the ones that had copies
+// at the last build (by bp_sku), and builds the lists again when any of them changed. Prices of those items come along.
+const STOCK_EVERY = 30 * 1000
+const STOCK_SOON = 3 * 1000 // after bot_manager says it recounted stock, it may still be writing
+
+// items with copies, through the index on stock.items.a (model/Item.js): an asset id is a string, or a number in older
+// records. ($exists or $ne: null can't use that index the same way and would look at every item.)
+const HELD_QUERY = { $and: [ITEMS_QUERY, { $or: [{ 'stock.items.a': { $gt: '' } }, { 'stock.items.a': { $gte: -Infinity } }] }] }
+
+// what the lists show of an item: when it is the same, nothing needs building
+const page_key = (page) => page ? JSON.stringify([page.copies, page.active, page.limit, page.cards, page.similar]) : ''
+
+const stock_state = { running: null, timer: null, last: 0, took: 0, changed: 0, error: '' }
+
+const stock_pass = () => {
+  if (stock_state.running) return stock_state.running
+  stock_state.running = (async () => {
+    const list = index.current()
+    // the first read isn't done, or a full read is running for the first time: nothing to patch yet
+    if (!list || list.partial || !list.by_name || process.db_status?.connected !== true) return false
+    const began = Date.now()
+    const had = [...list.by_name].filter(([, page]) => page.copies > 0).map(([name]) => name)
+    const [held, before] = await Promise.all([
+      item_model.find(HELD_QUERY, FIELDS).maxTimeMS(STEP_LIMIT).lean(),
+      had.length ? item_model.find({ ...ITEMS_QUERY, bp_sku: { $in: had } }, FIELDS).maxTimeMS(STEP_LIMIT).lean() : []
+    ])
+    const fresh = new Map()
+    for (const doc of [...held, ...before]) add_item(fresh, doc)
+
+    // a newer full read finished meanwhile: it has these items already
+    if (index.current() !== list) return false
+    const by_name = new Map(list.by_name)
+    let changed = 0
+    // an item that had copies and no longer fits the list (no copies, not traded, or no price) leaves it
+    for (const name of had) if (!fresh.has(name) && by_name.delete(name)) changed++
+    for (const [name, page] of fresh) {
+      const old = by_name.get(name)
+      if (old?.indexable) page.indexable = true // a record without copies (not read here) may make the page indexable
+      if (page_key(old) === page_key(page)) continue
+      by_name.set(name, page)
+      changed++
+    }
+    Object.assign(stock_state, { last: Date.now(), took: Date.now() - began, error: '' })
+    if (changed === 0) return false
+    index.replace(build(by_name))
+    stock_state.changed = Date.now()
+    return true
+  })()
+    .catch((error) => {
+      const message = String(error?.message || error)
+      if (message !== stock_state.error) console.error('Item list: stock update failed:', message) // once per kind of error
+      stock_state.error = message
+      return false
+    })
+    .finally(() => { stock_state.running = null })
+  return stock_state.running
+}
+
+// bot_manager recounted stock (its admin:stock_updated push, service/socket.js): update the counts soon
+const stock_changed = () => {
+  clearTimeout(stock_state.timer)
+  stock_state.timer = setTimeout(() => stock_pass(), STOCK_SOON)
+  stock_state.timer.unref?.()
+}
+
+const start = () => {
+  setInterval(() => stock_pass(), STOCK_EVERY).unref()
+}
 
 const escape_regex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 // "strasse" also finds "Straße" and the other way round, like the old database search
@@ -554,7 +633,10 @@ const status = () => {
     last_read_s_ago: ago(state.last_read),
     last_read_took_s: state.last_took > 0 ? Math.round(state.last_took / 100) / 10 : null,
     last_error: state.last_error || null,
-    last_error_s_ago: state.last_error ? ago(state.failed_at) : null
+    last_error_s_ago: state.last_error ? ago(state.failed_at) : null,
+    stock_checked_s_ago: ago(stock_state.last),
+    stock_changed_s_ago: ago(stock_state.changed),
+    stock_error: stock_state.error || null
   }
 }
 
@@ -562,4 +644,4 @@ const status = () => {
 
 const refresh = () => index.reload().catch(() => null) // a failed read is written to the log by cached()
 
-export { similar, cards, public_card, names, stock, sitemap_names, ks_page, ks_tier, tiers_of, ks_items, tier_indexable, collection, collection_order, grade_of, refresh, status }
+export { similar, cards, public_card, names, stock, sitemap_names, start, stock_changed, stock_pass, ks_page, ks_tier, tiers_of, ks_items, tier_indexable, collection, collection_order, grade_of, refresh, status }
