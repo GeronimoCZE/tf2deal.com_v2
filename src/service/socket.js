@@ -5,6 +5,7 @@ import { log } from "console";
 import { createSettingsSocket } from "./settings_socket.js";
 import * as latest_trades from "./latest_trades.js";
 import { site_version } from "./site_version.js";
+import * as item_lists from "./item_lists.js";
 
 
 const bot_socket = { timestamp: 0, socket: null}
@@ -184,7 +185,10 @@ setTimeout(() => {
 
     // bot_manager's admin pushes, for the admin panel (settings_socket.js sends them on to the signed-in admins)
     bots_io.on('admin:changed', (data) => localEmitter.emit('bot_manager:changed', data));
-    bots_io.on('admin:stock_updated', (data) => localEmitter.emit('bot_manager:stock_updated', data));
+    bots_io.on('admin:stock_updated', (data) => {
+        localEmitter.emit('bot_manager:stock_updated', data);
+        item_lists.stock_changed(); // the stock counts on /items and in the search follow within seconds
+    });
 
     bots_io.on('disconnect', () => {
         bot_socket.timestamp = Date.now();
