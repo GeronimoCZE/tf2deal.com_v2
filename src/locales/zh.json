@@ -140,7 +140,9 @@
     "strange_filter": "Strange 过滤器",
     "strange_part": "Strange 部件",
     "paint": "油漆",
-    "kit": "工具包"
+    "kit": "工具包",
+    "chemistry_set": "化学套装",
+    "kit_fabricator": "工具包制造器"
   },
   "coming_soon": {
     "title": "即将推出！",

@@ -140,7 +140,9 @@
     "strange_filter": "Strange Filter",
     "strange_part": "Strange Part",
     "paint": "Barva",
-    "kit": "Kit"
+    "kit": "Kit",
+    "chemistry_set": "Chemistry Set",
+    "kit_fabricator": "Kit Fabricator"
   },
   "coming_soon": {
     "title": "Již brzy!",

@@ -140,7 +140,9 @@
     "strange_filter": "Filtro Strange",
     "strange_part": "Peça Strange",
     "paint": "Tinta",
-    "kit": "Kit"
+    "kit": "Kit",
+    "chemistry_set": "Kit de química",
+    "kit_fabricator": "Fabricador de kits"
   },
   "coming_soon": {
     "title": "Em breve!",

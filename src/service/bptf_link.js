@@ -8,8 +8,12 @@
 //   Strangifiers                       the item it is for        /Unique/Strangifier/.../378
 //   Unusualifiers                      the taunt it is for       /Unusual/Unusualifier/Tradable/Non-Craftable/1109
 //   Killstreak Kits                    "<tier>-<weapon>"         /Unique/Professional Killstreak Kit/Tradable/Non-Craftable/3-205
+//   Collector's Chemistry Sets         "<output>-14"            /Unique/Chemistry Set/Tradable/Non-Craftable/205-14
+//   Kit Fabricators                    "<kit>-6-<weapon>"       /Unique/Professional Killstreak Fabricator/Tradable/Non-Craftable/6526-6-205
+//                                      (kit 6526 Professional, 6523 Specialized)
 // War paints and skins: "<paint> | <weapon> (<wear>)", Decorated Weapon quality (Strange ones: Strange).
-// item_manager keeps the item a Strangifier, Unusualifier or Kit is for, and a crate's series, in item.priceindex.
+// item_manager keeps the item a Strangifier, Unusualifier, Kit or Kit Fabricator is for, a Chemistry Set's output and a
+// crate's series in item.priceindex, and a Chemistry Set's or Fabricator's backpack.tf name in item.name.
 
 import * as fn from '../fn.js'
 
@@ -49,6 +53,12 @@ const bptf_link = (item, { ks = 0, festivized = false } = {}) => {
     // "Professional Killstreak Rocket Launcher Kit": tier 3
     const tier = [3, 2, 1].find((t) => name.includes(KS_NAMES[t] + ' ')) || 1
     return url(quality, `${KS_NAMES[tier]} Kit`, false, index ? `${tier}-${index}` : 0)
+  }
+  if (type == 'tool chemistry set') return url(quality, name, false, index ? `${index}-14` : 0)
+  if (type == 'tool kit fabricator') {
+    // "Specialized Killstreak Rocket Launcher Kit Fabricator": kit 6523
+    const kit = sku.includes('Specialized Killstreak ') ? 6523 : 6526
+    return url(quality, name, false, index ? `${kit}-6-${index}` : 0)
   }
   if (type.includes('skin') || type.includes('warpaint')) {
     // "Warhawk Rocket Launcher (Field-Tested)" -> "Warhawk | Rocket Launcher (Field-Tested)"

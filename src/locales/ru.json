@@ -140,7 +140,9 @@
     "strange_filter": "Strange-фильтр",
     "strange_part": "Strange-деталь",
     "paint": "Краска",
-    "kit": "Набор"
+    "kit": "Набор",
+    "chemistry_set": "Набор химика",
+    "kit_fabricator": "Сборщик наборов"
   },
   "coming_soon": {
     "title": "Скоро!",
