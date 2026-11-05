@@ -28,6 +28,7 @@ import { bot_socket, item_socket } from '../../service/socket.js';
 import * as app from '../../app.js';
 import { has_admin_session } from '../../mw.js';
 import * as inventory_value from '../../service/inventory_value.js';
+import * as flips from '../../service/flips.js';
 import * as memory from '../../service/memory.js';
 
 export const router = express.Router();
@@ -485,6 +486,27 @@ router.post('/inventory_value/measure', db_ready, async (req, res) => {
   const doc = await inventory_value.snapshot();
   if(!doc){ return res.status(502).json({ status: 'error', message: `Not measured: ${inventory_value.state.error}` }) }
   res.json({ status: 'ok', t: doc.t });
+});
+
+/* ========================= FLIPS (service/flips.js) ========================= */
+
+// ?from=&to= (ms): the copies the bots sold in that period and what they made on each
+router.get('/flips', db_ready, async (req, res) => {
+  try {
+    const names = Object.fromEntries((Array.isArray(app.fp_data?.bots) ? app.fp_data.bots : []).map((b) => [String(b.steamid), b.personaname || '']));
+    res.json({ status: 'ok', ...(await flips.stats({ from: Number(req.query.from), to: Number(req.query.to) })), bot_names: names });
+  } catch (error) {
+    res.status(400).json({ status: 'error', message: error.message });
+  }
+});
+
+// "Check now": reads the newest saved trades at once (at most every 30 seconds)
+let flips_checked_at = 0;
+router.post('/flips/collect', db_ready, async (req, res) => {
+  if(Date.now() - flips_checked_at < 30 * 1000){ return res.status(429).json({ status: 'error', message: 'Checked less than 30 seconds ago.' }) }
+  flips_checked_at = Date.now();
+  if(!(await flips.run_now())){ return res.status(502).json({ status: 'error', message: `Not checked: ${flips.state.error}` }) }
+  res.json({ status: 'ok' });
 });
 
 /* ========================= USERS ========================= */
