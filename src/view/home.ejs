@@ -79,11 +79,15 @@
                             </div>
                         </div>
                         <div class="stat-block">
-                            <!-- items available -->
+                            <!-- items available; under it the bots' keys and metal, counted in keys (stats.pure_keys) -->
+                            <% const pure_keys = info.stats?.pure_keys %>
                             <span class="icon-hat2 stat-icon"></span>
                             <div class="stat-text">
                                 <div class="stat-name">
                                     <span><%= __('home.stat_items') %></span>
+                                    <% if (pure_keys != null) { %>
+                                    <small class="stat-sub"><%= __('home.stat_pure_keys', { keys: new Intl.NumberFormat(html_lang, { maximumFractionDigits: pure_keys >= 100 ? 0 : 1 }).format(pure_keys) }) %></small>
+                                    <% } %>
                                 </div>
                                 <div class="stat-data" id="stat-itemsAvailable"></div>
                             </div>

@@ -203,6 +203,7 @@
     "stat_trades_total": "Výměn celkem",
     "stat_trades_today": "{count} dnes",
     "stat_items": "Dostupných předmětů",
+    "stat_pure_keys": "Pure v klíčích: {keys}",
     "stat_bots": "Steam botů",
     "intro_title": "Automatizovaný TF2 trading se Steam trade boty",
     "intro_1": "TF2deal.com je TF2 trade web, který obsluhují automatické trade boty: kupují, prodávají a vyměňují s vámi předměty z Team Fortress 2 a pošlou vám Steam nabídku k výměně během pár sekund. Hlavním cílem je zajistit férové a bezpečné výměny předmětů.",

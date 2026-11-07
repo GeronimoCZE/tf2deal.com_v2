@@ -203,6 +203,7 @@
     "stat_trades_total": "Trocas no total",
     "stat_trades_today": "{count} hoje",
     "stat_items": "Itens disponíveis",
+    "stat_pure_keys": "{keys} chaves em pure",
     "stat_bots": "Bots da Steam",
     "intro_title": "Um site de trading de TF2 automático com bots da Steam",
     "intro_1": "O TF2deal.com é um site de trade de TF2 operado por bots automáticos: eles compram, vendem e trocam itens de Team Fortress 2 com você e enviam a oferta de troca da Steam em segundos. O principal objetivo é oferecer trocas justas e seguras.",

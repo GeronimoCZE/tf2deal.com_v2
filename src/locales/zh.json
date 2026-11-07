@@ -203,6 +203,7 @@
     "stat_trades_total": "累计交易",
     "stat_trades_today": "今日 {count}",
     "stat_items": "可用物品",
+    "stat_pure_keys": "通货折合 {keys} 把钥匙",
     "stat_bots": "Steam 机器人",
     "intro_title": "使用 Steam 交易机器人的自动化 TF2 交易网站",
     "intro_1": "TF2deal.com 是一个由自动交易机器人运行的 TF2 交易网站：它们与你买卖和交易 Team Fortress 2 物品，并在几秒内发送 Steam 交易报价。主要目标是提供公平、安全的物品交易。",

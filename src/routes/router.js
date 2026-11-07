@@ -19,15 +19,15 @@ import { isNumberObject } from 'util/types'
 const home = async (req, res, next) => {
   if(req.path == '/'){
     const fp_data = app.fp_data;
-    const [trades_today, trades_total] = await Promise.all([stats.trades_today(fp_data.trades), stats.trades_total()]);
+    const [trades_today, trades_total, pure_keys] = await Promise.all([stats.trades_today(fp_data.trades), stats.trades_total(), stats.pure_keys()]);
 
     const json_ld = fn.faq_json_ld(req.__) // the FAQ at the bottom of the page
 
     if (req.user) {   
       const user_cookie = req.cookies[`td_${req.user.steamid}`]
-      res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', json_ld, stats: {items: fp_data.items, trades: trades_today, trades_total, bots: fp_data.bots.length || 0, users: app.users.size} }))
+      res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', json_ld, stats: {items: fp_data.items, trades: trades_today, trades_total, pure_keys, bots: fp_data.bots.length || 0, users: app.users.size} }))
     } else {
-      res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', json_ld, stats: {items: fp_data.items, trades: trades_today, trades_total, bots: fp_data.bots.length || 0, users: app.users.size} }))
+      res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', json_ld, stats: {items: fp_data.items, trades: trades_today, trades_total, pure_keys, bots: fp_data.bots.length || 0, users: app.users.size} }))
     }
   } else {
     next()
@@ -65,7 +65,7 @@ const buy_link = async (req, res) => {
     ...seo,
     key_price: app.key_price,
     create_trade: { assetid, copies: copies.map(({ image_large, ...copy }) => copy) },
-    stats: { items: app.fp_data.items, trades: await stats.trades_today(app.fp_data.trades), trades_total: await stats.trades_total(), bots: app.fp_data.bots.length || 0, users: app.users.size }
+    stats: { items: app.fp_data.items, trades: await stats.trades_today(app.fp_data.trades), trades_total: await stats.trades_total(), pure_keys: await stats.pure_keys(), bots: app.fp_data.bots.length || 0, users: app.users.size }
   }))
 }
 
