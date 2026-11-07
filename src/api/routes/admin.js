@@ -29,6 +29,7 @@ import * as app from '../../app.js';
 import { has_admin_session } from '../../mw.js';
 import * as inventory_value from '../../service/inventory_value.js';
 import * as flips from '../../service/flips.js';
+import * as stats from '../../service/stats.js';
 import * as memory from '../../service/memory.js';
 
 export const router = express.Router();
@@ -315,6 +316,7 @@ router.get('/overview', async (req, res) => {
   ]);
 
   const online = Array.from(app.users.values());
+  const trades_total = db ? await stats.trades_total().catch(() => null) : null;
   res.json({ status: 'ok', overview: {
     db,
     uptime: Math.round(process.uptime()),
@@ -327,7 +329,7 @@ router.get('/overview', async (req, res) => {
     key_price: app.key_price?.metal ?? null,
     users_online: online.length,
     users_trading: online.filter((u) => u.trade).length,
-    users_total, users_new, trades_day, tickets_open,
+    users_total, users_new, trades_day, trades_total, tickets_open,
     giveaway: giveaway ? { bp_sku: giveaway.item?.bp_sku, image: giveaway.item?.image, end: giveaway.end, entries: giveaway.entries?.length || 0 } : null,
     rating,
     trading: settings.trading_enabled(),

@@ -238,6 +238,12 @@
                     font-size: .95rem;
                     font-weight: 500;
                     color: var(--ink-3);
+                    // "12 today" under the total of trades, "84 keys in pure" under the items
+                    .stat-sub{
+                        display: block;
+                        font-size: .8rem;
+                        font-weight: 400;
+                    }
                 }
                 .stat-data{
                     display: block;

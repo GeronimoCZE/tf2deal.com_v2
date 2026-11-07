@@ -111,7 +111,7 @@ export const bot_pure = async () => {
     return { keys: count(pure.key ?? pure.keys), metal: round2(scrap / 9) }
 }
 
-const key_price_now = () => num(app.key_price?.metal) || num(global.key_price?.metal)
+export const key_price_now = () => num(app.key_price?.metal) || num(global.key_price?.metal)
 
 // what everything is worth right now (not saved)
 export const measure = async () => {

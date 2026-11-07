@@ -445,6 +445,7 @@
             box.innerHTML = `<div class="admin-stats">
                     ${stat('Users online', num(o.users_online), `${num(o.users_trading)} trading now`)}
                     ${stat('Trades, last 24 h', num(o.trades_day), o.trades_reported ? `${num(o.trades_reported)} reported by bots` : '')}
+                    ${stat('Trades made', o.trades_total != null ? num(o.trades_total) : '–', 'all time, without trades between our bots', '#trades')}
                     ${stat('Items in stock', num(o.items), `${num(o.bots)} bot${o.bots == 1 ? '' : 's'}`)}
                     ${stat('Registered users', num(o.users_total), o.users_new != null ? `+${num(o.users_new)} in 24 h` : '', '#users')}
                     ${stat('Open tickets', num(o.tickets_open), o.tickets_open ? 'waiting for a reply' : 'all answered', '#tickets')}
