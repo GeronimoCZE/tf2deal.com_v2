@@ -52,19 +52,20 @@
                                     <%# what the item costs to buy and sell, in words: the line search results quote (info.description) %>
                                     <% if (info.description) { %><p class="item-lead"><%= info.description %></p><% } %>
                                     <div class="item-desc">
-                                        <%# the item's data is written here by the server (routes/router.js item_page, info.shown) %>
+                                        <%# the item's data is written here by the server (routes/router.js item_page, info.shown); its
+                                            quality, type and classes open the item list with that filter %>
                                         <div class="desc">
                                             <div class="name"><%= __('filters.quality') %></div>
-                                            <div class="val quality q-<%= info.item?.qualityID %>" translate="no"><%= info.shown.quality || info.item?.qualityID %></div>
+                                            <div class="val quality q-<%= info.item?.qualityID %>" translate="no"><% if (info.shown.links?.quality) { %><a href="<%= info.shown.links.quality %>"><%= info.shown.quality %></a><% } else { %><%= info.shown.quality || info.item?.qualityID %><% } %></div>
                                         </div>
                                         <div class="desc">
                                             <div class="name"><%= __('filters.type') %></div>
-                                            <div class="val type"><%= info.shown.type %></div>
+                                            <div class="val type"><% if (info.shown.links?.type) { %><a href="<%= info.shown.links.type %>"><%= info.shown.type %></a><% } else { %><%= info.shown.type %><% } %></div>
                                         </div>
                                         <% if (info.shown.classes.length > 0) { %>
                                         <div class="desc classes">
                                             <div class="name"><%= __('item.classes') %></div>
-                                            <div class="val class"><% for (const name of info.shown.classes) { %><span class="class-el"><%= name %></span><% } %></div>
+                                            <div class="val class"><% for (const { name, url } of (info.shown.links?.classes || info.shown.classes.map((name) => ({ name })))) { %><% if (url) { %><a class="class-el" href="<%= url %>"><%= name %></a><% } else { %><span class="class-el"><%= name %></span><% } %><% } %></div>
                                         </div>
                                         <% } %>
                                         <% if (info.collection) { %>
@@ -128,9 +129,9 @@
                                 </div>
                             </div>
 
-                            <div class="item-header sales" style="margin-top: 2rem">
+                            <h2 class="item-header sales" style="margin-top: 2rem">
                                 <%= __('js.item.sales_title') %>
-                            </div>
+                            </h2>
                             <div class="item_content sales" id="item-sales">
                                 <div class="sales-top">
                                     <p class="sales-hint"><%= __('js.item.sales_hint') %></p>
@@ -147,9 +148,9 @@
                                 <p class="sales-total"></p>
                             </div>
 
-                            <div class="item-header history" style="margin-top: 2rem">
+                            <h2 class="item-header history" style="margin-top: 2rem">
                                 <%= __('item.price_history') %>
-                            </div>
+                            </h2>
                             <div class="item_content">
                                 <div class="change_table">
                                     <div class="row main">
@@ -157,24 +158,38 @@
                                         <div class="cell sell"><%= __('item.sell') %></div>
                                         <div class="cell time"><%= __('item.date') %></div>
                                     </div>
-                                    <%# newest first; three rows, the older ones behind "show older prices" %>
+                                    <%# newest first; three rows, the older ones behind "show older prices". Buy and Sell as at the top
+                                        of the page: Buy = what the visitor pays (the bots' sell price), Sell = what they get %>
                                     <div class="row more<%= info.shown.price_history.length > 3 ? ' visible' : '' %>"><%= __('item.older_prices') %></div>
                                     <% if (info.shown.price_history.length == 0) { %>
                                     <div class="row empty"><%= __('item.no_price_history') %></div>
                                     <% } %>
                                     <% info.shown.price_history.forEach((row, i) => { %>
-                                    <div class="row<%= i >= 3 ? ' hidden' : '' %>"><div class="cell buy"><%= row.buy %></div><div class="cell sell"><%= row.sell %></div><div class="cell time"><time datetime="<%= row.day %>"><%= new Date(row.time).toLocaleDateString(html_lang) %></time></div></div>
+                                    <div class="row<%= i >= 3 ? ' hidden' : '' %>"><div class="cell buy"><%= row.sell %></div><div class="cell sell"><%= row.buy %></div><div class="cell time"><time datetime="<%= row.day %>"><%= new Date(row.time).toLocaleDateString(html_lang) %></time></div></div>
                                     <% }) %>
                                 </div>
                             </div>
 
+                            <% if (info.faq?.length) { %>
+                            <%# questions people search about the item, answered from its own prices, stock and sales (fn.item_faq) %>
+                            <section class="item-faq" aria-labelledby="item-faq-title">
+                                <h2 class="item-header faq" id="item-faq-title" style="margin-top: 2rem"><%= __('item.faq_title', { name: info.page_name || info.item?.bp_sku }) %></h2>
+                                <div class="item_content faq">
+                                    <% info.faq.forEach(({ q, a }) => { %>
+                                    <h3 class="faq-q"><%= q %></h3>
+                                    <p class="faq-a"><%= a %></p>
+                                    <% }) %>
+                                </div>
+                            </section>
+                            <% } %>
+
                             <% if (info.collection && info.collection.items.length > 0) { %>
                             <%# the item's TF2 collection (item_manager's item_collection): each item once, in its plainest
                                 version, highest grade first; this item shown as this page shows it %>
-                            <div class="item-header collection" id="collection" style="margin-top: 2rem">
+                            <h2 class="item-header collection" id="collection" style="margin-top: 2rem">
                                 <span translate="no"><%= info.collection.name %></span>
                                 <span class="collection-count"><%= __('item.collection_count', { count: info.collection.items.length }) %></span>
-                            </div>
+                            </h2>
                             <div class="item_content collection">
                                 <ul class="collection-list">
                                 <% info.collection.items.forEach((row) => { %>
@@ -206,9 +221,9 @@
                             <% } %>
 
                             <% if (info.result.sameName.length > 0) { %>
-                            <div class="item-header similarName" style="margin-top: 2rem">
+                            <h2 class="item-header similarName" style="margin-top: 2rem">
                                 <%= __('item.similar_names') %>
-                            </div>
+                            </h2>
                             <div class="item_content sim similarName">
                                 <div class="container">
                                     <div class="similar_items">
@@ -229,9 +244,9 @@
                             <% } %>
 
                             <% if (info.result.sameEffect.length > 0) { %>
-                            <div class="item-header similarEffect" style="margin-top: 2rem">
+                            <h2 class="item-header similarEffect" style="margin-top: 2rem">
                                 <%= __('item.similar_effect') %>
-                            </div>
+                            </h2>
                             <div class="item_content sim similarEffect">
                                 <div class="container">
                                     <div class="similar_items">
@@ -252,9 +267,9 @@
                             <% } %>
 
                             <% if (info.result.sameTypeQuality.length > 0) { %>
-                            <div class="item-header similarType" style="margin-top: 2rem">
+                            <h2 class="item-header similarType" style="margin-top: 2rem">
                                 <%= __('item.similar_type') %>
-                            </div>
+                            </h2>
                             <div class="item_content sim similarType">
                                 <div class="container">
                                     <div class="similar_items">

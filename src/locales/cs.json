@@ -97,7 +97,10 @@
     "item": "Koupit a prodat {name} – cena v TF2 | TF2Deal.com",
     "item_short": "Koupit a prodat {name} | TF2Deal.com",
     "item_shorter": "Koupit {name} | TF2Deal.com",
-    "cookies": "Zásady cookies – cookies na TF2Deal.com"
+    "cookies": "Zásady cookies – cookies na TF2Deal.com",
+    "category": "Koupit a prodat TF2 {category} za klíče | TF2Deal.com",
+    "category_page": "TF2 {category} (strana {page}) | TF2Deal.com",
+    "category_short": "TF2 {category} | TF2Deal.com"
   },
   "desc": {
     "default": "Kupujte a prodávejte TF2 předměty s automatickými Steam trade boty. Klobouky, unusualy, zbraně i klíče za klíče a ref, nabídka do pár sekund.",
@@ -116,7 +119,9 @@
     "item_sell": "Prodejte {name} za {sell} na TF2Deal.com.",
     "item_trade": "Vyměňte {name} na TF2Deal.com.",
     "item_stock": "Skladem: {count}. Okamžitý automatický TF2 trading.",
-    "item_no_stock": "Okamžitý automatický TF2 trading s našimi trade boty."
+    "item_no_stock": "Okamžitý automatický TF2 trading s našimi trade boty.",
+    "category": "Kupujte a prodávejte TF2 {category} za klíče a ref. Předmětů: {count}, aktuální ceny a sklad, nabídky k výměně od našich botů během pár sekund.",
+    "category_page": "Strana {page}: TF2 {category} na TF2Deal.com s aktuálními cenami a skladem. Kupujte a prodávejte za klíče a ref s okamžitou nabídkou k výměně."
   },
   "item_types": {
     "cosmetic": "Kosmetika",
@@ -222,7 +227,10 @@
     "tools_link": "Zobrazit všechny nástroje",
     "cta_title": "Připraveni obchodovat?",
     "cta_text": "Vyberte si předměty a naši boti vám pošlou nabídku obchodu na Steamu.",
-    "hero_kicker": "Automatické TF2 trade boty"
+    "hero_kicker": "Automatické TF2 trade boty",
+    "popular_title": "Oblíbené předměty skladem",
+    "popular_all": "Všechny předměty",
+    "categories_label": "Kategorie předmětů"
   },
   "filters": {
     "none": "Žádné",
@@ -636,7 +644,8 @@
     "search_placeholder": "Hledat předměty ...",
     "pages": "Stránky seznamu předmětů",
     "prev_page": "Předchozí",
-    "next_page": "Další"
+    "next_page": "Další",
+    "category_h1": "TF2 {category}"
   },
   "item": {
     "inactive": "Neaktivní předmět",
@@ -665,7 +674,21 @@
     "collection": "Kolekce",
     "collection_count": "Předmětů: {count}",
     "this_item": "Tento předmět",
-    "this_war_paint": "War Paint tohoto předmětu"
+    "this_war_paint": "War Paint tohoto předmětu",
+    "faq_title": "{name}: cena a obchodování",
+    "faq_worth_q": "Kolik stojí {name}?",
+    "faq_worth_a": "Na TF2Deal.com koupíte {name} za {buy} a prodáte za {sell}.",
+    "faq_worth_market": "Ceny pravidelně aktualizujeme podle trhu na backpack.tf.",
+    "faq_worth_month": "Před měsícem byla cena {old}.",
+    "faq_sell_q": "Můžu prodat {name} za klíče nebo metal?",
+    "faq_sell_yes": "Ano. Naši boti teď vykoupí ještě {count} ks a za každý zaplatí {sell}. Přihlaste se přes Steam, vyberte předmět ve svém inventáři a bot vám pošle nabídku k výměně.",
+    "faq_sell_full": "Teď ne: naši boti momentálně další kusy nevykupují. Tato stránka živě ukazuje, kolik jich berou.",
+    "faq_sell_no": "Naši boti {name} momentálně nevykupují. Koupit se dá, dokud je skladem.",
+    "faq_stock_q": "Je {name} skladem?",
+    "faq_stock_yes": "Ano, skladem: {count} ks za {buy}. Přihlaste se přes Steam, vyberte předmět a po potvrzení vám bot pošle nabídku k výměně.",
+    "faq_stock_no": "Teď ne. Skladem bude znovu, až nějaký kus někdo prodá našim botům.",
+    "faq_sold_q": "Jak často se {name} prodává?",
+    "faq_sold_a": "Za posledních 30 dní naši boti prodali {count} ks."
   },
   "giveaway": {
     "current": "Aktuální soutěž",

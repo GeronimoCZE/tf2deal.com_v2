@@ -1138,14 +1138,20 @@ addEventListener('DOMContentLoaded', (event) => {
                     document.querySelector('form#user-input-filter input').value = urlParams.get('name')
                 }
 
-                // The server sent one page of the list as plain HTML (views/items.ejs). Without filters it stays, and
-                // scrolling continues after it. Filters in the URL: load the filtered list instead.
+                // The server sent one page of the list as plain HTML (views/items.ejs), with the filters it applies
+                // itself (routes/router.js items: name, quality, type, class, stock, sort; category pages use them).
+                // That list stays and scrolling continues after it. Other filters in the URL (an unusual effect, a war
+                // paint): load the filtered list instead.
                 const server_list = document.querySelector('.item-content .items')
                 const server_page = Number(server_list?.dataset.page) || 0
                 const server_cards = server_list ? server_list.querySelectorAll('a.item_card').length : 0
-                const has_filters = Array.from(urlParams.keys()).some((key) => key != 'page')
-                if(server_page > 0 && server_cards > 0 && !has_filters){
+                const server_filters = ['page', 'name', 'quality', 'type', 'class', 'stock', 'sort']
+                const other_filters = Array.from(urlParams.keys()).some((key) => !server_filters.includes(key))
+                if(server_page > 0 && server_cards > 0 && validInputs !== false && !other_filters){
                     items.list.page = server_page * (Number(server_list.dataset.perPage) / 15) - 1
+                    if(Array.from(urlParams.keys()).some((key) => key != 'page')){
+                        $('#resetFilters').addClass('active').prop('disabled', false)
+                    }
                 } else {
                     document.querySelector('.item-content').classList.remove('loaded')
                     setTimeout(() => items.get_items(items_page, validInputs).catch(() => {}), 1000)

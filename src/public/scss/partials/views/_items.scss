@@ -2458,3 +2458,49 @@ a.item_card{
     }
     &:hover::before, &:focus-visible::before, &:target::before{ opacity: 1; }
 }
+
+// Item page: the quality, type and classes link to the item list with that filter (a quiet underline that fills in on
+// hover: colour only), and the questions about the item ("<name> price and trading", fn.item_faq)
+.item-page{
+    .item-desc .desc .val{
+        a{
+            color: inherit;
+            text-decoration: underline;
+            text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+            text-underline-offset: 3px;
+            transition: text-decoration-color 150ms ease;
+            &:hover, &:focus-visible{ text-decoration-color: currentColor; }
+        }
+        a.class-el{
+            text-decoration: none;
+            transition: background 150ms ease;
+            &:hover, &:focus-visible{ background: rgb(222, 184, 20); }
+        }
+    }
+    .item-faq .item_content.faq{
+        padding: 1rem 1.25rem;
+        .faq-q{
+            margin: 1.1rem 0 .3rem 0;
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: var(--ink);
+            &:first-child{ margin-top: 0; }
+        }
+        .faq-a{
+            margin: 0;
+            max-width: 72ch;
+            line-height: 1.6;
+            color: var(--ink-2);
+        }
+    }
+}
+// a category page's line under its heading (service/categories.js)
+.items-ps .category-lead{
+    margin: -.5rem 0 1.25rem 10px;
+    max-width: 72ch;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    @include lt-md{ margin-left: 0; }
+}

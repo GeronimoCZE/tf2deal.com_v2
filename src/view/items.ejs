@@ -9,10 +9,12 @@
 
             <main>
                 <div class="page-section items-ps">
-                    <h1><%= __('items.h1') %></h1>
+                    <%# a category (service/categories.js) has its own heading and a line about it %>
+                    <h1><%= info.category ? info.category.h1 : __('items.h1') %></h1>
                     <div class="h2-info">
                         <%- __('items.found_html', { count: '<span id="item_count">' + (Number(info.item_count) || 0) + '</span>' }) %>
                     </div>
+                    <% if (info.category) { %><p class="category-lead"><%= info.category.lead %></p><% } %>
 
                     <div class="filter-bar">
                         <%# search first: it is what most visitors came to do (serial position), then the filters %>
@@ -139,7 +141,7 @@
                     </div>
 
                     <% if (list && list.pages > 1) {
-                        const page_url = (n) => { const q = new URLSearchParams(list.name ? { name: list.name } : {}); if (n > 1) q.set('page', n); return lurl('/items') + (String(q) ? '?' + q : '') }
+                        const page_url = (n) => { const q = new URLSearchParams(list.query || {}); if (n > 1) q.set('page', n); return lurl('/items') + (String(q) ? '?' + q : '') } // the filters stay
                         // first, last and two pages on each side of this one
                         const shown = [...new Set([1, list.page - 2, list.page - 1, list.page, list.page + 1, list.page + 2, list.pages])].filter((n) => n >= 1 && n <= list.pages).sort((a, b) => a - b)
                         const link = 'display: inline-block; min-width: 2.2rem; padding: .35rem .6rem; border-radius: 5px; text-align: center; color: #b88ef7;' %>

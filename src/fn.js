@@ -302,6 +302,10 @@ const TITLE_MAX = 70
 const item_title = (name, __ = t_for(DEFAULT_LANG)) =>
   ['title.item', 'title.item_short', 'title.item_shorter'].map((key) => __(key, { name })).find((title) => title.length <= TITLE_MAX) || String(name)
 
+// the first of these titles that fits search results (TITLE_MAX), else the last one
+const fitting_title = (keys, vars, __ = t_for(DEFAULT_LANG)) =>
+  keys.map((key) => __(key, vars)).find((title) => title.length <= TITLE_MAX) || __(keys[keys.length - 1], vars)
+
 const item_description = (item, __ = t_for(DEFAULT_LANG)) => {
   const name = item.bp_sku
   const key = Number(item.bptf_data?.update_key_price) || 0
@@ -314,6 +318,43 @@ const item_description = (item, __ = t_for(DEFAULT_LANG)) => {
     : sell ? __('desc.item_sell', { name, sell })
     : __('desc.item_trade', { name })
   return first + ' ' + (stock > 0 ? __('desc.item_stock', { count: stock }) : __('desc.item_no_stock'))
+}
+
+// The questions on an item page (view/item_page.ejs "<name> price and trading"): what people search about an item
+// (what it's worth, whether they can sell it, whether it's in stock, how often it sells), answered from the item's own
+// prices, stock and sales, so every item page says something of its own. Prices as the page shows them ("1 key 5 ref").
+//   buying: the bots take this item (status 1); manual: a price set by hand (not from backpack.tf)
+const DAY_MS = 24 * 60 * 60 * 1000
+const item_faq = ({ name, buy, sell, stock, can_sell, buying, manual, price_history, trade_history }, __ = t_for(DEFAULT_LANG)) => {
+  const faq = []
+  // what a copy cost about a month ago: the newest price entry ("buy|sell|key|time", oldest first) at least 30 days old
+  let old = ''
+  const month_ago = Date.now() - 30 * DAY_MS
+  for (const entry of [...(Array.isArray(price_history) ? price_history : [])].reverse()) {
+    const [, our_sell, key, time] = String(entry).split('|').map(Number)
+    if (time > 0 && time <= month_ago) {
+      if (our_sell > 0) old = list_price_text(our_sell, key)
+      break
+    }
+  }
+  const worth = [__('item.faq_worth_a', { name, buy, sell })]
+  if (!manual) worth.push(__('item.faq_worth_market'))
+  if (old && old !== buy) worth.push(__('item.faq_worth_month', { old }))
+  faq.push({ q: __('item.faq_worth_q', { name }), a: worth.join(' ') })
+
+  faq.push({
+    q: __('item.faq_sell_q', { name }),
+    a: !buying ? __('item.faq_sell_no', { name }) : can_sell > 0 ? __('item.faq_sell_yes', { count: can_sell, sell }) : __('item.faq_sell_full')
+  })
+  faq.push({ q: __('item.faq_stock_q', { name }), a: stock > 0 ? __('item.faq_stock_yes', { count: stock, buy }) : __('item.faq_stock_no') })
+
+  // copies the bots sold in the last 30 days (trade_history: one entry per UTC day, { date: "YYYY-MM-DD", volume })
+  const since = new Date(month_ago).toISOString().slice(0, 10)
+  const sold = (Array.isArray(trade_history) ? trade_history : [])
+    .filter((day) => String(day?.date || '') >= since)
+    .reduce((sum, day) => sum + (Number(day?.volume) || 0), 0)
+  if (sold > 0) faq.push({ q: __('item.faq_sold_q', { name }), a: __('item.faq_sold_a', { count: sold }) })
+  return faq
 }
 
 // The home page FAQ (views/home.ejs: the same questions, in the same order) as schema.org FAQPage, in the page language
@@ -369,7 +410,9 @@ export {
   canonical_url,
   price_text,
   item_description,
+  item_faq,
   item_title,
+  fitting_title,
   markdown_excerpt,
   item_in_stock,
   item_indexable,

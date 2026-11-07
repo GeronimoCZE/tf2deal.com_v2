@@ -97,7 +97,10 @@
     "item": "Comprar y vender {name} – Precio en TF2 | TF2Deal.com",
     "item_short": "Comprar y vender {name} | TF2Deal.com",
     "item_shorter": "Comprar {name} en TF2Deal.com",
-    "cookies": "Política de cookies – Cómo usa TF2Deal.com las cookies"
+    "cookies": "Política de cookies – Cómo usa TF2Deal.com las cookies",
+    "category": "Compra y vende TF2 {category} por llaves | TF2Deal.com",
+    "category_page": "TF2 {category} (página {page}) | TF2Deal.com",
+    "category_short": "TF2 {category} | TF2Deal.com"
   },
   "desc": {
     "default": "Compra, vende e intercambia objetos de TF2 con bots automáticos de Steam. Sombreros, unusuals, armas y llaves por llaves y ref, oferta en segundos.",
@@ -116,7 +119,9 @@
     "item_sell": "Vende {name} por {sell} en TF2Deal.com.",
     "item_trade": "Intercambia {name} en TF2Deal.com.",
     "item_stock": "En stock: {count}. Trading de TF2 automático al instante.",
-    "item_no_stock": "Trading de TF2 automático al instante con nuestros bots."
+    "item_no_stock": "Trading de TF2 automático al instante con nuestros bots.",
+    "category": "Compra y vende TF2 {category} por llaves y ref: {count} objetos con precios y stock en directo, y ofertas de intercambio de nuestros bots en segundos.",
+    "category_page": "Página {page} de TF2 {category} en TF2Deal.com con precios y stock en directo. Compra y vende por llaves y ref con ofertas de intercambio al instante."
   },
   "item_types": {
     "cosmetic": "Cosmético",
@@ -222,7 +227,10 @@
     "tools_link": "Ver todas las herramientas",
     "cta_title": "¿Listo para tradear?",
     "cta_text": "Elige tus objetos y nuestros bots te envían la oferta de intercambio en Steam.",
-    "hero_kicker": "Bots de trade de TF2 automáticos"
+    "hero_kicker": "Bots de trade de TF2 automáticos",
+    "popular_title": "Objetos populares en stock",
+    "popular_all": "Todos los objetos",
+    "categories_label": "Categorías de objetos"
   },
   "filters": {
     "none": "Ninguno",
@@ -636,7 +644,8 @@
     "search_placeholder": "Buscar objetos ...",
     "pages": "Páginas de la lista de objetos",
     "prev_page": "Anterior",
-    "next_page": "Siguiente"
+    "next_page": "Siguiente",
+    "category_h1": "TF2 {category}"
   },
   "item": {
     "inactive": "Objeto inactivo",
@@ -665,7 +674,21 @@
     "collection": "Colección",
     "collection_count": "Objetos: {count}",
     "this_item": "Este objeto",
-    "this_war_paint": "Pintura de guerra de este objeto"
+    "this_war_paint": "Pintura de guerra de este objeto",
+    "faq_title": "{name}: precio e intercambio",
+    "faq_worth_q": "¿Cuánto vale {name}?",
+    "faq_worth_a": "En TF2Deal.com puedes comprar {name} por {buy} y venderlo por {sell}.",
+    "faq_worth_market": "Actualizamos los precios con regularidad según el mercado de backpack.tf.",
+    "faq_worth_month": "Hace un mes el precio era {old}.",
+    "faq_sell_q": "¿Puedo vender {name} por llaves o metal?",
+    "faq_sell_yes": "Sí. Ahora mismo nuestros bots compran {count} más y pagan {sell} por cada uno. Inicia sesión con Steam, elige el objeto en tu inventario y un bot te enviará la oferta de intercambio.",
+    "faq_sell_full": "Ahora no: nuestros bots no compran más por el momento. Esta página muestra en directo cuántos aceptan.",
+    "faq_sell_no": "Nuestros bots no compran {name} por el momento, pero puedes comprarlo aquí mientras haya stock.",
+    "faq_stock_q": "¿Hay {name} en stock?",
+    "faq_stock_yes": "Sí, {count} en stock por {buy}. Inicia sesión con Steam, elige el objeto y un bot envía la oferta de intercambio cuando confirmas.",
+    "faq_stock_no": "Ahora no. Vuelve a haber stock cuando alguien vende uno a nuestros bots.",
+    "faq_sold_q": "¿Con qué frecuencia se vende {name}?",
+    "faq_sold_a": "Nuestros bots vendieron {count} en los últimos 30 días."
   },
   "giveaway": {
     "current": "Sorteo actual",

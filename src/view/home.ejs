@@ -137,6 +137,28 @@
                         </div>
                         <button type="button" class="trades-more" hidden><%= __('js.home.show_more') %></button>
                     </div>
+                    <%# The items people want most that the bots have in stock (routes/router.js home_popular), and the item
+                        categories: plain links, so the home page leads to item pages (also for search engines) %>
+                    <section class="home-popular" aria-labelledby="home-popular-title">
+                        <div class="home-popular-head">
+                            <h2 id="home-popular-title"><%= __('home.popular_title') %></h2>
+                            <a class="home-popular-all" href="<%= lurl('/items') %>"><%= __('home.popular_all') %> <span aria-hidden="true">&rarr;</span></a>
+                        </div>
+                        <% if (info.popular?.length) { %>
+                        <ul class="home-popular-list">
+                            <% info.popular.forEach((card) => { %>
+                            <li><a class="item_card q-<%= card.qualityID %>" href="<%= lurl('/items/' + encodeURIComponent(card.bp_sku)) %>">
+                                <img src="<%= card.image %>" alt="<%= item_alt(card) %>" loading="lazy" width="96" height="96"<% if (card.effectID > 0) { %> style="background-image: url(https://api.backpack.tf/images/440/particles/<%= card.effectID %>_94x94.png);"<% } %>>
+                                <span class="name" translate="no"><%= card.name %></span>
+                                <span class="price"><%= card.price %></span>
+                            </a></li>
+                            <% }) %>
+                        </ul>
+                        <% } %>
+                        <nav class="home-categories" aria-label="<%= __('home.categories_label') %>">
+                            <% (info.home_categories || []).forEach((c) => { %><a href="<%= c.url %>" translate="no"><%= c.name %></a><% }) %>
+                        </nav>
+                    </section>
                     <!-- <a href="https://www.trustpilot.com/review/tf2deal.com?utm_medium=trustbox&utm_source=MicroReviewCount">
                         <div class="trustpilot-widget" data-locale="en-US" data-template-id="5419b6a8b0d04a076446a9ad" data-businessunit-id="61e1d4edb101cd65eeb4297e" data-style-height="24px" data-style-width="100%" data-theme="dark" data-min-review-count="10" data-without-reviews-preferred-string-id="1" data-style-alignment="center">
                             
@@ -152,7 +174,7 @@
                         <div class="text">
                         <h2><%= __('home.skins_title') %></h2>
                         <p><%- __('home.skins_text_html') %></p>
-                        <a href="<%= lurl('/items') %>?type=Weapon Primary&quality=Decorated"><%= __('home.skins_link') %> <span class="arrow-right">➔</span></a>
+                        <a href="<%= lurl('/items') %>?quality=Decorated"><%= __('home.skins_link') %> <span class="arrow-right">➔</span></a>
                         </div>
                     </section>
                     <section class="promo-unusuals">

@@ -15,6 +15,7 @@
 // sitemap are sent to IndexNow too, so Bing looks at them again and drops them; such a page answers 410 Gone.
 
 import * as item_lists from './item_lists.js'
+import * as categories from './categories.js'
 import { item_model as Items } from '../model/Item.js'
 import { blog_model } from '../model/Blog.js'
 import { localize_path, LANGS } from '../i18n.js'
@@ -95,7 +96,10 @@ const timeout = (promise, ms, what) => {
 
 const main_pages = () => [
   ...PAGES.flatMap((p) => LANGS.map((lang) => ({ ...p, loc: page_url(lang, p.path) }))),
-  ...ENGLISH_ONLY.map((p) => ({ ...p, loc: fn.site_url + p.path }))
+  ...ENGLISH_ONLY.map((p) => ({ ...p, loc: fn.site_url + p.path })),
+  // the item categories (/items?quality=Unusual, ...: service/categories.js), list pages of their own; in English, like
+  // the item pages
+  ...categories.CATEGORIES.map((c) => ({ loc: fn.site_url + categories.path_of(c), changefreq: 'daily', priority: '0.7' }))
 ]
 
 // The items come from the item list the site keeps in memory (service/item_lists.js), not from a read of the whole

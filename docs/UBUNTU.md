@@ -120,3 +120,7 @@ sudo certbot --nginx -d tf2deal.com -d www.tf2deal.com
 ```
 
 The `Upgrade` lines are needed for the live socket (trades, notifications, live settings).
+
+Pages asked for on `www.tf2deal.com` move (301) to the same page on `tf2deal.com`, so search engines see one copy of
+the site (src/app.js). Keep `Host $host` in the Nginx config: the site reads the address from it. With Cloudflare you
+can also add a Redirect Rule for `www.tf2deal.com/*` to `https://tf2deal.com/$1` (301); either one is enough.

@@ -97,7 +97,10 @@
     "item": "Buy & Sell {name} – TF2 Price | TF2Deal.com",
     "item_short": "Buy & Sell {name} | TF2Deal.com",
     "item_shorter": "Buy {name} | TF2Deal.com",
-    "cookies": "Cookie Policy – Cookies on TF2Deal.com"
+    "cookies": "Cookie Policy – Cookies on TF2Deal.com",
+    "category": "Buy & Sell TF2 {category} for Keys | TF2Deal.com",
+    "category_page": "TF2 {category} (page {page}) | TF2Deal.com",
+    "category_short": "TF2 {category} | TF2Deal.com"
   },
   "desc": {
     "default": "Buy, sell and trade TF2 items with automated Steam trade bots. Hats, unusuals, weapons and keys for keys and ref, trade offers in seconds.",
@@ -116,7 +119,9 @@
     "item_sell": "Sell {name} for {sell} on TF2Deal.com.",
     "item_trade": "Trade {name} on TF2Deal.com.",
     "item_stock": "{count} in stock, instant automated TF2 trading.",
-    "item_no_stock": "Instant automated TF2 trading with our trade bots."
+    "item_no_stock": "Instant automated TF2 trading with our trade bots.",
+    "category": "Buy and sell TF2 {category} for keys and ref: {count} items with live prices and stock, and Steam trade offers from our bots in seconds.",
+    "category_page": "Page {page} of TF2 {category} on TF2Deal.com, with live prices and stock. Buy and sell for keys and ref with instant Steam trade offers."
   },
   "item_types": {
     "cosmetic": "Cosmetic",
@@ -222,7 +227,10 @@
     "tools_link": "Show all tools",
     "cta_title": "Ready to trade?",
     "cta_text": "Pick your items and our bots send you the trade offer on Steam.",
-    "hero_kicker": "Automated TF2 trade bots"
+    "hero_kicker": "Automated TF2 trade bots",
+    "popular_title": "Popular items in stock",
+    "popular_all": "All items",
+    "categories_label": "Item categories"
   },
   "filters": {
     "none": "None",
@@ -636,7 +644,8 @@
     "search_placeholder": "Search for items ...",
     "pages": "Item list pages",
     "prev_page": "Previous",
-    "next_page": "Next"
+    "next_page": "Next",
+    "category_h1": "TF2 {category}"
   },
   "item": {
     "inactive": "Inactive Item",
@@ -665,7 +674,21 @@
     "collection": "Collection",
     "collection_count": "{count} items",
     "this_item": "This item",
-    "this_war_paint": "This item's war paint"
+    "this_war_paint": "This item's war paint",
+    "faq_title": "{name} price and trading",
+    "faq_worth_q": "How much is {name} worth?",
+    "faq_worth_a": "On TF2Deal.com you can buy {name} for {buy} and sell it for {sell}.",
+    "faq_worth_market": "We update the prices regularly from the backpack.tf market.",
+    "faq_worth_month": "A month ago it cost {old}.",
+    "faq_sell_q": "Can I sell {name} for keys or metal?",
+    "faq_sell_yes": "Yes. Our bots buy {count} more right now and pay {sell} each. Sign in with Steam, pick it from your inventory, and a bot sends you the trade offer.",
+    "faq_sell_full": "Not right now: our bots aren't buying more at the moment. This page shows live how many they take.",
+    "faq_sell_no": "Our bots don't buy {name} at the moment, but you can buy it here while it is in stock.",
+    "faq_stock_q": "Is {name} in stock?",
+    "faq_stock_yes": "Yes, {count} in stock for {buy}. Sign in with Steam, pick it, and a bot sends the trade offer once you confirm.",
+    "faq_stock_no": "Not right now. It comes back when someone sells one to our bots.",
+    "faq_sold_q": "How often does {name} sell?",
+    "faq_sold_a": "Our bots sold {count} in the last 30 days."
   },
   "giveaway": {
     "current": "Current giveaway",
