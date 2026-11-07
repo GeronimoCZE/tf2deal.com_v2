@@ -821,6 +821,7 @@ inventory_value.start(); // Admin -> Inventory value: what the bots hold, measur
 flips.start(); // Admin -> Flips: each copy the bots sold against what they paid for it, every 2 minutes
 memory.start(); // gives memory the site no longer uses back to the server (service/memory.js)
 item_lists.start(); // stock counts on /items between full reads of the item list (service/item_lists.js stock pass)
+sitemap.start(); // the sitemap follows the items traded now: built again when the item list changes (service/sitemap.js)
 
 app.use((err, req, res, next) => {
   console.log(`Error on ${req.method} ${req.originalUrl}:`, err) // the address, so a 500 can be traced back to a page

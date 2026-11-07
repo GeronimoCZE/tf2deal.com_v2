@@ -257,7 +257,11 @@ const item_page = async (req, res) => {
     }
 
     if (!main) {
-      return res.status(404).render('404', fn.res_data(!!req.user, req.user, user_cookie, req.__('title.not_found')))
+      // an item the bots traded before (still in the database, but discontinued: the daily sweep or item_manager took it
+      // off): 410 Gone says it was removed on purpose, so search engines drop the page sooner than after a 404. The
+      // sitemap only lists items traded now (service/sitemap.js).
+      const known = await item_model.exists({ bp_sku: { $in: [String(item_sku), ...(ks_name?.bases || [])] } })
+      return res.status(known ? 410 : 404).render('404', fn.res_data(!!req.user, req.user, user_cookie, req.__('title.not_found')))
     }
     // A weapon's killstreak tier is an item of its own (item_manager prices it from its own backpack.tf listings,
     // item_lists.ks_items): its own page, under its backpack.tf name. A skin's tier is a version of the skin: the skin's

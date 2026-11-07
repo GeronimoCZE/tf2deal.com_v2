@@ -7,6 +7,12 @@
 // What goes in them is read again every CACHE_MS and always answered at once (see current()), so Cloudflare and search
 // engines never wait for the database; each file is written out when it is asked for. /sitemap_index.xml and old
 // file names redirect to /sitemap.xml.
+//
+// Only items the bots trade now are listed, so search engines don't find pages that answer 404 (Nikolas, 2026-11-07).
+// start() looks every CHECK_EVERY whether the item list changed (a full read, the stock pass, the daily sweep that
+// takes discontinued items off) and builds the sitemap again then, without waiting for a request. An item list that
+// hasn't been read for LIST_STALE is not trusted: the names are then read from the database. Item pages that left the
+// sitemap are sent to IndexNow too, so Bing looks at them again and drops them; such a page answers 410 Gone.
 
 import * as item_lists from './item_lists.js'
 import { item_model as Items } from '../model/Item.js'
@@ -17,6 +23,8 @@ import * as fn from '../fn.js'
 import * as indexnow from './indexnow.js'
 
 const CACHE_MS = 10 * 60 * 1000
+const CHECK_EVERY = 60 * 1000
+const LIST_STALE = 45 * 60 * 1000 // an item list older than this may still hold discontinued items
 const ITEMS_PER_FILE = 40000 // a sitemap file may hold 50,000 URLs
 
 // main pages in every language, highest priority first; documents that only exist in English once
@@ -67,7 +75,7 @@ const sitemapindex = (locs) => '<?xml version="1.0" encoding="UTF-8"?>\n' +
 const page_url = (lang, p) => fn.site_url + localize_path(lang, p)
 const item_url = (lang, bp_sku) => page_url(lang, '/items/' + encodeURIComponent(bp_sku))
 
-let cache = null    // { time, main, names, complete }
+let cache = null    // { time, main, names, complete, from }
 let building = null
 let last_blog = []
 let last_items = [] // the item names of the last good build
@@ -116,9 +124,14 @@ const build = async () => {
   // From the item list when it is read; when it isn't (its first read isn't done yet, or the reads fail),
   // straight from the database: only the names, and this runs in the background, never while a request waits.
   let names = null
+  let from = null
   let source = 'item list'
   try {
-    names = await item_lists.sitemap_names()
+    from = await item_lists.sitemap_names()
+    // a list the database hasn't refreshed for a long time may still list items that were discontinued since
+    const age = item_lists.status().last_read_s_ago
+    if (age === null || age * 1000 > LIST_STALE) throw new Error('the item list is old')
+    names = from
   } catch (error) {}
   if (!names?.length) {
     source = 'database'
@@ -139,15 +152,23 @@ const build = async () => {
   }
   const main = [...pages, ...blog]
   if (complete) announce(main, names)
-  return { time: Date.now(), main, names, complete }
+  return { time: Date.now(), main, names, complete, from }
 }
 
-// IndexNow (Bing / Edge): the whole sitemap once a day at most, then the item pages that are new in it (English, as
-// the sitemap lists them)
+// IndexNow (Bing / Edge): the whole sitemap once a day at most, then the item pages that are new in it and the ones
+// that left it (English, as the sitemap lists them), so Bing adds the new ones and drops the discontinued ones soon
 let announced = null // the item names of the last sitemap sent or compared
 const announce = (main, names) => {
   if (!announced) indexnow.submit_all([...main.map((u) => u.loc), ...names.map((name) => item_url(ITEM_LANG, name))])
-  else indexnow.submit(names.filter((name) => !announced.has(name)).map((name) => item_url(ITEM_LANG, name)))
+  else {
+    const now = new Set(names)
+    const added = names.filter((name) => !announced.has(name))
+    let removed = [...announced].filter((name) => !now.has(name))
+    // a list far shorter than the last one is more likely a bad read than half the items gone: don't report them
+    if (names.length < announced.size / 2) removed = []
+    else if (removed.length) console.log(`Sitemap: ${removed.length} items left the sitemap (no longer traded)`)
+    indexnow.submit([...added, ...removed].map((name) => item_url(ITEM_LANG, name)))
+  }
   announced = new Set(names)
 }
 
@@ -221,6 +242,18 @@ export const file = async (req, res) => {
 
 // build it right after the start, so the first crawler doesn't wait
 export const warm = () => rebuild().catch(() => {})
+
+// Every CHECK_EVERY: when the item list changed since the last build (or the sitemap is CACHE_MS old), build it again
+// now, so the sitemap follows the items the bots trade without waiting for a crawler. Asking for the names also keeps
+// the item list itself read again when it is due.
+export const start = () => {
+  setInterval(async () => {
+    if (building) return
+    let names = null
+    try { names = await item_lists.sitemap_names() } catch (error) {}
+    if (!cache || (names && names !== cache.from) || Date.now() - cache.time >= CACHE_MS) rebuild().catch(() => {})
+  }, CHECK_EVERY).unref()
+}
 
 // /sitemap_index.xml and old sitemap file names (also old files still on the server's disk)
 export const redirect = (req, res) => res.redirect(301, '/sitemap.xml')
