@@ -706,7 +706,7 @@ const tradeOfferConnection = async (offer, action) => {
                     ${bot ? `
                         <p class="offer-label">${__('offer.trading_with')}</p>
                         <div class="bot-info">
-                            <img class="bot-avatar" src="${esc_html(bot.avatar_url)}" alt="">
+                            <img class="bot-avatar" src="${esc_html(bot.avatar_url)}" alt="${esc_html(__('alt.avatar', { name: bot.name || '' }))}">
                             <div class="bot-data">
                                 <span class="bot-name">${esc_html(bot.name || "")}</span>
                                 <span class="bot-meta">
@@ -1627,7 +1627,7 @@ const open_qty_picker = (anchor_el, max, on_confirm, label = __('trade.add')) =>
     modal.querySelector('.modal_content').innerHTML = `
         <div class="qty-picker ${removing ? 'is-remove' : 'is-add'}">
             <div class="qty-item">
-                <div class="qty-thumb q-${esc_html(quality)}">${image ? `<img src="${esc_html(image)}" alt="">` : ''}</div>
+                <div class="qty-thumb q-${esc_html(quality)}">${image ? `<img src="${esc_html(image)}" alt="${esc_html(item_label)}">` : ''}</div>
                 <div class="qty-item-text">
                     <strong translate="no">${esc_html(item_label)}</strong>
                     <span>${removing ? __('trade.qty_in_trade', { count: max }) : __('trade.qty_available', { count: max })}</span>
@@ -2019,7 +2019,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     $(`#${party}-item-grid`).empty()
                     $(`#${party}-item-grid`).append(grid)
                     if(!fetched_all_pages){
-                        $(`#${party}-item-grid #${party}-grid`).append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg" alt=""></div>`)
+                        $(`#${party}-item-grid #${party}-grid`).append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg" alt="${__('alt.loading')}"></div>`)
                     }
 
                     put_novalue_last(party)
@@ -2032,13 +2032,13 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     put_novalue_last(party)
                     loading.addClass('hidden')
                     if(!fetched_all_pages){
-                        $(`#${party}-item-grid #${party}-grid`).append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg" alt=""></div>`)
+                        $(`#${party}-item-grid #${party}-grid`).append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg" alt="${__('alt.loading')}"></div>`)
                     }
                 }
             } else {
                 if(page == 0){
                     if(!fetched_all_pages){
-                        grid.append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg" alt=""></div>`)
+                        grid.append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg" alt="${__('alt.loading')}"></div>`)
                     }
                     $(`#${party}-item-grid`).empty()
                     $(`#${party}-item-grid`).append(grid)
@@ -2051,7 +2051,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     put_novalue_last(party)
                     loading.addClass('hidden')
                     if(!fetched_all_pages){
-                        $(`#${party}-item-grid #${party}-grid`).append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg" alt=""></div>`)
+                        $(`#${party}-item-grid #${party}-grid`).append(`<div class="item invisible-item"><img class="item-img" src="/img/trade-icon.jpg" alt="${__('alt.loading')}"></div>`)
                     }
                 }
             }

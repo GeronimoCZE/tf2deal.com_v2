@@ -100,15 +100,15 @@
     "cookies": "Zásady cookies – cookies na TF2Deal.com"
   },
   "desc": {
-    "default": "TF2 trade bot web: kupujte, prodávejte a vyměňujte TF2 předměty s automatickými Steam trade boty. Klobouky, unusualy, zbraně, taunty i klíče za klíče a ref, nabídka do pár sekund.",
-    "trade": "Vyměňujte TF2 předměty s našimi TF2 trade boty: vyberte předměty z obou inventářů, plaťte klíči nebo refined metalem a nabídku na Steamu dostanete během pár sekund.",
-    "items": "Aktuální ceny a sklad TF2 předmětů. Kupujte a prodávejte TF2 klobouky, unusualy, zbraně, taunty a další za klíče a ref s okamžitým TF2 tradingem na TF2Deal.com.",
+    "default": "Kupujte a prodávejte TF2 předměty s automatickými Steam trade boty. Klobouky, unusualy, zbraně i klíče za klíče a ref, nabídka do pár sekund.",
+    "trade": "Vyměňujte TF2 předměty s našimi trade boty: vyberte předměty z obou inventářů, plaťte klíči nebo refined metalem a nabídku dostanete během pár sekund.",
+    "items": "Aktuální ceny a sklad TF2 předmětů. Kupujte a prodávejte klobouky, unusualy, zbraně, taunty a další za klíče a ref s okamžitým tradingem na TF2Deal.com.",
     "items_page": "Strana {page} aktuálních cen a skladu TF2 předmětů na TF2Deal.com. Kupujte a prodávejte TF2 klobouky, unusualy, zbraně, taunty a další za klíče a ref.",
     "blog": "Návody, novinky a ceny z TF2 tradingu od TF2Deal.com, webu s automatickými TF2 trade boty: jak tradovat a kolik předměty stojí v klíčích a ref.",
     "blog_page": "Starší články blogu TF2Deal.com (strana {page}): návody, novinky a ceny z TF2 tradingu od webu s automatickými TF2 trade boty.",
     "about": "O TF2Deal.com, automatickém webu pro TF2 trading: jak fungují naši TF2 trade boti, jak určujeme ceny v klíčích a ref a jak nás kontaktovat.",
     "tos": "Pravidla pro trading TF2 předmětů s trade boty TF2Deal.com: kdo může tradovat, jak výměny probíhají, vrácení, vlastnictví předmětů a výpadky botů.",
-    "giveaway_active": "Vyhrajte {item} v TF2 soutěži zdarma na TF2Deal.com. Přihlaste se přes Steam, zapojte se, než skončí, a podívejte se na výherce minulých soutěží.",
+    "giveaway_active": "Vyhrajte {item} v soutěži zdarma na TF2Deal.com. Přihlaste se přes Steam, zapojte se, než skončí, a podívejte se na minulé výherce.",
     "giveaway_none": "Soutěže o TF2 předměty zdarma na TF2Deal.com, automatickém webu pro TF2 trading. Podívejte se na minulé výherce a vraťte se na další soutěž.",
     "cookies": "Jaké cookies TF2Deal.com používá: nezbytné pro přihlášení přes Steam, zabezpečení, trading a jazyk, volitelné analytické, a jak svou volbu změnit.",
     "item_buy_sell": "Kupte {name} za {buy} nebo ho prodejte za {sell} na TF2Deal.com.",
@@ -609,6 +609,20 @@
       "title": "Připojte se k naší Steam skupině",
       "text": "Zveřejňujeme v ní naše soutěže a některé soutěže jsou jen pro členy skupiny.",
       "join": "Přidat se do skupiny"
+    },
+    "alt": {
+      "logo": "Logo TF2Deal.com",
+      "loading": "Načítání",
+      "avatar": "Steam avatar uživatele {name}",
+      "your_avatar": "Váš Steam avatar",
+      "merc": "TF2 žoldák v zimním oblečení se založenýma rukama",
+      "tree": "Zasněžená jedle",
+      "hero_cabin": "Zasněžená chata v jehličnatém lese v noci",
+      "hero_summer": "Obří obvázaná ruka vystupující z pouštního písku",
+      "hero_halloween": "Létající lampiony nad starým stromem na noční obloze",
+      "skin_item": "TF2 zbraň s válečným nátěrem",
+      "unusual_item": "Unusual TF2 předmět s efektem",
+      "tool_item": "TF2 nástroj"
     }
   },
   "items": {

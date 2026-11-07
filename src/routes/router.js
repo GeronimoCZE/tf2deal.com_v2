@@ -257,7 +257,11 @@ const item_page = async (req, res) => {
     }
 
     if (!main) {
-      return res.status(404).render('404', fn.res_data(!!req.user, req.user, user_cookie, req.__('title.not_found')))
+      // an item the bots traded before (still in the database, but discontinued: the daily sweep or item_manager took it
+      // off): 410 Gone says it was removed on purpose, so search engines drop the page sooner than after a 404. The
+      // sitemap only lists items traded now (service/sitemap.js).
+      const known = await item_model.exists({ bp_sku: { $in: [String(item_sku), ...(ks_name?.bases || [])] } })
+      return res.status(known ? 410 : 404).render('404', fn.res_data(!!req.user, req.user, user_cookie, req.__('title.not_found')))
     }
     // A weapon's killstreak tier is an item of its own (item_manager prices it from its own backpack.tf listings,
     // item_lists.ks_items): its own page, under its backpack.tf name. A skin's tier is a version of the skin: the skin's
@@ -513,7 +517,7 @@ const blog_page = async (req, res, next) => {
         post_id: String(post._id), // the admin bar's Edit post link
         promtLogin: true,
         // SEO: excerpt, or the start of the post when there's no excerpt
-        description: shown.excerpt || fn.markdown_excerpt(shown.content),
+        description: fn.markdown_excerpt(shown.excerpt || shown.content), // at most 155 characters, also a long excerpt
         canonical: url_in(shown.lang),
         alternates,
         no_hreflang: !alternates,
@@ -538,7 +542,7 @@ const blog_page = async (req, res, next) => {
         translation_ready: Boolean(translation?.translated),
         original_url: req.lurl(path) + '?original=1',
         translation_url: req.lurl(path),
-        html: fn.render_markdown(shown.content)
+        html: fn.render_markdown(shown.content, shown.title)
       })
     )
   } catch (err) {

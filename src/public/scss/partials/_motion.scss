@@ -1,8 +1,9 @@
-// Page motion (js/motion.js): content fades in, nothing slides or grows. Switched off for prefers-reduced-motion.
+// Page motion (js/motion.js, the small script at the top of partials/head.ejs): things fade in, nothing slides or grows.
+// Switched off for prefers-reduced-motion (the script then adds none of these classes).
 
 $motion-ease: cubic-bezier(.2, .7, .2, 1);
 
-// moving between pages: the old page fades out quickly, the new one comes in with the main fade below
+// moving between pages: the old page fades out quickly, the new one comes in with the intro below
 // (Chrome/Edge/Safari 18+; other browsers just load the page as before)
 @view-transition { navigation: auto; }
 ::view-transition-old(root){ animation: motionFadeOut 160ms ease-in both; }
@@ -10,9 +11,25 @@ $motion-ease: cubic-bezier(.2, .7, .2, 1);
 nav.nav-main{ view-transition-name: site-nav; } // the menu stays put
 ::view-transition-group(site-nav){ animation: none; }
 
-// page content on load
-main{
-    animation: motionPageIn 480ms $motion-ease backwards;
+// page intro: hidden until motion.js plays it (the blocks then fade in one after another, set inline by the script).
+// If the script never runs, the page shows after 2.5 s anyway.
+html.intro-wait{
+    main, footer, &.intro-first nav.nav-main{
+        opacity: 0;
+        animation: motionShow 0s linear 2.5s forwards;
+    }
+    // fades that belong to the page (the home page hero) wait for the intro instead of playing unseen
+    main *{
+        animation-play-state: paused !important;
+    }
+}
+
+// pictures fade in once they have loaded (classes set by the script in head.ejs)
+img.img-wait{
+    opacity: 0 !important;
+}
+img.img-in{
+    animation: motionPictureIn 450ms ease-out;
 }
 
 // scroll reveal (classes added by js/motion.js)
@@ -27,8 +44,14 @@ main{
 
 html{ scroll-behavior: smooth; }
 
-@keyframes motionPageIn {
+// no "to": each element fades to its own opacity (out-of-stock cards stay a little dimmer)
+@keyframes motionIntro {
     from { opacity: 0; }
+}
+@keyframes motionPictureIn {
+    from { opacity: 0; }
+}
+@keyframes motionShow {
     to { opacity: 1; }
 }
 @keyframes motionFadeOut {
@@ -37,7 +60,6 @@ html{ scroll-behavior: smooth; }
 
 @media (prefers-reduced-motion: reduce){
     @view-transition { navigation: none; }
-    main{ animation: none; }
     .reveal{ opacity: 1; transition: none; }
     html{ scroll-behavior: auto; }
 }

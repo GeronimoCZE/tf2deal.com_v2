@@ -100,17 +100,17 @@
     "cookies": "Cookie-Richtlinie – Cookies auf TF2Deal.com"
   },
   "desc": {
-    "default": "TF2-Trade-Bot-Seite: Kaufe, verkaufe und tausche TF2-Items mit automatischen Steam-Trade-Bots. Hüte, Unusuals, Waffen, Verspottungen und Keys für Keys und Ref, Tauschangebot in Sekunden.",
-    "trade": "Tausche TF2-Items mit unseren TF2-Trade-Bots: Wähle Items aus beiden Inventaren, zahle mit Keys oder Refined Metal und erhalte in Sekunden ein Steam-Tauschangebot.",
-    "items": "Live-Preise und Bestand für TF2-Items. Kaufe und verkaufe TF2-Hüte, Unusuals, Waffen, Verspottungen und mehr für Keys und Ref mit sofortigem TF2-Trading auf TF2Deal.com.",
-    "items_page": "Seite {page} der Live-Preise und des Bestands für TF2-Items auf TF2Deal.com. Kaufe und verkaufe TF2-Hüte, Unusuals, Waffen, Verspottungen und mehr für Keys und Ref.",
-    "blog": "TF2-Trading-Guides, News und Preis-Updates von TF2Deal.com, der Seite mit automatischen TF2-Trade-Bots: wie du tradest und was Items in Keys und Ref wert sind.",
+    "default": "Kaufe, verkaufe und tausche TF2-Items mit automatischen Steam-Trade-Bots. Hüte, Unusuals, Waffen und Keys für Keys und Ref, Angebot in Sekunden.",
+    "trade": "Tausche TF2-Items mit unseren Trade-Bots: Wähle Items aus beiden Inventaren, zahle mit Keys oder Refined Metal und erhalte in Sekunden ein Tauschangebot.",
+    "items": "Live-Preise und Bestand für TF2-Items. Kaufe und verkaufe Hüte, Unusuals, Waffen, Verspottungen und mehr für Keys und Ref mit sofortigem Trading.",
+    "items_page": "Seite {page} der Live-Preise und des Bestands für TF2-Items auf TF2Deal.com. Kaufe und verkaufe Hüte, Unusuals, Waffen und mehr für Keys und Ref.",
+    "blog": "TF2-Trading-Guides, News und Preis-Updates von TF2Deal.com, der Seite mit TF2-Trade-Bots: wie du tradest und was Items in Keys und Ref wert sind.",
     "blog_page": "Ältere Beiträge im Blog von TF2Deal.com (Seite {page}): TF2-Trading-Guides, News und Preis-Updates der Seite mit automatischen TF2-Trade-Bots.",
     "about": "Über TF2Deal.com, eine automatische TF2-Trading-Seite: wie unsere TF2-Trade-Bots arbeiten, wie Preise in Keys und Ref entstehen und wie du uns erreichst.",
-    "tos": "Regeln für das Tauschen von TF2-Items mit den Trade-Bots von TF2Deal.com: wer traden darf, wie Trades ablaufen, Erstattungen, Eigentum an Items und Bot-Ausfälle.",
-    "giveaway_active": "Gewinne {item} im kostenlosen TF2-Gewinnspiel von TF2Deal.com. Mit Steam anmelden, vor dem Ende mitmachen und die Gewinner früherer Gewinnspiele sehen.",
-    "giveaway_none": "Kostenlose TF2-Item-Gewinnspiele auf TF2Deal.com, der automatischen TF2-Trading-Seite. Sieh dir frühere Gewinner an und schau zum nächsten Gewinnspiel wieder vorbei.",
-    "cookies": "Welche Cookies TF2Deal.com verwendet: notwendige für Steam-Anmeldung, Sicherheit, Trading und deine Sprache, optionale Statistik-Cookies, und wie du die Auswahl änderst.",
+    "tos": "Regeln für das Tauschen von TF2-Items mit den Trade-Bots von TF2Deal.com: wer traden darf, wie Trades ablaufen, Erstattungen, Item-Eigentum, Bot-Ausfälle.",
+    "giveaway_active": "Gewinne {item} im kostenlosen Gewinnspiel von TF2Deal.com. Mit Steam anmelden, vor dem Ende mitmachen und frühere Gewinner sehen.",
+    "giveaway_none": "Kostenlose TF2-Item-Gewinnspiele auf TF2Deal.com, der automatischen TF2-Trading-Seite. Sieh dir frühere Gewinner an und schau bald wieder vorbei.",
+    "cookies": "Welche Cookies TF2Deal.com verwendet: notwendige für Steam-Anmeldung, Sicherheit, Trading und Sprache, optionale Statistik, und wie du die Auswahl änderst.",
     "item_buy_sell": "{name}: Kaufen für {buy} oder verkaufen für {sell} auf TF2Deal.com.",
     "item_buy": "Kaufe {name} für {buy} auf TF2Deal.com.",
     "item_sell": "Verkaufe {name} für {sell} auf TF2Deal.com.",
@@ -609,6 +609,20 @@
       "title": "Tritt unserer Steam-Gruppe bei",
       "text": "Dort posten wir unsere Gewinnspiele, und manche Gewinnspiele sind nur für Gruppenmitglieder.",
       "join": "Gruppe beitreten"
+    },
+    "alt": {
+      "logo": "TF2Deal.com-Logo",
+      "loading": "Wird geladen",
+      "avatar": "Steam-Avatar von {name}",
+      "your_avatar": "Dein Steam-Avatar",
+      "merc": "TF2-Söldner in Winterkleidung mit verschränkten Armen",
+      "tree": "Verschneite Tanne",
+      "hero_cabin": "Verschneite Hütte im Nadelwald bei Nacht",
+      "hero_summer": "Riesige bandagierte Hand, die aus dem Wüstensand ragt",
+      "hero_halloween": "Schwebende Laternen über einem alten Baum am Nachthimmel",
+      "skin_item": "TF2-Waffe mit Kriegsbemalung",
+      "unusual_item": "Unusual-TF2-Item mit Effekt",
+      "tool_item": "TF2-Werkzeug"
     }
   },
   "items": {

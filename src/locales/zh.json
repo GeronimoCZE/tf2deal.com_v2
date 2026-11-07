@@ -100,7 +100,7 @@
     "cookies": "Cookie 政策 – TF2Deal.com 如何使用 Cookie"
   },
   "desc": {
-    "default": "TF2 交易机器人网站：通过自动化 Steam 交易机器人买卖和交易 TF2 物品。帽子、Unusual、武器、嘲讽和钥匙，以钥匙和精炼金属计价，几秒内发出交易报价。",
+    "default": "TF2 交易机器人网站：用自动化 Steam 机器人买卖 TF2 物品。帽子、Unusual、武器和钥匙，以钥匙和精炼金属计价，几秒内发出报价。",
     "trade": "与我们的 TF2 交易机器人交易 TF2 物品：从双方库存中挑选物品，用钥匙或精炼金属支付，几秒钟内即可收到 Steam 交易报价。",
     "items": "实时 TF2 物品价格和库存。在 TF2Deal.com 用钥匙和精炼金属即时买卖 TF2 帽子、Unusual、武器、嘲讽等物品。",
     "items_page": "TF2Deal.com 实时 TF2 物品价格和库存第 {page} 页。用钥匙和精炼金属买卖 TF2 帽子、Unusual、武器、嘲讽等物品。",
@@ -108,9 +108,9 @@
     "blog_page": "TF2Deal.com 博客的往期文章（第 {page} 页）：来自自动化 TF2 交易机器人网站的 TF2 交易指南、新闻和价格动态。",
     "about": "关于 TF2Deal.com，一个自动化的 TF2 交易网站：我们的 TF2 交易机器人如何运作、钥匙和精炼金属价格如何制定，以及如何联系我们。",
     "tos": "使用 TF2Deal.com 交易机器人交易 TF2 物品的规则：谁可以交易、交易流程、退款与撤销、物品所有权以及机器人停机。",
-    "giveaway_active": "在 TF2Deal.com 免费 TF2 抽奖中赢取 {item}。通过 Steam 登录，在活动结束前参加，并查看往期抽奖的获奖者。",
+    "giveaway_active": "在 TF2Deal.com 免费抽奖中赢取 {item}。用 Steam 登录，在结束前参加，查看往期获奖者。",
     "giveaway_none": "TF2Deal.com（自动化 TF2 交易网站）的免费 TF2 物品抽奖。查看往期获奖者，并留意下一次抽奖。",
-    "cookies": "TF2Deal.com 使用哪些 Cookie：用于 Steam 登录、安全、交易和语言设置的必要 Cookie，可选的分析 Cookie，以及如何更改你的选择。",
+    "cookies": "TF2Deal.com 使用的 Cookie：Steam 登录、安全、交易和语言所需的必要 Cookie，可选的分析 Cookie，以及如何更改选择。",
     "item_buy_sell": "在 TF2Deal.com 以 {buy} 购买 {name}，或以 {sell} 出售。",
     "item_buy": "在 TF2Deal.com 以 {buy} 购买 {name}。",
     "item_sell": "在 TF2Deal.com 以 {sell} 出售 {name}。",
@@ -609,6 +609,20 @@
       "title": "加入我们的 Steam 组",
       "text": "我们会在组里发布抽奖，部分抽奖仅限组成员参加。",
       "join": "加入 Steam 组"
+    },
+    "alt": {
+      "logo": "TF2Deal.com 标志",
+      "loading": "加载中",
+      "avatar": "{name} 的 Steam 头像",
+      "your_avatar": "你的 Steam 头像",
+      "merc": "穿着冬装、双臂交叉的 TF2 雇佣兵",
+      "tree": "白雪覆盖的冷杉",
+      "hero_cabin": "夜晚松林中被白雪覆盖的小屋",
+      "hero_summer": "从沙漠沙地中伸出的缠着绷带的巨手",
+      "hero_halloween": "夜空中漂浮在古树上方的灯笼",
+      "skin_item": "带战绘的 TF2 武器",
+      "unusual_item": "带特效的 TF2 Unusual 物品",
+      "tool_item": "TF2 工具物品"
     }
   },
   "items": {

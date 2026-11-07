@@ -235,7 +235,7 @@
             : `<p class="admin-note">${posts_off.join(' and ')} announcement${posts_off.length > 1 ? 's are' : ' is'} off. To announce new giveaways there, add the settings to <code>.env</code> and restart (see <code>docs/SETUP.md</code>).</p>`
 
         box.innerHTML = posts_note + (active ? `<div class="admin-giveaway active" data-id="${esc(active._id)}">
-                <img src="${esc(active.item.image)}" alt="">
+                <img src="${esc(active.item.image)}" alt="${esc(active.item.bp_sku)}">
                 <div>
                     <strong>${esc(active.item.bp_sku)}</strong>
                     <div>Ends ${when(active.end)} &middot; ${active.entry_count} entries</div>
@@ -469,7 +469,7 @@
                     <div class="admin-card">
                         <h3>Giveaway</h3>
                         ${o.giveaway ? `<div class="admin-giveaway-mini">
-                                <img src="${esc(o.giveaway.image)}" alt="">
+                                <img src="${esc(o.giveaway.image)}" alt="${esc(o.giveaway.bp_sku)}">
                                 <div><strong>${esc(o.giveaway.bp_sku)}</strong>
                                 <span class="muted">${num(o.giveaway.entries)} entries · ends ${when(o.giveaway.end)}</span></div>
                             </div>` : '<p class="admin-empty">No giveaway is running.</p>'}
@@ -1351,7 +1351,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
                 <div class="admin-table-wrap"><table class="admin-table admin-stock-table">
                     <thead><tr><th>Item</th><th>Type</th><th>In stock</th><th>Limit</th>${any_ks ? '<th>Each killstreak tier</th>' : ''}</tr></thead>
                     <tbody>${res.items.map((it) => `<tr data-sku="${esc(it.bp_sku)}">
-                        <td><span class="admin-stock-item"><img class="q-${esc(it.qualityID)}" src="${esc(it.image)}" alt="" loading="lazy">
+                        <td><span class="admin-stock-item"><img class="q-${esc(it.qualityID)}" src="${esc(it.image)}" alt="${esc(it.bp_sku)}" loading="lazy">
                             <span><a href="/items/${encodeURIComponent(it.bp_sku)}" target="_blank" translate="no">${esc(it.bp_sku)}</a>
                             <span class="muted small">${esc(QUALITY_NAMES[it.qualityID] || '')}</span></span></span></td>
                         <td>${esc(it.type)}</td>
@@ -1720,7 +1720,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
             const rule_note = under_scrap ? `<p class="muted small">It's worth less than one scrap, so it is never listed on backpack.tf (0.055 ref items are traded on the site only). A listing needs a price of at least 0.11 ref.</p>`
                 : item.may_list[intent] ? '' : `<p class="muted small">The rules don't list this item on the ${intent} side; a listing made here is listed anyway.</p>`
             const no_copy = intent == 'sell' && item.copies.length == 0 ? `<p class="admin-error small">${esc(form.bot.selectedOptions[0]?.textContent || 'This bot')} doesn't hold this item.</p>` : ''
-            box.innerHTML = `<span class="admin-stock-item"><img class="q-${esc(item.qualityID)}" src="${esc(item.image)}" alt="" loading="lazy">
+            box.innerHTML = `<span class="admin-stock-item"><img class="q-${esc(item.qualityID)}" src="${esc(item.image)}" alt="${esc(item.bp_sku)}" loading="lazy">
                 <span><strong translate="no">${esc(item.bp_sku)}</strong><span class="muted small">Our prices: buy ${esc(price_text(item.buy))}, sell ${esc(price_text(item.sell))}${item.priced ? '' : ' (not priced now)'}</span></span></span>${rule_note}${no_copy}`
             form.ks.innerHTML = [0, ...item.tiers.map((t) => t.ks)].map((ks) => `<option value="${ks}">${KS_LABELS[ks]}</option>`).join('')
             form.assetid.innerHTML = item.copies.map((c) => `<option value="${esc(c.assetid)}">${esc(c.name)}${c.details.length ? ` (${esc(c.details.join(', '))})` : ''} · #${esc(c.assetid)}</option>`).join('')
@@ -1810,7 +1810,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
             body.innerHTML = `<div class="admin-table-wrap"><table class="admin-table admin-ll-table">
                     <thead><tr><th>Item</th><th>Side</th><th>Bot</th><th>Price</th><th class="nowrap">Made by</th><th>Listed</th><th></th></tr></thead>
                     <tbody>${rows.map((r, i) => `<tr data-i="${i}">
-                        <td><span class="admin-stock-item"><img class="q-${esc(r.qualityID)}" src="${esc(r.image || '/img/new_user-96.webp')}" alt="" loading="lazy">
+                        <td><span class="admin-stock-item"><img class="q-${esc(r.qualityID)}" src="${esc(r.image || '/img/new_user-96.webp')}" alt="${esc(r.name)}" loading="lazy">
                             <span>${r.item ? `<a href="/items/${encodeURIComponent(r.item)}" target="_blank" translate="no">${esc(r.name)}</a>` : `<span translate="no">${esc(r.name)}</span>`}
                             <span class="muted small">${esc(QUALITY_NAMES[r.qualityID] || '')}${r.assetid ? ` · #${esc(r.assetid)}` : ''}${r.details ? ` · <span title="${esc(r.details)}">“${esc(r.details.length > 60 ? r.details.slice(0, 57) + '…' : r.details)}”</span>` : ''}</span></span></span></td>
                         <td><span class="admin-ls-side ${r.intent}">${r.intent == 'buy' ? 'Buy' : 'Sell'}</span></td>

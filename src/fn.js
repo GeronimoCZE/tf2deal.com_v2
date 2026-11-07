@@ -252,9 +252,10 @@ const safe_url = (url) => /^(https?:\/\/|\/)[^\s"'<>]*$/i.test(url) ? url : '#'
 
 // Small markdown subset for blog posts. Everything is HTML-escaped first, so posts can't inject HTML.
 //   # / ## / ### headings, - lists, > quotes, **bold**, *italic*, `code`, [link](url), ![image](url)
-const render_markdown = (md) => {
+// A picture written without alt text (![](url)) gets fallback_alt, the post title, so no picture is without one.
+const render_markdown = (md, fallback_alt = '') => {
   const inline = (text) => escape_html(text)
-    .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (m, alt, url) => `<img src="${safe_url(url)}" alt="${alt}" loading="lazy">`)
+    .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (m, alt, url) => `<img src="${safe_url(url)}" alt="${alt.trim() || escape_html(fallback_alt)}" loading="lazy">`)
     .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, label, url) => url.startsWith('/')
       ? `<a href="${safe_url(url)}">${label}</a>` // own pages: normal link, so search engines follow it
       : `<a href="${safe_url(url)}" target="_blank" rel="noopener">${label}</a>`)

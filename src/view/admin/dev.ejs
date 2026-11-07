@@ -289,7 +289,7 @@
                         else if(["701","702","703","704"].includes(effect["ID"])){ type = 'weapon' }
 
                         $('.admin-data').append(`<div class='item-instance'>
-                            <img class='image' src='https://backpack.tf/images/440/particles/${effect["ID"]}_94x94.png' alt='' loading="lazy"> 
+                            <img class='image' src='https://backpack.tf/images/440/particles/${effect["ID"]}_94x94.png' alt='${String(effect.name).replace(/'/g, '&#39;')}' loading="lazy"> 
                             <span class='type'>${type}</span>
                             <span class='name'>${effect.name}</span>
                             ${(effect.active == 'true') ? '<div class="btn remove">Remove</div>':'<div class="btn add">Add</div>'}
@@ -367,7 +367,7 @@
                             if(index >= 20){ hide = 'hidden'}
                             $('.suggestion-results').append(
                                 `<div class="result res-${index} ${sug.name.replaceAll(' ', '_').replaceAll('\n', '_').replaceAll(".", 'D').replaceAll("'", 'i').replaceAll(":", 'f').replaceAll("!", 'l').replaceAll("(", 'L').replaceAll(")", 'R').replaceAll("?", 'Q')}">
-                                    <img src="${sug.image[0]}" alt="">
+                                    <img src="${sug.image[0]}" alt="${String(sug.name).replace(/"/g, '&quot;')}">
                                     <div class="result-data">
                                         <div class="item-name">${sug.name}</div>
                                         <div class="item-attr">

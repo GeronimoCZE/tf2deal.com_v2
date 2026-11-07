@@ -499,17 +499,15 @@
                     padding: .4rem;
                     color: rgb(233, 233, 233);
                     transition: .25s ease;
-                    animation: 200ms fadeInCard forwards;
+                    // fades to the card's own opacity, so out-of-stock cards end a little dimmer (and take part in the page intro, js/motion.js)
+                    animation: 200ms fadeInCard;
                     @keyframes fadeInCard {
                         0%{
                             opacity: 0;
                         }
-                        100%{
-                            opacity: 1;
-                        }
                     }
                     &.s_false{
-                        opacity: .9 !important;
+                        opacity: .9;
                     }
                     &:hover, &:target{
                         background: var(--tile-hover);

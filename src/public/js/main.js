@@ -1413,9 +1413,10 @@ addEventListener('DOMContentLoaded', (event) => {
                         $('#item-select .grid').append(`<span class="no-items">${__('common.error')}</span>`)
                     } else if(typeof items == "object"){
                         const image = $('.item-body .image-box img').attr('src')
+                        const image_alt = String($('.item-body .image-box img').attr('alt') || '').replace(/[&"<>]/g, (c) => ({ '&': '&amp;', '"': '&quot;', '<': '&lt;', '>': '&gt;' })[c])
                         for (const item of items) {
                             $('#item-select .grid').append(`<div class="item q-${qualityID}">
-                                <img src="${image}" alt="" class="image" effect-id="0">    
+                                <img src="${image}" alt="${image_alt}" class="image" effect-id="0">    
                             </div>`)
                         }
                     }
