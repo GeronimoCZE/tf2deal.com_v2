@@ -200,6 +200,8 @@
     "browse_items": "Ver objetos",
     "stat_users": "Usuarios en línea",
     "stat_trades": "Intercambios hoy",
+    "stat_trades_total": "Intercambios totales",
+    "stat_trades_today": "{count} hoy",
     "stat_items": "Objetos disponibles",
     "stat_bots": "Bots de Steam",
     "intro_title": "Una web de trading de TF2 automática con bots de Steam",

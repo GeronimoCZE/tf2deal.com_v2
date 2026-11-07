@@ -200,6 +200,8 @@
     "browse_items": "Procházet předměty",
     "stat_users": "Uživatelů online",
     "stat_trades": "Výměn dnes",
+    "stat_trades_total": "Výměn celkem",
+    "stat_trades_today": "{count} dnes",
     "stat_items": "Dostupných předmětů",
     "stat_bots": "Steam botů",
     "intro_title": "Automatizovaný TF2 trading se Steam trade boty",

@@ -200,6 +200,8 @@
     "browse_items": "浏览物品",
     "stat_users": "在线用户",
     "stat_trades": "今日交易",
+    "stat_trades_total": "累计交易",
+    "stat_trades_today": "今日 {count}",
     "stat_items": "可用物品",
     "stat_bots": "Steam 机器人",
     "intro_title": "使用 Steam 交易机器人的自动化 TF2 交易网站",

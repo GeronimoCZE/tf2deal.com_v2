@@ -62,11 +62,18 @@
                             </div>
                         </div>
                         <div class="stat-block">
-                            <!-- trades today -->
+                            <%# every trade the bots made (stats.trades_total), today's under the label; only today's
+                                while the total couldn't be counted yet %>
+                            <% const trades_total = info.stats?.trades_total %>
                             <span class="icon-trade2 stat-icon"></span>
                             <div class="stat-text">
                                 <div class="stat-name">
+                                    <% if (trades_total != null) { %>
+                                    <span><%= __('home.stat_trades_total') %></span>
+                                    <small class="stat-sub"><%= __('home.stat_trades_today', { count: Number(info.stats?.trades) || 0 }) %></small>
+                                    <% } else { %>
                                     <span><%= __('home.stat_trades') %></span>
+                                    <% } %>
                                 </div>
                                 <div class="stat-data" id="stat-tradesToday"></div>
                             </div>
@@ -256,7 +263,7 @@
             const statBots = document.getElementById('stat-botsRunning');
 
             const onlineUsers = parseInt('<%- info.stats?.users || 0 %>');
-            const tradesToday = parseInt('<%- info.stats?.trades || 0 %>');
+            const tradesToday = parseInt('<%- info.stats?.trades_total ?? info.stats?.trades ?? 0 %>'); // the total when it is known
             const itemsAvailable = parseInt('<%- info.stats?.items || 0 %>');
             const botsRunning = parseInt('<%- info.stats?.bots || 0 %>');
 

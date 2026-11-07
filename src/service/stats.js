@@ -3,6 +3,8 @@
 // "Trades today" used to come only from the bot server's `fp_data` report, which always sent 0, so the page
 // always said 0. The trades themselves are in our own `trades` collection (the bots write each accepted trade
 // there), so we count them here instead: everything since midnight UTC, refreshed at most once a minute.
+// trades_total(): every trade the bots made (Nikolas, 2026-11-07: "count all the trades we make just as a number"),
+// counted in the same collection, also refreshed at most once a minute. Trades between our own bots don't count.
 
 import { trade_model } from '../model/Trade.js'
 
@@ -23,6 +25,21 @@ const count_since = (since_ms) => trade_model.countDocuments({
     { timestamp: { $gte: Math.floor(since_ms / 1000), $lt: 1e11 } }
   ]
 })
+
+const total = { value: null, at: 0, loading: null }
+
+// all trades ever made with the bots; null until the first count (the database couldn't be read yet)
+export const trades_total = async () => {
+  if (Date.now() - total.at >= CACHE_MS && !total.loading) {
+    total.loading = trade_model.countDocuments({ internalTrade: { $ne: true } })
+      .then((count) => { Object.assign(total, { value: count, at: Date.now() }) })
+      .catch((error) => { console.error('trades total:', error?.message || error) })
+      .finally(() => { total.loading = null })
+  }
+  // as trades_today: never hold the page for long, a slow database shows the last known number
+  if (total.loading) await Promise.race([total.loading, new Promise((resolve) => setTimeout(resolve, 1500))])
+  return total.value
+}
 
 // fallback: what the bot server reported, in case the database can't be read right now
 export const trades_today = async (fallback = 0) => {

@@ -200,6 +200,8 @@
     "browse_items": "Смотреть предметы",
     "stat_users": "Пользователей онлайн",
     "stat_trades": "Обменов сегодня",
+    "stat_trades_total": "Обменов всего",
+    "stat_trades_today": "{count} сегодня",
     "stat_items": "Доступно предметов",
     "stat_bots": "Ботов Steam",
     "intro_title": "Автоматический сайт для трейда TF2 с ботами Steam",
