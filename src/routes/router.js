@@ -513,7 +513,7 @@ const blog_page = async (req, res, next) => {
         post_id: String(post._id), // the admin bar's Edit post link
         promtLogin: true,
         // SEO: excerpt, or the start of the post when there's no excerpt
-        description: shown.excerpt || fn.markdown_excerpt(shown.content),
+        description: fn.markdown_excerpt(shown.excerpt || shown.content), // at most 155 characters, also a long excerpt
         canonical: url_in(shown.lang),
         alternates,
         no_hreflang: !alternates,
@@ -538,7 +538,7 @@ const blog_page = async (req, res, next) => {
         translation_ready: Boolean(translation?.translated),
         original_url: req.lurl(path) + '?original=1',
         translation_url: req.lurl(path),
-        html: fn.render_markdown(shown.content)
+        html: fn.render_markdown(shown.content, shown.title)
       })
     )
   } catch (err) {

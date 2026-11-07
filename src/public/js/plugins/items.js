@@ -225,7 +225,7 @@ const show = (res, reset, resolve, reject) => {
                         $('.item-content .items').append(`<a href="${lurl('/items/' + encodeURIComponent(item.bp_sku))}" class="item_card id_${item.index} q-${item.qualityID} ${craft} s_${stock > 0 ? "true":"false"}"><div class="item-name" translate="no">${name}</div><img class="item-image lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${item.image}" style="background-image: ${(item?.effectID > 0) ? "url(https://api.backpack.tf/images/440/particles/" + item?.effectID + "_94x94.png)" : "none"};" alt="${trade.item_alt(item.bp_sku, item.qualityID)}"><div class="item-data"><div class="stock ${(stock > 0) ? 'yes':'no'}">${stock_string}</div><div class="price">${price_string}</div><div class="quality q-${item.qualityID}"></div></div></a>`)      
                     }
                 }
-                $('.item-content').append(`<div class="item-loader"><img src="/img/trade-icon.jpg" alt=""></div>`)
+                $('.item-content').append(`<div class="item-loader"><img src="/img/trade-icon.jpg" alt="${__('alt.loading')}"></div>`)
             }
         } else {
             const loader = document.querySelector('.item-content > .item-loader')

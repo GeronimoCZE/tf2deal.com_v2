@@ -100,17 +100,17 @@
     "cookies": "Política de cookies – Como o TF2Deal.com usa cookies"
   },
   "desc": {
-    "default": "Site de bots de trade de TF2: compre, venda e troque itens de TF2 com bots automáticos da Steam. Chapéus, unusuals, armas, provocações e chaves por chaves e ref, oferta em segundos.",
-    "trade": "Troque itens de TF2 com nossos bots de trading de TF2: escolha itens dos dois inventários, pague com chaves ou metal refinado e receba uma oferta da Steam em segundos.",
-    "items": "Preços e estoque de itens de TF2 ao vivo. Compre e venda chapéus, unusuals, armas, provocações e mais por chaves e ref com trading de TF2 instantâneo no TF2Deal.com.",
+    "default": "Compre, venda e troque itens de TF2 com bots automáticos da Steam. Chapéus, unusuals, armas e chaves por chaves e ref, oferta em segundos.",
+    "trade": "Troque itens de TF2 com nossos bots: escolha itens dos dois inventários, pague com chaves ou metal refinado e receba uma oferta da Steam em segundos.",
+    "items": "Preços e estoque de itens de TF2 ao vivo. Compre e venda chapéus, unusuals, armas, provocações e mais por chaves e ref, com trocas instantâneas.",
     "items_page": "Página {page} de preços e estoque de itens de TF2 ao vivo no TF2Deal.com. Compre e venda chapéus, unusuals, armas, provocações e mais por chaves e ref.",
     "blog": "Guias, notícias e preços do trading de TF2 do TF2Deal.com, o site de bots de troca de TF2: como fazer trades e quanto valem os itens em chaves e ref.",
     "blog_page": "Posts anteriores do blog do TF2Deal.com (página {page}): guias, notícias e preços do trading de TF2 do site de bots de troca de TF2.",
     "about": "Sobre o TF2Deal.com, um site automatizado de trading de TF2: como nossos bots funcionam, como os preços em chaves e ref são definidos e como falar conosco.",
-    "tos": "Regras para trocar itens de TF2 com os bots do TF2Deal.com: quem pode trocar, como as trocas funcionam, reembolsos, propriedade dos itens e quedas dos bots.",
-    "giveaway_active": "Ganhe {item} no sorteio grátis de TF2 do TF2Deal.com. Entre com a Steam, participe antes que ele termine e veja os vencedores dos sorteios anteriores.",
+    "tos": "Regras para trocar itens de TF2 com os bots do TF2Deal.com: quem pode trocar, como funcionam as trocas, reembolsos, propriedade dos itens e quedas.",
+    "giveaway_active": "Ganhe {item} no sorteio grátis do TF2Deal.com. Entre com a Steam, participe antes do fim e veja os vencedores anteriores.",
     "giveaway_none": "Sorteios grátis de itens de TF2 no TF2Deal.com, o site automatizado de trading de TF2. Veja os vencedores anteriores e volte para o próximo sorteio.",
-    "cookies": "Quais cookies o TF2Deal.com usa: os necessários para o login com a Steam, segurança, trading e seu idioma, os de análise opcionais, e como alterar sua escolha.",
+    "cookies": "Quais cookies o TF2Deal.com usa: os necessários para login com a Steam, segurança, trading e idioma, os de análise opcionais, e como alterar sua escolha.",
     "item_buy_sell": "Compre {name} por {buy} ou venda por {sell} no TF2Deal.com.",
     "item_buy": "Compre {name} por {buy} no TF2Deal.com.",
     "item_sell": "Venda {name} por {sell} no TF2Deal.com.",
@@ -609,6 +609,20 @@
       "title": "Entre no nosso grupo da Steam",
       "text": "Publicamos nossos sorteios lá, e alguns sorteios são só para membros do grupo.",
       "join": "Entrar no grupo"
+    },
+    "alt": {
+      "logo": "Logo do TF2Deal.com",
+      "loading": "Carregando",
+      "avatar": "Avatar da Steam de {name}",
+      "your_avatar": "Seu avatar da Steam",
+      "merc": "Mercenário de TF2 com roupa de inverno e braços cruzados",
+      "tree": "Pinheiro coberto de neve",
+      "hero_cabin": "Cabana coberta de neve em uma floresta de pinheiros à noite",
+      "hero_summer": "Mão gigante enfaixada saindo da areia do deserto",
+      "hero_halloween": "Lanternas flutuando sobre uma árvore antiga no céu noturno",
+      "skin_item": "Arma de TF2 com pintura de guerra",
+      "unusual_item": "Item Unusual de TF2 com seu efeito",
+      "tool_item": "Ferramenta de TF2"
     }
   },
   "items": {

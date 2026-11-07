@@ -100,17 +100,17 @@
     "cookies": "Politique de cookies – Les cookies de TF2Deal.com"
   },
   "desc": {
-    "default": "Site de bots de trade TF2 : achetez, vendez et échangez des objets TF2 avec des bots Steam automatiques. Chapeaux, unusuals, armes, railleries et clés contre clés et ref, offre en quelques secondes.",
-    "trade": "Échangez des objets TF2 avec nos bots de trading TF2 : choisissez dans les deux inventaires, payez en clés ou en métal raffiné et recevez une offre Steam en quelques secondes.",
-    "items": "Prix et stock des objets TF2 en direct. Achetez et vendez chapeaux, unusuals, armes, railleries et plus contre des clés et du ref avec le trading TF2 instantané de TF2Deal.com.",
-    "items_page": "Page {page} des prix et du stock des objets TF2 en direct sur TF2Deal.com. Achetez et vendez chapeaux, unusuals, armes, railleries et plus contre des clés et du ref.",
+    "default": "Achetez, vendez et échangez des objets TF2 avec des bots Steam automatiques. Chapeaux, unusuals, armes et clés contre clés et ref, offre en secondes.",
+    "trade": "Échangez des objets TF2 avec nos bots : choisissez dans les deux inventaires, payez en clés ou en métal raffiné, recevez une offre Steam en secondes.",
+    "items": "Prix et stock des objets TF2 en direct. Achetez et vendez chapeaux, unusuals, armes, railleries et plus contre des clés et du ref, échanges instantanés.",
+    "items_page": "Page {page} des prix et du stock des objets TF2 sur TF2Deal.com. Achetez et vendez chapeaux, unusuals, armes, railleries et plus contre clés et ref.",
     "blog": "Guides, actualités et prix du trading TF2 par TF2Deal.com, le site de bots d'échange TF2 : comment échanger et combien valent les objets en clés et en ref.",
     "blog_page": "Articles précédents du blog de TF2Deal.com (page {page}) : guides, actualités et prix du trading TF2 par le site de bots d'échange TF2.",
     "about": "À propos de TF2Deal.com, un site de trading TF2 automatisé : le fonctionnement de nos bots, la fixation des prix en clés et ref et comment nous contacter.",
-    "tos": "Les règles pour échanger des objets TF2 avec les bots de TF2Deal.com : qui peut échanger, déroulement, remboursements, propriété des objets et pannes des bots.",
-    "giveaway_active": "Gagnez {item} au concours TF2 gratuit de TF2Deal.com. Connectez-vous via Steam, participez avant la fin et découvrez les gagnants des concours précédents.",
+    "tos": "Règles pour échanger des objets TF2 avec les bots de TF2Deal.com : qui peut échanger, déroulement, remboursements, propriété des objets et pannes des bots.",
+    "giveaway_active": "Gagnez {item} au concours gratuit de TF2Deal.com. Connectez-vous via Steam, participez avant la fin et voyez les gagnants précédents.",
     "giveaway_none": "Concours d'objets TF2 gratuits sur TF2Deal.com, le site de trading TF2 automatisé. Découvrez les anciens gagnants et revenez pour le prochain concours.",
-    "cookies": "Les cookies de TF2Deal.com : nécessaires pour la connexion Steam, la sécurité, les échanges et votre langue, statistiques facultatives, et comment changer votre choix.",
+    "cookies": "Les cookies de TF2Deal.com : nécessaires pour la connexion Steam, la sécurité, les échanges et la langue, statistiques facultatives, et comment choisir.",
     "item_buy_sell": "Achetez {name} pour {buy} ou vendez cet objet pour {sell} sur TF2Deal.com.",
     "item_buy": "Achetez {name} pour {buy} sur TF2Deal.com.",
     "item_sell": "Vendez {name} pour {sell} sur TF2Deal.com.",
@@ -609,6 +609,20 @@
       "title": "Rejoignez notre groupe Steam",
       "text": "Nous y publions nos concours, et certains concours sont réservés aux membres du groupe.",
       "join": "Rejoindre le groupe"
+    },
+    "alt": {
+      "logo": "Logo TF2Deal.com",
+      "loading": "Chargement",
+      "avatar": "Avatar Steam de {name}",
+      "your_avatar": "Votre avatar Steam",
+      "merc": "Mercenaire de TF2 en tenue d'hiver, bras croisés",
+      "tree": "Sapin enneigé",
+      "hero_cabin": "Chalet enneigé dans une forêt de sapins, la nuit",
+      "hero_summer": "Main géante bandée sortant du sable du désert",
+      "hero_halloween": "Lanternes flottant au-dessus d'un vieil arbre dans le ciel nocturne",
+      "skin_item": "Arme TF2 avec une peinture de guerre",
+      "unusual_item": "Objet Unusual TF2 avec son effet",
+      "tool_item": "Outil TF2"
     }
   },
   "items": {

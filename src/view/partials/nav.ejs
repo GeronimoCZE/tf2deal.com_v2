@@ -84,7 +84,7 @@
                     <div class="dropdown dropdown-item">
                         <% for (const code of langs) { %>
                         <a class="lang-option <%= code %><%= code == lang ? ' active' : '' %>" href="<%= locals.lang_urls?.[code] || '/' %>" data-lang="<%= code %>" hreflang="<%= lang_tags[code] %>" lang="<%= lang_tags[code] %>">
-                            <img src="/img/flags/<%= code %>_96x96.png" width="24" height="24" loading="lazy" alt="">
+                            <img src="/img/flags/<%= code %>_96x96.png" width="24" height="24" loading="lazy" alt="<%= lang_names[code] %>" aria-hidden="true">
                             <span class="lang-name"><%= lang_names[code] %></span>
                         </a>
                         <% } %>
@@ -116,7 +116,7 @@
                     <div class="user-section">
                         <div class="dropdown-container dc-avatar">
                             <div class="user-avatar">
-                                <img src="<%= user.avatarmedium %>" alt=""><%# the name is right next to it %>
+                                <img src="<%= user.avatarmedium %>" alt="<%= user.personaname ? __('js.alt.avatar', { name: user.personaname }) : __('js.alt.your_avatar') %>" aria-hidden="true"><%# the name is right next to it, so screen readers skip the picture %>
                                 <span class="user-meta">
                                     <strong><%= user.personaname || __('nav.profile') %></strong>
                                     <small>Steam</small>
@@ -177,7 +177,7 @@
             <div class="ss-langs">
                 <% for (const code of langs) { %>
                 <a class="ss-lang<%= code == lang ? ' active' : '' %>" href="<%= locals.lang_urls?.[code] || '/' %>" data-lang="<%= code %>" hreflang="<%= lang_tags[code] %>" lang="<%= lang_tags[code] %>"<%- code == lang ? ' aria-current="true"' : '' %>>
-                    <img src="/img/flags/<%= code %>_96x96.png" width="28" height="28" loading="lazy" alt="">
+                    <img src="/img/flags/<%= code %>_96x96.png" width="28" height="28" loading="lazy" alt="<%= lang_names[code] %>" aria-hidden="true">
                     <span><%= lang_names[code] %></span>
                 </a>
                 <% } %>
@@ -206,7 +206,7 @@
 
     <% if (locals.lang_suggest && locals.lang_suggest != lang) { const s = locals.lang_suggest %>
       <div class="lang-suggest hidden" id="lang-suggest" lang="<%= lang_tags[s] %>">
-        <img src="/img/flags/<%= s %>_96x96.png" width="24" height="24" loading="lazy" alt="">
+        <img src="/img/flags/<%= s %>_96x96.png" width="24" height="24" loading="lazy" alt="<%= lang_names[s] %>" aria-hidden="true">
         <span><%= __for(s, 'lang_suggest.text') %></span>
         <a href="<%= locals.lang_urls?.[s] %>" data-lang="<%= s %>"><%= __for(s, 'lang_suggest.switch') %></a>
         <button type="button" class="lang-suggest-close" aria-label="<%= __('common.close') %>">&times;</button>

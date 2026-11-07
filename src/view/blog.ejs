@@ -14,7 +14,7 @@
                     <% for (const post of (info.posts || [])) { %>
                         <a class="blog-card" href="<%= lurl('/blog/' + post.slug) %>" lang="<%= lang_tags[post.shown_lang] || html_lang %>">
                             <% if (post.cover) { %>
-                                <img class="cover" src="<%= post.cover %>" alt="" loading="lazy">
+                                <img class="cover" src="<%= post.cover %>" alt="<%= post.title %>" loading="lazy">
                             <% } %>
                             <div class="text">
                                 <div class="date"><%= new Date(post.created).toLocaleDateString(html_lang, { day: 'numeric', month: 'long', year: 'numeric' }) %></div>

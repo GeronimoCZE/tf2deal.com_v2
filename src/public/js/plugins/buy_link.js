@@ -23,7 +23,7 @@ const copy_html = (copy, i, several) => {
     const bot = bot_label(copy)
     return `
         <${tag} class="bl-item" data-i="${i}" ${attrs}>
-            <span class="bl-thumb q-${esc(copy.qualityID)}"${effect}><img src="${esc(copy.image)}" alt="">${trade.marks_html(copy.spells === true, copy.parts === true)}</span>
+            <span class="bl-thumb q-${esc(copy.qualityID)}"${effect}><img src="${esc(copy.image)}" alt="${esc(copy.name)}">${trade.marks_html(copy.spells === true, copy.parts === true)}</span>
             <span class="bl-text">
                 <strong translate="no">${esc(copy.name)}</strong>
                 ${bot ? `<span class="bl-meta">${esc(bot)}</span>` : ''}

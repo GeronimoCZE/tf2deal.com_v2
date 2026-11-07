@@ -133,7 +133,7 @@
                             <a href="<%= lurl('/items/' + encodeURIComponent(card.bp_sku)) %>" class="item_card q-<%= card.qualityID %> s_<%= card.stock > 0 %>"><div class="item-name" translate="no"><%= card.name %></div><img class="item-image lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="<%= card.image %>" style="background-image: <%= card.effectID > 0 ? 'url(https://api.backpack.tf/images/440/particles/' + card.effectID + '_94x94.png)' : 'none' %>;" alt="<%= item_alt(card) %>"><div class="item-data"><div class="stock <%= card.stock > 0 ? 'yes' : 'no' %>"><%= __('js.common.in_stock', { count: card.stock }) %></div><div class="price"><%= card.price %></div><div class="quality q-<%= card.qualityID %>"></div></div></a>
                             <% } %>
                         </div>
-                        <div class="item-loader"><img src="/img/trade-icon.jpg" width="40" height="40" alt=""></div>
+                        <div class="item-loader"><img src="/img/trade-icon.jpg" width="40" height="40" alt="<%= __('js.alt.loading') %>"></div>
                         <div class="end"><span class="icon icon-info"></span> <%= __('items.end') %></div>
                         <div class="none"><%= __('items.none') %></div>
                     </div>

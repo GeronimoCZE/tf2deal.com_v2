@@ -95,7 +95,7 @@ export const load_wishlist = async () => {
 
         return `<div class="wish-card q-${esc(item.qualityID)}" data-sku="${esc(item.bp_sku)}">
             <a href="${lurl('/items/' + encodeURIComponent(item.bp_sku))}" class="wish-link">
-                <img src="${esc(item.image || '/img/group-icon.png')}" style="background-image: ${particle_bg(item.effectID)}" loading="lazy" alt="">
+                <img src="${esc(item.image || '/img/group-icon.png')}" style="background-image: ${particle_bg(item.effectID)}" loading="lazy" alt="${esc(item.bp_sku)}">
                 <div class="wish-name" translate="no">${esc(item.bp_sku)}</div>
                 ${data}
             </a>
@@ -144,7 +144,7 @@ export const load_giveaways = async () => {
     }
 
     list.innerHTML = res.giveaways.map((g) => `<div class="giveaway-record ${g.won ? 'won' : ''}">
-        <img class="q-${esc(g.item?.qualityID)}" src="${esc(g.item?.image || '/img/group-icon.png')}" style="background-image: ${particle_bg(g.item?.effectID)}" loading="lazy" alt="">
+        <img class="q-${esc(g.item?.qualityID)}" src="${esc(g.item?.image || '/img/group-icon.png')}" style="background-image: ${particle_bg(g.item?.effectID)}" loading="lazy" alt="${esc(g.item?.bp_sku || '')}">
         <div class="details">
             <a href="${lurl('/items/' + encodeURIComponent(g.item?.bp_sku || ''))}" class="name" translate="no">${esc(g.item?.bp_sku)}</a>
             <div class="dates">${date_text(g.start)} – ${date_text(g.end)}</div>

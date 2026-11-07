@@ -21,7 +21,7 @@
                     <h1><%= info.shown.title %></h1>
                     <div class="date"><%= new Date(info.post.created).toLocaleDateString(html_lang, { day: 'numeric', month: 'long', year: 'numeric' }) %></div>
                     <% if (info.post.cover) { %>
-                        <img class="cover" src="<%= info.post.cover %>" alt="">
+                        <img class="cover" src="<%= info.post.cover %>" alt="<%= locals.shown?.title || info.post.title %>">
                     <% } %>
                     <div class="post-content">
                         <%- info.html %>

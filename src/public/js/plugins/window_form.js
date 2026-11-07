@@ -11,7 +11,7 @@ const new_user = (state) => {
             
             </div>
             <div class="popUp-image">
-                <img src="/img/sfm/sfm1.jpg" alt="">
+                <img src="/img/sfm/sfm1.jpg" alt="${__('alt.hero_summer')}">
             </div>
         </div>`;
         $('html').append([overlay, form]);

@@ -29,7 +29,7 @@
                     </div>
                     <div class="body">
                         <div class="account-card">
-                            <img src="<%- user.avatarfull %>" alt="" class="account-avatar">
+                            <img src="<%= user.avatarfull %>" alt="<%= user.personaname ? __('js.alt.avatar', { name: user.personaname }) : __('js.alt.your_avatar') %>" class="account-avatar">
                             <div class="account-details">
                                 <div class="account-name"></div>
                                 <div class="detail">

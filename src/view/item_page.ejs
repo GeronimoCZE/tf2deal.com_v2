@@ -281,7 +281,7 @@
                                     <div class="trade-nav">
                                         <%# the item being sold / bought and its price (filled in by public/js/main.js) %>
                                         <div class="trade-item">
-                                            <img src="<%= info.item?.image %>" alt="" class="trade-item-img">
+                                            <img src="<%= info.item?.image %>" alt="<%= item_alt(info.item) %>" class="trade-item-img">
                                             <div class="trade-item-text">
                                                 <div class="trade-item-name" id="trade-item-name" translate="no"><%= info.page_name || info.item?.bp_sku %></div>
                                                 <div class="trade-item-price"><span id="trade-mode" class="trade-mode"></span> <span id="trade-item-price"></span></div>

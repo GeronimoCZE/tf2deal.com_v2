@@ -100,7 +100,7 @@
     "cookies": "Cookie Policy – Cookies on TF2Deal.com"
   },
   "desc": {
-    "default": "TF2 trade bot site: buy, sell and trade TF2 items with automated Steam trade bots. Hats, unusuals, weapons, taunts and keys for keys and ref, trade offers in seconds.",
+    "default": "Buy, sell and trade TF2 items with automated Steam trade bots. Hats, unusuals, weapons and keys for keys and ref, trade offers in seconds.",
     "trade": "Trade TF2 items with our TF2 trade bots: pick items from both inventories, pay in keys or refined metal and get a Steam trade offer in seconds.",
     "items": "Live TF2 item prices and stock. Buy and sell TF2 hats, unusuals, weapons, taunts and more for keys and ref with instant TF2 trading on TF2Deal.com.",
     "items_page": "Page {page} of live TF2 item prices and stock on TF2Deal.com. Buy and sell TF2 hats, unusuals, weapons, taunts and more for keys and ref.",
@@ -108,7 +108,7 @@
     "blog_page": "Older posts of the TF2Deal.com blog (page {page}): TF2 trading guides, news and price updates from the automated TF2 trade bot site.",
     "about": "About TF2Deal.com, an automated TF2 trading site: how our TF2 trade bots work, how prices in keys and ref are set and how to reach us.",
     "tos": "Rules for trading TF2 items with the TF2Deal.com trade bots: who can trade, how trades work, refunds and reversals, item ownership and bot downtime.",
-    "giveaway_active": "Win {item} in the free TF2Deal.com TF2 giveaway. Sign in with Steam, enter before it ends and see the winners of our past TF2 item giveaways.",
+    "giveaway_active": "Win {item} in the free TF2Deal.com giveaway. Sign in with Steam, enter before it ends and see past TF2 giveaway winners.",
     "giveaway_none": "Free TF2 item giveaways on TF2Deal.com, the automated TF2 trading site. See past winners and check back for the next giveaway.",
     "cookies": "Which cookies TF2Deal.com uses: necessary ones for Steam sign-in, security, trading and your language, optional analytics, and how to change your choice.",
     "item_buy_sell": "Buy {name} for {buy} or sell it for {sell} on TF2Deal.com.",
@@ -609,6 +609,20 @@
       "title": "Join our Steam group",
       "text": "We post our giveaways there, and some giveaways are only for group members.",
       "join": "Join the group"
+    },
+    "alt": {
+      "logo": "TF2Deal.com logo",
+      "loading": "Loading",
+      "avatar": "Steam avatar of {name}",
+      "your_avatar": "Your Steam avatar",
+      "merc": "TF2 mercenary in winter clothes with arms crossed",
+      "tree": "Snow-covered fir tree",
+      "hero_cabin": "Snowy cabin in a pine forest at night",
+      "hero_summer": "Giant bandaged hand rising out of the desert sand",
+      "hero_halloween": "Floating lanterns over an old tree in the night sky",
+      "skin_item": "TF2 weapon with a war paint",
+      "unusual_item": "Unusual TF2 item with its effect",
+      "tool_item": "TF2 tool item"
     }
   },
   "items": {

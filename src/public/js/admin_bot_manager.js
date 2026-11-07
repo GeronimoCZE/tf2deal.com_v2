@@ -611,7 +611,7 @@
         const name = a.name || b?.name || a.accountName
         return `<article class="admin-card admin-bm-bot" data-account="${esc(a.accountName)}" data-steamid="${esc(steamid || '')}">
             <div class="admin-bm-bot-head">
-                ${b?.avatar ? `<img src="${esc(b.avatar)}" alt="" width="44" height="44" loading="lazy">` : '<span class="admin-bm-avatar" aria-hidden="true"></span>'}
+                ${b?.avatar ? `<img src="${esc(b.avatar)}" alt="Steam avatar of ${esc(name)}" width="44" height="44" loading="lazy">` : '<span class="admin-bm-avatar" aria-hidden="true"></span>'}
                 <div><strong>${steamid ? profile(steamid, name) : esc(name)}</strong>
                     <span class="muted">${esc(a.accountName)}, ${a.type == 'warehouse' ? 'warehouse' : 'trade'} bot${a.level || b?.level ? `, level ${num(a.level || b?.level)}` : ''}</span></div>
                 <span class="admin-pill ${cls}"><i></i>${label}</span>

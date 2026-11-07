@@ -89,7 +89,7 @@
                       <h3 class="name" translate="no"><%= old.item.bp_sku %></h3>
                       <div class="winner">
                         <% if (old.winner?.steamid) { %>
-                          <img src="<%= old.winner.avatar || '/img/new_user-96.webp' %>" alt="" loading="lazy">
+                          <img src="<%= old.winner.avatar || '/img/new_user-96.webp' %>" alt="<%= __('js.alt.avatar', { name: old.winner.name || __('giveaway.winner') }) %>" loading="lazy">
                           <span class="winner-text">
                             <small><%= __('giveaway.winner') %></small>
                             <a href="https://steamcommunity.com/profiles/<%= old.winner.steamid %>" target="_blank" rel="nofollow"><%= old.winner.name || __('giveaway.winner') %></a>
