@@ -13,7 +13,7 @@ import * as stats from '../service/stats.js'
 import * as categories from '../service/categories.js'
 import * as buy from '../service/buy_link.js'
 import * as item_lists from '../service/item_lists.js'
-import * as painted from '../service/painted.js'
+import * as variants from '../service/variants.js'
 import { localize_path, LANG_TAGS } from '../i18n.js'
 import { isNumberObject } from 'util/types'
 
@@ -400,8 +400,9 @@ const item_page = async (req, res) => {
     // a tier's page is indexed as an item of its own (item_lists.tier_indexable): copies of it in stock, or bought
     const tier_in_stock = own_page && (shown_stock.cur > 0 || Boolean(await item_model.exists({ _id: main._id, 'stock.items.ks': ks })))
     const noindex = own_page ? !item_lists.tier_indexable(main, tier, tier_in_stock ? 1 : 0) : !fn.item_indexable(main, in_stock)
-    // a cosmetic's paints with a price of their own (service/painted.js): the paint select, like the killstreak one
-    const painted_list = ks ? [] : await painted.for_page(main).catch(() => [])
+    // the item's versions with a price of their own (service/variants.js): paints (the paint select, like the killstreak
+    // one), festivized, spells
+    const variant_list = ks ? [] : await variants.for_page(main).catch(() => [])
 
     res.render(
       'item_page',
@@ -412,7 +413,7 @@ const item_page = async (req, res) => {
         ks_tier: ks,
         // the killstreak select opens each tier's own page (public/js/main.js)
         tier_pages: item_lists.ks_items(main) ? Object.fromEntries([...item_lists.tiers_of(main).keys()].map((t) => [t, buy.display_name(main.bp_sku, { ks: t })])) : null,
-        painted: painted_list, // [{ paint, buy, sell, limit, held, updated }] (public/js/main.js show_paint)
+        variants: variant_list, // [{ kind, name, buy, sell, limit, held, updated }] (public/js/main.js show_paint, js/plugins/trade.js)
         page_name,
         result: result,
         key_price: app.key_price,
