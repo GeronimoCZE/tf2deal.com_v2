@@ -10,7 +10,7 @@
                 <% if (!info.posts?.length) { %>
                     <div class="blog-empty"><%= __('blog.empty') %></div>
                 <% } %>
-                <div class="blog-list">
+                <div class="blog-list" data-intro-list>
                     <% for (const post of (info.posts || [])) { %>
                         <a class="blog-card" href="<%= lurl('/blog/' + post.slug) %>" lang="<%= lang_tags[post.shown_lang] || html_lang %>">
                             <% if (post.cover) { %>

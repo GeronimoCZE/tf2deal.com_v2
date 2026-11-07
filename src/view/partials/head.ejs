@@ -14,6 +14,47 @@
         };
         window.lurl = function (p) { return window.TD_LANG == 'en' ? p : '/' + window.TD_LANG + (p == '/' ? '' : p) };
     </script>
+    <script>
+        // Page intro and picture fade-in (js/motion.js, scss/partials/_motion.scss). This runs before the page is drawn:
+        // - intro-wait keeps the page content hidden until motion.js plays the intro once the page is ready (CSS shows
+        //   it after 2.5 s on its own if that never happens); intro-first also fades the menu in, on the first page of a visit
+        // - every picture added to the page that is still loading stays hidden and fades in once it has loaded, also ones
+        //   added later (next items, inventories, windows). Pictures the browser already has show at once. data-no-fade on
+        //   a picture or one of its parents opts out; .lazy-fade pictures have their own fade.
+        // Nothing of this happens for people who ask for less motion.
+        (function () {
+            var root = document.documentElement;
+            if (!window.matchMedia || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !window.MutationObserver) return;
+            root.classList.add('intro-wait');
+            try {
+                if (!sessionStorage.getItem('td_intro')) { root.classList.add('intro-first'); sessionStorage.setItem('td_intro', '1'); }
+            } catch (e) {}
+
+            var wait = function (img) {
+                if (img.complete || img.classList.contains('img-wait') || img.classList.contains('lazy-fade') || img.closest('[data-no-fade]')) return;
+                img.classList.add('img-wait');
+                var done = function () {
+                    img.removeEventListener('load', done);
+                    img.removeEventListener('error', done);
+                    img.classList.remove('img-wait');
+                    img.classList.add('img-in');
+                    setTimeout(function () { img.classList.remove('img-in'); }, 600);
+                };
+                img.addEventListener('load', done);
+                img.addEventListener('error', done);
+            };
+            new MutationObserver(function (records) {
+                for (var i = 0; i < records.length; i++) {
+                    for (var j = 0, added = records[i].addedNodes; j < added.length; j++) {
+                        var node = added[j];
+                        if (node.nodeType !== 1) continue;
+                        if (node.tagName === 'IMG') wait(node);
+                        else if (node.firstElementChild) Array.prototype.forEach.call(node.getElementsByTagName('img'), wait);
+                    }
+                }
+            }).observe(root, { childList: true, subtree: true });
+        })();
+    </script>
 <%
     // text for a JS template literal (`...`): escapes the characters that could end it or open a <script> tag
     const tl = (v) => String(v ?? '').replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${').replace(/</g, '\\u003c')
