@@ -41,7 +41,8 @@ class Item_Trade_Object {
       this.items = [];
       this.party = null;
       this.tier = 0;      // item page: selected killstreak tier
-      this.stock = null;  // item page: that tier's stock (null = the item's stock)
+      this.stock = null;  // item page: that tier's (or paint's) stock (null = the item's stock)
+      this.paint = '';    // item page: selected paint (a cosmetic's paint with its own price)
       this.bots = new Map();
 
       this.filters = {bot: null}
@@ -1001,7 +1002,7 @@ const load_site_inventory_single = async (bp_sku) => {
     .done(async function (response) {
         $(`.loading-items#trade-loading`).addClass('hidden')
 
-        if(Array.isArray(response?.items)){ response.items = response.items.filter(tier_visible); }
+        if(Array.isArray(response?.items)){ response.items = response.items.filter(tier_visible).filter(paint_visible); }
         ItemTrade.items = response?.items;
         ItemTrade.party = 'trade-site';
         ItemTrade.iit = new Item_Trade_Object().iit;
@@ -1047,7 +1048,7 @@ const load_user_inventory_single = async (bp_sku) => {
     .done(async function (response) {
         $(`.loading-items#trade-loading`).addClass('hidden')
 
-        if(Array.isArray(response?.items)){ response.items = response.items.filter(tier_visible); }
+        if(Array.isArray(response?.items)){ response.items = response.items.filter(tier_visible).filter(paint_visible); }
         ItemTrade.items = response?.items;
         ItemTrade.party = 'trade-user';
         ItemTrade.iit = new Item_Trade_Object().iit;
@@ -1409,7 +1410,29 @@ const tier_visible = (asset) => {
     return tier == 0 || !tiers.some(t => t.tier == tier);
 }
 
-// stock used for the "can buy" limit: the selected tier's own stock if it has one
+// A cosmetic's paints with a price of their own (item page: itemPainted, from item_manager's painted_prices):
+// [{ paint, buy, sell, limit, held, updated }], prices in ref.
+const painted_list = () => (typeof itemPainted == 'object' && Array.isArray(itemPainted)) ? itemPainted : [];
+// a copy's paint (at.paint: "Australium Gold", ["Australium Gold"] or "Paint Color: ...") compared without case
+const paint_key = (value) => {
+    const text = (Array.isArray(value) ? value : [value]).find(v => typeof v == 'string' && v.trim());
+    return text ? text.trim().replace(/^paint colou?r:\s*/i, '').replace(/[\u2018\u2019]/g, "'").toLowerCase() : '';
+}
+const painted_entry = (paint) => {
+    const key = paint_key(paint);
+    return key ? painted_list().find(p => paint_key(p.paint) == key) || null : null;
+}
+
+// The paint picked in the item page's select (main.js sets ItemTrade.paint): Sell / Buy then lists only copies with
+// that paint; "None" lists copies without a paint and with a paint that has no price of its own.
+const paint_visible = (asset) => {
+    if(painted_list().length == 0) return true;
+    const entry = painted_entry(asset?.at?.paint);
+    if(ItemTrade.paint) return !!entry && paint_key(entry.paint) == paint_key(ItemTrade.paint);
+    return !entry;
+}
+
+// stock used for the "can buy" limit: the selected tier's (or paint's) own stock if it has one
 const single_stock = () => {
     const stock = ItemTrade.stock || itemStock || {};
     return { cur: Number(stock.cur) || 0, limit: Number(stock.limit) || 0 };
@@ -1445,11 +1468,13 @@ const copy_price = (own, tier, base) => {
 
 // price in ref of one asset (or of a tier number) on the item page, the same way as trade_price:
 // the highest of the copy's own price (the bot server's price for that exact copy), its killstreak tier's
-// price and the item's price
+// price (or its paint's price, for a painted cosmetic) and the item's price. Without an asset: the picked tier's, or
+// the picked paint's price.
 const single_price = (asset_or_tier, selling) => {
     const asset = (typeof asset_or_tier == 'object') ? asset_or_tier : null;
     const tier = asset ? (Number(asset?.ks) || 0) : (Number(asset_or_tier) || 0);
-    const entry = (tier > 0) ? ks_tiers().find(t => t.tier == tier) : null;
+    const entry = (tier > 0) ? ks_tiers().find(t => t.tier == tier)
+        : painted_entry(asset ? asset?.at?.paint : ItemTrade.paint);
     return copy_price(asset?.[selling ? 'buy' : 'sell'], selling ? entry?.buy : entry?.sell, selling ? itemBuy : itemSell);
 }
 
@@ -3776,7 +3801,7 @@ export {
     item_tooltip, render_items, tooltip_item, item_details,
     setBot, set_filter, pick_filter, apply_filters, reset_filters, search, item_to_trade, single_item_to_trade, clear_single_items, clear_items, round_ref,
     group_assets, stack_sig,
-    ks_tiers, ks_name, single_price, price_text,
+    ks_tiers, ks_name, single_price, price_text, painted_entry,
     create_trade, check_trade,
     UserTrade, SiteTrade, ItemTrade,
     tradeoffer, tradeOfferConnection,

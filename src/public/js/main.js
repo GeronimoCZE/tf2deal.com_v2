@@ -1282,15 +1282,22 @@ addEventListener('DOMContentLoaded', (event) => {
 
                 trade.ItemTrade.tier = current_tier
                 trade.ItemTrade.stock = (current_tier > 0 && entry?.stock) ? { cur: entry.stock.cur, limit: entry.stock.limit ?? itemStock?.limit } : null
+                show_version(current_item, current_tier, entry?.updated)
+                if(ks_select){ ks_select.value = String(current_tier) }
+                sales_chart?.show_tier(current_tier)
+            }
+            // the name, prices and stock of the version picked in the killstreak or the paint select
+            // (trade.ItemTrade.tier / .paint / .stock say which)
+            const show_version = (name, tier, updated) => {
                 const stock = { cur: Number((trade.ItemTrade.stock || itemStock)?.cur) || 0, limit: Number((trade.ItemTrade.stock || itemStock)?.limit) || 0 }
                 const can_sell_count = Math.max(stock.limit - stock.cur, 0)
 
-                $('#item-name, #trade-item-name').text(current_item)
-                $('.navigation .current-item a').first().text(current_item)
-                document.title = item_page_title.replace(item.bp_sku, current_item)
+                $('#item-name, #trade-item-name').text(name)
+                $('.navigation .current-item a').first().text(name)
+                document.title = item_page_title.replace(item.bp_sku, name)
 
-                $('#sell-price').text(trade.price_text(trade.single_price(current_tier, true)))
-                $('#buy-price').text(trade.price_text(trade.single_price(current_tier, false)))
+                $('#sell-price').text(trade.price_text(trade.single_price(tier, true)))
+                $('#buy-price').text(trade.price_text(trade.single_price(tier, false)))
                 $('.item__trade.sell .stock span').text(can_sell_count)
                 $('.item__trade.sell .stock').toggleClass('yes', can_sell_count > 0).toggleClass('no', can_sell_count <= 0)
                 $('.item__trade.buy .stock span').text(stock.cur)
@@ -1298,9 +1305,7 @@ addEventListener('DOMContentLoaded', (event) => {
                 $('.item__btn#sell').toggleClass('active', can_sell_count > 0)
                 $('.item__btn#buy').toggleClass('active', stock.cur > 0)
 
-                $('#updated-ago').text(timeAgo(entry?.updated || item_update))
-                if(ks_select){ ks_select.value = String(current_tier) }
-                sales_chart?.show_tier(current_tier)
+                $('#updated-ago').text(timeAgo(updated || item_update))
             }
 
             if(ks_select){
@@ -1321,6 +1326,31 @@ addEventListener('DOMContentLoaded', (event) => {
                 // a link to e.g. /items/Professional Killstreak Rocket Launcher opens with that tier picked
                 const linked = ks_tiers.find(t => t.bp_sku === item_name) || ks_tiers.find(t => t.tier == itemKsTier)
                 show_tier(linked ? linked.tier : 0)
+            }
+
+            // Paint select (cosmetics with paints that have a price of their own, item_manager painted_prices): the
+            // picked paint's prices and stock, as the killstreak select does for a tier. Sell / Buy then list only
+            // copies with that paint (trade.js paint_visible); "None" lists the other copies.
+            const paint_select = document.getElementById('paint-select')
+            const show_paint = (paint) => {
+                const entry = trade.painted_entry(paint)
+                trade.ItemTrade.paint = entry ? entry.paint : ''
+                trade.ItemTrade.stock = entry ? { cur: Number(entry.held) || 0, limit: Number(entry.limit) || 0 } : null
+                current_item = entry ? `${item.bp_sku} (${entry.paint})` : item.bp_sku
+                show_version(current_item, 0, entry?.updated)
+                if(paint_select){ paint_select.value = trade.ItemTrade.paint }
+            }
+            if(paint_select && !ks_select){
+                for (const entry of (typeof itemPainted == 'object' && Array.isArray(itemPainted) ? itemPainted : [])) {
+                    const option = document.createElement('option')
+                    option.value = entry.paint
+                    option.textContent = entry.paint // paint names stay English, like item names
+                    paint_select.appendChild(option)
+                }
+                paint_select.addEventListener('change', () => show_paint(paint_select.value))
+                // ?paint=Australium Gold opens with that paint picked
+                const linked_paint = new URLSearchParams(location.search).get('paint')
+                if(linked_paint){ show_paint(linked_paint) }
             }
             function formatUnixTimestamp(unixMs) {
                 const date = new Date(unixMs);

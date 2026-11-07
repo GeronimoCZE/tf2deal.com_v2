@@ -2,13 +2,14 @@ import fetch from 'node-fetch'
 import { inventory_value_model as Snapshots } from '../model/InventoryValue.js'
 import { item_model as Items } from '../model/Item.js'
 import { trade_model } from '../model/Trade.js'
+import * as painted from './painted.js'
 import * as app from '../app.js'
 
 // Admin -> Inventory value: how much everything the bots hold is worth, and how that changed over a period (profit).
 // Every 15 minutes it measures
 //   - every item copy the bots hold (item_instances stock.items) at the item's current price: the price the site
-//     sells that copy for (its own price, its killstreak tier's or the item's, whichever is highest, as on the
-//     trade page) and what the bots pay for it (buy)
+//     sells that copy for (its own price, its killstreak tier's or painted cosmetic's paint's (service/painted.js) or
+//     the item's, whichever is highest, as on the trade page) and what the bots pay for it (buy)
 //   - the keys and metal of all bots, from the bot server (the same answer the trade page gets)
 // and saves it (model/InventoryValue.js). A measurement is skipped while the bot server or the database is down,
 // so a missing answer never looks like a loss.
@@ -33,10 +34,10 @@ const tier_of = (doc, ks) => {
     return tiers.find((t) => Number(t?.ks_tier ?? t?.kt ?? t?.tier) == ks)
 }
 
-// one copy's value in ref: { sell, buy }
-export const copy_value = (doc, copy, key_ref) => {
+// one copy's value in ref: { sell, buy }. paints: painted.prices_of()
+export const copy_value = (doc, copy, key_ref, paints = null) => {
     const ks = Number(copy?.ks) || 0
-    const tier = ks > 0 ? tier_of(doc, ks) : null
+    const tier = ks > 0 ? tier_of(doc, ks) : painted.price_of(paints, doc.bp_sku, copy)
     const tier_sell = tier ? to_ref(tier.sell, key_ref) : 0
     const tier_buy = tier ? to_ref(tier.buy, key_ref) : 0
     return {
@@ -46,16 +47,17 @@ export const copy_value = (doc, copy, key_ref) => {
 }
 
 // every copy the bots hold, valued; each copy (bot + assetid) once. The items come a few hundred at a time, with only
-// the fields a value needs (not the copies' pictures and attributes, nor the tiers' sales history).
+// the fields a value needs (not the copies' pictures and attributes other than the paint, nor the tiers' sales history).
 export const value_items = async (key_price) => {
     const docs = Items.find(
         { $or: [{ 'stock.items.0': { $exists: true } }, { 'stock.cur': { $gt: 0 } }] },
         {
-            bp_sku: 1, buy: 1, sell: 1, 'stock.cur': 1, 'stock.items.a': 1, 'stock.items.ownerId': 1, 'stock.items.ks': 1, 'stock.items.sell': 1,
+            bp_sku: 1, buy: 1, sell: 1, 'stock.cur': 1, 'stock.items.a': 1, 'stock.items.ownerId': 1, 'stock.items.ks': 1, 'stock.items.sell': 1, 'stock.items.at.paint': 1,
             'bptf_data.update_key_price': 1,
             ...Object.fromEntries(['ks_tier', 'kt', 'tier', 'buy', 'sell'].flatMap((field) => [[`killstreak.${field}`, 1], [`killstreak.killstreaks.${field}`, 1]]))
         }
     ).lean().cursor({ batchSize: 500 })
+    const paints = await painted.prices_of() // painted cosmetics' own prices (a few hundred at most)
     const items = { count: 0, sell: 0, buy: 0, unpriced: 0 }
     const bots = {}
     const seen = new Set()
@@ -71,7 +73,7 @@ export const value_items = async (key_price) => {
                 if (seen.has(id)) continue
                 seen.add(id)
             }
-            const v = copy_value(doc, copy, key_ref)
+            const v = copy_value(doc, copy, key_ref, paints)
             items.count++
             items.sell += v.sell
             items.buy += v.buy
