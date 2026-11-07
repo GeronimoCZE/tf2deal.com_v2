@@ -1328,7 +1328,7 @@ addEventListener('DOMContentLoaded', (event) => {
                 show_tier(linked ? linked.tier : 0)
             }
 
-            // Paint select (cosmetics with paints that have a price of their own, item_manager painted_prices): the
+            // Paint select (cosmetics with paints that have a price of their own, item_manager variant_prices): the
             // picked paint's prices and stock, as the killstreak select does for a tier. Sell / Buy then list only
             // copies with that paint (trade.js paint_visible); "None" lists the other copies.
             const paint_select = document.getElementById('paint-select')
@@ -1341,7 +1341,7 @@ addEventListener('DOMContentLoaded', (event) => {
                 if(paint_select){ paint_select.value = trade.ItemTrade.paint }
             }
             if(paint_select && !ks_select){
-                for (const entry of (typeof itemPainted == 'object' && Array.isArray(itemPainted) ? itemPainted : [])) {
+                for (const entry of trade.painted_list()) {
                     const option = document.createElement('option')
                     option.value = entry.paint
                     option.textContent = entry.paint // paint names stay English, like item names

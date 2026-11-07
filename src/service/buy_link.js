@@ -6,7 +6,7 @@
 import * as fn from '../fn.js'
 import * as app from '../app.js'
 import { item_model } from '../model/Item.js'
-import * as painted from './painted.js'
+import * as variants from './variants.js'
 
 export const ASSETID = /^\d{1,20}$/
 
@@ -33,8 +33,9 @@ export const to_ref = (value, key_ref) => {
   return Number(value) > 0 ? Number(value) : 0
 }
 
-// What the visitor pays: the highest of the copy's own price, its killstreak tier's price (or its paint's price, for a
-// painted cosmetic: service/painted.js) and the item's price (same as the trade page, js/plugins/trade.js -> copy_price).
+// What the visitor pays: the highest of the copy's own price, its killstreak tier's price (or its own version's: a
+// painted cosmetic's paint, a festivized weapon, at least a spell's price: service/variants.js) and the item's price (same
+// as the trade page, js/plugins/trade.js -> copy_price).
 const sell_price = (doc, asset, key_ref, paints) => {
   const tier = Number(asset?.ks) || 0
   let tier_price = 0
@@ -42,7 +43,7 @@ const sell_price = (doc, asset, key_ref, paints) => {
     const tiers = Array.isArray(doc.killstreak) ? doc.killstreak : (doc.killstreak?.killstreaks || [])
     tier_price = to_ref(tiers.find((t) => ks_tier(t?.ks_tier ?? t?.kt ?? t?.tier) == tier)?.sell, key_ref)
   } else {
-    tier_price = painted.price_of(paints, doc.bp_sku, asset)?.sell || 0
+    tier_price = variants.price_of(paints, doc.bp_sku, asset).sell
   }
   return Math.max(Number(asset?.sell) || 0, tier_price, Number(doc.sell) || 0)
 }
@@ -81,7 +82,7 @@ export const find = async (assetid) => {
     { 'stock.items.a': { $in: values } },
     { bp_sku: 1, type: 1, qualityID: 1, effectID: 1, image: 1, image_large: 1, sell: 1, killstreak: 1, 'bptf_data.update_key_price': 1, 'stock.items': 1 }
   ).limit(10).lean()
-  const paints = await painted.prices_of(docs.filter(painted.is_cosmetic).map((d) => d.bp_sku))
+  const paints = await variants.prices_of(docs.map((d) => d.bp_sku))
 
   const bots = new Map((Array.isArray(app.fp_data?.bots) ? app.fp_data.bots : [])
     .filter((b) => b?.steamid).map((b) => [String(b.steamid), String(b.personaname || b.name || '')]))

@@ -1410,18 +1410,26 @@ const tier_visible = (asset) => {
     return tier == 0 || !tiers.some(t => t.tier == tier);
 }
 
-// A cosmetic's paints with a price of their own (item page: itemPainted, from item_manager's painted_prices):
-// [{ paint, buy, sell, limit, held, updated }], prices in ref.
-const painted_list = () => (typeof itemPainted == 'object' && Array.isArray(itemPainted)) ? itemPainted : [];
+// The item page's item versions with a price of their own (itemVariants, from item_manager's variant_prices):
+// [{ kind: 'paint' | 'festivized' | 'spell', name, buy, sell, limit, held, updated }], prices in ref.
+const item_variants = () => (typeof itemVariants == 'object' && Array.isArray(itemVariants)) ? itemVariants : [];
+// a cosmetic's paints: [{ paint, buy, sell, limit, held, updated }]
+const painted_list = () => item_variants().filter(v => v.kind == 'paint').map(v => ({ ...v, paint: v.name }));
+const text_of = (value) => (Array.isArray(value) ? value : [value]).filter(v => typeof v == 'string' && v.trim());
+const name_key = (text) => String(text || '').trim().replace(/[\u2018\u2019]/g, "'").toLowerCase();
 // a copy's paint (at.paint: "Australium Gold", ["Australium Gold"] or "Paint Color: ...") compared without case
-const paint_key = (value) => {
-    const text = (Array.isArray(value) ? value : [value]).find(v => typeof v == 'string' && v.trim());
-    return text ? text.trim().replace(/^paint colou?r:\s*/i, '').replace(/[\u2018\u2019]/g, "'").toLowerCase() : '';
-}
+const paint_key = (value) => { const text = text_of(value)[0]; return text ? name_key(text.replace(/^paint colou?r:\s*/i, '')) : ''; }
+// a spell as Steam writes it ("Halloween: Exorcism (spell only active during event)")
+const spell_key = (value) => name_key(String(value || '').replace(/^\s*halloween:\s*/i, '').replace(/\s*\(spell only active during event\)\s*$/i, ''));
 const painted_entry = (paint) => {
     const key = paint_key(paint);
     return key ? painted_list().find(p => paint_key(p.paint) == key) || null : null;
 }
+// a copy's own version: festivized (no killstreak) or its paint
+const variant_entry = (asset) => (!(Number(asset?.ks) > 0) && Number(asset?.f) > 0 && item_variants().find(v => v.kind == 'festivized'))
+    || painted_entry(asset?.at?.paint);
+// the highest price of a spell on the copy that has a price of its own on this item: it never sells under it
+const spell_floor = (asset) => Math.max(0, ...text_of(asset?.at?.spells).map(s => item_variants().find(v => v.kind == 'spell' && name_key(v.name) == spell_key(s))?.sell || 0));
 
 // The paint picked in the item page's select (main.js sets ItemTrade.paint): Sell / Buy then lists only copies with
 // that paint; "None" lists copies without a paint and with a paint that has no price of its own.
@@ -1468,14 +1476,15 @@ const copy_price = (own, tier, base) => {
 
 // price in ref of one asset (or of a tier number) on the item page, the same way as trade_price:
 // the highest of the copy's own price (the bot server's price for that exact copy), its killstreak tier's
-// price (or its paint's price, for a painted cosmetic) and the item's price. Without an asset: the picked tier's, or
-// the picked paint's price.
+// price (or its own version's: a painted cosmetic's paint, a festivized weapon) and the item's price. A copy with a spell
+// that has its own price never sells under it. Without an asset: the picked tier's, or the picked paint's price.
 const single_price = (asset_or_tier, selling) => {
     const asset = (typeof asset_or_tier == 'object') ? asset_or_tier : null;
     const tier = asset ? (Number(asset?.ks) || 0) : (Number(asset_or_tier) || 0);
     const entry = (tier > 0) ? ks_tiers().find(t => t.tier == tier)
-        : painted_entry(asset ? asset?.at?.paint : ItemTrade.paint);
-    return copy_price(asset?.[selling ? 'buy' : 'sell'], selling ? entry?.buy : entry?.sell, selling ? itemBuy : itemSell);
+        : asset ? variant_entry(asset) : painted_entry(ItemTrade.paint);
+    const version = selling ? entry?.buy : Math.max(Number(entry?.sell) || 0, asset ? spell_floor(asset) : 0);
+    return copy_price(asset?.[selling ? 'buy' : 'sell'], version, selling ? itemBuy : itemSell);
 }
 
 // /trade page: price in ref of one copy (asset) of a bot (field 'sell') or user (field 'buy') inventory item.
@@ -3801,7 +3810,7 @@ export {
     item_tooltip, render_items, tooltip_item, item_details,
     setBot, set_filter, pick_filter, apply_filters, reset_filters, search, item_to_trade, single_item_to_trade, clear_single_items, clear_items, round_ref,
     group_assets, stack_sig,
-    ks_tiers, ks_name, single_price, price_text, painted_entry,
+    ks_tiers, ks_name, single_price, price_text, painted_entry, painted_list,
     create_trade, check_trade,
     UserTrade, SiteTrade, ItemTrade,
     tradeoffer, tradeOfferConnection,
