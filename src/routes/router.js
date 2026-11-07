@@ -10,24 +10,49 @@ import { giveaway_model } from '../model/Giveaway.js'
 import * as translate from '../service/translate.js'
 import { bptf_link } from '../service/bptf_link.js'
 import * as stats from '../service/stats.js'
+import * as categories from '../service/categories.js'
 import * as buy from '../service/buy_link.js'
 import * as item_lists from '../service/item_lists.js'
 import { localize_path, LANG_TAGS } from '../i18n.js'
 import { isNumberObject } from 'util/types'
 
 
+// "Popular items" on the home page: the items people want most (backpack.tf buy orders) that the bots have in stock,
+// as plain links to their pages, so the home page leads visitors and search engines to item pages. From the item list in
+// memory (service/item_lists.js); the page never waits long for it (right after a start it is left out).
+const HOME_POPULAR = 12
+const home_popular = async () => {
+  if (process.db_status.connected !== true) return []
+  const list = await Promise.race([
+    item_lists.cards({ stock: 'Can buy' }, 'Popular (desc)').catch(() => null),
+    new Promise((resolve) => setTimeout(() => resolve(null), 300))
+  ])
+  return (list || []).slice(0, HOME_POPULAR).map(item_lists.public_card).map((item) => ({
+    bp_sku: item.bp_sku,
+    name: item.name,
+    image: item.image,
+    qualityID: item.qualityID,
+    effectID: Number(item.effectID) || 0,
+    price: fn.list_price_text(item.sell, item.bptf_data.update_key_price)
+  }))
+}
+// the category pages the home page links to (service/categories.js), in this order
+const HOME_CATEGORIES = ['Unusual', 'Strange', 'Decorated', 'Cosmetic', 'Taunt', 'War Paint', 'Tool', 'Crate']
+  .map((value) => categories.CATEGORIES.find((c) => c.value === value))
+
 const home = async (req, res, next) => {
   if(req.path == '/'){
     const fp_data = app.fp_data;
-    const [trades_today, trades_total, pure_keys] = await Promise.all([stats.trades_today(fp_data.trades), stats.trades_total(), stats.pure_keys()]);
+    const [trades_today, trades_total, pure_keys, popular] = await Promise.all([stats.trades_today(fp_data.trades), stats.trades_total(), stats.pure_keys(), home_popular()]);
+    const home_categories = HOME_CATEGORIES.map((c) => ({ name: c.name, url: req.lurl(categories.path_of(c)) }))
 
     const json_ld = fn.faq_json_ld(req.__) // the FAQ at the bottom of the page
 
     if (req.user) {   
       const user_cookie = req.cookies[`td_${req.user.steamid}`]
-      res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', json_ld, stats: {items: fp_data.items, trades: trades_today, trades_total, pure_keys, bots: fp_data.bots.length || 0, users: app.users.size} }))
+      res.render('home', fn.res_data(true, req.user, user_cookie, 'Home', { view: 'home', json_ld, popular, home_categories, stats: {items: fp_data.items, trades: trades_today, trades_total, pure_keys, bots: fp_data.bots.length || 0, users: app.users.size} }))
     } else {
-      res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', json_ld, stats: {items: fp_data.items, trades: trades_today, trades_total, pure_keys, bots: fp_data.bots.length || 0, users: app.users.size} }))
+      res.render('home', fn.res_data(false, req.user, undefined, 'Home', { view: 'home', json_ld, popular, home_categories, stats: {items: fp_data.items, trades: trades_today, trades_total, pure_keys, bots: fp_data.bots.length || 0, users: app.users.size} }))
     }
   } else {
     next()
@@ -141,10 +166,16 @@ const items = async (req, res, next) => {
 
     // ?name= (the site search and the SearchAction in the page data): the matching items, also without JavaScript
     const name = String(query.get('name') || '').trim().slice(0, 100)
+    // the filters in the address (quality, type, class, ...) pick the items here too, as /api/items does for the
+    // scrolling list: a page opened from a filter link shows those items, also to search engines.
+    // A category (service/categories.js: one filter such as ?quality=Unusual) is a page of its own.
+    const category = categories.from_query(query)
+    const filters = categories.filters_of(query)
+    const sort = String(query.get('sort') || '') || undefined
 
     let list = null
     try {
-      if (process.db_status.connected === true) list = await item_lists.cards(name ? { name } : {})
+      if (process.db_status.connected === true) list = await item_lists.cards(filters, sort)
     } catch (err) {
       console.error('Item list failed:', err?.message || err)
     }
@@ -168,20 +199,33 @@ const items = async (req, res, next) => {
         price: fn.list_price_text(item.sell, item.bptf_data.update_key_price)
       }))
 
+    // a category's own title, heading and description; the plain list's otherwise. Each page number its own
+    // (Bing: identical descriptions).
+    const category_vars = category ? { category: category.name, count: all.length, page } : null
+    const title = category
+      ? fn.fitting_title([page > 1 ? 'title.category_page' : 'title.category', 'title.category_short'], category_vars, req.__)
+      : page > 1 ? req.__('title.items_page', { page }) : req.__('title.items')
+    const description = category
+      ? req.__(page > 1 ? 'desc.category_page' : 'desc.category', category_vars)
+      : page > 1 ? req.__('desc.items_page', { page }) : req.__('desc.items')
+    // canonical + hreflang: a category's own address; for any other filters the plain list's (the page number stays)
+    const list_path = category ? categories.path_of(category, page) : page > 1 ? `/items?page=${page}` : '/items'
+
     res.render(
       'items',
-      fn.res_data(!!req.user, req.user, user_cookie, page > 1 ? req.__('title.items_page', { page }) : req.__('title.items'), {
+      fn.res_data(!!req.user, req.user, user_cookie, title, {
         view: 'items',
         promtLogin: true,
-        description: page > 1 ? req.__('desc.items_page', { page }) : req.__('desc.items'), // each page its own (Bing: identical descriptions)
-        path: page > 1 ? `/items?page=${page}` : '/items', // canonical + hreflang: filters are left out, the page number stays
+        description,
+        path: list_path,
+        category: category ? { name: category.name, h1: req.__('items.category_h1', category_vars), lead: req.__('desc.category', category_vars) } : null,
         noindex: Boolean(name), // search results are not search results of their own
         // the items on this page, for search engines and AI assistants (schema.org ItemList)
         json_ld: cards.length > 0 ? {
           '@context': 'https://schema.org',
           '@type': 'CollectionPage',
-          name: req.__('title.items'),
-          url: fn.site_url + req.lurl(page > 1 ? `/items?page=${page}` : '/items'),
+          name: title,
+          url: fn.site_url + req.lurl(list_path),
           isPartOf: { '@id': fn.site_url + '/#website' },
           mainEntity: {
             '@type': 'ItemList',
@@ -195,7 +239,7 @@ const items = async (req, res, next) => {
           }
         } : undefined,
         item_count: list ? all.length : null,
-        list: list ? { cards, page, pages, per_page: ITEMS_PER_PAGE, name } : null
+        list: list ? { cards, page, pages, per_page: ITEMS_PER_PAGE, name, query: Object.fromEntries([...query].filter(([key]) => key !== 'page')) } : null
       })
     )
   } catch (err) {
@@ -329,6 +373,26 @@ const item_page = async (req, res) => {
       }
       collection = { name: collection_name, items }
     }
+    // the item's quality, type and classes open the item list with that filter (service/categories.js)
+    const links = categories.list_links(main)
+    const class_keys = (Array.isArray(main.classes) ? main.classes : String(main.classes || '').split(',')).map((c) => String(c).trim()).filter(Boolean)
+    shown.links = {
+      quality: links.quality ? req.lurl(links.quality) : null,
+      type: links.type ? req.lurl(links.type) : null,
+      classes: shown.classes.map((name, i) => ({ name, url: links.classes[class_keys[i]] ? req.lurl(links.classes[class_keys[i]]) : null }))
+    }
+    // "<name> price and trading": questions about the item answered from its prices, stock and sales (fn.item_faq)
+    const faq = fn.item_faq({
+      name: page_name,
+      buy: shown.buy_price,
+      sell: shown.sell_price,
+      stock: shown.stock,
+      can_sell: shown.can_sell,
+      buying: Number(main.status) === 1,
+      manual: Boolean(main.manual_price?.locked),
+      price_history: own_page ? ks_entry?.price_history : main.price_history,
+      trade_history: ks ? ks_entry?.trade_history : main.trade_history
+    }, req.__)
     // what the page is about, for search engines: the tier with its own name, prices and stock
     const page_item = own_page ? { ...main, bp_sku: page_name, sell: page_sell, buy: page_buy, stock: { cur: shown_stock.cur } } : main
     const description = fn.item_description(page_item, req.__)
@@ -350,6 +414,7 @@ const item_page = async (req, res) => {
         key_price: app.key_price,
         shown,
         collection, // { name, items } or null (view/item_page.ejs)
+        faq, // [{ q, a }] (fn.item_faq)
         bptf_url: bptf_link(main, { ks }), // the backpack.tf button: that version's price page (a crate's series, a kit's weapon, ...)
         // SEO
         description,

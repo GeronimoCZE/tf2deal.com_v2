@@ -97,7 +97,10 @@
     "item": "Comprar e vender {name} – Preço no TF2 | TF2Deal.com",
     "item_short": "Comprar e vender {name} | TF2Deal.com",
     "item_shorter": "Comprar {name} no TF2Deal.com",
-    "cookies": "Política de cookies – Como o TF2Deal.com usa cookies"
+    "cookies": "Política de cookies – Como o TF2Deal.com usa cookies",
+    "category": "Compre e venda TF2 {category} por chaves | TF2Deal.com",
+    "category_page": "TF2 {category} (página {page}) | TF2Deal.com",
+    "category_short": "TF2 {category} | TF2Deal.com"
   },
   "desc": {
     "default": "Compre, venda e troque itens de TF2 com bots automáticos da Steam. Chapéus, unusuals, armas e chaves por chaves e ref, oferta em segundos.",
@@ -116,7 +119,9 @@
     "item_sell": "Venda {name} por {sell} no TF2Deal.com.",
     "item_trade": "Troque {name} no TF2Deal.com.",
     "item_stock": "Em estoque: {count}. Trading de TF2 automático e instantâneo.",
-    "item_no_stock": "Trading de TF2 automático e instantâneo com nossos bots."
+    "item_no_stock": "Trading de TF2 automático e instantâneo com nossos bots.",
+    "category": "Compre e venda TF2 {category} por chaves e ref: {count} itens com preços e estoque ao vivo, e ofertas de troca dos nossos bots em segundos.",
+    "category_page": "Página {page} de TF2 {category} no TF2Deal.com com preços e estoque ao vivo. Compre e venda por chaves e ref com ofertas de troca na hora."
   },
   "item_types": {
     "cosmetic": "Cosmético",
@@ -222,7 +227,10 @@
     "tools_link": "Ver todas as ferramentas",
     "cta_title": "Pronto para trocar?",
     "cta_text": "Escolha seus itens e nossos bots enviam a oferta de troca na Steam.",
-    "hero_kicker": "Bots de trade de TF2 automáticos"
+    "hero_kicker": "Bots de trade de TF2 automáticos",
+    "popular_title": "Itens populares em estoque",
+    "popular_all": "Todos os itens",
+    "categories_label": "Categorias de itens"
   },
   "filters": {
     "none": "Nenhum",
@@ -636,7 +644,8 @@
     "search_placeholder": "Buscar itens ...",
     "pages": "Páginas da lista de itens",
     "prev_page": "Anterior",
-    "next_page": "Próxima"
+    "next_page": "Próxima",
+    "category_h1": "TF2 {category}"
   },
   "item": {
     "inactive": "Item inativo",
@@ -665,7 +674,21 @@
     "collection": "Coleção",
     "collection_count": "Itens: {count}",
     "this_item": "Este item",
-    "this_war_paint": "Pintura de guerra deste item"
+    "this_war_paint": "Pintura de guerra deste item",
+    "faq_title": "{name}: preço e trocas",
+    "faq_worth_q": "Quanto vale {name}?",
+    "faq_worth_a": "No TF2Deal.com você compra {name} por {buy} e vende por {sell}.",
+    "faq_worth_market": "Atualizamos os preços regularmente com base no mercado do backpack.tf.",
+    "faq_worth_month": "Há um mês, o preço era {old}.",
+    "faq_sell_q": "Posso vender {name} por chaves ou metal?",
+    "faq_sell_yes": "Sim. Agora nossos bots compram mais {count} e pagam {sell} por unidade. Entre com a Steam, escolha o item no seu inventário e um bot envia a oferta de troca.",
+    "faq_sell_full": "Agora não: nossos bots não estão comprando mais no momento. Esta página mostra ao vivo quantos eles aceitam.",
+    "faq_sell_no": "Nossos bots não compram {name} no momento, mas você pode comprá-lo aqui enquanto houver estoque.",
+    "faq_stock_q": "{name} está em estoque?",
+    "faq_stock_yes": "Sim, {count} em estoque por {buy}. Entre com a Steam, escolha o item e um bot envia a oferta de troca quando você confirma.",
+    "faq_stock_no": "Agora não. Volta ao estoque quando alguém vende um para os nossos bots.",
+    "faq_sold_q": "Com que frequência {name} é vendido?",
+    "faq_sold_a": "Nossos bots venderam {count} nos últimos 30 dias."
   },
   "giveaway": {
     "current": "Sorteio atual",

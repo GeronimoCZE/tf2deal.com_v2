@@ -97,7 +97,10 @@
     "item": "买卖 {name} – TF2 价格 | TF2Deal.com",
     "item_short": "买卖 {name} | TF2Deal.com",
     "item_shorter": "购买 {name} | TF2Deal.com",
-    "cookies": "Cookie 政策 – TF2Deal.com 如何使用 Cookie"
+    "cookies": "Cookie 政策 – TF2Deal.com 如何使用 Cookie",
+    "category": "买卖 TF2 {category}（钥匙和金属）| TF2Deal.com",
+    "category_page": "TF2 {category}（第 {page} 页）| TF2Deal.com",
+    "category_short": "TF2 {category} | TF2Deal.com"
   },
   "desc": {
     "default": "TF2 交易机器人网站：用自动化 Steam 机器人买卖 TF2 物品。帽子、Unusual、武器和钥匙，以钥匙和精炼金属计价，几秒内发出报价。",
@@ -116,7 +119,9 @@
     "item_sell": "在 TF2Deal.com 以 {sell} 出售 {name}。",
     "item_trade": "在 TF2Deal.com 交易 {name}。",
     "item_stock": "库存：{count}，即时自动化 TF2 交易。",
-    "item_no_stock": "与我们的交易机器人进行即时自动化 TF2 交易。"
+    "item_no_stock": "与我们的交易机器人进行即时自动化 TF2 交易。",
+    "category": "用钥匙和 ref 买卖 TF2 {category}：共 {count} 件物品，价格和库存实时更新，我们的机器人几秒内发送 Steam 交易报价。",
+    "category_page": "TF2Deal.com 上 TF2 {category} 的第 {page} 页，价格和库存实时更新。用钥匙和 ref 买卖，即时收到交易报价。"
   },
   "item_types": {
     "cosmetic": "饰品",
@@ -222,7 +227,10 @@
     "tools_link": "查看所有工具",
     "cta_title": "准备好交易了吗？",
     "cta_text": "选好物品，我们的机器人会在 Steam 上向你发送交易报价。",
-    "hero_kicker": "自动化 TF2 交易机器人"
+    "hero_kicker": "自动化 TF2 交易机器人",
+    "popular_title": "热门在售物品",
+    "popular_all": "全部物品",
+    "categories_label": "物品分类"
   },
   "filters": {
     "none": "无",
@@ -636,7 +644,8 @@
     "search_placeholder": "搜索物品……",
     "pages": "物品列表分页",
     "prev_page": "上一页",
-    "next_page": "下一页"
+    "next_page": "下一页",
+    "category_h1": "TF2 {category}"
   },
   "item": {
     "inactive": "非活跃物品",
@@ -665,7 +674,21 @@
     "collection": "收藏系列",
     "collection_count": "物品：{count}",
     "this_item": "此物品",
-    "this_war_paint": "此物品的战争涂装"
+    "this_war_paint": "此物品的战争涂装",
+    "faq_title": "{name} 价格与交易",
+    "faq_worth_q": "{name} 值多少钱？",
+    "faq_worth_a": "在 TF2Deal.com，你可以用 {buy} 买入 {name}，也可以按 {sell} 卖出。",
+    "faq_worth_market": "我们会定期参照 backpack.tf 市场更新价格。",
+    "faq_worth_month": "一个月前的价格是 {old}。",
+    "faq_sell_q": "可以把 {name} 卖成钥匙或金属吗？",
+    "faq_sell_yes": "可以。我们的机器人目前还收 {count} 件，每件支付 {sell}。用 Steam 登录，在库存中选中该物品，机器人就会向你发送交易报价。",
+    "faq_sell_full": "目前不行：我们的机器人暂时不再收购。本页会实时显示它们收购的数量。",
+    "faq_sell_no": "我们的机器人目前不收购 {name}，但有库存时你可以在这里购买。",
+    "faq_stock_q": "{name} 有货吗？",
+    "faq_stock_yes": "有，库存 {count} 件，价格 {buy}。用 Steam 登录并选中该物品，确认后机器人会发送交易报价。",
+    "faq_stock_no": "目前没有。有人把它卖给我们的机器人后就会重新有货。",
+    "faq_sold_q": "{name} 卖得多吗？",
+    "faq_sold_a": "过去 30 天我们的机器人卖出了 {count} 件。"
   },
   "giveaway": {
     "current": "当前抽奖",

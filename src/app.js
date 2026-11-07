@@ -126,6 +126,18 @@ const allRequestsLimiter = rateLimit({
   }
 });
 
+// One address for the whole site. Nginx answers tf2deal.com and www.tf2deal.com alike (docs/UBUNTU.md), so search
+// engines found two copies of every page and listed some under www. A page asked for on www.<site> moves (301) to the
+// same path on the site's own address; other requests (the API, sockets) are left alone.
+const site_host = new URL(fn.site_url).host
+app.use((req, res, next) => {
+  const host = String(req.headers.host || '').toLowerCase().replace(/:\d+$/, '')
+  if (host === `www.${site_host}` && (req.method === 'GET' || req.method === 'HEAD')) {
+    return res.redirect(301, fn.site_url + req.originalUrl)
+  }
+  next()
+})
+
 app.use(compression()) // gzip responses
 
 
