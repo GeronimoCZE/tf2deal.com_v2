@@ -11,6 +11,8 @@
         const itemKsTier = <%- JSON.stringify(info.ks_tier || 0) %>;
         // a weapon's killstreak tiers are items of their own: tier -> the name of its page (null for other items)
         const itemTierPages = <%- JSON.stringify(info.tier_pages || null).replace(/</g, '\\u003c') %>;
+        // a cosmetic's paints with a price of their own: [{ paint, buy, sell, limit, held, updated }] (service/painted.js)
+        const itemPainted = <%- JSON.stringify(info.painted || []).replace(/</g, '\\u003c') %>;
     </script>
     <%- include('./partials/head.ejs') %>
     <body class="<%= season_class %>">
@@ -101,6 +103,14 @@
                                                 <span><%= __('item.killstreak_tier') %></span>
                                                 <select id="ks-select">
                                                     <option value="0"><%= __('filters.none') %></option>
+                                                </select>
+                                            </label>
+                                        <% } else if((info.painted || []).length > 0){ %>
+                                            <%# a cosmetic's paints with their own price; options filled in by public/js/main.js (show_paint) %>
+                                            <label class="killstreak__select paint__select" for="paint-select">
+                                                <span><%= __('item.paint') %></span>
+                                                <select id="paint-select">
+                                                    <option value=""><%= __('filters.none') %></option>
                                                 </select>
                                             </label>
                                         <% } %>
