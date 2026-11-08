@@ -2,6 +2,7 @@ import express from 'express';
 export const router = express.Router();
 
 import rateLimit from 'express-rate-limit';
+import * as crawlers from '../../service/crawlers.js';
 import mongoose from 'mongoose';
 import {item_model as Instance} from '../../model/Item.js'; // add .js if using ES modules with Node
 import { type } from 'os';
@@ -15,6 +16,7 @@ const items_rate_limit = rateLimit({
   windowMs: 10 * 1000,
   max: 15,
   keyGenerator: (req) => req.user?.steamid ? `user:${req.user.steamid}` : req.ip,
+  skip: crawlers.skip, // search engines and AI crawlers (service/crawlers.js)
   standardHeaders: true,
   legacyHeaders: false,
   message: (req) => ({ status: "error", message: req.__ ? req.__('api.too_many_requests') : "Too many requests! Try again later..." })

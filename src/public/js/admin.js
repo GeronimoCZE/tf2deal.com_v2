@@ -464,6 +464,7 @@
                             <li><span>Item server</span>${pill(o.item_server == 'online')}</li>
                             <li><span>Apps on the settings socket</span><strong>${num(live.clients.length || o.settings_clients)}</strong></li>
                             <li><span>Website uptime</span><strong>${uptime(o.uptime)}</strong></li>
+                            ${o.crawlers ? `<li><span>Crawlers let past the limits</span><strong title="${esc(`Requests from search engine and AI crawlers since the website started (their addresses are checked). Address lists read: ${o.crawlers.lists_read} of ${o.crawlers.lists_total}${o.crawlers.failed.length ? `; not read now: ${o.crawlers.failed.join(', ')}` : ''}`)}">${o.crawlers.requests.length ? o.crawlers.requests.slice(0, 3).map(([name, n]) => `${esc(name)} ${num(n)}`).join(' · ') + (o.crawlers.requests.length > 3 ? ` +${o.crawlers.requests.length - 3}` : '') : 'none yet'}</strong></li>` : ''}
                             ${o.memory ? `<li><span>Website memory</span><strong title="${num(o.memory.heap_used)} MB of it is in use; the rest is freed memory given back every few minutes">${num(o.memory.rss)} MB${o.memory.capped ? '' : ' · no heap cap'}</strong></li>` : ''}
                         </ul>
                     </div>

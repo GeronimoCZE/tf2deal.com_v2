@@ -31,6 +31,7 @@ import * as inventory_value from '../../service/inventory_value.js';
 import * as flips from '../../service/flips.js';
 import * as stats from '../../service/stats.js';
 import * as memory from '../../service/memory.js';
+import * as crawlers from '../../service/crawlers.js';
 
 export const router = express.Router();
 
@@ -321,6 +322,7 @@ router.get('/overview', async (req, res) => {
     db,
     uptime: Math.round(process.uptime()),
     memory: memory.summary(),
+    crawlers: crawlers.status(),
     bot_server: bot_socket.socket ? 'online' : 'offline',
     item_server: item_socket.socket ? 'online' : 'offline',
     bots: Array.isArray(app.fp_data.bots) ? app.fp_data.bots.length : 0,
