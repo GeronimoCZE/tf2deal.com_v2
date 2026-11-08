@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser';
 import * as express from 'express';
 import rateLimit from 'express-rate-limit';
+import * as crawlers from '../service/crawlers.js';
 import mongoose from "mongoose";
 import fetch from 'node-fetch'
 
@@ -41,6 +42,7 @@ for (const method of ['get', 'post']) {
 const inv_limiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 70,
+  skip: crawlers.skip, // search engines render the trade page too
   message: (req) => ({status: "error", message: req.__ ? req.__('api.too_many_requests') : "Too many requests! Try again later..."})
 }); // 25 req per 60 sec
 const item_limiter = rateLimit({

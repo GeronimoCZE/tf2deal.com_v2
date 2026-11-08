@@ -52,7 +52,13 @@ nano src/config/.env
 Fill in every value. Set `SITE_URL=https://tf2deal.com` and a `SESSION_SECRET` of 32+ random
 characters (`openssl rand -hex 32` makes one). With Nginx in front (see the end of this page) also set
 `TRUST_PROXY=1`, or `TRUST_PROXY=2` if Cloudflare sits in front of Nginx. Without it every visitor
-shares one rate limit and people get blocked.
+shares one rate limit and people get blocked. Don't set it higher than the number of proxies you really have: search
+engine and AI crawlers skip the rate limits when their address checks out (src/service/crawlers.js), and with a value
+too high a visitor could pass a Google address in their own `X-Forwarded-For` header.
+
+The site downloads the crawlers' published address lists at start and once a day (Google, Bing, OpenAI, Anthropic,
+Apple, Perplexity, ...), so the server needs to reach those sites over HTTPS. `pm2 logs tf2deal | grep Crawlers` shows
+how many lists it read, and Admin → Overview shows how many requests each crawler made since the start.
 
 ## 5. Start it and keep it running after reboots
 

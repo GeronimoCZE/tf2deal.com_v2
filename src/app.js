@@ -1,6 +1,5 @@
 import express from 'express'
 import dotenv from 'dotenv';
-import dns from 'dns'
 import http from 'http'
 import cors from 'cors'
 import path from 'path'
@@ -15,12 +14,10 @@ import rateLimit from 'express-rate-limit'
 import compression from 'compression'
 import fetch from 'node-fetch'
 import EventEmitter from 'events'
-import { promisify } from 'util'
 import crypto from 'crypto'
 import { fileURLToPath } from 'url'
 import { createRequire } from 'module'
 import fs from 'fs'
-import { LRUCache } from 'lru-cache'
 import { Server as SocketIOServer } from 'socket.io'
 
 import {router as api} from './api/index.js'
@@ -36,6 +33,7 @@ import * as inventory_value from './service/inventory_value.js'
 import * as flips from './service/flips.js'
 import * as item_lists from './service/item_lists.js'
 import * as memory from './service/memory.js'
+import * as crawlers from './service/crawlers.js'
 import { site_version } from './service/site_version.js'
 
 const DOMAIN = 'localhost' 
@@ -54,67 +52,12 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 dotenv.config({ path: path.resolve(__dirname, "config/.env") });
 
-const reverseLookup = promisify(dns.reverse);
-
-// Cache for bot DNS lookup results (IP-based) to avoid repeated lookups
-const botIpCache = new LRUCache({
-  maxSize: 500, // Cache up to 500 bot IPs
-  ttl: 1000 * 60 * 60 * 24 * 7, // Cache for 7 days
-  sizeCalculation: () => 1,
-});
-
-// Major crawler user agents and corresponding hostnames
-const knownBots = {
-  google: { userAgent: 'Googlebot', hostname: 'googlebot.com' },
-  bing: { userAgent: 'Bingbot', hostname: 'search.msn.com' },
-  yandex: { userAgent: 'YandexBot', hostname: 'yandex.com' },
-  baidu: { userAgent: 'Baiduspider', hostname: 'baidu.com' },
-  duckduckgo: { userAgent: 'DuckDuckBot', hostname: 'duckduckgo.com' }
-};
-
-// Middleware to check if the IP belongs to a known bot using cached DNS reverse lookup
-async function isBotIp(userAgent, ip) {
-  const cachedBotCheck = botIpCache.get(ip);
-  if (cachedBotCheck !== undefined) {
-    return cachedBotCheck; // Return the cached result (true or false)
-  }
-
-  const matchingBot = Object.values(knownBots).find(bot => String(userAgent || '').includes(bot.userAgent));
-
-  if (!matchingBot) {
-    botIpCache.set(ip, false); // Cache as false for non-bot IPs
-    return false;
-  }
-
-  try {
-    const hostnames = await reverseLookup(ip); // Perform DNS reverse lookup
-    const isValidBot = hostnames.some(hostname => hostname.endsWith(matchingBot.hostname));
-
-    // Cache the result (true if valid bot, false otherwise)
-    botIpCache.set(ip, isValidBot);
-    return isValidBot;
-  } catch (error) {
-    console.error(`DNS lookup failed for IP: ${ip}`, error);
-    botIpCache.set(ip, false); // Cache as false on error
-    return false;
-  }
-}
-
-// Middleware to skip the rate limiter for known bots
-async function shouldSkipRateLimit(req) {
-  const userAgent = req.get('User-Agent');
-  const ip = req.ip;
-  
-  // Check if the request comes from a known bot
-  return await isBotIp(userAgent, ip);
-}
-
 // Every page and API request (not the static files, they come before it): 600 per 10 minutes per visitor, far more
 // than browsing needs, but a scraper or a stuck script is stopped for a few minutes instead of hours.
 const allRequestsLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 600,
-  skip: shouldSkipRateLimit, // search engine crawlers (checked by reverse DNS)
+  skip: crawlers.skip, // search engine and AI crawlers whose address checks out (service/crawlers.js)
   standardHeaders: true, // RateLimit-* headers
   legacyHeaders: false,
   handler: (req, res, next, options) => {
@@ -357,7 +300,9 @@ app.use((req, res, next) => {
   next()
 })
 
-// 6. The overall rate limit (after the language, so the "too many requests" page is in the visitor's language)
+// 6. The overall rate limit (after the language, so the "too many requests" page is in the visitor's language).
+// Search engine and AI crawlers skip it, and the API's limits too (service/crawlers.js checks their addresses).
+app.use(crawlers.middleware)
 app.use(allRequestsLimiter)
 
 Date.prototype.toUnixTime = function() { return this.getTime()/1000|0 };
@@ -833,6 +778,7 @@ inventory_value.start(); // Admin -> Inventory value: what the bots hold, measur
 flips.start(); // Admin -> Flips: each copy the bots sold against what they paid for it, every 2 minutes
 memory.start(); // gives memory the site no longer uses back to the server (service/memory.js)
 item_lists.start(); // stock counts on /items between full reads of the item list (service/item_lists.js stock pass)
+crawlers.start(); // reads the crawlers' published address lists, then once a day (service/crawlers.js)
 sitemap.start(); // the sitemap follows the items traded now: built again when the item list changes (service/sitemap.js)
 
 app.use((err, req, res, next) => {
