@@ -748,7 +748,9 @@
     "error_text": "Tato stránka neexistuje, nebo se u nás něco pokazilo!",
     "login_required": "Tato stránka je dostupná jen přihlášeným uživatelům.",
     "rate_limited": "Překročen limit požadavků",
-    "rate_limited_text": "...Zkuste to za chvíli znovu"
+    "rate_limited_text": "...Zkuste to za chvíli znovu",
+    "login_failed": "Přihlášení přes Steam se nepovedlo.",
+    "login_retry": "Zkusit znovu"
   },
   "new_user": {
     "welcome_html": "Vítejte na TF2deal.com, {name}!",

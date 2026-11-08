@@ -19,6 +19,8 @@
     text-align: center;
     animation: announcementIn 250ms ease-out;
     &.hidden{ display: none; }
+    // "Signing in with Steam didn't work. Try again" (partials/nav.ejs); links are display:block site-wide
+    a{ display: inline; color: var(--violet); text-decoration: underline; font-weight: 600; }
     .site-announcement-dot{
         width: 8px;
         height: 8px;

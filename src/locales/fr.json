@@ -748,7 +748,9 @@
     "error_text": "Cette page n'existe pas ou un problème est survenu de notre côté !",
     "login_required": "Cette page est réservée aux utilisateurs connectés.",
     "rate_limited": "Limite de requêtes dépassée",
-    "rate_limited_text": "...Réessayez dans un instant"
+    "rate_limited_text": "...Réessayez dans un instant",
+    "login_failed": "La connexion avec Steam n'a pas fonctionné.",
+    "login_retry": "Réessayer"
   },
   "new_user": {
     "welcome_html": "Bienvenue sur TF2deal.com, {name} !",

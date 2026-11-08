@@ -203,6 +203,12 @@
         <span class="site-announcement-dot"></span>
         <span class="site-announcement-text"><%= site_ann ? site_ann.text : '' %></span>
     </div>
+    <% if (locals.login_error && !locals.user) { %>
+    <div class="site-announcement level-warning login-error-notice" role="alert">
+        <span class="site-announcement-dot"></span>
+        <span class="site-announcement-text"><%= __('errors.login_failed') %> <a href="/auth/steam" rel="nofollow"><%= __('errors.login_retry') %></a></span>
+    </div>
+    <% } %>
 
     <% if (locals.lang_suggest && locals.lang_suggest != lang) { const s = locals.lang_suggest %>
       <div class="lang-suggest hidden" id="lang-suggest" lang="<%= lang_tags[s] %>">

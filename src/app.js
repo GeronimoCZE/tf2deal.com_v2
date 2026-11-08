@@ -297,6 +297,7 @@ app.use((req, res, next) => {
   res.locals.canonical = fn.canonical_url(page_path, req.lang)
   // account/admin/trade-offer pages are kept out of search results
   res.locals.noindex = /^\/(profile|admin|login|support|buy|auth|logout|get_userDB_)(\/|$)/.test(page_path)
+  res.locals.login_error = req.query.login_error === 'true' // the Steam sign-in failed (app.js /auth/steam, /get_userDB_)
   next()
 })
 
@@ -679,7 +680,8 @@ app.get('/get_userDB_', mw.isLogged, async (req, res) => {
           const tradeOffer = (trade_offers.get(req.user.steamid) == undefined) ? {}:{id: trade_offers.get(req.user.steamid).id}
           const cookie = fn.user_cookie(req.user.steamid, saveUser, tradeOffer)
           res.cookie(cookie.name, cookie.value, cookie.setting).redirect("/?new_user=true")
-        }).catch(() => {
+        }).catch((error) => {
+          console.log(`Sign-in: new user ${req.user.steamid} not saved:`, error?.message || error)
           res.redirect('/logout?login_error=true')
         })
       } else {
@@ -688,7 +690,8 @@ app.get('/get_userDB_', mw.isLogged, async (req, res) => {
         let new_user = (user?.tradelink == "" || user?.tradelink == undefined) ? "?new_user=true":""
         res.cookie(cookie.name, cookie.value, cookie.setting).redirect((req.cookies['td_current_url'] || '/trade') + new_user)
       }
-    }).catch(() => {
+    }).catch((error) => {
+      console.log(`Sign-in: user ${req.user.steamid} not read:`, error?.message || error)
       res.redirect('/logout?login_error=true')
     })
   }
@@ -698,6 +701,11 @@ app.get(/^\/auth\/steam(\/return)?$/, passport.authenticate('steam', {
   failureRedirect: '/',
 }), (req, res) => {
   res.redirect('/get_userDB_');
+}, (err, req, res, next) => {
+  // Steam didn't answer, the Steam API key was refused, the sign-in link was opened twice (back button), ...: the
+  // reason goes to the log and the visitor gets "sign-in didn't work, try again" instead of an error page
+  console.log(`Steam sign-in failed on ${req.path}:`, err?.message || err, err?.openidError?.message || err?.openidError || '')
+  res.redirect('/logout?login_error=true')
 });
 
 app.get('/logout', (req, res, next) => {
@@ -786,12 +794,26 @@ app.use((err, req, res, next) => {
   if (res.headersSent) return next(err)
   if (req.xhr) return res.status(500).send({ status: "error", error: 'Something failed!' })
   res.status(500)
-  if(req.user){
-    const user_cookie = req.cookies[`td_${req.user.steamid}`];
-    res.render('error.ejs', fn.res_data(true, req.user, user_cookie, (req.__ ? req.__('title.error') : 'Error - TF2Deal.com'), {view: 'error'}))
-  } else {
-    res.render('error.ejs', fn.res_data(false, undefined, undefined, (req.__ ? req.__('title.error') : 'Error - TF2Deal.com'), {view: 'error'}))
+  const title = req.__ ? req.__('title.error') : 'Error - TF2Deal.com'
+  let data
+  try {
+    data = req.user
+      ? fn.res_data(true, req.user, req.cookies?.[`td_${req.user.steamid}`], title, {view: 'error'})
+      : fn.res_data(false, undefined, undefined, title, {view: 'error'})
+  } catch (data_error) {
+    data = null
+    console.log('Error page data failed:', data_error)
   }
+  // if the error page itself can't be drawn, a line of text instead of a second error
+  const plain = () => res.type('text/plain').send('Something went wrong on TF2Deal.com. Please go back and try again.')
+  if (!data) return plain()
+  res.render('error.ejs', data, (render_error, html) => {
+    if (render_error) {
+      console.log('Error page failed:', render_error)
+      return plain()
+    }
+    res.send(html)
+  })
 })
 
 export {

@@ -748,7 +748,9 @@
     "error_text": "Diese Seite existiert nicht oder bei uns ist etwas schiefgelaufen!",
     "login_required": "Diese Seite ist nur für angemeldete Nutzer verfügbar.",
     "rate_limited": "Anfragelimit überschritten",
-    "rate_limited_text": "...Versuch es gleich noch einmal"
+    "rate_limited_text": "...Versuch es gleich noch einmal",
+    "login_failed": "Die Anmeldung über Steam hat nicht geklappt.",
+    "login_retry": "Erneut versuchen"
   },
   "new_user": {
     "welcome_html": "Willkommen auf TF2deal.com, {name}!",

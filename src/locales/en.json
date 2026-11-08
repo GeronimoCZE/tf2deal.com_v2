@@ -748,7 +748,9 @@
     "error_text": "This page doesn't exist or something went wrong on our end!",
     "login_required": "This page is only available to signed-in users.",
     "rate_limited": "Rate limit exceeded",
-    "rate_limited_text": "...Try again in a moment"
+    "rate_limited_text": "...Try again in a moment",
+    "login_failed": "Signing in with Steam didn't work.",
+    "login_retry": "Try again"
   },
   "new_user": {
     "welcome_html": "Welcome {name} to TF2deal.com!",

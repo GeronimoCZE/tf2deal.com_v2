@@ -357,14 +357,14 @@
         const key_price = <%- JSON.stringify(info?.key_price || null).replace(/</g, '\\u003c') %>;
         var site_settings = <%- JSON.stringify(typeof site_settings != 'undefined' ? site_settings : { trading: true, announcement: null }).replace(/</g, '\\u003c') %>;
     </script>
-<% if(user){ %>
+<% if(user && locals.user_db){ /* user_db: fn.res_data, only for a user with a steamid */ %>
     <script>
         const user = `<%- tl(user.steamid) %>`;
         const user_accountid = `<%- tl(user_db.user.accountid) %>`;
         const user_role = `<%- tl(user_db.user.role) %>`;
         const user_tradeurl = `<%- tl((user_db.user.tradelink == 'null') ? '' : user_db.user.tradelink) %>`;
         const user_email = `<%- tl((user_db.user.email == 'null') ? '' : user_db.user.email) %>`;
-        const wishlist = `<%- tl((user_db.user?.wishlist.length == 0) ? '[]' : user_db.user?.wishlist) %>`;
+        const wishlist = `<%- tl(user_db.user?.wishlist?.length ? user_db.user.wishlist : '[]') %>`;
         const user_firstlogin = `<%- tl(user_db.user.firstlogin) %>`;
         const trade_offer = `<%- tl(trade) %>`;
     </script>
