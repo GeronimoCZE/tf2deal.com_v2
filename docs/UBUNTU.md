@@ -87,14 +87,23 @@ when it has grown (service/memory.js, log lines "Memory: 230 MB -> 145 MB ...").
 After a change is merged on GitHub:
 
 ```bash
-cd ~/tf2deal && git pull && npm install && pm2 restart tf2deal
+bash ~/tf2deal/scripts/update.sh
 ```
 
-Your `src/config/.env` stays untouched by `git pull`.
+It pulls the newest code, installs packages, builds `src/public/css/style.css` again from the SCSS
+(`npm run build:css`), restarts PM2 and waits until the site answers. If the site doesn't answer within a minute it
+prints the last log lines and ends with an error. Your `src/config/.env` stays untouched.
+
+The same by hand:
+
+```bash
+cd ~/tf2deal && git pull && npm install && npm run build:css && pm2 restart tf2deal
+```
 
 If `git pull` stops with "Your local changes to the following files would be overwritten" and lists
 `src/public/sitemap.xml` or files in `src/public/sitemaps/`: those are old sitemap files the server wrote itself.
-The sitemaps are now built on request, so drop the server's copies and pull again:
+The sitemaps are now built on request, so drop the server's copies and pull again (update.sh does this, and the same
+for a `style.css` it built itself):
 
 ```bash
 git checkout -- src/public/sitemap.xml src/public/sitemaps && git pull
