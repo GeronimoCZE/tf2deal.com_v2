@@ -7,6 +7,7 @@
   "scripts": {
     "test": "node scripts/check.mjs",
     "update": "npm update steam-user --save && npm update steamcommunity --save && npm update steam-tradeoffer-manager --save && npm update steam-totp --save",
+    "build:css": "sass --quiet --style=compressed --no-source-map src/public/scss/style.scss src/public/css/style.css",
     "dev-app": "node src/app",
     "dev": "concurrently --kill-others \"nodemon src/app\" \"sass --watch --style=compressed src/public/scss:src/public/css\""
   },
