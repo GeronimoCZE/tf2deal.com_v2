@@ -748,7 +748,9 @@
     "error_text": "¡Esta página no existe o algo salió mal por nuestra parte!",
     "login_required": "Esta página solo está disponible para usuarios que hayan iniciado sesión.",
     "rate_limited": "Límite de solicitudes superado",
-    "rate_limited_text": "...Inténtalo de nuevo en un momento"
+    "rate_limited_text": "...Inténtalo de nuevo en un momento",
+    "login_failed": "No se pudo iniciar sesión con Steam.",
+    "login_retry": "Intentar de nuevo"
   },
   "new_user": {
     "welcome_html": "¡Te damos la bienvenida a TF2deal.com, {name}!",

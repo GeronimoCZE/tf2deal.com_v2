@@ -56,6 +56,8 @@ const res_data = (auth, user, user_db, title, info, datas) => {
 
     const sid = new SteamID(user.steamid)
 
+    // No td_ cookie yet: a new user between the Steam sign-in and /get_userDB_ (app.js), or a page rendered for an
+    // error on the way. Every field head.ejs reads has to be here, or the page (even the error page) fails to render.
     if (!user_db || user_db.user == null) {
       user_db = {
         user: {
@@ -65,11 +67,13 @@ const res_data = (auth, user, user_db, title, info, datas) => {
           firstlogin: '',
           accountid: '',
           trades: 0,
-          giveaways: { entries: 0, won: 0 }
+          giveaways: { entries: 0, won: 0 },
+          wishlist: []
         },
         trade_offer: {}
       }
     }
+    if (!Array.isArray(user_db.user.wishlist)) user_db.user.wishlist = []
 
     user_db.user.accountid = sid.accountid
     obj.user_db = user_db
