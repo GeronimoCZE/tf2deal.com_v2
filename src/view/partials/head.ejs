@@ -66,7 +66,8 @@
     const seo_description = info?.description || __('desc.default')
     const seo_path = info?.path || locals.page_path || '/'
     const seo_url = info?.canonical || (info?.path ? seo_site + lurl(info.path) : locals.canonical) || seo_site + '/'
-    const seo_image = info?.image || seo_site + '/img/og-image.png'
+    // the share picture on https (a stored Steam picture address may be http://, see fn.https_url)
+    const seo_image = String(info?.image || seo_site + '/img/og-image.png').replace(/^http:\/\//i, 'https://')
     const seo_index = !(locals.noindex || info?.noindex)
 %>
     <meta name="description" content="<%= seo_description %>">

@@ -70,7 +70,8 @@
     "created_by": "Criado com ❤️ por {author}",
     "trading": "Trocas",
     "help": "Ajuda",
-    "legal": "Legal"
+    "legal": "Legal",
+    "items_by_category": "Itens de TF2 por categoria"
   },
   "title": {
     "home": "Bot de trade de TF2 e site de trading automático | TF2Deal.com",
@@ -692,7 +693,8 @@
     "faq_stock_yes": "Sim, {count} em estoque por {buy}. Entre com a Steam, escolha o item e um bot envia a oferta de troca quando você confirma.",
     "faq_stock_no": "Agora não. Volta ao estoque quando alguém vende um para os nossos bots.",
     "faq_sold_q": "Com que frequência {name} é vendido?",
-    "faq_sold_a": "Nossos bots venderam {count} nos últimos 30 dias."
+    "faq_sold_a": "Nossos bots venderam {count} nos últimos 30 dias.",
+    "breadcrumb": "Trilha de navegação"
   },
   "giveaway": {
     "current": "Sorteio atual",

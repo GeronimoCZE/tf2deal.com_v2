@@ -70,7 +70,8 @@
     "created_by": "Créé avec ❤️ par {author}",
     "trading": "Échanges",
     "help": "Aide",
-    "legal": "Mentions légales"
+    "legal": "Mentions légales",
+    "items_by_category": "Objets TF2 par catégorie"
   },
   "title": {
     "home": "Bot de trade TF2 et site de trading TF2 automatique | TF2Deal.com",
@@ -692,7 +693,8 @@
     "faq_stock_yes": "Oui, {count} en stock à {buy}. Connectez-vous avec Steam, choisissez l'objet et un bot envoie l'offre d'échange dès que vous confirmez.",
     "faq_stock_no": "Pas pour le moment. Il revient en stock quand quelqu'un en vend un à nos bots.",
     "faq_sold_q": "{name} se vend-il souvent ?",
-    "faq_sold_a": "Nos bots en ont vendu {count} au cours des 30 derniers jours."
+    "faq_sold_a": "Nos bots en ont vendu {count} au cours des 30 derniers jours.",
+    "breadcrumb": "Fil d'Ariane"
   },
   "giveaway": {
     "current": "Concours en cours",

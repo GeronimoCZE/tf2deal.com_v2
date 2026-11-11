@@ -332,7 +332,12 @@ const item_page = async (req, res) => {
     const key_price = Number(main.bptf_data?.update_key_price) || 0
     const stock = { cur: Number(main.stock?.cur) || 0, limit: Number(main.stock?.limit) || 0 }
     // its pictures as full addresses (structured data needs them; a stored "ms/..." short form is left out)
-    const images = [...new Set([main.image_large, main.image].map((url) => /^https?:\/\//.test(url || '') ? url : /^\/[^/]/.test(url || '') ? fn.site_url + url : null).filter(Boolean))]
+    // (Steam's picture addresses may be stored as http://: the same pictures are on https://, which a page on https
+    // and its share card need)
+    const images = [...new Set([main.image_large, main.image].map((url) => /^https?:\/\//.test(url || '') ? fn.https_url(url) : /^\/[^/]/.test(url || '') ? fn.site_url + url : null).filter(Boolean))]
+    // the category page above this item (service/categories.js category_of): the breadcrumb's middle step
+    const category_entry = categories.category_of(main)
+    const category = category_entry ? { name: category_entry.name, url: req.lurl(categories.path_of(category_entry)) } : null
     // the item's data as text, so the page shows it before (and without) the page scripts
     // on a killstreak tier's page: that tier's prices and stock, as public/js/main.js show_tier sets them
     const tier_stock = ks_entry?.stock && typeof ks_entry.stock == 'object' ? ks_entry.stock : (ks_entry?.stock !== undefined ? { cur: ks_entry?.stock } : null)
@@ -426,7 +431,8 @@ const item_page = async (req, res) => {
         path: page_path,
         ...(ks && !own_page && { canonical: item_url, no_hreflang: true }),
         noindex, // only items the bots really trade (fn.item_indexable, item_lists.tier_indexable)
-        image: main.image_large || main.image,
+        image: fn.https_url(main.image_large || main.image),
+        category, // { name, url } or null: Items / <category> / item (view/item_page.ejs)
         json_ld: {
           '@context': 'https://schema.org',
           '@graph': [
@@ -436,7 +442,8 @@ const item_page = async (req, res) => {
               itemListElement: [
                 { '@type': 'ListItem', position: 1, name: req.__('footer.home'), item: fn.site_url + req.lurl('/') },
                 { '@type': 'ListItem', position: 2, name: req.__('nav.items'), item: fn.site_url + req.lurl('/items') },
-                { '@type': 'ListItem', position: 3, name: page_item.bp_sku, item: page_url }
+                ...(category ? [{ '@type': 'ListItem', position: 3, name: category.name, item: fn.site_url + category.url }] : []),
+                { '@type': 'ListItem', position: category ? 4 : 3, name: page_item.bp_sku, item: page_url }
               ]
             },
             {

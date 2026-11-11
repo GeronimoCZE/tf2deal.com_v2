@@ -15,6 +15,10 @@ const site_url = 'https://tf2deal.com'
 // '/items/' -> '/items' (one URL per page for search engines)
 const clean_path = (pathname = '/') => String(pathname).replace(/\/+$/, '') || '/'
 
+// an http:// picture address as https:// (Steam's item pictures are stored as http:// in places and are served on
+// https:// too): a page on https shows no insecure content, and share cards and structured data get a secure picture
+const https_url = (url) => typeof url === 'string' ? url.replace(/^http:\/\//i, 'https://') : url
+
 // full canonical URL of a page in a language: no query string, no trailing slash
 const canonical_url = (pathname = '/', lang = 'en') => site_url + localize_path(lang, clean_path(pathname))
 
@@ -411,6 +415,7 @@ export {
   slugify,
   site_url,
   clean_path,
+  https_url,
   canonical_url,
   price_text,
   item_description,

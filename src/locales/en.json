@@ -70,7 +70,8 @@
     "created_by": "Created with ❤️ by {author}",
     "trading": "Trading",
     "help": "Help",
-    "legal": "Legal"
+    "legal": "Legal",
+    "items_by_category": "TF2 items by category"
   },
   "title": {
     "home": "TF2 Trade Bot & Automated TF2 Trading Site | TF2Deal.com",
@@ -692,7 +693,8 @@
     "faq_stock_yes": "Yes, {count} in stock for {buy}. Sign in with Steam, pick it, and a bot sends the trade offer once you confirm.",
     "faq_stock_no": "Not right now. It comes back when someone sells one to our bots.",
     "faq_sold_q": "How often does {name} sell?",
-    "faq_sold_a": "Our bots sold {count} in the last 30 days."
+    "faq_sold_a": "Our bots sold {count} in the last 30 days.",
+    "breadcrumb": "Breadcrumb"
   },
   "giveaway": {
     "current": "Current giveaway",
