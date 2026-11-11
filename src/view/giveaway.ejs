@@ -17,7 +17,7 @@
 
                   <div class="gw-info">
                     <span class="gw-live"><i></i><%= __('giveaway.current') %></span>
-                    <h1 translate="no"><a href="<%= lurl('/items/' + encodeURIComponent(g.item.bp_sku)) %>"><%= g.item.bp_sku %></a></h1>
+                    <h1 translate="no"><% if (g.prize?.priced === false) { %><%= g.item.bp_sku %><% } else { %><a href="<%= lurl('/items/' + encodeURIComponent(g.item.bp_sku)) %>"><%= g.item.bp_sku %></a><% } %></h1>
                     <% if (g.description) { %><p class="description" lang="<%= lang_tags[g.description_lang] %>"><%= g.description_shown %><% if (g.description_translated) { %> <span class="ai-note"><%= __('common.ai_translated') %></span><% } %></p><% } %>
 
                     <h2 class="gw-subtitle"><%= __('giveaway.how_to_enter') %></h2>
@@ -62,6 +62,15 @@
                       <div class="stat-name"><%= __('giveaway.entries') %></div>
                       <div class="stat-data" id="giveaway-entries"><%= g.entry_count %></div>
                     </div>
+                  </div>
+                  <%# the latest 45 entrants' Steam avatars, newest first, then "+ n" for everyone else %>
+                  <% const ent = g.entrants || { recent: [], more: 0 }; %>
+                  <div class="gw-entrants" id="giveaway-entrants" <% if (!ent.recent.length) { %>hidden<% } %>>
+                    <div class="stat-name"><%= __('giveaway.latest_entries') %></div>
+                    <ul class="gw-avatars">
+                      <% for (const e of ent.recent) { %><li><img src="<%= e.avatar || '/img/new_user-96.webp' %>" alt="<%= e.name %>" title="<%= e.name %>" width="28" height="28" loading="lazy" data-no-fade></li><% } %>
+                      <% if (ent.more > 0) { %><li class="gw-more" title="<%= __('giveaway.more_entries_label', { n: ent.more }) %>">+ <%= ent.more %></li><% } %>
+                    </ul>
                   </div>
                 </div>
               <% } else { %>
@@ -130,6 +139,32 @@
                 timer = setInterval(tick, 1000)
             }
 
+            // the latest entrants' avatars, after a successful entry (theirs is first now)
+            const showEntrants = ({ recent, more }) => {
+                const box = document.getElementById('giveaway-entrants')
+                if (!box) return
+                const list = box.querySelector('.gw-avatars')
+                list.textContent = ''
+                for (const e of recent) {
+                    const li = document.createElement('li')
+                    const img = document.createElement('img')
+                    img.src = e.avatar || '/img/new_user-96.webp'
+                    img.alt = img.title = e.name || ''
+                    img.width = img.height = 28
+                    img.setAttribute('data-no-fade', '')
+                    li.append(img)
+                    list.append(li)
+                }
+                if (more > 0) {
+                    const li = document.createElement('li')
+                    li.className = 'gw-more'
+                    li.title = <%- JSON.stringify(__('giveaway.more_entries_label', { n: '{n}' })) %>.replace('{n}', more)
+                    li.textContent = '+ ' + more
+                    list.append(li)
+                }
+                box.hidden = recent.length == 0
+            }
+
             // enter
             const enterBtn = document.getElementById('giveaway-enter')
             if (enterBtn) {
@@ -157,7 +192,9 @@
                         enterBtn.textContent = <%- JSON.stringify(__('giveaway.entered')) %> + " \u2713"
                         enterBtn.classList.add('entered')
                         const entries = document.getElementById('giveaway-entries')
-                        if (!res.already) entries.textContent = Number(entries.textContent) + 1
+                        if (res.entrants) entries.textContent = res.entrants.total
+                        else if (!res.already) entries.textContent = Number(entries.textContent) + 1
+                        if (res.entrants) showEntrants(res.entrants)
                     } else {
                         enterBtn.disabled = false
                         enterBtn.textContent = <%- JSON.stringify(__('giveaway.try_again')) %>

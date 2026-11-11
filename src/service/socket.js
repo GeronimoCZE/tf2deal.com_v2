@@ -185,6 +185,8 @@ setTimeout(() => {
 
     // bot_manager's admin pushes, for the admin panel (settings_socket.js sends them on to the signed-in admins)
     bots_io.on('admin:changed', (data) => localEmitter.emit('bot_manager:changed', data));
+    // a giveaway prize moved to the bank bot, or its offer to the winner changed (service/giveaway_prize.js)
+    bots_io.on('giveaway:prize', (data) => localEmitter.emit('bot_manager:giveaway_prize', data));
     bots_io.on('admin:stock_updated', (data) => {
         localEmitter.emit('bot_manager:stock_updated', data);
         item_lists.stock_changed(); // the stock counts on /items and in the search follow within seconds

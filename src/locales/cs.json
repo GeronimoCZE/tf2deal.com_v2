@@ -319,7 +319,11 @@
       "gw_ended": "Ukončeno",
       "gw_winner": "Výherce: {name}",
       "gw_no_winner": "Bez výherce",
-      "no_giveaways_html": "Zatím jste se nezapojili do žádné soutěže. <a href=\"{url}\">Zobrazit aktuální soutěž</a>"
+      "no_giveaways_html": "Zatím jste se nezapojili do žádné soutěže. <a href=\"{url}\">Zobrazit aktuální soutěž</a>",
+      "gw_prize_received": "Výhra převzata.",
+      "gw_prize_offer": "Nabídka s výhrou čeká na Steamu: přijmi ji.",
+      "gw_prize_tradelink": "Přidej svou trade URL, abys dostal výhru.",
+      "gw_prize_declined": "Nabídka s výhrou byla odmítnuta nebo vypršela. Napiš nám ticket a pošleme ji znovu."
     },
     "tickets": {
       "status_open": "Čeká na podporu",
@@ -558,10 +562,16 @@
       "giveaway_ended": "{winner} vyhrál {item}.",
       "giveaway_ended_nowinner": "Giveaway o {item} skončil bez účastníků.",
       "giveaway_won_title": "Vyhráli jste giveaway!",
-      "giveaway_won": "{item} je váš. Brzy vám ho pošleme.",
+      "giveaway_won": "{item} je tvůj. Náš bot ti pošle nabídku k výměně.",
       "ticket_reply_title": "Podpora odpověděla",
       "ticket_reply": "Ve vašem tiketu je nová odpověď.",
-      "announcement_title": "Oznámení"
+      "announcement_title": "Oznámení",
+      "giveaway_prize_sent_title": "Výhra je na cestě",
+      "giveaway_prize_sent": "Náš bot ti poslal nabídku k výměně s {item}. Přijmi ji na Steamu.",
+      "giveaway_tradelink_title": "Přidej svou trade URL",
+      "giveaway_tradelink": "Abychom ti mohli poslat {item}, potřebujeme tvou Steam trade URL. Přidej ji v profilu.",
+      "giveaway_admin_winner_title": "Výherce giveawaye",
+      "giveaway_admin_winner": "{winner} vyhrál {item}. Podrobnosti najdeš v Admin → Giveaways."
     },
     "buy_link": {
       "buy_title": "Koupit tento předmět",
@@ -722,7 +732,9 @@
     "hours": "hod",
     "minutes": "min",
     "seconds": "s",
-    "how_to_enter": "Jak se zapojit"
+    "how_to_enter": "Jak se zapojit",
+    "latest_entries": "Poslední přihlášení",
+    "more_entries_label": "Dalších přihlášení: {n}"
   },
   "blog": {
     "h1": "Blog",

@@ -20,7 +20,8 @@ import { site_shape } from '../../service/trade_records.js';
 import { item_model } from '../../model/Item.js';
 import { ticket_model } from '../../model/Ticket.js';
 import { giveaway_model } from '../../model/Giveaway.js';
-import { check_requirements, in_steam_group, group_url } from '../../service/giveaway.js';
+import { check_requirements, in_steam_group, group_url, add_entry, recent_view } from '../../service/giveaway.js';
+import { winner_saved_tradelink } from '../../service/giveaway_prize.js';
 import { public_bot, read_accounts } from '../../service/bot_names.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -94,6 +95,8 @@ router.post('/update', isLogged, per_user(60*60*1000, 6), async (req, res) => {
             { $set: { tradelink: (req.body['tradeurl'] == 'null') ? "":req.body['tradeurl']} }
           ).then(() => {
             cookie.user['tradelink'] = req.body['tradeurl']
+            // a giveaway prize waiting for this trade link goes out now
+            if(req.body['tradeurl'] != 'null'){ winner_saved_tradelink(req.user.steamid).catch(() => {}) }
             const user_cookie = func.user_cookie(req.user.steamid, cookie.user, cookie.trade_offer)
             res.cookie(user_cookie.name, user_cookie.value, user_cookie.setting).send({status: 'OK', message: req.__('api.saved')})
           });
@@ -389,7 +392,7 @@ router.get('/wishlist', isLogged, async (req, res) => {
 router.get('/giveaways', isLogged, async (req, res) => {
   const steamid = req.user.steamid
   try {
-    const giveaways = await giveaway_model.find({ 'entries.steamid': steamid }, { entries: 0 }).sort({ end: -1 }).limit(50).lean()
+    const giveaways = await giveaway_model.find({ 'entries.steamid': steamid }, { entries: 0, recent: 0 }).sort({ end: -1 }).limit(50).lean()
     res.json({ status: 'ok', giveaways: giveaways.map((g) => ({
       id: g._id,
       item: g.item,
@@ -398,6 +401,12 @@ router.get('/giveaways', isLogged, async (req, res) => {
       status: g.status,
       won: g.winner?.steamid == steamid,
       prize_sent: g.prize_sent,
+      // the winner's view of the bank bot's offer: waiting (no offer yet), sent (+ link), declined
+      prize: g.winner?.steamid == steamid && g.prize?.state ? {
+        state: g.prize_sent ? 'accepted' : ['sent', 'declined'].includes(g.prize.state) ? g.prize.state : 'waiting',
+        offer: g.prize.state == 'sent' && g.prize.offer_id ? `https://steamcommunity.com/tradeoffer/${g.prize.offer_id}/` : '',
+        no_tradelink: g.prize.error == 'no_trade_link'
+      } : null,
       winner: g.winner?.steamid ? g.winner.name : null
     })) })
   } catch (error) {
@@ -431,15 +440,16 @@ router.post('/giveaway/enter', isLogged, per_user(60*60*1000, 20), async (req, r
       return res.json({ status: 'error', requirements, message })
     }
 
-    const result = await giveaway_model.updateOne(
-      { _id: giveaway._id, status: 'active', 'entries.steamid': { $ne: steamid } },
-      { $push: { entries: { steamid, name: req.user.personaname || '', avatar: req.user.avatarmedium || '', entered: Date.now() } } }
-    )
-    if((result.nModified ?? result.modifiedCount) > 0){
+    if(await add_entry(giveaway._id, req.user)){
       await User.updateOne({ steamid }, { $inc: { 'giveaways.entries': 1 } })
     }
 
-    res.json({ status: 'ok', entered: true, requirements, message: req.__('api.gw_entered') })
+    // the page shows the latest entrants' avatars (theirs first) and the new entry count
+    const now = await giveaway_model.aggregate([
+      { $match: { _id: giveaway._id } },
+      { $project: { recent: 1, entry_count: { $size: '$entries' } } }
+    ])
+    res.json({ status: 'ok', entered: true, requirements, message: req.__('api.gw_entered'), entrants: now[0] ? recent_view(now[0]) : null })
   } catch (error) {
     console.log(error)
     res.status(500).json({ status: 'error', message: req.__('api.gw_failed') })

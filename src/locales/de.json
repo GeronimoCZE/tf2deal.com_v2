@@ -319,7 +319,11 @@
       "gw_ended": "Beendet",
       "gw_winner": "Gewinner: {name}",
       "gw_no_winner": "Kein Gewinner",
-      "no_giveaways_html": "Du hast noch an keinem Gewinnspiel teilgenommen. <a href=\"{url}\">Zum aktuellen Gewinnspiel</a>"
+      "no_giveaways_html": "Du hast noch an keinem Gewinnspiel teilgenommen. <a href=\"{url}\">Zum aktuellen Gewinnspiel</a>",
+      "gw_prize_received": "Gewinn erhalten.",
+      "gw_prize_offer": "Dein Gewinn-Angebot wartet auf Steam: nimm es an.",
+      "gw_prize_tradelink": "Füge deine Trade-URL hinzu, um deinen Gewinn zu bekommen.",
+      "gw_prize_declined": "Das Gewinn-Angebot wurde abgelehnt oder ist abgelaufen. Öffne ein Support-Ticket, dann schicken wir es erneut."
     },
     "tickets": {
       "status_open": "Wartet auf Support",
@@ -558,10 +562,16 @@
       "giveaway_ended": "{winner} hat {item} gewonnen.",
       "giveaway_ended_nowinner": "Das Giveaway für {item} endete ohne Teilnehmer.",
       "giveaway_won_title": "Du hast gewonnen!",
-      "giveaway_won": "{item} gehört dir. Wir schicken es dir bald.",
+      "giveaway_won": "{item} gehört dir. Unser Bot schickt dir ein Tauschangebot.",
       "ticket_reply_title": "Der Support hat geantwortet",
       "ticket_reply": "Es gibt eine neue Antwort auf dein Support-Ticket.",
-      "announcement_title": "Ankündigung"
+      "announcement_title": "Ankündigung",
+      "giveaway_prize_sent_title": "Dein Gewinn ist unterwegs",
+      "giveaway_prize_sent": "Unser Bot hat dir ein Tauschangebot mit {item} geschickt. Nimm es auf Steam an.",
+      "giveaway_tradelink_title": "Trade-URL hinzufügen",
+      "giveaway_tradelink": "Wir brauchen deine Steam-Trade-URL, um dir {item} zu schicken. Füge sie in deinem Profil hinzu.",
+      "giveaway_admin_winner_title": "Gewinner des Giveaways",
+      "giveaway_admin_winner": "{winner} hat {item} gewonnen. Details unter Admin → Giveaways."
     },
     "buy_link": {
       "buy_title": "Diesen Gegenstand kaufen",
@@ -722,7 +732,9 @@
     "hours": "Std",
     "minutes": "Min",
     "seconds": "Sek",
-    "how_to_enter": "So nimmst du teil"
+    "how_to_enter": "So nimmst du teil",
+    "latest_entries": "Neueste Teilnahmen",
+    "more_entries_label": "{n} weitere Teilnahmen"
   },
   "blog": {
     "h1": "Blog",

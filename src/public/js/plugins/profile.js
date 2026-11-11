@@ -132,7 +132,16 @@ export const load_giveaways = async () => {
     const status_text = (g) => {
         if(g.status == 'active'){ return `<span class="badge active">${__('profile.gw_entered')}</span> ${__('profile.gw_ends', { date: datetime_text(g.end) })}` }
         if(g.status == 'cancelled'){ return `<span class="badge closed">${__('profile.gw_cancelled')}</span>` }
-        if(g.won){ return `<span class="badge won">${__('profile.gw_won')}</span> ${g.prize_sent ? __('profile.gw_prize_sent') : __('profile.gw_prize_soon')}` }
+        if(g.won){
+            // the bank bot's offer: link to it while it's open; no trade link yet → ask for one
+            const p = g.prize
+            const text = g.prize_sent || p?.state == 'accepted' ? __('profile.gw_prize_received')
+                : p?.state == 'sent' ? (p.offer ? `<a href="${esc(p.offer)}" target="_blank" rel="nofollow">${__('profile.gw_prize_offer')}</a>` : __('profile.gw_prize_sent'))
+                : p?.no_tradelink ? `<a href="${lurl('/profile')}">${__('profile.gw_prize_tradelink')}</a>`
+                : p?.state == 'declined' ? __('profile.gw_prize_declined')
+                : __('profile.gw_prize_soon')
+            return `<span class="badge won">${__('profile.gw_won')}</span> ${text}`
+        }
         return `<span class="badge closed">${__('profile.gw_ended')}</span> ${g.winner ? __('profile.gw_winner', { name: esc(g.winner) }) : __('profile.gw_no_winner')}`
     }
 

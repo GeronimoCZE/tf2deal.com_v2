@@ -41,6 +41,14 @@ const describe = (n) => {
                 : __('notifications.giveaway_ended_nowinner', { item: item_html(v.item) }) }
         case 'giveaway_won':
             return { icon: 'trophy', title: __('notifications.giveaway_won_title'), text: __('notifications.giveaway_won', { item: item_html(v.item) }) }
+        case 'giveaway_prize_sent':
+            return { icon: 'gift', title: __('notifications.giveaway_prize_sent_title'), text: __('notifications.giveaway_prize_sent', { item: item_html(v.item) }) }
+        case 'giveaway_tradelink':
+            return { icon: 'gift', title: __('notifications.giveaway_tradelink_title'), text: __('notifications.giveaway_tradelink', { item: item_html(v.item) }) }
+        case 'giveaway_admin_winner':
+            return { icon: 'trophy', title: __('notifications.giveaway_admin_winner_title'), text: v.winner
+                ? __('notifications.giveaway_admin_winner', { winner: `<b>${esc(v.winner)}</b>`, item: item_html(v.item) })
+                : __('notifications.giveaway_ended_nowinner', { item: item_html(v.item) }) }
         case 'ticket_reply':
             return { icon: 'chat', title: __('notifications.ticket_reply_title'), text: __('notifications.ticket_reply') }
         default:
