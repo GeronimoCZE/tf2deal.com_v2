@@ -2,7 +2,13 @@
 
 "Latest trades" on the home page and Profile → Trades show each traded copy's details in its tooltip: paint,
 Halloween spells, strange parts, killstreaker, sheen and custom name (plus the spell / part corner marks and a painted
-copy's own picture). Each side of a trade is labelled: "User" (or "You" on the profile) and "Site bot".
+copy's own picture). Each side of a trade is labelled: "User" (or "You" on the profile) and the bot's Steam name linked to its Steam profile ("Site bot" when the
+record doesn't name a known bot).
+
+The trader stays anonymous in "Latest trades": /api/latest_trades and the live socket send no trade ID, partner
+Steam ID or real asset IDs (copies are numbered 0, 1, 2…, since a real asset ID leads to the owner on backpack.tf),
+only the fields the page draws, and no custom name, custom description or inspect link. Profile → Trades (the
+trader's own trades) shows those.
 
 ## Where the details come from
 
