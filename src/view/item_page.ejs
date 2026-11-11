@@ -26,11 +26,16 @@
                 <div class="page-section item-page">
                     <%- include('./partials/item_tooltip.ejs') %>
                     <!-- users can report bad sell / buy price => reports save to db (show in admin panel) -->
-                        <div class="navigation">
+                        <%# Items / its category page (service/categories.js category_of) / the item, as in the page's BreadcrumbList %>
+                        <nav class="navigation" aria-label="<%= __('item.breadcrumb') %>">
                             <a href="<%= lurl('/items') %>"><%= __('nav.items') %></a>
-                            <span class="spoiler">/</span>
-                            <span class="current-item"><a href="#"><%= info.page_name || info.item?.bp_sku %></a></span>
-                        </div>
+                            <% if (info.category) { %>
+                            <span class="spoiler" aria-hidden="true">/</span>
+                            <a href="<%= info.category.url %>" class="category-crumb"><%= info.category.name %></a>
+                            <% } %>
+                            <span class="spoiler" aria-hidden="true">/</span>
+                            <span class="current-item"><a href="#" aria-current="page"><%= info.page_name || info.item?.bp_sku %></a></span>
+                        </nav>
 
                         <% if(info.item?.status == 0){ %>
                             <div class="inactive-item">
@@ -45,7 +50,7 @@
                                     Item Overview
                                 </div> -->
                                 <div class="image-box q-<%= info.item?.qualityID %>">
-                                    <img src="<%= info.item?.image_large %>" alt="<%= item_alt(info.item) %>" class="image" fetchpriority="high" effect-id="<%= info.item?.effectID %>">
+                                    <img src="<%= info.item?.image_large?.replace(/^http:\/\//i, 'https://') %>" alt="<%= item_alt(info.item) %>" class="image" fetchpriority="high" effect-id="<%= info.item?.effectID %>">
                                     <div class="btns">
                                         <button id="wishlist-btn"><%= __('item.wishlist') %></button>
                                     </div>

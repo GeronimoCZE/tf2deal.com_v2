@@ -22,6 +22,20 @@
 
 <footer>
     <div class="foo-content">
+        <%# every item category page, on every page: the way in to the item lists by quality, type and class for visitors,
+            and links to the category pages from the whole site for search engines (service/categories.js). The names
+            are TF2 words and stay English, like the category pages' own. %>
+        <% if (locals.item_categories) { const cats = item_categories.filter((c) => c.param != 'class'), class_cats = item_categories.filter((c) => c.param == 'class') %>
+        <nav class="foo-browse" aria-labelledby="foo-browse-title">
+            <div class="foo-col-heading" id="foo-browse-title"><%= __('footer.items_by_category') %></div>
+            <ul class="foo-browse-list">
+                <% for (const c of cats) { %><li><a href="<%= lurl(c.path) %>"><%= c.name %></a></li><% } %>
+            </ul>
+            <ul class="foo-browse-list">
+                <% for (const c of class_cats) { %><li><a href="<%= lurl(c.path) %>"><%= c.name %></a></li><% } %>
+            </ul>
+        </nav>
+        <% } %>
         <%# links grouped by what people come for (similar things together): trading, community, help, legal %>
         <div class="foo-links">
             <div class="foo-links-column">
@@ -94,5 +108,37 @@
     </div>
 
 </footer>
+<%# language and theme for wide screens (the cog in the menu bar, views/partials/nav.ejs; public/js/plugins/navbar.js
+opens it). At the end of the page, so its headings don't come before the page's own h1. %>
+<% const theme_opts = theme_choices.map((code) => [code, __('nav.theme_' + (code == 'off' ? 'night' : code))]) %>
+<dialog class="site-settings" id="siteSettings" aria-labelledby="siteSettingsTitle">
+    <div class="ss-head">
+        <h2 id="siteSettingsTitle"><%= __('nav.lang_theme') %></h2>
+        <button type="button" class="ss-close" data-ss-close aria-label="<%= __('common.close') %>">&times;</button>
+    </div>
+    <section class="ss-section" aria-labelledby="ssLangTitle">
+        <h3 id="ssLangTitle"><%= __('nav.language') %></h3>
+        <div class="ss-langs">
+            <% for (const code of langs) { %>
+            <a class="ss-lang<%= code == lang ? ' active' : '' %>" href="<%= locals.lang_urls?.[code] || '/' %>" data-lang="<%= code %>" hreflang="<%= lang_tags[code] %>" lang="<%= lang_tags[code] %>"<%- code == lang ? ' aria-current="true"' : '' %>>
+                <img src="/img/flags/<%= code %>_96x96.png" width="28" height="28" loading="lazy" alt="<%= lang_names[code] %>" aria-hidden="true">
+                <span><%= lang_names[code] %></span>
+            </a>
+            <% } %>
+        </div>
+    </section>
+    <section class="ss-section" aria-labelledby="ssThemeTitle">
+        <h3 id="ssThemeTitle"><%= __('nav.theme') %></h3>
+        <div class="ss-themes">
+            <% for (const [code, name] of theme_opts) { %>
+            <a class="ss-theme<%= code == theme ? ' active' : '' %>" href="/theme/<%= code %>" rel="nofollow"<%- code == theme ? ' aria-current="true"' : '' %>>
+                <span class="theme-swatch theme-<%= code %>" aria-hidden="true"></span>
+                <span class="ss-name"><%= name %></span>
+                <% if (code == 'auto') { %><small><%= __('nav.theme_auto_hint') %></small><% } %>
+            </a>
+            <% } %>
+        </div>
+    </section>
+</dialog>
 <%# outside the footer: the footer's z-index would keep the cookie window under the nav %>
 <%- include('./cookie_banner.ejs') %>

@@ -27,7 +27,7 @@ const collapseLinks = () => {
     }
 }
 
-// Wide screens: the cog in the menu bar opens language and theme in one dialog (#siteSettings in views/partials/nav.ejs).
+// Wide screens: the cog in the menu bar opens language and theme in one dialog (#siteSettings at the end of views/partials/footer.ejs).
 // <dialog> keeps the focus inside and closes with Esc; the close button or a click on the dimmed page closes it too.
 const settings_dialog = document.getElementById('siteSettings')
 if(settings_dialog && typeof settings_dialog.showModal == 'function'){

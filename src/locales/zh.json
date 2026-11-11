@@ -70,7 +70,8 @@
     "created_by": "由 {author} 用 ❤️ 打造",
     "trading": "交易",
     "help": "帮助",
-    "legal": "法律信息"
+    "legal": "法律信息",
+    "items_by_category": "按类别浏览 TF2 物品"
   },
   "title": {
     "home": "TF2 交易机器人与自动化 TF2 交易网站 | TF2Deal.com",
@@ -692,7 +693,8 @@
     "faq_stock_yes": "有，库存 {count} 件，价格 {buy}。用 Steam 登录并选中该物品，确认后机器人会发送交易报价。",
     "faq_stock_no": "目前没有。有人把它卖给我们的机器人后就会重新有货。",
     "faq_sold_q": "{name} 卖得多吗？",
-    "faq_sold_a": "过去 30 天我们的机器人卖出了 {count} 件。"
+    "faq_sold_a": "过去 30 天我们的机器人卖出了 {count} 件。",
+    "breadcrumb": "面包屑导航"
   },
   "giveaway": {
     "current": "当前抽奖",

@@ -35,6 +35,7 @@ import * as item_lists from './service/item_lists.js'
 import * as copy_details from './service/copy_details.js'
 import * as memory from './service/memory.js'
 import * as crawlers from './service/crawlers.js'
+import * as categories from './service/categories.js'
 import { site_version } from './service/site_version.js'
 
 const DOMAIN = 'localhost' 
@@ -186,6 +187,9 @@ app.use(express.static(path.join(__dirname,'public'), { setHeaders: static_heade
 app.locals.site_url = fn.site_url
 app.locals.site_version = site_version // pages and the socket both carry it; a tab older than the server offers a reload
 app.locals.item_alt = fn.item_alt // alt text of item pictures: item_alt(item)
+// the item category pages (/items?quality=Unusual, ...), linked from the footer of every page: [{ name, path }], the path
+// without the language (views/partials/footer.ejs adds it with lurl)
+app.locals.item_categories = categories.CATEGORIES.map((c) => ({ name: c.name, path: categories.path_of(c), param: c.param }))
 Object.assign(app.locals, i18n.default_locals) // English for pages rendered before the language middleware
 app.set('view engine','ejs');
 // Behind Nginx or Cloudflare, set TRUST_PROXY in .env (1 = Nginx only, 2 = Cloudflare + Nginx) so the rate limits
@@ -280,6 +284,7 @@ app.get('/theme/:choice', (req, res) => {
 })
 app.locals.season_class = ''
 app.locals.theme = 'auto'
+app.locals.theme_choices = seasons.CHOICES // the theme menus (views/partials/nav.ejs, footer.ejs): auto, off, midnight, white, seasons
 // the admin pages are made for the dark looks: a visitor who picked White sees them in the normal look
 const DARK_ONLY_PAGES = /^\/(?:[a-z]{2}\/)?(?:admin|login)(?:\/|$)/
 app.use((req, res, next) => {

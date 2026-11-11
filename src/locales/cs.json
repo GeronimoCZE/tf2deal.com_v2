@@ -70,7 +70,8 @@
     "created_by": "Vytvořil s ❤️ {author}",
     "trading": "Obchodování",
     "help": "Nápověda",
-    "legal": "Právní informace"
+    "legal": "Právní informace",
+    "items_by_category": "Předměty TF2 podle kategorie"
   },
   "title": {
     "home": "TF2 Trade Bot a automatizovaný TF2 trading | TF2Deal.com",
@@ -692,7 +693,8 @@
     "faq_stock_yes": "Ano, skladem: {count} ks za {buy}. Přihlaste se přes Steam, vyberte předmět a po potvrzení vám bot pošle nabídku k výměně.",
     "faq_stock_no": "Teď ne. Skladem bude znovu, až nějaký kus někdo prodá našim botům.",
     "faq_sold_q": "Jak často se {name} prodává?",
-    "faq_sold_a": "Za posledních 30 dní naši boti prodali {count} ks."
+    "faq_sold_a": "Za posledních 30 dní naši boti prodali {count} ks.",
+    "breadcrumb": "Drobečková navigace"
   },
   "giveaway": {
     "current": "Aktuální soutěž",

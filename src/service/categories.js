@@ -63,6 +63,25 @@ export const list_links = (item) => {
   }
 }
 
+// The one category an item page sits in, for its breadcrumb (Items / Unusuals / Unusual Team Captain) and the
+// BreadcrumbList in its page data, so every item page links up to a category page and search engines see where it
+// belongs: its quality when that is a category of its own (Unusual, Strange, ..., Decorated = Weapon Skins), else its
+// type (Cosmetics, Taunts, War Paints, Tools, Crates and Cases), else its class when it is made for one class only.
+// null when none fits (a Unique weapon for several classes): the breadcrumb then goes straight from Items to the item.
+const QUALITY_CATEGORIES = ['Unusual', 'Strange', 'Vintage', 'Genuine', 'Haunted', "Collector's", 'Decorated']
+const TYPE_CATEGORIES = { cosmetic: 'Cosmetic', taunt: 'Taunt', warpaint: 'War Paint', 'war paint': 'War Paint', crate: 'Crate' }
+export const category_of = (item) => {
+  const find = (param, value) => CATEGORIES.find((c) => c.param === param && c.value === value) || null
+  const quality = Object.keys(QUALITY_IDS).find((name) => QUALITY_IDS[name] === Number(item?.qualityID))
+  if (QUALITY_CATEGORIES.includes(quality)) return find('quality', quality)
+  const type = String(item?.type || '').toLowerCase().replace(/^australium /, '').trim()
+  const type_value = TYPE_CATEGORIES[type] || (type.startsWith('tool') ? 'Tool' : null)
+  if (type_value) return find('type', type_value)
+  const classes = (Array.isArray(item?.classes) ? item.classes : String(item?.classes || '').split(',')).map((c) => String(c).trim()).filter(Boolean)
+  if (new Set(classes).size === 1 && CLASSES.includes(classes[0])) return find('class', classes[0])
+  return null
+}
+
 // item list filters (service/item_lists.js cards) from the address, as /api/items reads them from its request
 export const filters_of = (query) => {
   const text = (key) => {

@@ -22,6 +22,59 @@ footer{
         *{
             width: fit-content;
         }
+        // the item categories, across the whole footer above the link columns: two quiet rows of links (qualities and
+        // types, then classes) that wrap on narrow screens; set apart by space, no outline
+        .foo-browse{
+            // no side padding here: the page's reset keeps box-sizing at content-box, so 100% plus padding would be
+            // wider than a phone; the rows below keep the side gutter instead
+            flex: 0 0 100%;
+            width: 100%;
+            padding: 1rem 0 .5rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            @media screen and (max-width: 600px) {
+                padding: 1rem 0 .25rem 0;
+            }
+            .foo-col-heading{
+                font-family: var(--font-heading);
+                font-size: 1.05rem;
+                font-weight: 700;
+                color: var(--ink);
+                margin-bottom: .35rem;
+            }
+            .foo-browse-list{
+                width: calc(100% - 3rem);   // a 1.5rem gutter each side (1rem on phones)
+                max-width: 84rem;           // the first row on one line on a desktop screen
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                column-gap: 1.25rem;
+                @media screen and (max-width: 600px) {
+                    width: calc(100% - 2rem);
+                    column-gap: 1rem;
+                }
+                li{
+                    margin: 0;
+                    padding: 0;
+                }
+                a{
+                    display: inline-block;
+                    padding: .3rem 0;         // a taller row is an easier target on a phone
+                    font-size: 15px;
+                    line-height: 1.35;
+                    color: var(--ink-2);
+                    transition: color 100ms ease-in;
+                    &:hover{
+                        color: var(--violet);
+                    }
+                }
+            }
+        }
         // four link columns side by side (two by two on small screens)
         .foo-links{
             flex: 2;
