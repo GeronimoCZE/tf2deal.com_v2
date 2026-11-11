@@ -106,8 +106,10 @@ const item_tiles = (side, price_field, key_value, factor = 1, paid = 0) => {
     return tiles
 }
 
-// the label on top of one side: whose it is. The bot's side shows that bot's Steam name linked to its Steam profile
-// (bot: { steamid, name } from the server), or "Site bot" when the trade doesn't say which bot it was.
+// the label on top of one side: whose it is, after the same person icon on both sides. The bot's side shows that bot's
+// Steam name linked to its Steam profile (bot: { steamid, name } from the server), or "Site bot" when the trade doesn't
+// say which bot it was.
+const person_icon = '<span class="side-icon" aria-hidden="true"><span class="icon icon-user"></span></span>'
 const side_label = (side, viewer, bot) => {
     if(side == 'bot'){
         const steamid = /^7656\d{13}$/.test(String(bot?.steamid || '')) ? String(bot.steamid) : ''
@@ -115,10 +117,10 @@ const side_label = (side, viewer, bot) => {
         const inner = steamid
             ? `<a class="side-name" href="https://steamcommunity.com/profiles/${steamid}" target="_blank" rel="noopener noreferrer" title="${name}">${name}</a>`
             : `<span class="side-name">${name}</span>`
-        return `<div class="side-label bot">${inner}</div>`
+        return `<div class="side-label bot">${person_icon}${inner}</div>`
     }
     const text = viewer ? __('home.side_you') : __('home.side_user')
-    return `<div class="side-label user"><span class="side-icon" aria-hidden="true"><span class="icon icon-user"></span></span><span class="side-name">${esc(text)}</span></div>`
+    return `<div class="side-label user">${person_icon}<span class="side-name">${esc(text)}</span></div>`
 }
 
 // Returns the HTML for one trade, or "" for records without items.
