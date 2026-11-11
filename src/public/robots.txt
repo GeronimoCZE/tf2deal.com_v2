@@ -17,6 +17,15 @@ Disallow: /profile
 Disallow: /*/profile
 Disallow: /support
 Disallow: /*/support
+# item pages in the other languages: the same item with a translated menu (13,000 items x 7 languages). Search engines
+# get each item once, in English (the sitemap lists those); the other copies stay for visitors who switch language.
+Disallow: /cs/items/
+Disallow: /de/items/
+Disallow: /es/items/
+Disallow: /fr/items/
+Disallow: /pt/items/
+Disallow: /ru/items/
+Disallow: /zh/items/
 
 # AI search and assistant crawlers: same rules, named so they know they are welcome
 User-agent: GPTBot
@@ -45,5 +54,14 @@ Disallow: /profile
 Disallow: /*/profile
 Disallow: /support
 Disallow: /*/support
+# item pages in the other languages: the same item with a translated menu (13,000 items x 7 languages). Search engines
+# get each item once, in English (the sitemap lists those); the other copies stay for visitors who switch language.
+Disallow: /cs/items/
+Disallow: /de/items/
+Disallow: /es/items/
+Disallow: /fr/items/
+Disallow: /pt/items/
+Disallow: /ru/items/
+Disallow: /zh/items/
 
 Sitemap: https://tf2deal.com/sitemap.xml

@@ -429,7 +429,10 @@ const item_page = async (req, res) => {
         // SEO
         description,
         path: page_path,
-        ...(ks && !own_page && { canonical: item_url, no_hreflang: true }),
+        ...(ks && !own_page && { canonical: item_url }),
+        // no hreflang: search engines get item pages in English only; robots.txt keeps them off the other languages'
+        // copies (/de/items/..., Nikolas 2026-11-11: Search Console had 94,000 pages "discovered, not indexed")
+        no_hreflang: true,
         noindex, // only items the bots really trade (fn.item_indexable, item_lists.tier_indexable)
         image: fn.https_url(main.image_large || main.image),
         category, // { name, url } or null: Items / <category> / item (view/item_page.ejs)

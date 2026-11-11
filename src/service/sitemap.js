@@ -3,7 +3,8 @@
 //   /sitemaps/main.xml               the main pages (highest priority first) and the blog posts, in every language
 //   /sitemaps/items-en-<n>.xml       every item page once, its English address only (Nikolas, 2026-11-03: not the
 //                                    same item in 8 languages), ITEMS_PER_FILE per file (a file may hold 50,000 URLs)
-// The item pages in other languages still exist and are linked from each page (hreflang); they are just not listed.
+// The item pages in other languages still exist for visitors, but robots.txt keeps search engines off them and the
+// item pages carry no hreflang (2026-11-11: Google had 94,000 of those copies queued and crawled few English pages).
 // What goes in them is read again every CACHE_MS and always answered at once (see current()), so Cloudflare and search
 // engines never wait for the database; each file is written out when it is asked for. /sitemap_index.xml and old
 // file names redirect to /sitemap.xml.
