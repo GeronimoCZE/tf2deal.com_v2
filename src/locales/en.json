@@ -319,7 +319,11 @@
       "gw_ended": "Ended",
       "gw_winner": "Winner: {name}",
       "gw_no_winner": "No winner",
-      "no_giveaways_html": "You haven't entered any giveaways yet. <a href=\"{url}\">See the current giveaway</a>"
+      "no_giveaways_html": "You haven't entered any giveaways yet. <a href=\"{url}\">See the current giveaway</a>",
+      "gw_prize_received": "Prize received.",
+      "gw_prize_offer": "Your prize offer is waiting on Steam: accept it.",
+      "gw_prize_tradelink": "Add your trade URL to get your prize.",
+      "gw_prize_declined": "The prize offer was declined or expired. Open a support ticket and we'll send it again."
     },
     "tickets": {
       "status_open": "Waiting for support",
@@ -558,10 +562,16 @@
       "giveaway_ended": "{winner} won {item}.",
       "giveaway_ended_nowinner": "The {item} giveaway ended without entries.",
       "giveaway_won_title": "You won the giveaway!",
-      "giveaway_won": "{item} is yours. We'll send it to you soon.",
+      "giveaway_won": "{item} is yours. Our bot will send you a trade offer.",
       "ticket_reply_title": "Support replied",
       "ticket_reply": "There is a new reply to your support ticket.",
-      "announcement_title": "Announcement"
+      "announcement_title": "Announcement",
+      "giveaway_prize_sent_title": "Your prize is on its way",
+      "giveaway_prize_sent": "Our bot sent you a trade offer with {item}. Accept it on Steam.",
+      "giveaway_tradelink_title": "Add your trade URL",
+      "giveaway_tradelink": "We need your Steam trade URL to send you {item}. Add it in your profile.",
+      "giveaway_admin_winner_title": "Giveaway winner",
+      "giveaway_admin_winner": "{winner} won {item}. Their details are in Admin → Giveaways."
     },
     "buy_link": {
       "buy_title": "Buy this item",
@@ -722,7 +732,9 @@
     "hours": "hours",
     "minutes": "min",
     "seconds": "sec",
-    "how_to_enter": "How to enter"
+    "how_to_enter": "How to enter",
+    "latest_entries": "Latest entries",
+    "more_entries_label": "{n} more entries"
   },
   "blog": {
     "h1": "Blog",

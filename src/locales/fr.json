@@ -319,7 +319,11 @@
       "gw_ended": "Terminé",
       "gw_winner": "Gagnant : {name}",
       "gw_no_winner": "Aucun gagnant",
-      "no_giveaways_html": "Vous n'avez encore participé à aucun concours. <a href=\"{url}\">Voir le concours en cours</a>"
+      "no_giveaways_html": "Vous n'avez encore participé à aucun concours. <a href=\"{url}\">Voir le concours en cours</a>",
+      "gw_prize_received": "Lot reçu.",
+      "gw_prize_offer": "L'offre avec ton lot t'attend sur Steam : accepte-la.",
+      "gw_prize_tradelink": "Ajoute ton URL d'échange pour recevoir ton lot.",
+      "gw_prize_declined": "L'offre du lot a été refusée ou a expiré. Ouvre un ticket et nous la renverrons."
     },
     "tickets": {
       "status_open": "En attente de l'assistance",
@@ -558,10 +562,16 @@
       "giveaway_ended": "{winner} a gagné {item}.",
       "giveaway_ended_nowinner": "Le giveaway {item} s’est terminé sans participants.",
       "giveaway_won_title": "Vous avez gagné !",
-      "giveaway_won": "{item} est à vous. Nous vous l’enverrons bientôt.",
+      "giveaway_won": "{item} est à toi. Notre bot va t'envoyer une offre d'échange.",
       "ticket_reply_title": "Le support a répondu",
       "ticket_reply": "Votre ticket de support a reçu une nouvelle réponse.",
-      "announcement_title": "Annonce"
+      "announcement_title": "Annonce",
+      "giveaway_prize_sent_title": "Ton lot est en route",
+      "giveaway_prize_sent": "Notre bot t'a envoyé une offre d'échange avec {item}. Accepte-la sur Steam.",
+      "giveaway_tradelink_title": "Ajoute ton URL d'échange",
+      "giveaway_tradelink": "Il nous faut ton URL d'échange Steam pour t'envoyer {item}. Ajoute-la dans ton profil.",
+      "giveaway_admin_winner_title": "Gagnant du giveaway",
+      "giveaway_admin_winner": "{winner} a gagné {item}. Ses infos sont dans Admin → Giveaways."
     },
     "buy_link": {
       "buy_title": "Acheter cet objet",
@@ -722,7 +732,9 @@
     "hours": "h",
     "minutes": "min",
     "seconds": "s",
-    "how_to_enter": "Comment participer"
+    "how_to_enter": "Comment participer",
+    "latest_entries": "Dernières participations",
+    "more_entries_label": "{n} autres participations"
   },
   "blog": {
     "h1": "Blog",

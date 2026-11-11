@@ -7,6 +7,7 @@ import * as app from '../app.js'
 import { item_model } from '../model/Item.js'
 import { blog_model } from '../model/Blog.js'
 import { giveaway_model } from '../model/Giveaway.js'
+import { recent_view } from '../service/giveaway.js'
 import * as translate from '../service/translate.js'
 import { bptf_link } from '../service/bptf_link.js'
 import * as stats from '../service/stats.js'
@@ -494,14 +495,20 @@ const giveaway = async (req, res, next) => {
   const user_cookie = req.user ? req.cookies[`td_${req.user.steamid}`] : undefined
 
   try {
-    const current = await giveaway_model.findOne({ status: 'active' }).lean()
-    const history = await giveaway_model.find({ status: 'ended' }, { entries: 0 }).sort({ end: -1 }).limit(12).lean()
+    // every entry is only steamid + time; the page needs their count and the latest entrants' avatars
+    const current = (await giveaway_model.aggregate([
+      { $match: { status: 'active' } },
+      { $limit: 1 },
+      { $addFields: { entry_count: { $size: '$entries' } } },
+      { $project: { entries: 0 } }
+    ]))[0] || null
+    const history = await giveaway_model.find({ status: 'ended' }, { entries: 0, recent: 0 }).sort({ end: -1 }).limit(12).lean()
 
     let entered = false
     if (current) {
-      entered = Boolean(req.user) && current.entries.some((entry) => entry.steamid == req.user.steamid)
-      current.entry_count = current.entries.length
-      delete current.entries
+      entered = Boolean(req.user) && Boolean(await giveaway_model.exists({ _id: current._id, 'entries.steamid': String(req.user.steamid) }))
+      current.entrants = recent_view(current)
+      delete current.recent
 
       // AI-translated description (service/translate.js); the original until the translation is ready
       const shown = translate.localized(current, req.lang, translate.GIVEAWAY_FIELDS)

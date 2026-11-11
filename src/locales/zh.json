@@ -319,7 +319,11 @@
       "gw_ended": "已结束",
       "gw_winner": "获奖者：{name}",
       "gw_no_winner": "无获奖者",
-      "no_giveaways_html": "你还没有参加过任何抽奖。<a href=\"{url}\">查看当前抽奖</a>"
+      "no_giveaways_html": "你还没有参加过任何抽奖。<a href=\"{url}\">查看当前抽奖</a>",
+      "gw_prize_received": "奖品已收到。",
+      "gw_prize_offer": "你的奖品报价正在 Steam 上等待：请接受。",
+      "gw_prize_tradelink": "添加你的交易链接以领取奖品。",
+      "gw_prize_declined": "奖品报价已被拒绝或过期。请提交工单，我们会重新发送。"
     },
     "tickets": {
       "status_open": "等待客服回复",
@@ -558,10 +562,16 @@
       "giveaway_ended": "{winner} 赢得了 {item}。",
       "giveaway_ended_nowinner": "{item} 抽奖已结束，没有人参与。",
       "giveaway_won_title": "你赢得了抽奖！",
-      "giveaway_won": "{item} 归你了，我们很快会发送给你。",
+      "giveaway_won": "{item} 归你了。我们的机器人会给你发送交易报价。",
       "ticket_reply_title": "客服已回复",
       "ticket_reply": "你的客服工单有新回复。",
-      "announcement_title": "公告"
+      "announcement_title": "公告",
+      "giveaway_prize_sent_title": "你的奖品正在路上",
+      "giveaway_prize_sent": "我们的机器人已向你发送包含 {item} 的交易报价。请在 Steam 上接受。",
+      "giveaway_tradelink_title": "添加你的交易链接",
+      "giveaway_tradelink": "我们需要你的 Steam 交易链接才能发送 {item}。请在个人资料中添加。",
+      "giveaway_admin_winner_title": "抽奖获奖者",
+      "giveaway_admin_winner": "{winner} 赢得了 {item}。详情见 Admin → Giveaways。"
     },
     "buy_link": {
       "buy_title": "购买此物品",
@@ -722,7 +732,9 @@
     "hours": "时",
     "minutes": "分",
     "seconds": "秒",
-    "how_to_enter": "参与方式"
+    "how_to_enter": "参与方式",
+    "latest_entries": "最新参与者",
+    "more_entries_label": "另有 {n} 人参与"
   },
   "blog": {
     "h1": "博客",

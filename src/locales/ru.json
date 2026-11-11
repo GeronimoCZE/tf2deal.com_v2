@@ -319,7 +319,11 @@
       "gw_ended": "Завершён",
       "gw_winner": "Победитель: {name}",
       "gw_no_winner": "Без победителя",
-      "no_giveaways_html": "Вы ещё не участвовали в розыгрышах. <a href=\"{url}\">Посмотреть текущий розыгрыш</a>"
+      "no_giveaways_html": "Вы ещё не участвовали в розыгрышах. <a href=\"{url}\">Посмотреть текущий розыгрыш</a>",
+      "gw_prize_received": "Приз получен.",
+      "gw_prize_offer": "Предложение с призом ждёт в Steam: прими его.",
+      "gw_prize_tradelink": "Добавь ссылку на обмен, чтобы получить приз.",
+      "gw_prize_declined": "Предложение с призом отклонено или истекло. Создай тикет, и мы отправим его снова."
     },
     "tickets": {
       "status_open": "Ожидает ответа поддержки",
@@ -558,10 +562,16 @@
       "giveaway_ended": "{winner} выиграл {item}.",
       "giveaway_ended_nowinner": "Раздача {item} завершилась без участников.",
       "giveaway_won_title": "Вы выиграли раздачу!",
-      "giveaway_won": "{item} теперь ваш. Скоро мы его отправим.",
+      "giveaway_won": "{item} теперь твой. Наш бот пришлёт тебе предложение обмена.",
       "ticket_reply_title": "Поддержка ответила",
       "ticket_reply": "В вашем тикете поддержки новый ответ.",
-      "announcement_title": "Объявление"
+      "announcement_title": "Объявление",
+      "giveaway_prize_sent_title": "Приз уже в пути",
+      "giveaway_prize_sent": "Наш бот отправил тебе предложение обмена с {item}. Прими его в Steam.",
+      "giveaway_tradelink_title": "Добавь ссылку на обмен",
+      "giveaway_tradelink": "Чтобы отправить тебе {item}, нам нужна твоя ссылка на обмен Steam. Добавь её в профиле.",
+      "giveaway_admin_winner_title": "Победитель розыгрыша",
+      "giveaway_admin_winner": "{winner} выиграл {item}. Данные в Admin → Giveaways."
     },
     "buy_link": {
       "buy_title": "Купить этот предмет",
@@ -722,7 +732,9 @@
     "hours": "ч",
     "minutes": "мин",
     "seconds": "с",
-    "how_to_enter": "Как участвовать"
+    "how_to_enter": "Как участвовать",
+    "latest_entries": "Последние участники",
+    "more_entries_label": "Ещё участников: {n}"
   },
   "blog": {
     "h1": "Блог",

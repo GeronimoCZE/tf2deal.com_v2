@@ -7,7 +7,8 @@ import { blog_model } from '../../model/Blog.js';
 import { ticket_model } from '../../model/Ticket.js';
 import { giveaway_model } from '../../model/Giveaway.js';
 import User from '../../model/User.js';
-import { refresh_state, draw_winner } from '../../service/giveaway.js';
+import { refresh_state, draw_winner, cancel as cancel_giveaway, recent_view } from '../../service/giveaway.js';
+import * as giveaway_prize from '../../service/giveaway_prize.js';
 import * as giveaway_posts from '../../service/giveaway_posts.js';
 import * as translate from '../../service/translate.js';
 import { LANGS, LANG_NAMES } from '../../i18n.js';
@@ -173,23 +174,58 @@ router.get('/items/search', async (req, res) => {
   res.json({ status: 'ok', items });
 });
 
+// steamid64 / asset id as sent by the panel
+const steamid64 = (v) => /^\d{17}$/.test(String(v || '')) ? String(v) : ''
+const asset_id = (v) => /^\d{1,20}$/.test(String(v || '')) ? String(v) : ''
+const image_url = (v) => /^(https:\/\/|\/(?!\/))[^\s"'<>]+$/.test(String(v || '')) ? String(v).slice(0, 500) : ''
+
 router.get('/giveaways', async (req, res) => {
-  const giveaways = await giveaway_model.find({}).sort({ created: -1 }).limit(50).lean();
+  const giveaways = await giveaway_model.find({}, { entries: 0 }).sort({ created: -1 }).limit(50).lean();
+  const counts = await giveaway_model.aggregate([
+    { $match: { _id: { $in: giveaways.map((g) => g._id) } } },
+    { $project: { n: { $size: '$entries' } } }
+  ]);
+  const count_of = Object.fromEntries(counts.map((c) => [String(c._id), c.n]));
 
+  // the winner's details: trade link, trades and giveaways on the site
   const winner_ids = giveaways.map((g) => g.winner?.steamid).filter(Boolean);
-  const winners = await User.find({ steamid: { $in: winner_ids } }, { steamid: 1, tradelink: 1 }).lean();
+  const winners = await User.find({ steamid: { $in: winner_ids } }, { steamid: 1, tradelink: 1, trades: 1, giveaways: 1, firstlogin: 1 }).lean();
 
-  res.json({ status: 'ok', posts: giveaway_posts.info(), giveaways: giveaways.map((g) => ({
-    ...g,
-    entries: undefined,
-    entry_count: g.entries?.length || 0,
-    winner_tradelink: winners.find((u) => u.steamid == g.winner?.steamid)?.tradelink || ''
-  })) });
+  res.json({ status: 'ok', posts: giveaway_posts.info(), prizes: await giveaway_prize.status(), giveaways: giveaways.map((g) => {
+    const user = winners.find((u) => u.steamid == g.winner?.steamid);
+    return {
+      ...g,
+      recent: undefined,
+      entry_count: count_of[String(g._id)] || 0,
+      entrants: g.status == 'active' ? recent_view({ ...g, entry_count: count_of[String(g._id)] || 0 }).recent.slice(0, 12) : undefined,
+      winner_tradelink: user?.tradelink || '',
+      winner_user: user ? { trades: user.trades || 0, won: user.giveaways?.won || 0, entries: user.giveaways?.entries || 0, firstlogin: user.firstlogin || null } : null,
+      prize_text: g.prize?.state ? (giveaway_prize.PRIZE_TEXT[g.prize.state] || g.prize.state) : '',
+      offer_link: giveaway_prize.offer_link(g.prize?.offer_id)
+    };
+  }) });
+});
+
+// the prize picker: every tradable item on the bot accounts, unpriced ones too (bot_manager)
+router.get('/giveaways/prize_items', async (req, res) => {
+  const result = await giveaway_prize.items({ query: text(req.query.q, 100), offset: req.query.offset, limit: req.query.limit }, req.user?.steamid);
+  res.json(result.status == 'ok' ? { status: 'ok', ...(result.data || {}) } : result);
+});
+
+// which bot account keeps the prizes
+router.get('/giveaways/bank', async (req, res) => {
+  const result = await giveaway_prize.bank(req.user?.steamid);
+  res.json(result.status == 'ok' ? { status: 'ok', ...(result.data || {}) } : result);
+});
+router.post('/giveaways/bank', async (req, res) => {
+  const steamid = steamid64(req.body?.steamid);
+  if(!steamid){ return res.status(400).json({ status: 'error', message: 'Pick a bot.' }) }
+  res.json(await giveaway_prize.set_bank(steamid, req.user?.steamid));
 });
 
 router.post('/giveaways', async (req, res) => {
-  const bp_sku = text(req.body?.bp_sku, 200);
   const end = Number(req.body?.end);
+  const pick = { bot: steamid64(req.body?.bot), assetid: asset_id(req.body?.assetid) };
 
   if(await giveaway_model.exists({ status: 'active' })){
     return res.status(400).json({ status: 'error', message: 'End the current giveaway before starting a new one.' })
@@ -197,14 +233,29 @@ router.post('/giveaways', async (req, res) => {
   if(!(end > Date.now() + 60 * 1000)){
     return res.status(400).json({ status: 'error', message: 'The end date has to be in the future.' })
   }
-  const item = await item_model.findOne({ bp_sku }, { _id: 0, bp_sku: 1, image: 1, qualityID: 1, effectID: 1 }).lean();
-  if(!item){
-    return res.status(400).json({ status: 'error', message: `No item called "${bp_sku}" in the item database.` })
+  if(!pick.bot || !pick.assetid){
+    return res.status(400).json({ status: 'error', message: 'Pick the prize from the bot items.' })
   }
+  const blocked = await giveaway_prize.status();
+  if(blocked != 'ready'){
+    return res.status(400).json({ status: 'error', message: blocked == 'offline' ? 'bot_manager is not connected to the site, so the prize can\'t go to the bank bot.' : 'bot_manager doesn\'t have giveaway prizes yet. It needs the events in docs/GIVEAWAY_PRIZES.md.' })
+  }
+
+  // shown on the site until bot_manager's answer has the item's own details
+  const name = text(req.body?.name, 200);
+  const priced = req.body?.priced !== false;
+  const item = {
+    bp_sku: text(req.body?.bp_sku, 200) || name,
+    image: image_url(req.body?.image),
+    qualityID: String(Number(req.body?.qualityID) || 6),
+    effectID: Number(req.body?.effectID) || 0
+  };
+  if(!item.bp_sku){ return res.status(400).json({ status: 'error', message: 'That item has no name.' }) }
 
   const now = Date.now();
   const giveaway = await new giveaway_model({
-    item: { bp_sku: item.bp_sku, image: item.image, qualityID: String(item.qualityID ?? '6'), effectID: Number(item.effectID) || 0 },
+    item,
+    prize: { from_bot: pick.bot, from_assetid: pick.assetid, bot: pick.bot, assetid: pick.assetid, name: name || item.bp_sku, priced, state: 'moving', updated: now },
     description: text(req.body?.description, 500),
     lang: LANGS.includes(req.body?.lang) ? req.body.lang : 'en',
     requirements: {
@@ -215,16 +266,36 @@ router.post('/giveaways', async (req, res) => {
     end,
     created: now
   }).save();
+
+  // the item goes to the bank bot first; if bot_manager refuses, there's no giveaway
+  const reserved = await giveaway_prize.reserve(giveaway._id, pick, req.user?.steamid);
+  if(reserved.status != 'ok'){
+    await giveaway_model.deleteOne({ _id: giveaway._id });
+    return res.status(400).json({ status: 'error', message: reserved.message || 'bot_manager didn\'t take the prize.' })
+  }
+  const known = reserved.data?.item;
+  if(known && typeof known == 'object'){
+    const set = {};
+    if(known.bp_sku || known.name){ set['item.bp_sku'] = text(known.bp_sku || known.name, 200) }
+    if(image_url(known.image)){ set['item.image'] = image_url(known.image) }
+    if(known.qualityID != null){ set['item.qualityID'] = String(Number(known.qualityID) || 6) }
+    if(known.effectID != null){ set['item.effectID'] = Number(known.effectID) || 0 }
+    if(known.name){ set['prize.name'] = text(known.name, 200) }
+    if(typeof known.priced == 'boolean'){ set['prize.priced'] = known.priced }
+    if(Object.keys(set).length){ await giveaway_model.updateOne({ _id: giveaway._id }, { $set: set }) }
+  }
+
   if(giveaway.description){
     await giveaway_model.updateOne({ _id: giveaway._id }, { $set: { source_hash: translate.source_hash(giveaway, translate.GIVEAWAY_FIELDS) } });
     translate.queue_giveaway(giveaway._id);
   }
 
+  const saved = await giveaway_model.findById(giveaway._id).lean();
   await refresh_state();
-  notifications.notify({ type: 'giveaway_new', vars: { item: item.bp_sku }, link: '/giveaway' });
+  notifications.notify({ type: 'giveaway_new', vars: { item: saved.item.bp_sku }, link: '/giveaway' });
   // Steam group and Facebook announcements, posted in the background (the list shows how it went)
-  await giveaway_posts.announce(giveaway.toObject()).catch((error) => console.log('giveaway: announcing failed', error.message));
-  res.json({ status: 'ok', giveaway });
+  await giveaway_posts.announce(saved).catch((error) => console.log('giveaway: announcing failed', error.message));
+  res.json({ status: 'ok', giveaway: saved });
 });
 
 router.post('/giveaways/:id/end', valid_id, async (req, res) => {
@@ -236,10 +307,21 @@ router.post('/giveaways/:id/end', valid_id, async (req, res) => {
 });
 
 router.post('/giveaways/:id/cancel', valid_id, async (req, res) => {
-  await giveaway_model.updateOne({ _id: req.params.id, status: 'active' }, { $set: { status: 'cancelled', end: Date.now() } });
+  await cancel_giveaway(req.params.id, req.user?.steamid);
   await refresh_state();
-  giveaway_posts.remove_posts(req.params.id).catch((error) => console.log('giveaway: removing the posts failed', error.message));
   res.json({ status: 'ok' });
+});
+
+// the bank bot's offer to the winner, sent (again) now
+router.post('/giveaways/:id/send_prize', valid_id, async (req, res) => {
+  res.json(await giveaway_prize.send(req.params.id, req.user?.steamid));
+});
+
+// moving the prize to the bank bot failed: try again
+router.post('/giveaways/:id/move_prize', valid_id, async (req, res) => {
+  const giveaway = await giveaway_model.findById(req.params.id, { prize: 1, status: 1 }).lean();
+  if(!giveaway?.prize || giveaway.prize.state != 'move_failed'){ return res.status(400).json({ status: 'error', message: 'The prize is not waiting for a move.' }) }
+  res.json(await giveaway_prize.reserve(giveaway._id, { bot: giveaway.prize.from_bot, assetid: giveaway.prize.from_assetid }, req.user?.steamid));
 });
 
 router.post('/giveaways/:id/prize_sent', valid_id, async (req, res) => {

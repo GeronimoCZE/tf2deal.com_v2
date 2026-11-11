@@ -219,6 +219,57 @@
     }).filter(Boolean).join(' &middot; ')
     const posts_busy = (list) => list.some((g) => Object.values(g.posts || {}).some((post) => post?.state == 'posting' || post?.state == 'removing' || (post?.state == 'posted' && g.status != 'active')))
 
+    // the prize, as bot_manager keeps it on the bank bot (src/service/giveaway_prize.js)
+    const prize_line = (g) => {
+        const p = g.prize
+        if(!p?.state){ return '' }
+        const offer = g.offer_link && ['sent', 'accepted', 'declined'].includes(p.state) ? ` · <a href="${esc(g.offer_link)}" target="_blank" rel="nofollow">trade offer</a>` : ''
+        const error = p.error ? ` <span class="tr-error" title="${esc(p.error)}">${esc(p.error == 'no_trade_link' ? 'The winner has no trade link yet: it goes out when they add one.' : p.error)}</span>` : ''
+        const cls = p.state == 'accepted' ? 'tr-done' : ['move_failed', 'send_failed', 'declined'].includes(p.state) ? 'tr-error' : ''
+        return `<span class="${cls}">${esc(g.prize_text)}</span>${offer}${error}`
+    }
+    const prize_actions = (g) => {
+        const p = g.prize
+        if(!p?.state){ return g.winner?.steamid ? `<label class="check"><input type="checkbox" class="prize-sent" ${g.prize_sent ? 'checked' : ''}> Prize sent</label>` : '' }
+        if(g.status == 'active' && p.state == 'move_failed'){ return '<button class="move-prize">Try moving it again</button>' }
+        if(g.status == 'ended' && g.winner?.steamid && !g.prize_sent && ['held', 'send_failed', 'declined', 'sent'].includes(p.state)){
+            return `<button class="send-prize">${p.state == 'held' ? 'Send the offer now' : 'Send the offer again'}</button>`
+        }
+        return ''
+    }
+    const PRIZE_BLOCKED = {
+        offline: 'bot_manager is not connected, so prizes can\'t be picked or sent right now.',
+        old: 'bot_manager doesn\'t have giveaway prizes yet. Give it the events in <code>docs/GIVEAWAY_PRIZES.md</code>, then the prize picker shows the items on your bots.'
+    }
+
+    // everything about the winner the admin needs to deliver the prize or check them
+    const winner_card = (g) => {
+        const w = g.winner, u = g.winner_user
+        const profile = `https://steamcommunity.com/profiles/${esc(w.steamid)}`
+        return `<div class="admin-card gw-winner" data-id="${esc(g._id)}">
+            <div class="admin-card-head"><h3>Winner of ${esc(g.item.bp_sku)}</h3><span class="muted">drawn ${when(w.drawn || g.end)}</span></div>
+            <div class="gw-winner-body">
+                <img src="${esc(w.avatar || '/img/new_user-96.webp')}" alt="" width="64" height="64">
+                <dl class="gw-winner-meta">
+                    <dt>Name</dt><dd><a href="${profile}" target="_blank" rel="nofollow">${esc(w.name || w.steamid)}</a></dd>
+                    <dt>SteamID64</dt><dd><code>${esc(w.steamid)}</code></dd>
+                    ${w.entered ? `<dt>Entered</dt><dd>${when(w.entered)}</dd>` : ''}
+                    <dt>Trade link</dt><dd>${g.winner_tradelink ? `<a href="${esc(g.winner_tradelink)}" target="_blank" rel="nofollow">${esc(g.winner_tradelink.replace(/^https:\/\/steamcommunity\.com/, ''))}</a>` : '<span class="muted">none yet</span>'}</dd>
+                    ${u ? `<dt>On the site</dt><dd>${num(u.trades)} trade${u.trades == 1 ? '' : 's'} · ${num(u.entries)} giveaway${u.entries == 1 ? '' : 's'} entered · ${num(u.won)} won</dd>` : ''}
+                    <dt>Prize</dt><dd>${prize_line(g) || (g.prize_sent ? '<span class="tr-done">Sent</span>' : '<span class="muted">Send it yourself</span>')}</dd>
+                </dl>
+            </div>
+            <div class="actions">${prize_actions(g)}</div>
+        </div>`
+    }
+
+    // one tile of the prize picker
+    const prize_tile = (i) => `<button type="button" class="gw-pick" data-bot="${esc(i.bot)}" data-assetid="${esc(i.assetid)}" title="${esc(i.name)}">
+        <img class="q-${esc(i.qualityID ?? 6)}" src="${esc(i.image || '/img/group-icon.png')}" alt="" loading="lazy" ${Number(i.effectID) > 0 ? `style="background-image:url(https://api.backpack.tf/images/440/particles/${Number(i.effectID)}_94x94.png)"` : ''}>
+        <span class="gw-pick-name">${esc(i.name)}</span>
+        <span class="gw-pick-meta">${esc(i.botName || i.bot)}${i.priced === false ? ' · <span class="admin-tag">unpriced</span>' : ''}${i.onBank ? ' · <span class="admin-tag">bank</span>' : ''}</span>
+    </button>`
+
     const giveaways = async (root) => {
         root.innerHTML = `<h2>Giveaways</h2><div id="admin-giveaways">Loading...</div>`
         const box = root.querySelector('#admin-giveaways')
@@ -228,27 +279,36 @@
 
         const active = res.giveaways.find((g) => g.status == 'active')
         const past = res.giveaways.filter((g) => g.status != 'active')
+        const latest_win = past.find((g) => g.status == 'ended' && g.winner?.steamid)
 
         const default_end = new Date(Date.now() + 7 * 86400000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)
         const posts_off = Object.keys(POST_SERVICES).filter((key) => !res.posts?.[key]).map((key) => POST_SERVICES[key])
         const posts_note = posts_off.length == 0 ? '<p class="admin-note muted">New giveaways are announced on the Steam group and the Facebook Page. The posts are removed when the giveaway ends or is cancelled.</p>'
             : `<p class="admin-note">${posts_off.join(' and ')} announcement${posts_off.length > 1 ? 's are' : ' is'} off. To announce new giveaways there, add the settings to <code>.env</code> and restart (see <code>docs/SETUP.md</code>).</p>`
+        const prizes_note = PRIZE_BLOCKED[res.prizes] ? `<p class="admin-note">${PRIZE_BLOCKED[res.prizes]}</p>` : ''
 
-        box.innerHTML = posts_note + (active ? `<div class="admin-giveaway active" data-id="${esc(active._id)}">
-                <img src="${esc(active.item.image)}" alt="${esc(active.item.bp_sku)}">
+        box.innerHTML = posts_note + prizes_note + (active ? `<div class="admin-giveaway active" data-id="${esc(active._id)}">
+                <img class="q-${esc(active.item.qualityID)}" src="${esc(active.item.image)}" alt="${esc(active.item.bp_sku)}">
                 <div>
-                    <strong>${esc(active.item.bp_sku)}</strong>
+                    <strong>${esc(active.item.bp_sku)}</strong>${active.prize?.priced === false ? ' <span class="admin-tag">unpriced</span>' : ''}
                     <div>Ends ${when(active.end)} &middot; ${active.entry_count} entries</div>
+                    ${active.entrants?.length ? `<div class="gw-mini-avatars">${active.entrants.map((e) => `<img src="${esc(e.avatar || '/img/new_user-96.webp')}" alt="" title="${esc(e.name)}" width="24" height="24">`).join('')}${active.entry_count > active.entrants.length ? `<span>+ ${active.entry_count - active.entrants.length}</span>` : ''}</div>` : ''}
                     <div class="muted">Requirements: ${[active.requirements?.steam_group && 'Steam group', active.requirements?.trade && '1 trade'].filter(Boolean).join(', ') || 'none'}</div>
+                    ${active.prize?.state ? `<div class="muted" data-prize="${esc(active._id)}">Prize: ${prize_line(active)}</div>` : ''}
                     <div class="muted" data-posts="${esc(active._id)}">${post_states(active, res.posts)}</div>
-                    <div class="actions"><button class="end-giveaway primary">End now &amp; draw winner</button> <button class="cancel-giveaway">Cancel giveaway</button></div>
+                    <div class="actions"><button class="end-giveaway primary">End now &amp; draw winner</button> <button class="cancel-giveaway">Cancel giveaway</button> ${prize_actions(active)}</div>
                 </div>
-            </div>` : `<form class="admin-form" id="giveaway-form">
+            </div>` : `<form class="admin-form gw-form" id="giveaway-form">
                 <h3>Start a giveaway</h3>
-                <label>Item (exact name from the item database)
-                    <input name="bp_sku" list="giveaway-items" autocomplete="off" required placeholder="e.g. Team Captain">
-                    <datalist id="giveaway-items"></datalist>
-                </label>
+                <div class="gw-bank" id="gw-bank"><span class="muted">Loading the bank bot…</span></div>
+                <div class="gw-prize">
+                    <label>Prize: an item on your bots (unpriced items too)
+                        <input type="search" name="q" autocomplete="off" placeholder="Search by name, e.g. Team Captain" ${res.prizes != 'ready' ? 'disabled' : ''}>
+                    </label>
+                    <div class="gw-picked" id="gw-picked" hidden></div>
+                    <div class="gw-picker" id="gw-picker">${res.prizes == 'ready' ? '<span class="muted">Loading the items…</span>' : '<span class="muted">The items show once bot_manager has giveaway prizes.</span>'}</div>
+                    <button type="button" class="gw-more-items" id="gw-more-items" hidden>Show more items</button>
+                </div>
                 <label>Ends <input type="datetime-local" name="end" required value="${default_end}"></label>
                 <label>Description (optional) <input name="description" maxlength="500"></label>
                 <label>Description written in
@@ -256,59 +316,116 @@
                 </label>
                 <label class="check"><input type="checkbox" name="steam_group" checked> Must be in our Steam group</label>
                 <label class="check"><input type="checkbox" name="trade" checked> Must make 1 trade during the giveaway</label>
-                <div class="actions"><button type="submit" class="primary">Start giveaway</button></div>
-                <p class="muted">The winner is drawn automatically when it ends. You send the prize yourself, then tick "Prize sent" below.</p>
-            </form>`) + `
+                <div class="actions"><button type="submit" class="primary" ${res.prizes != 'ready' ? 'disabled' : ''}>Start giveaway</button></div>
+                <p class="muted">Starting moves the prize to the bank bot, where nothing else can trade it. When the giveaway ends, a random entrant wins, gets a notification, and the bank bot sends them the offer. You get the winner's details in your bell and here.</p>
+            </form>`) + (latest_win ? winner_card(latest_win) : '') + `
             <h3>Previous giveaways</h3>
-            ${past.length == 0 ? '<p class="admin-empty">None yet.</p>' : `<table>
-                <tr><th>Item</th><th>Ended</th><th>Entries</th><th>Winner</th><th>Prize sent</th><th>Announcements</th></tr>
+            ${past.length == 0 ? '<p class="admin-empty">None yet.</p>' : `<div class="admin-table-wrap"><table>
+                <tr><th>Item</th><th>Ended</th><th>Entries</th><th>Winner</th><th>Prize</th><th>Announcements</th></tr>
                 ${past.map((g) => `<tr data-id="${esc(g._id)}">
                     <td>${esc(g.item.bp_sku)}</td>
                     <td>${g.status == 'cancelled' ? 'Cancelled' : when(g.end)}</td>
                     <td>${g.entry_count}</td>
                     <td>${g.winner?.steamid ? `<a href="https://steamcommunity.com/profiles/${esc(g.winner.steamid)}" target="_blank" rel="nofollow">${esc(g.winner.name || g.winner.steamid)}</a>
-                        ${g.winner_tradelink ? `<br><a href="${esc(g.winner_tradelink)}" target="_blank" rel="nofollow">Send trade offer</a>` : '<br><span class="muted">no trade link</span>'}` : '-'}</td>
-                    <td>${g.winner?.steamid ? `<input type="checkbox" class="prize-sent" ${g.prize_sent ? 'checked' : ''}>` : ''}</td>
+                        ${g.winner_tradelink ? '' : '<br><span class="muted">no trade link</span>'}` : '-'}</td>
+                    <td data-prize="${esc(g._id)}">${prize_line(g) || (g.winner?.steamid ? '' : '-')} ${prize_actions(g)}</td>
                     <td data-posts="${esc(g._id)}">${post_states(g, res.posts) || '-'}</td>
                 </tr>`).join('')}
-            </table>`}`
+            </table></div>`}`
 
-        // posting and removing run in the background: keep those lines up to date until they're done
-        const watch_posts = async (list, round = 0) => {
-            if(!posts_busy(list) || round >= 40){ return }
-            await new Promise((resolve) => setTimeout(resolve, 3000))
+        // posting and removing run in the background, and so do the prize's move and offer: keep those up to date
+        const prize_busy = (list) => list.some((g) => ['moving', 'sending', 'sent'].includes(g.prize?.state) || (g.prize?.state == 'held' && g.status == 'ended' && g.winner?.steamid))
+        const watch = async (list, round = 0) => {
+            if((!posts_busy(list) && !prize_busy(list)) || round >= 60){ return }
+            await new Promise((resolve) => setTimeout(resolve, round < 20 ? 3000 : 10000))
             if(!box.isConnected){ return }
             const r = await api('/api/admin/giveaways')
             if(r.status != 'ok'){ return }
             for (const g of r.giveaways) {
                 const el = box.querySelector(`[data-posts="${g._id}"]`)
                 if(el){ el.innerHTML = post_states(g, r.posts) || (el.tagName == 'TD' ? '-' : '') }
+                const pr = box.querySelector(`[data-prize="${g._id}"]`)
+                if(pr){ pr.innerHTML = pr.tagName == 'TD' ? `${prize_line(g) || '-'} ${prize_actions(g)}` : `Prize: ${prize_line(g)}` }
             }
-            watch_posts(r.giveaways, round + 1)
+            watch(r.giveaways, round + 1)
         }
-        watch_posts(res.giveaways)
+        watch(res.giveaways)
 
         const form = box.querySelector('#giveaway-form')
         if(form){
-            let search_timer
-            form.bp_sku.addEventListener('input', () => {
-                clearTimeout(search_timer)
-                search_timer = setTimeout(async () => {
-                    const r = await api(`/api/admin/items/search?q=${encodeURIComponent(form.bp_sku.value)}`)
-                    box.querySelector('#giveaway-items').innerHTML = (r.items || []).map((i) => `<option value="${esc(i.bp_sku)}">`).join('')
-                }, 250)
+            // the bank bot: where prizes wait for their winner
+            const bank_box = form.querySelector('#gw-bank')
+            const load_bank = async () => {
+                if(res.prizes != 'ready'){ bank_box.innerHTML = ''; return }
+                const b = await api('/api/admin/giveaways/bank')
+                if(b.status != 'ok'){ bank_box.innerHTML = `<span class="admin-error">${esc(b.message)}</span>`; return }
+                const list = b.candidates || []
+                bank_box.innerHTML = `<label>Bank bot (keeps the prizes until the winner gets them)
+                    <span class="admin-inline-form">
+                        <select name="bank">${b.bank ? '' : '<option value="">Pick a bot…</option>'}${list.map((c) => `<option value="${esc(c.steamid)}" ${c.steamid == b.bank ? 'selected' : ''}>${esc(c.name || c.steamid)}${c.type ? ` (${esc(c.type)})` : ''}${c.online === false ? ' – offline' : ''}</option>`).join('')}</select>
+                        <button type="button" class="save-bank">Save</button>
+                    </span></label>
+                    ${b.bank ? '' : '<p class="admin-error">Pick the bank bot before starting a giveaway. A warehouse account that doesn\'t trade or list works best.</p>'}`
+            }
+            load_bank()
+            bank_box.addEventListener('click', async (e) => {
+                if(!e.target.classList.contains('save-bank')){ return }
+                const steamid = bank_box.querySelector('select').value
+                if(toast(await api('/api/admin/giveaways/bank', { steamid }), 'Bank bot saved.')){ load_bank(); load_items(true) }
             })
+
+            // the prize picker
+            const picker = form.querySelector('#gw-picker'), more = form.querySelector('#gw-more-items'), picked_box = form.querySelector('#gw-picked')
+            let found = [], offset = 0, picked = null, search_timer, request = 0
+            const load_items = async (fresh) => {
+                if(res.prizes != 'ready'){ return }
+                if(fresh){ found = []; offset = 0; picker.innerHTML = '<span class="muted">Loading the items…</span>' }
+                const mine = ++request
+                const r = await api(`/api/admin/giveaways/prize_items?q=${encodeURIComponent(form.q.value)}&offset=${offset}&limit=60`)
+                if(mine != request){ return }
+                if(r.status != 'ok'){ picker.innerHTML = `<span class="admin-error">${esc(r.message)}</span>`; more.hidden = true; return }
+                const items = r.items || []
+                found = found.concat(items)
+                offset += items.length
+                picker.innerHTML = found.length ? found.map(prize_tile).join('') : `<span class="muted">${form.q.value ? 'No item on the bots matches that.' : 'The bots have no tradable items.'}</span>`
+                if(picked){ picker.querySelector(`[data-assetid="${CSS.escape(picked.assetid)}"]`)?.classList.add('is-picked') }
+                more.hidden = !(r.total > found.length)
+            }
+            load_items(true)
+            form.q.addEventListener('input', () => { clearTimeout(search_timer); search_timer = setTimeout(() => load_items(true), 250) })
+            more.addEventListener('click', () => load_items(false))
+            picker.addEventListener('click', (e) => {
+                const tile = e.target.closest('.gw-pick')
+                if(!tile){ return }
+                picked = found.find((i) => i.assetid == tile.dataset.assetid && i.bot == tile.dataset.bot) || null
+                picker.querySelectorAll('.is-picked').forEach((el) => el.classList.remove('is-picked'))
+                tile.classList.add('is-picked')
+                picked_box.hidden = !picked
+                if(picked){ picked_box.innerHTML = `Prize: <strong>${esc(picked.name)}</strong> <span class="muted">from ${esc(picked.botName || picked.bot)}, asset ${esc(picked.assetid)}${picked.priced === false ? ', unpriced' : ''}</span>` }
+            })
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault()
+                if(!picked){ toast({ status: 'error', message: 'Pick the prize from the items on your bots.' }); return }
+                const button = form.querySelector('button[type="submit"]')
+                button.disabled = true
                 const r = await api('/api/admin/giveaways', {
-                    bp_sku: form.bp_sku.value,
+                    bot: picked.bot,
+                    assetid: picked.assetid,
+                    bp_sku: picked.bp_sku || '',
+                    name: picked.name,
+                    image: picked.image || '',
+                    qualityID: picked.qualityID,
+                    effectID: picked.effectID,
+                    priced: picked.priced !== false,
                     end: new Date(form.end.value).getTime(),
                     description: form.description.value,
                     lang: form.lang.value,
                     steam_group: form.steam_group.checked,
                     trade: form.trade.checked
                 })
-                if(toast(r, 'Giveaway started.')){ giveaways(root) }
+                button.disabled = false
+                if(toast(r, 'Giveaway started. The prize is on its way to the bank bot.')){ giveaways(root) }
             })
         }
 
@@ -320,9 +437,17 @@
                 const left = r.skipped ? ` Skipped ${r.skipped} who had left the Steam group.` : ''
                 if(toast(r, r.winner ? `Winner: ${esc(r.winner.name || r.winner.steamid)}.${left}` : r.skipped ? 'Ended without a winner: everyone had left the Steam group.' : 'Ended, there were no entries.')){ giveaways(root) }
             }
-            if(e.target.classList.contains('cancel-giveaway') && confirm('Cancel the giveaway without a winner?')){
+            if(e.target.classList.contains('cancel-giveaway') && confirm('Cancel the giveaway without a winner? The prize stays on the bank bot as a normal item.')){
                 const r = await api(`/api/admin/giveaways/${id}/cancel`, {})
                 if(toast(r, 'Giveaway cancelled.')){ giveaways(root) }
+            }
+            if(e.target.classList.contains('send-prize')){
+                e.target.disabled = true
+                if(toast(await api(`/api/admin/giveaways/${id}/send_prize`, {}), 'Offer sent to the winner.')){ giveaways(root) } else { e.target.disabled = false }
+            }
+            if(e.target.classList.contains('move-prize')){
+                e.target.disabled = true
+                if(toast(await api(`/api/admin/giveaways/${id}/move_prize`, {}), 'Moving the prize to the bank bot.')){ giveaways(root) } else { e.target.disabled = false }
             }
             if(e.target.classList.contains('prize-sent')){
                 toast(await api(`/api/admin/giveaways/${id}/prize_sent`, { prize_sent: e.target.checked }), 'Saved.')
