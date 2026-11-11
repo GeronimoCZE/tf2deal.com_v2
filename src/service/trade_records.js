@@ -2,6 +2,7 @@ import fetch from 'node-fetch'
 import { item_model } from '../model/Item.js'
 import { effect_model } from '../model/Effect.js'
 import { pure_model } from '../model/Pure.js'
+import { details_for, details_of } from './copy_details.js'
 
 // Trade records are written to the `trades` collection by the bot server (bot_manager), whose code the site can't see.
 // site_shape() reads every layout it is likely to save and turns each record into the one the site draws:
@@ -21,6 +22,9 @@ import { pure_model } from '../model/Pure.js'
 // - internalTrade marks trades between our own bots.
 // Every item is matched to our item database for the name, picture and price the site uses for it; one that isn't
 // there keeps Steam's name and picture.
+// Each copy also gets its item details (`at`: paint, spells, strange parts, killstreaker, sheen, custom name; and
+// icon_url, Steam's picture of a painted copy): from the record when it has them (at / attachments, or a Steam item's
+// descriptions), else from the bots' stock or what the site remembers of it (service/copy_details.js).
 
 const IMG_PREFIX = 'https://community.cloudflare.steamstatic.com/economy/image/'
 const PURE_NAMES = { 'Mann Co. Supply Crate Key': 'keys', 'Refined Metal': 'ref', 'Reclaimed Metal': 'rec', 'Scrap Metal': 'scrap' }
@@ -86,6 +90,25 @@ const strip_name = (name) => {
 }
 const with_or_without_the = (name) => name.startsWith('The ') ? name.slice(4) : `The ${name}`
 
+// a Steam item's details from its description lines, in the shape of bot_manager's `at`
+const steam_at = (descs) => {
+    const at = {}
+    const spells = []
+    const parts = []
+    for (const line of descs) {
+        const text = line.trim()
+        let m
+        if ((m = text.match(/^Killstreaker: (.+)$/))) { at.killstreaker = m[1].trim() }
+        else if ((m = text.match(/^Sheen: (.+)$/))) { at.sheen = m[1].trim() }
+        else if ((m = text.match(/^Paint Color: (.+)$/))) { at.paint = m[1].trim() }
+        else if ((m = text.match(/^Halloween: (.+?)(?: \(spell only active during event\))?$/))) { spells.push(m[1].trim()) }
+        else if ((m = text.match(/^\(([^()]+): \d+\)$/))) { parts.push(m[1].trim()) }
+    }
+    if (spells.length) { at.spells = spells }
+    if (parts.length) { at.strangeParts = parts }
+    return at
+}
+
 // what a Steam item tells about itself
 const parse = (item) => {
     const name = steam_name(item)
@@ -102,7 +125,8 @@ const parse = (item) => {
         craftable: !descs.some((d) => /Not Usable in Crafting/i.test(d)),
         assetid: String(item?.assetid ?? item?.id ?? ''),
         image: item?.icon_url ? IMG_PREFIX + item.icon_url : '',
-        type: tag(item, 'type')
+        type: tag(item, 'type'),
+        at: steam_at(descs)
     }
 }
 
@@ -125,6 +149,8 @@ const copies_of = (item) => {
     const one = item?.assetid ?? item?.a ?? item?.id ?? item?.assetID ?? steam?.assetid ?? ''
     const effect_id = num(item?.effectID ?? item?.effect_id ?? (Number.isFinite(Number(item?.effect)) ? item.effect : 0))
     const price = num(item?.price)
+    // the copy's details as the record has them (bot_manager's `at`, or a Steam item's descriptions)
+    const details = details_of({ at: item?.at || item?.attachments || steam?.at, icon_url: item?.icon_url })
     return {
         names: named ? [stripped.name, with_or_without_the(stripped.name), named] : bp_names(steam),
         quality: item?.qualityID ?? item?.quality_id ?? quality_of(item?.quality) ?? steam?.quality ?? null,
@@ -136,7 +162,8 @@ const copies_of = (item) => {
         image: item?.image || (item?.icon_url ? IMG_PREFIX + item.icon_url : '') || steam?.image || '',
         type: item?.type && !steam ? String(item.type) : (steam?.type || ''),
         buy: num(item?.buy) || price,
-        sell: num(item?.sell) || price
+        sell: num(item?.sell) || price,
+        details
     }
 }
 
@@ -264,7 +291,7 @@ const read_side = (side, found) => {
         if (!grouped.has(key)) { grouped.set(key, { ...entry, user_stock: [] }) }
         const own = { ...(c.buy > 0 ? { buy: c.buy } : {}), ...(c.sell > 0 ? { sell: c.sell } : {}) }
         for (const a of c.assetids) {
-            grouped.get(key).user_stock.push({ a, ks: c.ks, f: c.f, ...prices(doc, c.ks), ...own })
+            grouped.get(key).user_stock.push({ a, ks: c.ks, f: c.f, ...prices(doc, c.ks), ...own, ...(c.details || {}) })
         }
     }
     out.items.push(...grouped.values())
@@ -284,7 +311,7 @@ const site_shape = async (records) => {
     const found = await lookup(copies)
     const key_now = records.some((r) => !(num(r?.key_value) || num(r?.key_price))) ? await key_price_now() : 0
 
-    return records.map((record) => {
+    const shaped = records.map((record) => {
         const sides = raw_sides(record)
         const toGive = read_side(sides.give, found)
         const toReceive = read_side(sides.receive, found)
@@ -302,6 +329,23 @@ const site_shape = async (records) => {
             toGive, toReceive, incomplete
         }
     })
+    await add_details(shaped)
+    return shaped
+}
+
+// copies saved without their details get them from the bots' stock, or from what the site remembers of them
+const add_details = async (trades) => {
+    const bare = trades.flatMap((t) => [t.toGive, t.toReceive]).flatMap((side) => side?.items || [])
+        .flatMap((item) => Array.isArray(item?.user_stock) ? item.user_stock : [])
+        .filter((copy) => copy && typeof copy == 'object' && !details_of(copy)?.at && copy.a != null && copy.a !== '')
+    if (!bare.length) { return }
+    const found = await details_for(bare.map((copy) => copy.a))
+    for (const copy of bare) {
+        const details = found.get(String(copy.a))
+        if (!details) { continue }
+        if (details.at) { copy.at = details.at }
+        if (details.icon_url && !copy.icon_url) { copy.icon_url = details.icon_url }
+    }
 }
 
 // How a record was saved, in words, for Admin -> Trade records: "itemsToGive: 2 bp_sku items; itemsToReceive: 3 key / metal items"

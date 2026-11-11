@@ -52,7 +52,7 @@ export const load_trades = () => {
             return
         }
 
-        const html = res.trades.map(render_trade).join('')
+        const html = res.trades.map((trade) => render_trade(trade, { viewer: true })).join('')
         if(page == 0 && !html){
             list.innerHTML = message_box(__('profile.no_trades_html', { url: lurl('/trade') }))
             return

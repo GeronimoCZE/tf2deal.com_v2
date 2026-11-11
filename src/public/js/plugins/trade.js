@@ -3490,7 +3490,13 @@ const item_tooltip = async (state, item, party) => {
                     killstreak: page_item()?.killstreak || [] // so the tooltip picks the same tier price as single_price
                 };
                 showTooltip(itemDesc);
-            } else if(party == 'show-user'){
+            } else if(party == 'show-user' || party == 'show-site'){
+                // a finished trade (home page "Latest trades", Profile -> Trades): the tile carries its copy's details
+                // (js/plugins/trades_render.js data-copy)
+                let copy = {};
+                try { copy = JSON.parse(item.getAttribute('data-copy') || '{}') || {} } catch (e) {}
+                copy.a = (item.getAttribute('data-assetids') || item.getAttribute('data-assetid') || '').split(',')[0];
+                const user_side = party == 'show-user';
                 const itemDesc = { 
                     bp_sku: item.getAttribute('data-name'),
                     qualityID: item.getAttribute('data-quality'),
@@ -3498,23 +3504,10 @@ const item_tooltip = async (state, item, party) => {
                     classes: [],
                     bptf_data: {update_key_price: Number(item.getAttribute('data-key'))},
                     effectID: item.getAttribute('data-effect'),
-                    buy: item.getAttribute('data-price'),
-                    sell: 0,
-                    stock: {items: []},
-                    user_stock: []
-                };
-                showTooltip(itemDesc);
-            } else if(party == 'show-site'){
-                const itemDesc = { 
-                    bp_sku: item.getAttribute('data-name'),
-                    qualityID: item.getAttribute('data-quality'),
-                    type: item.getAttribute('data-type'),
-                    classes: [],
-                    bptf_data: {update_key_price: Number(item.getAttribute('data-key'))},
-                    effectID: item.getAttribute('data-effect'),
-                    sell: item.getAttribute('data-price'),
-                    buy: 0,
-                    stock: {items: []}
+                    buy: user_side ? item.getAttribute('data-price') : 0,
+                    sell: user_side ? 0 : item.getAttribute('data-price'),
+                    stock: {items: user_side ? [] : [copy]},
+                    user_stock: user_side ? [copy] : []
                 };
                 showTooltip(itemDesc);
             }

@@ -350,7 +350,10 @@
     "home": {
       "no_trades": "目前还没有交易记录……快去交易吧！",
       "trades_error": "获取交易记录时出错，请稍后再试。",
-      "show_more": "再显示 5 条"
+      "show_more": "再显示 5 条",
+      "side_user": "交易者给出",
+      "side_you": "你给出",
+      "side_bot": "我们的机器人给出"
     },
     "new_user": {
       "toast_title": "提交你的交易链接",

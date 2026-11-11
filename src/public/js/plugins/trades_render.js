@@ -2,6 +2,9 @@ import { round_ref, create_sku, group_assets, item_alt, copy_image, copy_marks }
 
 // Renders finished trades (home page "Latest trades" and Profile -> Trades).
 // Identical assets are stacked into one tile with a count, the same way the /trade page does it.
+// Each side says whose it is (the trader's, or our bot's), and each tile carries its copy's details (data-copy: killstreak,
+// festivized, and `at` with paint, spells, strange parts, killstreaker, sheen, custom name) for the tooltip
+// (trade.js item_tooltip, parties 'show-user' / 'show-site'). The server adds those details (service/trade_records.js).
 
 const key_image = 'fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEAaR4uURrwvz0N252yVaDVWrRTno9m4ccG2GNqxlQoZrC2aG9hcVGUWflbX_drrVu5UGki5sAij6tOtQ/330x192';
 const ref_image = 'fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEbZQsUYhTkhzJWhsO1Mv6NGucF1Ygzt8ZQijJukFMiMrbhYDEwI1yRVKNfD6xorQ3qW3Jr6546DNPuou9IOVK4p4kWJaA/330x192';
@@ -10,6 +13,12 @@ const img_cdn = 'https://community.cloudflare.steamstatic.com/economy/image/';
 // trade records come from the bot server: escape everything before it goes into the HTML
 const esc = (text) => String(text ?? '').replace(/[&<>"'`]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[c]))
 const num = (n) => Number.isFinite(Number(n)) ? Number(n) : 0
+
+// what the tooltip needs of one copy, as JSON for the tile's data-copy
+const copy_data = (copy) => {
+    const at = (copy?.at && typeof copy.at == 'object') ? copy.at : null
+    return JSON.stringify({ ks: num(copy?.ks), f: num(copy?.f), ...(at ? { at } : {}) })
+}
 
 // "5 minutes ago" in the page language (the browser knows the plural rules of every language)
 const relative_time = new Intl.RelativeTimeFormat(window.TD_LANG || 'en', { numeric: 'always' });
@@ -91,14 +100,22 @@ const item_tiles = (side, price_field, key_value, factor = 1, paid = 0) => {
 
             // the tile opens the item's page; a killstreak copy its tier's page (a weapon's tiers are items of their own)
             const page = (Number(rep?.ks) > 0 && item?.bp_sku) ? create_sku(item.bp_sku, item.qualityID, 0, Number(rep.ks)) : (item?.bp_sku || '')
-            tiles.push(`<a href="${esc(window.lurl('/items/' + encodeURIComponent(page)))}" class="item q-${esc(item?.qualityID)} ${craftable} ${count > 1 ? 'stacked' : ''}" data-assetids="${esc(group.map(a => a?.a).join(','))}" data-key="${esc(key_value)}" data-quality="${esc(item?.qualityID)}" data-effect="${esc(item?.effectID)}" data-name="${esc(item.bp_sku)}" data-bp_sku="${esc(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks))}" data-type="${esc(item?.type)}" data-price="${esc(price)}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${num(item?.effectID)}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${esc(picture)}" alt="${item_alt(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${copy_marks(rep)}${badge}</a>`)
+            tiles.push(`<a href="${esc(window.lurl('/items/' + encodeURIComponent(page)))}" class="item q-${esc(item?.qualityID)} ${craftable} ${count > 1 ? 'stacked' : ''}" data-assetids="${esc(group.map(a => a?.a).join(','))}" data-key="${esc(key_value)}" data-quality="${esc(item?.qualityID)}" data-effect="${esc(item?.effectID)}" data-name="${esc(item.bp_sku)}" data-bp_sku="${esc(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks))}" data-type="${esc(item?.type)}" data-price="${esc(price)}" data-tradable="1" data-copy="${esc(copy_data(rep))}" style="background-image: url('https://api.backpack.tf/images/440/particles/${num(item?.effectID)}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" loading="lazy" src="${esc(picture)}" alt="${item_alt(create_sku(item.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${copy_marks(rep)}${badge}</a>`)
         }
     }
     return tiles
 }
 
+// the label on top of one side: who gave what is in it
+const side_label = (side, viewer) => {
+    const text = side == 'bot' ? __('home.side_bot') : (viewer ? __('home.side_you') : __('home.side_user'))
+    return `<div class="side-label ${side}"><span class="side-icon" aria-hidden="true"><span class="icon ${side == 'bot' ? 'icon-robot' : 'icon-user'}"></span></span><span class="side-name">${esc(text)}</span></div>`
+}
+
 // Returns the HTML for one trade, or "" for records without items.
-const render_trade = (trade_o) => {
+// options.viewer: the visitor is the trader (Profile -> Trades), so their side reads "You gave"
+const render_trade = (trade_o, options) => {
+    const viewer = options?.viewer === true
     if(trade_o?.toReceive?.items?.length > 0 && trade_o.toReceive.items[0]?.user_stock?.length === 0){ return "" }
     if(trade_o?.toGive?.items?.length > 0 && trade_o.toGive.items[0]?.user_stock?.length === 0){ return "" }
 
@@ -113,9 +130,9 @@ const render_trade = (trade_o) => {
             ${time}
         </div>
         <div class="content">
-            <div class="user-side"><div class="grid" id="show-user-grid">${userItems.join(' ')}</div></div>
-            <div class="trade-icon"><span class="icon icon-trade1"></span></div>
-            <div class="bot-side"><div class="grid" id="show-site-grid">${siteItems.join(' ')}</div></div>
+            <div class="user-side">${side_label('user', viewer)}<div class="grid" id="show-user-grid">${userItems.join(' ')}</div></div>
+            <div class="trade-icon" aria-hidden="true"><span class="icon icon-trade1"></span></div>
+            <div class="bot-side">${side_label('bot', viewer)}<div class="grid" id="show-site-grid">${siteItems.join(' ')}</div></div>
         </div>
     </div>`
 }

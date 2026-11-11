@@ -350,7 +350,10 @@
     "home": {
       "no_trades": "Es gibt noch keine Trades... leg los und mach welche!",
       "trades_error": "Beim Abrufen der Trades ist ein Fehler aufgetreten. Bitte versuch es später erneut.",
-      "show_more": "5 weitere anzeigen"
+      "show_more": "5 weitere anzeigen",
+      "side_user": "Händler gab",
+      "side_you": "Du gabst",
+      "side_bot": "Unser Bot gab"
     },
     "new_user": {
       "toast_title": "Gib deine Tausch-URL an",
