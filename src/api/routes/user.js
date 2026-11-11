@@ -389,27 +389,73 @@ router.get('/wishlist', isLogged, async (req, res) => {
 
 /* ========================= GIVEAWAYS ========================= */
 
+// Profile → Giveaways: the giveaways they entered (with their prize if they won), the running one, their totals
 router.get('/giveaways', isLogged, async (req, res) => {
-  const steamid = req.user.steamid
+  const steamid = String(req.user.steamid)
   try {
-    const giveaways = await giveaway_model.find({ 'entries.steamid': steamid }, { entries: 0, recent: 0 }).sort({ end: -1 }).limit(50).lean()
-    res.json({ status: 'ok', giveaways: giveaways.map((g) => ({
-      id: g._id,
-      item: g.item,
-      start: g.start,
-      end: g.end,
-      status: g.status,
-      won: g.winner?.steamid == steamid,
-      prize_sent: g.prize_sent,
-      // the winner's view of the bank bot's offer: waiting (no offer yet), sent (+ link), declined
-      prize: g.winner?.steamid == steamid && g.prize?.state ? {
-        state: g.prize_sent ? 'accepted' : ['sent', 'declined'].includes(g.prize.state) ? g.prize.state : 'waiting',
-        offer: g.prize.state == 'sent' && g.prize.offer_id ? `https://steamcommunity.com/tradeoffer/${g.prize.offer_id}/` : '',
-        no_tradelink: g.prize.error == 'no_trade_link'
+    const [giveaways, active, user] = await Promise.all([
+      giveaway_model.aggregate([
+        { $match: { 'entries.steamid': steamid } },
+        { $sort: { end: -1 } },
+        { $limit: 50 },
+        { $project: {
+          item: 1, start: 1, end: 1, status: 1, winner: 1, prize: 1, prize_sent: 1,
+          entry_count: { $size: '$entries' },
+          mine: { $arrayElemAt: [{ $filter: { input: '$entries', as: 'e', cond: { $eq: ['$$e.steamid', steamid] } } }, 0] }
+        } }
+      ]),
+      giveaway_model.aggregate([
+        { $match: { status: 'active' } },
+        { $limit: 1 },
+        { $project: { item: 1, end: 1, prize: 1, entry_count: { $size: '$entries' }, entered: { $in: [steamid, '$entries.steamid'] } } }
+      ]).then((list) => list[0] || null),
+      User.findOne({ steamid }, { giveaways: 1 }).lean()
+    ])
+
+    const view = giveaways.map((g) => {
+      const won = g.winner?.steamid == steamid
+      return {
+        id: g._id,
+        item: g.item,
+        priced: g.prize?.priced !== false,
+        start: g.start,
+        end: g.end,
+        status: g.status,
+        entry_count: g.entry_count,
+        entered: g.mine?.entered || 0,
+        won,
+        drawn: won ? (g.winner.drawn || g.end) : 0,
+        prize_sent: Boolean(g.prize_sent),
+        // the winner's view of the bank bot's offer: waiting (no offer yet), sent (+ link), declined, accepted
+        prize: won && g.prize?.state ? {
+          state: g.prize_sent || g.prize.state == 'accepted' ? 'accepted' : ['sent', 'declined'].includes(g.prize.state) ? g.prize.state : 'waiting',
+          offer: g.prize.state == 'sent' && g.prize.offer_id ? `https://steamcommunity.com/tradeoffer/${g.prize.offer_id}/` : '',
+          no_tradelink: g.prize.error == 'no_trade_link',
+          sent: g.prize.sent || 0,
+          delivered: g.prize.delivered || 0
+        } : null,
+        winner: g.winner?.steamid && !won ? { name: g.winner.name || '', avatar: g.winner.avatar || '' } : null
+      }
+    })
+
+    res.json({
+      status: 'ok',
+      giveaways: view,
+      active: active ? {
+        item: active.item,
+        priced: active.prize?.priced !== false,
+        end: active.end,
+        entry_count: active.entry_count,
+        entered: Boolean(active.entered)
       } : null,
-      winner: g.winner?.steamid ? g.winner.name : null
-    })) })
+      totals: {
+        entered: Math.max(Number(user?.giveaways?.entries) || 0, view.length),
+        won: Math.max(Number(user?.giveaways?.won) || 0, view.filter((g) => g.won).length),
+        received: view.filter((g) => g.won && (g.prize_sent || g.prize?.state == 'accepted')).length
+      }
+    })
   } catch (error) {
+    console.log('profile giveaways failed', error.message)
     res.status(500).json({ status: 'error', message: req.__('api.load_giveaways_failed') })
   }
 })

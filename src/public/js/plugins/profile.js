@@ -126,40 +126,111 @@ export const load_wishlist = async () => {
 
 /* ========================= GIVEAWAYS ========================= */
 
+// Profile → Giveaways: their totals, the running giveaway, the prizes they won (with the bank bot's offer as three
+// steps: won → offer sent → received, and the one thing to do next), then every giveaway they entered.
+const QUALITY_EDGE = { 1: 'genuine', 3: 'vintage', 5: 'unusual', 6: 'unique', 11: 'strange', 13: 'haunted', 14: 'collectors', 15: 'decorated' }
+const gw_image = (item, size = '') => `<img class="gw-thumb ${size}" src="${esc(item?.image || '/img/group-icon.png')}" style="background-image: ${particle_bg(item?.effectID)}; --edge: var(--q-${QUALITY_EDGE[Number(item?.qualityID)] || 'unique'})" loading="lazy" alt="${esc(item?.bp_sku || '')}">`
+const gw_name = (g) => g.priced === false
+    ? `<span class="name" translate="no">${esc(g.item?.bp_sku)}</span>`
+    : `<a href="${lurl('/items/' + encodeURIComponent(g.item?.bp_sku || ''))}" class="name" translate="no">${esc(g.item?.bp_sku)}</a>`
+
+// where the prize is and what the winner should do now
+const prize_view = (g) => {
+    const p = g.prize
+    if(!p){ // giveaways from before the bank bot: sent by hand
+        return g.prize_sent
+            ? { step: 3, note: __('profile.gw_prize_received') }
+            : { step: 1, note: __('profile.gw_prize_soon') }
+    }
+    if(p.state == 'accepted'){ return { step: 3, note: p.delivered ? __('profile.gw_received_on', { date: date_text(p.delivered) }) : __('profile.gw_prize_received') } }
+    if(p.state == 'sent'){
+        return { step: 2, note: __('profile.gw_prize_offer'), action: p.offer ? `<a class="gw-action" href="${esc(p.offer)}" target="_blank" rel="nofollow">${__('profile.gw_accept_offer')}</a>` : '' }
+    }
+    if(p.state == 'declined'){
+        return { step: 2, failed: true, note: __('profile.gw_prize_declined'), action: `<a class="gw-action quiet" href="${lurl('/support')}">${__('profile.gw_contact_support')}</a>` }
+    }
+    if(p.no_tradelink){
+        return { step: 1, note: __('profile.gw_prize_tradelink'), action: `<a class="gw-action" href="${lurl('/profile')}">${__('profile.gw_add_tradelink')}</a>` }
+    }
+    return { step: 1, note: __('profile.gw_prize_waiting') }
+}
+
+const prize_card = (g) => {
+    const v = prize_view(g)
+    const steps = [__('profile.gw_step_won'), __('profile.gw_step_sent'), __('profile.gw_step_received')]
+    return `<article class="gw-prize ${v.step == 3 ? 'is-done' : ''}">
+        ${gw_image(g.item, 'big')}
+        <div class="gw-prize-main">
+            ${gw_name(g)}
+            <div class="meta">${__('profile.gw_won_on', { date: date_text(g.drawn || g.end) })} · ${__('profile.gw_out_of', { n: g.entry_count })}</div>
+            <ol class="gw-steps" aria-label="${esc(__('profile.gw_prize_steps'))}">
+                ${steps.map((label, i) => {
+                    const n = i + 1
+                    const cls = v.failed && n == v.step ? 'failed' : n <= v.step ? 'done' : n == v.step + 1 && !v.failed ? 'next' : ''
+                    return `<li class="${cls}"><span class="dot" aria-hidden="true"></span>${esc(label)}</li>`
+                }).join('')}
+            </ol>
+            <p class="gw-note">${v.note}</p>
+        </div>
+        ${v.action ? `<div class="gw-prize-action">${v.action}</div>` : ''}
+    </article>`
+}
+
+const history_row = (g) => {
+    let result
+    if(g.status == 'active'){ result = `<span class="badge active">${__('profile.gw_entered')}</span>` }
+    else if(g.status == 'cancelled'){ result = `<span class="badge closed">${__('profile.gw_cancelled')}</span>` }
+    else if(g.won){ result = `<span class="badge won">${__('profile.gw_won')}</span>` }
+    else if(g.winner){ result = `<span class="gw-winner"><img src="${esc(g.winner.avatar || '/img/new_user-96.webp')}" alt="" width="22" height="22" loading="lazy">${__('profile.gw_winner', { name: esc(g.winner.name || '?') })}</span>` }
+    else { result = `<span class="muted">${__('profile.gw_no_winner')}</span>` }
+    return `<div class="gw-row ${g.won ? 'won' : ''}">
+        ${gw_image(g.item, 'small')}
+        <div class="gw-row-main">
+            ${gw_name(g)}
+            <div class="meta">${date_text(g.start)} – ${date_text(g.end)} · ${__('profile.gw_entries', { n: g.entry_count })}</div>
+        </div>
+        <div class="gw-row-result">${result}</div>
+    </div>`
+}
+
 export const load_giveaways = async () => {
     const list = document.getElementById('profile-giveaways')
 
-    const status_text = (g) => {
-        if(g.status == 'active'){ return `<span class="badge active">${__('profile.gw_entered')}</span> ${__('profile.gw_ends', { date: datetime_text(g.end) })}` }
-        if(g.status == 'cancelled'){ return `<span class="badge closed">${__('profile.gw_cancelled')}</span>` }
-        if(g.won){
-            // the bank bot's offer: link to it while it's open; no trade link yet → ask for one
-            const p = g.prize
-            const text = g.prize_sent || p?.state == 'accepted' ? __('profile.gw_prize_received')
-                : p?.state == 'sent' ? (p.offer ? `<a href="${esc(p.offer)}" target="_blank" rel="nofollow">${__('profile.gw_prize_offer')}</a>` : __('profile.gw_prize_sent'))
-                : p?.no_tradelink ? `<a href="${lurl('/profile')}">${__('profile.gw_prize_tradelink')}</a>`
-                : p?.state == 'declined' ? __('profile.gw_prize_declined')
-                : __('profile.gw_prize_soon')
-            return `<span class="badge won">${__('profile.gw_won')}</span> ${text}`
-        }
-        return `<span class="badge closed">${__('profile.gw_ended')}</span> ${g.winner ? __('profile.gw_winner', { name: esc(g.winner) }) : __('profile.gw_no_winner')}`
-    }
-
     const res = await api('/api/user/giveaways')
     if(res.status != 'ok'){ list.innerHTML = message_box(esc(res.message)); return }
+
+    const active = res.active
+    const entered = res.giveaways.filter((g) => g.status != 'active')
+    const prizes = res.giveaways.filter((g) => g.won)
+    const t = res.totals || {}
+
+    // the running giveaway: in → their chance; not in → the one green button of the page
+    const now = active ? `<section class="gw-now">
+        ${gw_image(active.item)}
+        <div class="gw-now-main">
+            <span class="gw-label"><i aria-hidden="true"></i>${__('profile.gw_current')}</span>
+            ${gw_name(active)}
+            <div class="meta">${__('profile.gw_ends', { date: datetime_text(active.end) })} · ${__('profile.gw_entries', { n: active.entry_count })}</div>
+        </div>
+        <div class="gw-now-action">${active.entered
+            ? `<span class="gw-in">${__('profile.gw_youre_in')} &#10003;</span><small>${__('profile.gw_chance', { n: Math.max(1, active.entry_count) })}</small>`
+            : `<a class="gw-action" href="${lurl('/giveaway')}">${__('profile.gw_enter_now')}</a>`}</div>
+    </section>` : ''
+
     if(res.giveaways.length == 0){
-        list.innerHTML = message_box(__('profile.no_giveaways_html', { url: lurl('/giveaway') }))
+        list.innerHTML = now + message_box(__('profile.no_giveaways_html', { url: lurl('/giveaway') }))
         return
     }
 
-    list.innerHTML = res.giveaways.map((g) => `<div class="giveaway-record ${g.won ? 'won' : ''}">
-        <img class="q-${esc(g.item?.qualityID)}" src="${esc(g.item?.image || '/img/group-icon.png')}" style="background-image: ${particle_bg(g.item?.effectID)}" loading="lazy" alt="${esc(g.item?.bp_sku || '')}">
-        <div class="details">
-            <a href="${lurl('/items/' + encodeURIComponent(g.item?.bp_sku || ''))}" class="name" translate="no">${esc(g.item?.bp_sku)}</a>
-            <div class="dates">${date_text(g.start)} – ${date_text(g.end)}</div>
-            <div class="status">${status_text(g)}</div>
+    list.innerHTML = `
+        <div class="gw-totals">
+            <div><strong>${Number(t.entered) || 0}</strong><span>${__('profile.gw_stat_entered')}</span></div>
+            <div><strong>${Number(t.won) || 0}</strong><span>${__('profile.gw_stat_won')}</span></div>
+            <div><strong>${Number(t.received) || 0}</strong><span>${__('profile.gw_stat_received')}</span></div>
         </div>
-    </div>`).join('')
+        ${now}
+        ${prizes.length ? `<h3 class="gw-heading">${__('profile.gw_prizes')}</h3>${prizes.map(prize_card).join('')}` : ''}
+        ${entered.length ? `<h3 class="gw-heading">${__('profile.gw_history')}</h3><div class="gw-rows">${entered.map(history_row).join('')}</div>` : ''}`
 }
 
 /* ========================= SUPPORT TICKETS ========================= */
