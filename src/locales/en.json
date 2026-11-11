@@ -350,7 +350,10 @@
     "home": {
       "no_trades": "There are no trade records yet... go make some!",
       "trades_error": "There was an error fetching the trades. Please try again later.",
-      "show_more": "Show 5 more"
+      "show_more": "Show 5 more",
+      "side_user": "Trader gave",
+      "side_you": "You gave",
+      "side_bot": "Our bot gave"
     },
     "new_user": {
       "toast_title": "Submit your Trade URL",

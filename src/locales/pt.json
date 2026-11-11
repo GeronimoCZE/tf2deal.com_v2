@@ -350,7 +350,10 @@
     "home": {
       "no_trades": "Ainda não há registros de trocas... vá fazer algumas!",
       "trades_error": "Ocorreu um erro ao carregar as trocas. Tente novamente mais tarde.",
-      "show_more": "Mostrar mais 5"
+      "show_more": "Mostrar mais 5",
+      "side_user": "O usuário deu",
+      "side_you": "Você deu",
+      "side_bot": "Nosso bot deu"
     },
     "new_user": {
       "toast_title": "Envie sua URL de troca",

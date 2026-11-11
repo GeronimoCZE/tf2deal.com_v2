@@ -32,6 +32,7 @@ import * as indexnow from './service/indexnow.js'
 import * as inventory_value from './service/inventory_value.js'
 import * as flips from './service/flips.js'
 import * as item_lists from './service/item_lists.js'
+import * as copy_details from './service/copy_details.js'
 import * as memory from './service/memory.js'
 import * as crawlers from './service/crawlers.js'
 import { site_version } from './service/site_version.js'
@@ -784,6 +785,7 @@ setInterval(async () => {
 seasons.start(); // reads this year's TF2 event dates from teamfortress.com
 inventory_value.start(); // Admin -> Inventory value: what the bots hold, measured every 15 minutes
 flips.start(); // Admin -> Flips: each copy the bots sold against what they paid for it, every 2 minutes
+copy_details.start(); // remembers the details (paint, spells, parts, killstreaker) of the bots' copies for finished trades
 memory.start(); // gives memory the site no longer uses back to the server (service/memory.js)
 item_lists.start(); // stock counts on /items between full reads of the item list (service/item_lists.js stock pass)
 crawlers.start(); // reads the crawlers' published address lists, then once a day (service/crawlers.js)
