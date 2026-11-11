@@ -352,9 +352,9 @@
       "no_trades": "Aucun échange enregistré pour l'instant... à vous de jouer !",
       "trades_error": "Une erreur est survenue lors de la récupération des échanges. Veuillez réessayer plus tard.",
       "show_more": "Afficher 5 de plus",
-      "side_user": "Le joueur a donné",
-      "side_you": "Vous avez donné",
-      "side_bot": "Notre bot a donné"
+      "side_user": "Utilisateur",
+      "side_you": "Vous",
+      "side_bot": "Bot du site"
     },
     "new_user": {
       "toast_title": "Renseignez votre URL d'échange",

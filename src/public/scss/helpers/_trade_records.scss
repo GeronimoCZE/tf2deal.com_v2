@@ -95,17 +95,19 @@
                    width: auto;
                    min-width: 0;
                 }
-                // whose side it is: the trader's (or "You gave" on the profile) and our bot's, the bot's with the brand colour
+                // whose side it is: "User" (or "You" on the profile) with a person icon, and "Site bot" as plain text
                 .side-label{
                     display: flex;
                     align-items: center;
                     gap: .45rem;
+                    min-height: 1.35rem;   // the person icon's height, so both sides' items start on the same line
                     margin: .1rem 0 .35rem .3rem;
                     color: var(--ink-2);
                     font-size: .82rem;
                     line-height: 1.2;
                     @include lt-sm{
                         gap: .3rem;
+                        min-height: 1.1rem;
                         margin: 0 0 .25rem .1rem;
                         font-size: .72rem;
                     }
@@ -128,10 +130,6 @@
                             line-height: 1;
                             @include lt-sm{ font-size: .62rem !important; }
                         }
-                    }
-                    &.bot .side-icon{
-                        background: var(--brand);
-                        color: #fff;
                     }
                     .side-name{
                         min-width: 0;

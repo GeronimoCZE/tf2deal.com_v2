@@ -352,9 +352,9 @@
       "no_trades": "Ainda não há registros de trocas... vá fazer algumas!",
       "trades_error": "Ocorreu um erro ao carregar as trocas. Tente novamente mais tarde.",
       "show_more": "Mostrar mais 5",
-      "side_user": "O usuário deu",
-      "side_you": "Você deu",
-      "side_bot": "Nosso bot deu"
+      "side_user": "Usuário",
+      "side_you": "Você",
+      "side_bot": "Bot do site"
     },
     "new_user": {
       "toast_title": "Envie sua URL de troca",
