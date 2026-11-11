@@ -1,5 +1,6 @@
 import { trade_model } from '../model/Trade.js'
 import { site_shape, layout } from './trade_records.js'
+import { public_bot, read_accounts } from './bot_names.js'
 
 // "Latest trades" on the home page: /api/latest_trades gives 5 at a time (15 at most) and the site socket new ones.
 // The bot server writes the trade records, in any of the layouts service/trade_records.js reads. Only trades with
@@ -48,8 +49,37 @@ const is_duplicate = (trade, list) => list.some((other) => String(other._id) == 
         (trade.tradeID && String(other.tradeID) == String(trade.tradeID))
         || (Math.abs(num(other.timestamp) - num(trade.timestamp)) < DUPLICATE_MS && contents(other) == contents(trade)))))
 
-// what the browser gets: no trade ID or partner Steam ID
-const to_public = (trade) => ({ id: String(trade._id), toGive: trade.toGive, toReceive: trade.toReceive, timestamp: trade.timestamp, key_value: trade.key_value })
+// One side of a trade as everyone may see it: the trader stays anonymous. Only the fields the page draws are kept (a
+// record may carry more, like an owner's Steam ID). Asset IDs become 0, 1, 2...: a real one can be looked up on
+// backpack.tf (item history), which names the copy's owners. Custom names and descriptions, and the inspect link
+// (it names the owner), are left out for the same reason; the trader sees them in Profile -> Trades.
+const PUBLIC_AT = ['killstreaker', 'sheen', 'paint', 'spells', 'strangeParts']
+const public_at = (at) => {
+    if (!at || typeof at != 'object') { return undefined }
+    const out = Object.fromEntries(PUBLIC_AT.filter((k) => at[k] != null && at[k] !== '').map((k) => [k, at[k]]))
+    return Object.keys(out).length ? out : undefined
+}
+const public_side = (side) => {
+    let n = 0
+    return {
+        keys: num(side?.keys), ref: num(side?.ref), rec: num(side?.rec), scrap: num(side?.scrap),
+        items: (side?.items || []).map((item) => ({
+            bp_sku: item?.bp_sku, qualityID: item?.qualityID, effectID: item?.effectID, type: item?.type, image: item?.image,
+            buy: item?.buy, sell: item?.sell,
+            user_stock: (Array.isArray(item?.user_stock) ? item.user_stock : []).map((copy) => ({
+                a: String(n++), ks: copy?.ks, f: copy?.f, buy: copy?.buy, sell: copy?.sell,
+                at: public_at(copy?.at), icon_url: typeof copy?.icon_url == 'string' ? copy.icon_url : undefined
+            }))
+        }))
+    }
+}
+
+// what the browser gets: no trade ID, partner Steam ID or asset IDs (public_side); the bot's Steam ID and name (bots are
+// public), for its label
+const to_public = (trade) => ({
+    id: String(trade._id), toGive: public_side(trade.toGive), toReceive: public_side(trade.toReceive),
+    timestamp: trade.timestamp, key_value: trade.key_value, bot: public_bot(trade.bot)
+})
 
 const newest_first = (a, b) => b.timestamp - a.timestamp
 
@@ -123,6 +153,7 @@ const tick = async () => {
 // when that trade has left the list since). { trades, more }: more is true while there are more within the first LIMIT.
 const latest = async ({ after = '', before = 0, limit = PAGE } = {}) => {
     if (!state.loaded) { await refresh() }
+    await read_accounts() // the bots' names (at once when they were read in the last 10 minutes)
     const list = state.list.slice(0, LIMIT)
     let start = 0
     if (after) {

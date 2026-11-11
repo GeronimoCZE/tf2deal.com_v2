@@ -322,7 +322,7 @@ const site_shape = async (records) => {
             _id: record._id,
             tradeID: record.tradeID ?? record.offerID ?? record.offer_id,
             partnerSteamID: steamid_of(record.partnerSteamID ?? record.partner),
-            bot: record.bot,
+            bot: steamid_of(record.bot),
             timestamp: record_time(record),
             key_value: num(record.key_value) || num(record.key_price) || key_now || undefined,
             internalTrade: record.internalTrade === true,

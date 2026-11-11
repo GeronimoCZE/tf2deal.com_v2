@@ -21,6 +21,7 @@ import { item_model } from '../../model/Item.js';
 import { ticket_model } from '../../model/Ticket.js';
 import { giveaway_model } from '../../model/Giveaway.js';
 import { check_requirements, in_steam_group, group_url } from '../../service/giveaway.js';
+import { public_bot, read_accounts } from '../../service/bot_names.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -339,7 +340,8 @@ router.get('/trades', isLogged, async (req, res) => {
     const trades = await trade_model.find({ partnerSteamID: req.user.steamid, internalTrade: { $ne: true } })
       .sort({ _id: -1 }).skip(page * PAGE_SIZE).limit(PAGE_SIZE + 1).lean()
     const shaped = await site_shape(trades.slice(0, PAGE_SIZE))
-    res.json({ status: 'ok', trades: shaped.map(({ _id, tradeID, partnerSteamID, bot, internalTrade, incomplete, ...trade }) => ({ id: String(_id), ...trade })), more: trades.length > PAGE_SIZE })
+    await read_accounts()
+    res.json({ status: 'ok', trades: shaped.map(({ _id, tradeID, partnerSteamID, bot, internalTrade, incomplete, ...trade }) => ({ id: String(_id), ...trade, bot: public_bot(bot) })), more: trades.length > PAGE_SIZE })
   } catch (error) {
     res.status(500).json({ status: 'error', message: req.__('api.load_trades_failed') })
   }

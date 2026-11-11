@@ -95,7 +95,7 @@
                    width: auto;
                    min-width: 0;
                 }
-                // whose side it is: "User" (or "You" on the profile) with a person icon, and "Site bot" as plain text
+                // whose side it is: "User" (or "You" on the profile) with a person icon, and the bot's Steam name linked to its profile ("Site bot" when unknown)
                 .side-label{
                     display: flex;
                     align-items: center;
@@ -136,6 +136,15 @@
                         overflow: hidden;
                         text-overflow: ellipsis;
                         white-space: nowrap;
+                    }
+                    // the bot's Steam name, linked to its Steam profile: colour change only on hover
+                    a.side-name{
+                        color: var(--ink-2);
+                        text-decoration: none;
+                        transition: color 150ms ease-in-out;
+                        &:hover, &:focus-visible{
+                            color: var(--ink);
+                        }
                     }
                 }
                 .grid{

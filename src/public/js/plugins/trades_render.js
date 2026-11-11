@@ -106,10 +106,19 @@ const item_tiles = (side, price_field, key_value, factor = 1, paid = 0) => {
     return tiles
 }
 
-// the label on top of one side: who gave what is in it
-const side_label = (side, viewer) => {
-    const text = side == 'bot' ? __('home.side_bot') : (viewer ? __('home.side_you') : __('home.side_user'))
-    return `<div class="side-label ${side}">${side == 'bot' ? '' : '<span class="side-icon" aria-hidden="true"><span class="icon icon-user"></span></span>'}<span class="side-name">${esc(text)}</span></div>`
+// the label on top of one side: whose it is. The bot's side shows that bot's Steam name linked to its Steam profile
+// (bot: { steamid, name } from the server), or "Site bot" when the trade doesn't say which bot it was.
+const side_label = (side, viewer, bot) => {
+    if(side == 'bot'){
+        const steamid = /^7656\d{13}$/.test(String(bot?.steamid || '')) ? String(bot.steamid) : ''
+        const name = esc(String(bot?.name || '').trim() || __('home.side_bot'))
+        const inner = steamid
+            ? `<a class="side-name" href="https://steamcommunity.com/profiles/${steamid}" target="_blank" rel="noopener noreferrer" title="${name}">${name}</a>`
+            : `<span class="side-name">${name}</span>`
+        return `<div class="side-label bot">${inner}</div>`
+    }
+    const text = viewer ? __('home.side_you') : __('home.side_user')
+    return `<div class="side-label user"><span class="side-icon" aria-hidden="true"><span class="icon icon-user"></span></span><span class="side-name">${esc(text)}</span></div>`
 }
 
 // Returns the HTML for one trade, or "" for records without items.
@@ -132,7 +141,7 @@ const render_trade = (trade_o, options) => {
         <div class="content">
             <div class="user-side">${side_label('user', viewer)}<div class="grid" id="show-user-grid">${userItems.join(' ')}</div></div>
             <div class="trade-icon" aria-hidden="true"><span class="icon icon-trade1"></span></div>
-            <div class="bot-side">${side_label('bot', viewer)}<div class="grid" id="show-site-grid">${siteItems.join(' ')}</div></div>
+            <div class="bot-side">${side_label('bot', viewer, trade_o?.bot)}<div class="grid" id="show-site-grid">${siteItems.join(' ')}</div></div>
         </div>
     </div>`
 }
