@@ -95,7 +95,7 @@
                    width: auto;
                    min-width: 0;
                 }
-                // whose side it is: the trader's (or "You gave" on the profile) and our bot's, the bot's with the brand colour
+                // whose side it is: "User" (or "You" on the profile) with a person icon, and "Site bot" with a plain brand-coloured circle
                 .side-label{
                     display: flex;
                     align-items: center;

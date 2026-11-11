@@ -352,9 +352,9 @@
       "no_trades": "Zatím tu nejsou žádné výměny... tak nějakou udělejte!",
       "trades_error": "Při načítání výměn došlo k chybě. Zkuste to prosím později.",
       "show_more": "Zobrazit dalších 5",
-      "side_user": "Obchodník dal",
-      "side_you": "Dal jsi",
-      "side_bot": "Náš bot dal"
+      "side_user": "Uživatel",
+      "side_you": "Ty",
+      "side_bot": "Bot webu"
     },
     "new_user": {
       "toast_title": "Zadejte svůj odkaz pro výměnu",

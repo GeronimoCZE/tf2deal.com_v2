@@ -109,11 +109,11 @@ const item_tiles = (side, price_field, key_value, factor = 1, paid = 0) => {
 // the label on top of one side: who gave what is in it
 const side_label = (side, viewer) => {
     const text = side == 'bot' ? __('home.side_bot') : (viewer ? __('home.side_you') : __('home.side_user'))
-    return `<div class="side-label ${side}"><span class="side-icon" aria-hidden="true"><span class="icon ${side == 'bot' ? 'icon-robot' : 'icon-user'}"></span></span><span class="side-name">${esc(text)}</span></div>`
+    return `<div class="side-label ${side}"><span class="side-icon" aria-hidden="true">${side == 'bot' ? '' : '<span class="icon icon-user"></span>'}</span><span class="side-name">${esc(text)}</span></div>`
 }
 
 // Returns the HTML for one trade, or "" for records without items.
-// options.viewer: the visitor is the trader (Profile -> Trades), so their side reads "You gave"
+// options.viewer: the visitor is the trader (Profile -> Trades), so their side reads "You"
 const render_trade = (trade_o, options) => {
     const viewer = options?.viewer === true
     if(trade_o?.toReceive?.items?.length > 0 && trade_o.toReceive.items[0]?.user_stock?.length === 0){ return "" }

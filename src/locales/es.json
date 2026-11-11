@@ -352,9 +352,9 @@
       "no_trades": "Todavía no hay intercambios registrados... ¡anímate a hacer alguno!",
       "trades_error": "Hubo un error al obtener los intercambios. Inténtalo de nuevo más tarde.",
       "show_more": "Mostrar 5 más",
-      "side_user": "El usuario dio",
-      "side_you": "Diste",
-      "side_bot": "Nuestro bot dio"
+      "side_user": "Usuario",
+      "side_you": "Tú",
+      "side_bot": "Bot del sitio"
     },
     "new_user": {
       "toast_title": "Envía tu URL de intercambio",

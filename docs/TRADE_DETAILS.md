@@ -2,7 +2,7 @@
 
 "Latest trades" on the home page and Profile → Trades show each traded copy's details in its tooltip: paint,
 Halloween spells, strange parts, killstreaker, sheen and custom name (plus the spell / part corner marks and a painted
-copy's own picture). Each side of a trade is labelled: "Trader gave" (or "You gave" on the profile) and "Our bot gave".
+copy's own picture). Each side of a trade is labelled: "User" (or "You" on the profile) and "Site bot".
 
 ## Where the details come from
 
