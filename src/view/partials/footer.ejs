@@ -22,20 +22,6 @@
 
 <footer>
     <div class="foo-content">
-        <%# every item category page, on every page: the way in to the item lists by quality, type and class for visitors,
-            and links to the category pages from the whole site for search engines (service/categories.js). The names
-            are TF2 words and stay English, like the category pages' own. %>
-        <% if (locals.item_categories) { const cats = item_categories.filter((c) => c.param != 'class'), class_cats = item_categories.filter((c) => c.param == 'class') %>
-        <nav class="foo-browse" aria-labelledby="foo-browse-title">
-            <div class="foo-col-heading" id="foo-browse-title"><%= __('footer.items_by_category') %></div>
-            <ul class="foo-browse-list">
-                <% for (const c of cats) { %><li><a href="<%= lurl(c.path) %>"><%= c.name %></a></li><% } %>
-            </ul>
-            <ul class="foo-browse-list">
-                <% for (const c of class_cats) { %><li><a href="<%= lurl(c.path) %>"><%= c.name %></a></li><% } %>
-            </ul>
-        </nav>
-        <% } %>
         <%# links grouped by what people come for (similar things together): trading, community, help, legal %>
         <div class="foo-links">
             <div class="foo-links-column">
@@ -101,6 +87,24 @@
                 </a>
             </div>
         </div>
+        <%# every item category page, on every page: the way in to the item lists by quality, type and class for visitors,
+            and links to the category pages from the whole site for search engines (service/categories.js). The names
+            are TF2 words and stay English, like the category pages' own; the group labels are the item filters' own words.
+            A band of its own colour under the site's links and logo, right above the credit bar, so it reads as a
+            separate part of the footer. %>
+        <% if (locals.item_categories) { %>
+        <nav class="foo-browse" aria-labelledby="foo-browse-title">
+            <div class="foo-browse-inner">
+                <div class="foo-browse-heading" id="foo-browse-title"><%= __('footer.items_by_category') %></div>
+                <% for (const g of ['quality', 'type', 'class']) { const list = item_categories.filter((c) => c.param == g); if (!list.length) continue %>
+                <div class="foo-browse-label" id="foo-browse-<%= g %>"><%= __('filters.' + g) %></div>
+                <ul class="foo-browse-list" aria-labelledby="foo-browse-<%= g %>">
+                    <% for (const c of list) { %><li><a href="<%= lurl(c.path) %>"><%= c.name %></a></li><% } %>
+                </ul>
+                <% } %>
+            </div>
+        </nav>
+        <% } %>
         <div class="copyrights">
             <span class="text-block"><span><%- __('footer.powered_by', { steam: '<a rel="nofollow" href="https://steampowered.com" target="_blank">Steam</a>' }) %></span> <span class="between">-</span> <span><%- __('footer.particles_from', { bptf: '<a rel="nofollow" href="https://backpack.tf" target="_blank">backpack.tf</a>' }) %></span></span>
             <span class="creator-credit"><%- __('footer.created_by', { author: '<a rel="nofollow" href="https://malikweb.eu/" target="_blank">Nikolas Malík</a>' }) %></span>
