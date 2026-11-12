@@ -517,16 +517,16 @@
 
     const audit = (res) => res.status != 'ok' ? error_line(res)
         : !res.data?.length ? '<p class="admin-empty">No changes since bot_manager started.</p>'
-        : `<ul class="admin-activity admin-bm-audit">${res.data.map((a) => `<li>
+        // the newest 10, as words ("stock group override"); what exactly was sent shows when you point at it
+        : `<ul class="admin-activity admin-bm-audit">${res.data.slice(0, 10).map((a) => `<li>
             <span class="muted">${ago(a.time)}</span>
             <span>${a.admin ? profile(a.admin, /^\d{17}$/.test(a.admin) ? `…${a.admin.slice(-5)}` : a.admin) : 'unknown'}</span>
-            <span><code>${esc(String(a.event || '').replace(/^admin:/, ''))}</code>${a.ok ? '' : ` <span class="admin-error">${words(a.error)}</span>`}
-                ${a.payload && a.payload != '{}' ? `<span class="admin-help admin-bm-payload">${esc(a.payload)}</span>` : ''}</span>
+            <span${a.payload && a.payload != '{}' ? ` title="${esc(a.payload)}"` : ''}>${esc(String(a.event || '').replace(/^admin:/, '').replace(/[:_]+/g, ' '))}${a.ok ? '' : ` <span class="admin-error">${words(a.error)}</span>`}</span>
         </li>`).join('')}</ul>`
 
     const tab_overview = async (box, ctx) => {
         const draw = async () => {
-            const [res, log] = await Promise.all([bm('admin:overview'), bm('admin:audit_log', { limit: 30 })])
+            const [res, log] = await Promise.all([bm('admin:overview'), bm('admin:audit_log', { limit: 10 })])
             if(!box.isConnected){ return }
             if(res.status != 'ok'){ return failed(box, res) }
             const o = res.data || {}, s = o.stock || {}, l = o.listings || {}, t = o.trading || {}, inv = o.inventory || {}, v = inv.values || {}, sw = t.switches || {}
@@ -1931,7 +1931,11 @@
             flush = setTimeout(() => { const list = [...due]; due.clear(); list.forEach(([fn, arg]) => fn(arg)) }, 700)
         })
 
-        try { await draw(box, ctx) } catch (err) { console.log(err); box.innerHTML = `<p class="admin-error">This page failed: ${esc(err.message)}</p>` }
+        try { await draw(box, ctx) } catch (err) {
+            console.log(err)
+            // bot_manager offline: one part of the tab already said so and the others found their places gone
+            if(!box.querySelector('.admin-bm-offline')){ box.innerHTML = `<p class="admin-error">This page failed: ${esc(err.message)}</p>` }
+        }
         return () => { off(); clearTimeout(flush); timers.forEach(clearInterval) }
     }
 

@@ -17,12 +17,15 @@
                 <img src="/img/logo_icon.png" width="18" height="18" alt="TF2Deal.com">
                 <span><%= on_admin ? 'View site' : 'Admin' %></span>
             </a>
-            <div class="ab-sub">
+            <% if (!on_admin) { %><div class="ab-sub">
                 <% for (const [id, name] of sections) { %><a href="/admin#<%= id %>"><%= name %></a><% } %>
-            </div>
+            </div><% } %>
         </div>
+        <%# in the panel its own rail has these %>
+        <% if (!on_admin) { %>
         <a class="ab-item ab-wide" href="/admin#settings">Live settings</a>
         <a class="ab-item ab-wide" href="/admin#bots">Bot manager</a>
+        <% } %>
         <a class="ab-item" href="/admin#tickets" title="Open tickets">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>
             <span class="ab-label">Tickets</span>

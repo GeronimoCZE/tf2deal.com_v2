@@ -119,7 +119,6 @@ $ab-h-phone: 40px;
 body:has(#admin-bar){
     header nav.nav-main{ top: $ab-h; }
     header .nav-placeholder{ margin-top: $ab-h; }
-    .admin .admin-sidebar{ top: 80px + $ab-h; }
     @media (max-width: 600px){
         header nav.nav-main{ top: $ab-h-phone; }
         header .nav-placeholder{ margin-top: $ab-h-phone; }
