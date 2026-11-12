@@ -24,7 +24,7 @@ const key = () => {
   return /^[a-zA-Z0-9-]{8,128}$/.test(value) ? value : ''
 }
 // only the live site submits (a test copy would announce tf2deal.com pages it doesn't serve)
-const enabled = () => Boolean(key()) && String(process.env.SITE_URL || '').replace(/\/+$/, '') === fn.site_url
+export const enabled = () => Boolean(key()) && String(process.env.SITE_URL || '').replace(/\/+$/, '') === fn.site_url
 
 export const key_file = (req, res, next) => {
   if (!key() || req.params.file !== key()) return next()

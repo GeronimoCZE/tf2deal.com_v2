@@ -12,6 +12,8 @@
 //                         modal adds these names to the suggestions and shows "copies/limit" next to every name.
 //                         Every suggestion opens a page (no 404s).
 //   sitemap_names()       the items whose pages belong in the sitemap (fn.item_indexable), sorted by name
+//   page_signatures()     those pages' prices, stock and status in short (Map name -> "buy|sell|stock|status"), for
+//                         service/page_changes.js (sitemap <lastmod>, IndexNow when a page changes)
 //   ks_page(name)         "Professional Killstreak Rocket Launcher" -> { bases: ['Rocket Launcher', ...], tier: 3 }
 //   tiers_of(doc)         an item's killstreak tiers: Map tier -> { tier, buy, sell (ref), limit, source, buyorders, entry }
 //   ks_items(doc)         true for a weapon whose killstreak tiers item_manager prices as items of their own
@@ -373,6 +375,8 @@ const add_item = (by_name, doc) => {
     indexable,
     active: doc.status == 1,
     limit: Number(doc.stock?.limit) || 0,
+    // what the item page shows, in short: a change here is a change of the page (service/page_changes.js)
+    sig: [Number(doc.buy) || 0, Number(doc.sell) || 0, Number(doc.stock?.cur) || 0, Number(doc.status) || 0].join('|'),
     // the /items list: active items and the ones the bots hold copies of (status 2 items only have a page)
     cards: doc.status == 1 || copies > 0 ? item_cards(doc) : [],
     // the item page's similar items: the ones in stock
@@ -409,6 +413,11 @@ const build = (by_name, partial = false) => {
     collections: collection_lists(pages),
     // item pages, and the pages of killstreak tiers that are items of their own (tier_indexable)
     indexable: [...[...by_name].filter(([, page]) => page.indexable).map(([name]) => name), ...tier_cards.filter((card) => card.indexable).map((card) => card.bp_sku)].sort(),
+    // the same pages with what each shows, in short (page_signatures); not while the first read is still going
+    signatures: partial ? null : new Map([
+      ...[...by_name].filter(([, page]) => page.indexable).map(([name, page]) => [name, page.sig]),
+      ...tier_cards.filter((card) => card.indexable).map((card) => [card.bp_sku, [card.buy, card.sell, card.count, 1].join('|')])
+    ]),
     by_name, // for the stock pass, which patches the items with copies
     built: Date.now()
   }
@@ -474,7 +483,7 @@ const STOCK_SOON = 3 * 1000 // after bot_manager says it recounted stock, it may
 const HELD_QUERY = { $and: [ITEMS_QUERY, { $or: [{ 'stock.items.a': { $gt: '' } }, { 'stock.items.a': { $gte: -Infinity } }] }] }
 
 // what the lists show of an item: when it is the same, nothing needs building
-const page_key = (page) => page ? JSON.stringify([page.copies, page.active, page.limit, page.cards, page.similar]) : ''
+const page_key = (page) => page ? JSON.stringify([page.copies, page.active, page.limit, page.cards, page.similar, page.sig]) : ''
 
 const stock_state = { running: null, timer: null, last: 0, took: 0, changed: 0, error: '' }
 
@@ -617,6 +626,12 @@ const sitemap_names = async () => {
   return all.indexable
 }
 
+// the sitemap's item pages with what each shows (build: signatures), or null before the first whole read; never waits
+const page_signatures = () => {
+  const list = index.current()
+  return list && !list.partial ? list.signatures || null : null
+}
+
 // how the item list reads go: { ready, partial, items, cards, reading_for_s, read_so_far, last_read_s_ago, last_read_took_s,
 // last_error }. The item APIs send it when they answer 503, so a look at /api/item_stock says why the list isn't there.
 const status = () => {
@@ -644,4 +659,4 @@ const status = () => {
 
 const refresh = () => index.reload().catch(() => null) // a failed read is written to the log by cached()
 
-export { similar, cards, public_card, names, stock, sitemap_names, start, stock_changed, stock_pass, ks_page, ks_tier, tiers_of, ks_items, tier_indexable, collection, collection_order, grade_of, refresh, status }
+export { similar, cards, public_card, names, stock, sitemap_names, page_signatures, start, stock_changed, stock_pass, ks_page, ks_tier, tiers_of, ks_items, tier_indexable, collection, collection_order, grade_of, refresh, status }

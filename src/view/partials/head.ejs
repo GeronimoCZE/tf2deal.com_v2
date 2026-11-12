@@ -68,21 +68,28 @@
     const seo_url = info?.canonical || (info?.path ? seo_site + lurl(info.path) : locals.canonical) || seo_site + '/'
     // the share picture on https (a stored Steam picture address may be http://, see fn.https_url)
     const seo_image = String(info?.image || seo_site + '/img/og-image.png').replace(/^http:\/\//i, 'https://')
-    const seo_index = !(locals.noindex || info?.noindex)
+    // error pages (status 400 or more, app.js error_page) are never indexed
+    const seo_index = !(locals.noindex || info?.noindex || locals.error_page)
 %>
     <meta name="description" content="<%= seo_description %>">
     <meta name="keywords" content="TF2 Trade Site, TF2 Item Trading, Team Fortress 2 Bots">
     <meta name="author" content="Nikolas Malik"> 
    <link rel="icon" href="/img/icon96x96.png">
     <title><%= seo_title %></title>
+<%# a canonical address only on pages meant for search results: a noindex page with one sends mixed signals, and an
+    error page has no address of its own %>
+<% if (seo_index) { %>
     <link rel="canonical" href="<%= seo_url %>">
+<% } %>
 <% if (!seo_index) { %>
     <meta name="robots" content="noindex">
 <% } else { %>
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <% } %>
     <%# the same page as Markdown, for AI agents (src/service/markdown.js) %>
+<% if (!locals.error_page) { %>
     <link rel="alternate" type="text/markdown" href="<%= seo_url %>">
+<% } %>
 <% if (seo_index && !info?.no_hreflang) { for (const alt of (info?.alternates || alternates(seo_site, seo_path))) { %>
     <link rel="alternate" hreflang="<%= alt.hreflang %>" href="<%= alt.href %>">
 <% } } %>
