@@ -11,6 +11,7 @@ import { refresh_state, draw_winner, cancel as cancel_giveaway, recent_view } fr
 import * as giveaway_prize from '../../service/giveaway_prize.js';
 import * as giveaway_posts from '../../service/giveaway_posts.js';
 import * as translate from '../../service/translate.js';
+import * as sitemap from '../../service/sitemap.js';
 import { LANGS, LANG_NAMES } from '../../i18n.js';
 import { trade_model } from '../../model/Trade.js';
 import { rating_model } from '../../model/Rating.js';
@@ -141,7 +142,7 @@ router.post('/blog', async (req, res) => {
   }
   const now = Date.now();
   const post = await new blog_model({ ...fields, source_hash: translate.source_hash(fields, translate.BLOG_FIELDS), created: now, updated: now }).save();
-  if(post.published){ translate.queue_post(post._id) }
+  if(post.published){ translate.queue_post(post._id); sitemap.refresh() } // in the sitemap + IndexNow now
   res.json({ status: 'ok', translation: translation_info(), post: with_translation(post.toObject()) });
 });
 
@@ -156,11 +157,13 @@ router.post('/blog/:id', valid_id, async (req, res) => {
   const post = await blog_model.findOneAndUpdate({ _id: req.params.id }, { $set: { ...fields, source_hash: translate.source_hash(fields, translate.BLOG_FIELDS), updated: Date.now() } }, { new: true }).lean();
   if(!post){ return res.status(404).json({ status: 'error', message: 'Post not found.' }) }
   if(post.published){ translate.queue_post(post._id) } // only the languages whose translation is outdated
+  sitemap.refresh(); // new lastmod (or the post left the sitemap when unpublished), sent to IndexNow
   res.json({ status: 'ok', translation: translation_info(), post: with_translation(post) });
 });
 
 router.post('/blog/:id/delete', valid_id, async (req, res) => {
   await blog_model.deleteOne({ _id: req.params.id });
+  sitemap.refresh();
   res.json({ status: 'ok' });
 });
 

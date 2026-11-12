@@ -310,6 +310,7 @@ const translate_doc = async (model, fields, id, force) => {
   if (doc.source_hash !== hash) await model.updateOne({ _id: id }, { $set: { source_hash: hash } })
 
   const source = source_lang(doc)
+  let written = 0
   for (const lang of LANGS) {
     if (lang === source) continue
     if (!force && doc.translations?.[lang]?.hash === hash) continue
@@ -319,11 +320,15 @@ const translate_doc = async (model, fields, id, force) => {
         $set: { [`translations.${lang}`]: { ...out, hash, model: model_name(), updated: Date.now() } },
         $unset: { [`translation_errors.${lang}`]: 1 }
       })
+      written++
     } catch (error) {
       await model.updateOne({ _id: id }, { $set: { [`translation_errors.${lang}`]: error.message } })
       console.log(`translate: ${model.modelName} ${id} -> ${lang} failed: ${error.message}`)
     }
   }
+  // a published post in new languages: into the sitemap and to IndexNow now (sitemap.js imports this file, so it's
+  // loaded here when it's needed)
+  if (written && model === blog_model && doc.published) import('./sitemap.js').then((sitemap) => sitemap.refresh()).catch(() => {})
 }
 
 export const queue_post = (id, force = false) => enqueue(`post:${id}`, async () => {

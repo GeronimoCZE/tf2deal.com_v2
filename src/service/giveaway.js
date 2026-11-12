@@ -9,6 +9,7 @@ import { giveaway_archive_model } from '../model/GiveawayArchive.js'
 import { notify } from './notifications.js'
 import { remove_posts, remove_due } from './giveaway_posts.js'
 import * as prize from './giveaway_prize.js'
+import * as sitemap from './sitemap.js'
 
 // avatars of the latest entries on the giveaway page; only these keep a name and an avatar
 const RECENT_MAX = 45
@@ -216,9 +217,14 @@ const cancel = async (giveaway_id, admin) => {
 }
 
 // keeps app.giveaway (nav highlight) in sync with the DB
+let shown_id // the active giveaway the last refresh_state saw ('' none, undefined before the first)
 const refresh_state = async () => {
     await migrate_entries().catch((error) => { migrated = false; console.log('giveaway: entry migration failed', error.message) })
     const active = await giveaway_model.findOne({ status: 'active' }, { entries: 0 }).lean()
+    // a giveaway started, ended or was cancelled: the giveaway page's lastmod in the sitemap, sent to IndexNow
+    const id = active ? String(active._id) : ''
+    if(shown_id !== undefined && shown_id !== id){ sitemap.refresh() }
+    shown_id = id
     app.giveaway.active = Boolean(active)
     app.giveaway.item = active?.item
     app.giveaway.end = active?.end

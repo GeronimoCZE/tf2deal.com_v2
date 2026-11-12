@@ -81,6 +81,7 @@
     "items_page": "Цены предметов TF2 (страница {page}) | TF2Deal.com",
     "not_found": "404 - Не найдено - TF2deal.com",
     "giveaway": "Бесплатный розыгрыш TF2 – выиграйте предметы | TF2Deal.com",
+    "giveaway_active": "Бесплатный розыгрыш: {item} | TF2Deal.com",
     "blog": "Блог о трейде TF2 – гайды и цены | TF2Deal.com",
     "blog_page": "Блог о трейде TF2 (страница {page}) | TF2Deal.com",
     "about": "О TF2Deal.com – сайт автоматического трейда TF2",

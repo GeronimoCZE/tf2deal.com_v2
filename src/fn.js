@@ -18,6 +18,8 @@ const clean_path = (pathname = '/') => String(pathname).replace(/\/+$/, '') || '
 // an http:// picture address as https:// (Steam's item pictures are stored as http:// in places and are served on
 // https:// too): a page on https shows no insecure content, and share cards and structured data get a secure picture
 const https_url = (url) => typeof url === 'string' ? url.replace(/^http:\/\//i, 'https://') : url
+// a picture address as a full https URL (og:image and structured data need one; stored ones may be a site path)
+const absolute_url = (url) => !url ? undefined : https_url(/^https?:\/\//i.test(url) ? url : site_url + '/' + String(url).replace(/^\/+/, ''))
 
 // full canonical URL of a page in a language: no query string, no trailing slash
 const canonical_url = (pathname = '/', lang = 'en') => site_url + localize_path(lang, clean_path(pathname))
@@ -416,6 +418,7 @@ export {
   site_url,
   clean_path,
   https_url,
+  absolute_url,
   canonical_url,
   price_text,
   item_description,

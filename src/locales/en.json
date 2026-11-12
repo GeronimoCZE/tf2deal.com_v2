@@ -81,6 +81,7 @@
     "items_page": "TF2 Item Prices (page {page}) | TF2Deal.com",
     "not_found": "404 - Not found - TF2deal.com",
     "giveaway": "Free TF2 Giveaway – Win TF2 Items | TF2Deal.com",
+    "giveaway_active": "Free {item} Giveaway | TF2Deal.com",
     "blog": "TF2 Trading Blog – Guides & Price News | TF2Deal.com",
     "blog_page": "TF2 Trading Blog (page {page}) | TF2Deal.com",
     "about": "About TF2Deal.com – Automated TF2 Trading Site",
