@@ -557,7 +557,7 @@
         </${href ? 'a' : 'div'}>`
 
     const overview = async (root) => {
-        root.innerHTML = head('Overview', 'What is happening on the site right now. Refreshes every 15 seconds.', '<button id="ov-refresh">Refresh</button>') + '<div id="ov-body"><div class="admin-loading"><span class="admin-spinner"></span> Loading…</div></div>'
+        root.innerHTML = head('Overview', 'What is happening on the site right now. Updates by itself every 15 seconds.') + '<div id="ov-body"><div class="admin-loading"><span class="admin-spinner"></span> Loading…</div></div>'
 
         const draw = async () => {
             const res = await api('/api/admin/overview')
@@ -567,30 +567,25 @@
             const o = res.overview
             const trading = live.settings ? live.settings.trading_state === 1 : o.trading
 
+            // six numbers: each one answers "is something wrong or waiting for me?"
             box.innerHTML = `<div class="admin-stats">
-                    ${stat('Users online', num(o.users_online), `${num(o.users_trading)} trading now`)}
-                    ${stat('Trades, last 24 h', num(o.trades_day), o.trades_reported ? `${num(o.trades_reported)} reported by bots` : '')}
-                    ${stat('Trades made', o.trades_total != null ? num(o.trades_total) : '–', 'all time, without trades between our bots', '#trades')}
-                    ${stat('Items in stock', num(o.items), `${num(o.bots)} bot${o.bots == 1 ? '' : 's'}`)}
-                    ${stat('Registered users', num(o.users_total), o.users_new != null ? `+${num(o.users_new)} in 24 h` : '', '#users')}
+                    ${stat('Online now', num(o.users_online), `${num(o.users_trading)} trading · ${num(o.users_total)} registered`, '#users')}
+                    ${stat('Trades, 24 h', num(o.trades_day), o.trades_total != null ? `${num(o.trades_total)} all time` : '', '#trades')}
+                    ${stat('Items in stock', num(o.items), `on ${num(o.bots)} bot${o.bots == 1 ? '' : 's'}`, '#bots/stock')}
+                    ${stat('Key price', o.key_price ? `${num(o.key_price)}<small> ref</small>` : '–')}
                     ${stat('Open tickets', num(o.tickets_open), o.tickets_open ? 'waiting for a reply' : 'all answered', '#tickets')}
-                    ${stat('Key price', o.key_price ? `${num(o.key_price)}<small> ref</small>` : '–', 'Mann Co. key')}
-                    ${stat('Trade rating', o.rating?.avg != null ? `${o.rating.avg.toFixed(1)} ★` : '–', o.rating?.count ? `${num(o.rating.count)} rating${o.rating.count == 1 ? '' : 's'}` : 'no ratings yet', '#ratings')}
+                    ${stat('Rating', o.rating?.avg != null ? `${o.rating.avg.toFixed(1)}<small> ★</small>` : '–', o.rating?.count ? `${num(o.rating.count)} rating${o.rating.count == 1 ? '' : 's'}` : 'no ratings yet', '#ratings')}
                 </div>
                 <div class="admin-grid">
                     <div class="admin-card">
-                        <h3>Services</h3>
+                        <h3>Status</h3>
                         <ul class="admin-rows">
-                            <li><span>Trading</span>
-                                <span class="row-end">${pill(trading, 'On', 'Paused')}
-                                <label class="admin-switch" title="${trading ? 'Pause trading' : 'Turn trading on'}"><input type="checkbox" id="ov-trading" ${trading ? 'checked' : ''}><span></span></label></span></li>
-                            <li><span>Database</span>${pill(o.db, 'Connected', 'Disconnected')}</li>
+                            <li><label for="ov-trading">Trading${trading ? '' : ' <span class="admin-bad">paused</span>'}</label>
+                                <label class="admin-switch" title="${trading ? 'Pause trading' : 'Turn trading on'}"><input type="checkbox" id="ov-trading" ${trading ? 'checked' : ''}><span></span></label></li>
                             <li><span>Bot server</span>${pill(o.bot_server == 'online')}</li>
                             <li><span>Item server</span>${pill(o.item_server == 'online')}</li>
-                            <li><span>Apps on the settings socket</span><strong>${num(live.clients.length || o.settings_clients)}</strong></li>
-                            <li><span>Website uptime</span><strong>${uptime(o.uptime)}</strong></li>
-                            ${o.crawlers ? `<li><span>Crawlers let past the limits</span><strong title="${esc(`Requests from search engine and AI crawlers since the website started (their addresses are checked). Address lists read: ${o.crawlers.lists_read} of ${o.crawlers.lists_total}${o.crawlers.failed.length ? `; not read now: ${o.crawlers.failed.join(', ')}` : ''}`)}">${o.crawlers.requests.length ? o.crawlers.requests.slice(0, 3).map(([name, n]) => `${esc(name)} ${num(n)}`).join(' · ') + (o.crawlers.requests.length > 3 ? ` +${o.crawlers.requests.length - 3}` : '') : 'none yet'}</strong></li>` : ''}
-                            ${o.memory ? `<li><span>Website memory</span><strong title="${num(o.memory.heap_used)} MB of it is in use; the rest is freed memory given back every few minutes">${num(o.memory.rss)} MB${o.memory.capped ? '' : ' · no heap cap'}</strong></li>` : ''}
+                            <li><span>Database</span>${pill(o.db, 'Connected', 'Disconnected')}</li>
+                            <li><span>Website</span><span class="muted">up ${uptime(o.uptime)}${o.memory ? ` · <span title="${num(o.memory.heap_used)} MB of it is in use; the rest is freed memory given back every few minutes">${num(o.memory.rss)} MB</span>${o.memory.capped ? '' : ' · <span class="admin-bad" title="Start the site with pm2 start ecosystem.config.cjs (docs/UBUNTU.md) so it stays smaller">no heap cap</span>'}` : ''}</span></li>
                         </ul>
                     </div>
                     <div class="admin-card">
@@ -616,7 +611,6 @@
             })
         }
 
-        root.querySelector('#ov-refresh').addEventListener('click', draw)
         await draw()
         const timer = setInterval(() => { if(!document.hidden){ draw() } }, 15000)
         const on_live = (type) => { if(type == 'changed' || type == 'init'){ draw() } }

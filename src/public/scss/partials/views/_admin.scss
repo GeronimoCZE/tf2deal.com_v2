@@ -224,6 +224,7 @@ body.admin-app{
     .muted{ color: var(--ink-3); font-size: .9rem; }
     .admin-empty{ color: var(--ink-3); margin: .4rem 0; }
     .admin-error{ color: #f0958b; margin: .4rem 0; }
+    .admin-bad{ color: #f3a097; font-weight: 600; } // a word inside a line that needs attention (paused, no heap cap)
     .admin-link{ display: inline-block; margin-top: .75rem; color: var(--violet); font-weight: 600; text-decoration: none; }
     .admin-loading{
         display: flex; align-items: center; gap: .6rem;
@@ -428,6 +429,8 @@ body.admin-app{
             border-bottom: 1px solid var(--line);
             &:last-child{ border-bottom: none; }
             strong{ color: var(--ink); }
+            > label:first-child{ cursor: pointer; }
+            > .muted{ text-align: right; }
         }
         .row-end{ display: inline-flex; align-items: center; gap: .6rem; }
     }
