@@ -76,10 +76,45 @@ const allRequestsLimiter = rateLimit({
 // engines found two copies of every page and listed some under www. A page asked for on www.<site> moves (301) to the
 // same path on the site's own address; other requests (the API, sockets) are left alone.
 const site_host = new URL(fn.site_url).host
+// Bing also listed http://tf2deal.com/ as a page of its own: a page asked for over plain http through Cloudflare (its
+// CF-Visitor header says the visitor's scheme) moves to https too. Cloudflare's "Always Use HTTPS" does the same.
+const cf_scheme = (req) => {
+  try { return JSON.parse(String(req.headers['cf-visitor'] || '{}')).scheme || '' } catch (e) { return '' }
+}
 app.use((req, res, next) => {
   const host = String(req.headers.host || '').toLowerCase().replace(/:\d+$/, '')
-  if (host === `www.${site_host}` && (req.method === 'GET' || req.method === 'HEAD')) {
+  const page = req.method === 'GET' || req.method === 'HEAD'
+  if (page && (host === `www.${site_host}` || (host === site_host && cf_scheme(req) === 'http'))) {
     return res.redirect(301, fn.site_url + req.originalUrl)
+  }
+  next()
+})
+
+// One address per page, by redirect (Bing's webmaster guidelines: redirects, not canonical tags, for the same page at
+// two addresses). Express answers /about/, /About and /ABOUT/ like /about; they now move (301) to /about. Only the
+// language and the site's own page names are lowercased: item names and blog addresses keep their capitals.
+const PAGE_ADDRESS = new RegExp(`^(/(?:${i18n.LANGS.join('|')}))?(/(?:items|trade|about|blog|giveaway|terms-of-service|cookies|support|profile))(?=/|$)(.*)$`, 'i')
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next()
+  const at = req.originalUrl.indexOf('?')
+  const path = at < 0 ? req.originalUrl : req.originalUrl.slice(0, at)
+  const query = at < 0 ? '' : req.originalUrl.slice(at)
+  let fixed = path
+  const page = path.match(PAGE_ADDRESS)
+  if (page) fixed = (page[1] || '').toLowerCase() + page[2].toLowerCase() + page[3]
+  else if (/^\/[a-z]{2}\/+$/i.test(path) && i18n.LANGS.includes(path.slice(1, 3).toLowerCase())) fixed = path.slice(0, 3).toLowerCase() // /de/ -> /de
+  if (page || fixed !== path) fixed = fixed.replace(/\/+$/, '') || '/'
+  if (fixed !== path) return res.redirect(301, fixed + query)
+  next()
+})
+
+// Error pages (404, 410, 500, 503: whatever answers with status 400 or more) are not pages of their own for search
+// engines: noindex, and no canonical or hreflang links (views/partials/head.ejs reads error_page).
+app.use((req, res, next) => {
+  const status = res.status.bind(res)
+  res.status = (code) => {
+    if (Number(code) >= 400) res.locals.error_page = true
+    return status(code)
   }
   next()
 })

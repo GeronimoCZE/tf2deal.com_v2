@@ -14,6 +14,8 @@
 // takes discontinued items off) and builds the sitemap again then, without waiting for a request. An item list that
 // hasn't been read for LIST_STALE is not trusted: the names are then read from the database. Item pages that left the
 // sitemap are sent to IndexNow too, so Bing looks at them again and drops them; such a page answers 410 Gone.
+// Item pages whose prices, stock or status changed get a <lastmod> and go to IndexNow within a minute
+// (service/page_changes.js).
 //
 // Blog posts and the giveaway page carry a lastmod: a post's last edit, the giveaway page's last start / end / cancel.
 // refresh() builds the sitemap again at once; the blog admin routes, the translation queue (a new language of a post)
@@ -29,6 +31,7 @@ import { localize_path, LANGS } from '../i18n.js'
 import { available_langs } from './translate.js'
 import * as fn from '../fn.js'
 import * as indexnow from './indexnow.js'
+import * as page_changes from './page_changes.js'
 
 const CACHE_MS = 10 * 60 * 1000
 const CHECK_EVERY = 60 * 1000
@@ -279,7 +282,11 @@ export const file = async (req, res) => {
   // the item names aren't read yet (just after a restart): "try again later" keeps the file in search engines' lists
   if (!part.length && listed && !map.complete) return res.status(503).set('Retry-After', '120').send('Sitemap not ready yet')
   if (!part.length) return redirect(req, res)
-  send(res, urlset(part.map((bp_sku) => ({ ...ITEM, loc: item_url(m[1], bp_sku) }))), map.complete)
+  // <lastmod>: when the page's prices, stock or status last changed (service/page_changes.js); none until it has
+  send(res, urlset(part.map((bp_sku) => {
+    const changed = page_changes.changed(bp_sku)
+    return { ...ITEM, loc: item_url(m[1], bp_sku), lastmod: changed > 0 ? stamp(changed) : '' }
+  })), map.complete)
 }
 
 // build it right after the start, so the first crawler doesn't wait
@@ -294,6 +301,8 @@ export const start = () => {
     let names = null
     try { names = await item_lists.sitemap_names() } catch (error) {}
     if (!cache || (names && names !== cache.from) || Date.now() - cache.time >= CACHE_MS) rebuild().catch(() => {})
+    // item pages whose prices, stock or status changed: their <lastmod>, and IndexNow at once
+    page_changes.observe(item_lists.page_signatures())
   }, CHECK_EVERY).unref()
 }
 

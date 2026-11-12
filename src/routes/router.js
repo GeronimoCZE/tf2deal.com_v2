@@ -222,7 +222,9 @@ const items = async (req, res, next) => {
         description,
         path: list_path,
         category: category ? { name: category.name, h1: req.__('items.category_h1', category_vars), lead: req.__('desc.category', category_vars) } : null,
-        noindex: Boolean(name), // search results are not search results of their own
+        // search results, and filter or sort mixes that aren't a category (?quality=Strange&class=Scout, ?sort=...): not
+        // search results of their own (Bing: "URLs with numerous parameters"). Their links are still followed.
+        noindex: Boolean(name) || (!category && [...query.keys()].some((key) => key !== 'page')),
         // the items on this page, for search engines and AI assistants (schema.org ItemList)
         json_ld: cards.length > 0 ? {
           '@context': 'https://schema.org',
@@ -569,10 +571,14 @@ const BLOG_PAGE_SIZE = 12
 
 const blog = async (req, res, next) => {
   const user_cookie = req.user ? req.cookies[`td_${req.user.steamid}`] : undefined
+  // ?page=1 is the second page; any other value (?page=0, ?page=abc) is the first page at a second address: moved there
+  if (req.query.page !== undefined && !/^[1-9]\d{0,4}$/.test(String(req.query.page))) return res.redirect(301, req.lurl('/blog'))
   const page = Math.max(0, parseInt(req.query.page) || 0)
 
   try {
     const posts = await blog_model.find({ published: true }, { content: 0 }).sort({ created: -1 }).skip(page * BLOG_PAGE_SIZE).limit(BLOG_PAGE_SIZE + 1).lean()
+    // a page past the last post is "not found", not an empty page (search engines: soft 404)
+    if (page > 0 && posts.length === 0) return next()
 
     // titles and excerpts in the page language when an AI translation is ready (service/translate.js)
     for (const post of posts) {
