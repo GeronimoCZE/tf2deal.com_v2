@@ -518,14 +518,42 @@ const giveaway = async (req, res, next) => {
       current.description_translated = Boolean(shown?.translated)
     }
 
+    // SEO: a running giveaway names its prize in the title (when it fits search results, about 70 characters) and
+    // shows the prize's picture when the page is shared; the structured data says what the page is about and when it
+    // was last changed (the sitemap's lastmod for /giveaway is the same moment, service/sitemap.js)
+    const prize_name = current?.item?.bp_sku || ''
+    const prize_title = prize_name ? req.__('title.giveaway_active', { item: prize_name }) : ''
+    const page_title = prize_title && prize_title.length <= 70 ? prize_title : req.__('title.giveaway')
+    const prize_image = fn.absolute_url(current?.item?.image)
+    const latest = current || history[0]
+    const page_url = fn.site_url + req.lurl('/giveaway')
+    const json_ld = {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      '@id': page_url,
+      url: page_url,
+      name: page_title,
+      inLanguage: LANG_TAGS[req.lang],
+      isPartOf: { '@id': fn.site_url + '/#website' },
+      publisher: { '@id': fn.site_url + '/#organization' },
+      ...(latest && { dateModified: new Date(current ? current.start : latest.end).toISOString() }),
+      ...(current && {
+        about: { '@type': 'Thing', name: prize_name, ...(prize_image && { image: prize_image }) },
+        ...(prize_image && { primaryImageOfPage: { '@type': 'ImageObject', url: prize_image } })
+      })
+    }
+
     res.render(
       'giveaway',
-      fn.res_data(!!req.user, req.user, user_cookie, req.__('title.giveaway'), {
+      fn.res_data(!!req.user, req.user, user_cookie, page_title, {
         view: 'giveaway',
         promtLogin: true,
         description: current
           ? req.__('desc.giveaway_active', { item: current.item?.bp_sku })
           : req.__('desc.giveaway_none'),
+        path: '/giveaway',
+        image: prize_image,
+        json_ld,
         giveaway: current,
         entered,
         history
@@ -560,6 +588,24 @@ const blog = async (req, res, next) => {
         promtLogin: true,
         description: page > 0 ? req.__('desc.blog_page', { page: page + 1 }) : req.__('desc.blog'), // ?page=1 is the second page
         path: page > 0 ? `/blog?page=${page}` : '/blog',
+        // the blog and the posts listed on this page (each post's page has the full BlogPosting)
+        json_ld: {
+          '@context': 'https://schema.org',
+          '@type': 'Blog',
+          '@id': `${fn.site_url}${req.lurl('/blog')}#blog`,
+          url: fn.site_url + req.lurl('/blog'),
+          name: req.__('title.blog'),
+          description: req.__('desc.blog'),
+          inLanguage: LANG_TAGS[req.lang],
+          publisher: { '@id': `${fn.site_url}/#organization` },
+          blogPost: posts.slice(0, BLOG_PAGE_SIZE).map((post) => ({
+            '@type': 'BlogPosting',
+            headline: post.title,
+            url: fn.site_url + localize_path(post.shown_lang, `/blog/${encodeURIComponent(post.slug)}`),
+            datePublished: new Date(post.created).toISOString(),
+            dateModified: new Date(post.updated || post.created).toISOString()
+          }))
+        },
         posts: posts.slice(0, BLOG_PAGE_SIZE),
         page,
         more: posts.length > BLOG_PAGE_SIZE
@@ -593,6 +639,8 @@ const blog_page = async (req, res, next) => {
     const path = `/blog/${encodeURIComponent(post.slug)}`
     const url_in = (lang) => fn.site_url + localize_path(lang, path)
     const langs = translate.available_langs(post)
+    // the cover as a full https address (og:image and the structured data need one; a cover may be a site path)
+    const cover = fn.absolute_url(post.cover)
     const alternates = langs.length > 1
       ? [...langs.map((lang) => ({ hreflang: LANG_TAGS[lang], href: url_in(lang) })), { hreflang: 'x-default', href: url_in(langs.includes('en') ? 'en' : source) }]
       : null
@@ -608,7 +656,7 @@ const blog_page = async (req, res, next) => {
         canonical: url_in(shown.lang),
         alternates,
         no_hreflang: !alternates,
-        image: post.cover || undefined,
+        image: cover,
         og_type: 'article',
         noindex: !post.published,
         json_ld: {
@@ -617,11 +665,14 @@ const blog_page = async (req, res, next) => {
           headline: shown.title,
           description: shown.excerpt || undefined,
           inLanguage: LANG_TAGS[shown.lang],
-          image: post.cover || undefined,
+          image: cover,
           datePublished: new Date(post.created).toISOString(),
-          dateModified: new Date(post.updated || post.created).toISOString(),
-          author: { '@type': 'Organization', name: 'TF2Deal.com', url: `${fn.site_url}/` },
-          mainEntityOfPage: url_in(shown.lang)
+          dateModified: new Date(Math.max(post.updated || post.created, translation?.translated ? (post.translations?.[shown.lang]?.updated || 0) : 0)).toISOString(),
+          author: { '@type': 'Organization', '@id': `${fn.site_url}/#organization`, name: 'TF2Deal.com', url: `${fn.site_url}/` },
+          publisher: { '@id': `${fn.site_url}/#organization` },
+          isPartOf: { '@type': 'Blog', '@id': `${fn.site_url}${localize_path(shown.lang, '/blog')}#blog` },
+          mainEntityOfPage: url_in(shown.lang),
+          url: url_in(shown.lang)
         },
         post,
         shown, // { title, excerpt, content, lang, translated }

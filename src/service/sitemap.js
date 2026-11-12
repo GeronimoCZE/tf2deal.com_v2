@@ -14,11 +14,17 @@
 // takes discontinued items off) and builds the sitemap again then, without waiting for a request. An item list that
 // hasn't been read for LIST_STALE is not trusted: the names are then read from the database. Item pages that left the
 // sitemap are sent to IndexNow too, so Bing looks at them again and drops them; such a page answers 410 Gone.
+//
+// Blog posts and the giveaway page carry a lastmod: a post's last edit, the giveaway page's last start / end / cancel.
+// refresh() builds the sitemap again at once; the blog admin routes, the translation queue (a new language of a post)
+// and the giveaway state (service/giveaway.js refresh_state) call it, and every main-file URL that is new or has a new
+// lastmod goes to IndexNow (a new post, its translations, a new giveaway, an ended one).
 
 import * as item_lists from './item_lists.js'
 import * as categories from './categories.js'
 import { item_model as Items } from '../model/Item.js'
 import { blog_model } from '../model/Blog.js'
+import { giveaway_model } from '../model/Giveaway.js'
 import { localize_path, LANGS } from '../i18n.js'
 import { available_langs } from './translate.js'
 import * as fn from '../fn.js'
@@ -57,7 +63,7 @@ const ITEM = { changefreq: 'always', priority: '0.4' }
 const ITEM_LANG = 'en' // the item pages are listed in English only
 
 const xml_escape = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&apos;').replace(/"/g, '&quot;')
-const day = (time) => new Date(time).toISOString().slice(0, 10)
+const stamp = (time) => new Date(time).toISOString() // W3C datetime: two changes on one day are two lastmods
 
 const urlset = (urls) => '<?xml version="1.0" encoding="UTF-8"?>\n' +
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
@@ -95,8 +101,10 @@ const timeout = (promise, ms, what) => {
   ]).finally(() => clearTimeout(timer))
 }
 
+// lastmod of the main pages that have one: { '/giveaway': '2026-11-12T...' }
+let last_lastmod = {}
 const main_pages = () => [
-  ...PAGES.flatMap((p) => LANGS.map((lang) => ({ ...p, loc: page_url(lang, p.path) }))),
+  ...PAGES.flatMap((p) => LANGS.map((lang) => ({ ...p, loc: page_url(lang, p.path), lastmod: last_lastmod[p.path] || '' }))),
   ...ENGLISH_ONLY.map((p) => ({ ...p, loc: fn.site_url + p.path })),
   // the item categories (/items?quality=Unusual, ...: service/categories.js), list pages of their own; in English, like
   // the item pages
@@ -106,17 +114,32 @@ const main_pages = () => [
 // The items come from the item list the site keeps in memory (service/item_lists.js), not from a read of the whole
 // item collection: on a busy database that read took longer than Cloudflare waits, and the sitemap timed out.
 const build = async () => {
-  const pages = main_pages()
   let complete = true
+
+  // the giveaway page changes when a giveaway starts, ends or is cancelled (cancel sets `end` to that moment)
+  try {
+    if (process.db_status?.connected !== true) throw new Error('no database')
+    const [active, closed] = await timeout(Promise.all([
+      giveaway_model.findOne({ status: 'active' }, { start: 1 }).sort({ start: -1 }).maxTimeMS(BLOG_WAIT).lean(),
+      giveaway_model.findOne({ status: { $ne: 'active' } }, { end: 1 }).sort({ end: -1 }).maxTimeMS(BLOG_WAIT).lean()
+    ]), BLOG_WAIT, 'giveaways')
+    const changed = Math.max(active?.start || 0, closed?.end || 0)
+    last_lastmod = { ...last_lastmod, '/giveaway': changed > 0 ? stamp(changed) : '' }
+  } catch (error) {
+    complete = false
+    console.log('Sitemap: giveaways not read, the last date stays:', error?.message || error)
+  }
+  const pages = main_pages()
 
   // published blog posts, in every language they exist in (the original + AI translations, see service/translate.js)
   let blog = last_blog
   try {
     if (process.db_status?.connected !== true) throw new Error('no database') // mongoose would wait for a reconnect
     const posts = await timeout(blog_model.find({ published: true }, { slug: 1, lang: 1, source_hash: 1, translations: 1, updated: 1 }).maxTimeMS(BLOG_WAIT).lean(), BLOG_WAIT, 'blog posts')
+    // a translation's lastmod is when it was written (it follows an edit of the post a little later)
     blog = last_blog = posts.flatMap((post) => available_langs(post).map((lang) => ({
       loc: page_url(lang, `/blog/${encodeURIComponent(post.slug)}`),
-      lastmod: post.updated > 0 ? day(post.updated) : '',
+      lastmod: (() => { const t = Math.max(post.updated || 0, post.translations?.[lang]?.updated || 0); return t > 0 ? stamp(t) : '' })(),
       changefreq: 'weekly',
       priority: '0.5'
     })))
@@ -161,9 +184,23 @@ const build = async () => {
 }
 
 // IndexNow (Bing / Edge): the whole sitemap once a day at most, then the item pages that are new in it and the ones
-// that left it (English, as the sitemap lists them), so Bing adds the new ones and drops the discontinued ones soon
+// that left it (English, as the sitemap lists them), so Bing adds the new ones and drops the discontinued ones soon,
+// and the main-file URLs (blog posts, the giveaway page) that are new or have a new lastmod
 let announced = null // the item names of the last sitemap sent or compared
+let announced_main = null // loc -> lastmod of the last main file sent or compared
 const announce = (main, names) => {
+  if (announced_main) {
+    const now = new Set(main.map((u) => u.loc))
+    const fresh = [
+      ...main.filter((u) => announced_main.get(u.loc) !== u.lastmod && (announced_main.has(u.loc) || u.lastmod)).map((u) => u.loc),
+      ...[...announced_main.keys()].filter((loc) => !now.has(loc)) // a post deleted or unpublished: Bing drops it
+    ]
+    if (fresh.length) {
+      console.log(`Sitemap: ${fresh.length} new, changed or removed pages (blog, giveaway) sent to IndexNow`)
+      indexnow.submit(fresh)
+    }
+  }
+  announced_main = new Map(main.map((u) => [u.loc, u.lastmod]))
   if (!announced) indexnow.submit_all([...main.map((u) => u.loc), ...names.map((name) => item_url(ITEM_LANG, name))])
   else {
     const now = new Set(names)
@@ -265,3 +302,10 @@ export const redirect = (req, res) => res.redirect(301, '/sitemap.xml')
 
 // the items or blog posts changed: the next request still gets the current sitemap and starts a new build
 export const clear = () => { if (cache) cache.time = 0 }
+
+// a blog post or the giveaway changed: build again now (after a build that is running, which may have read the old
+// state), so the sitemap and IndexNow have it within seconds. The current sitemap is still answered meanwhile.
+export const refresh = () => {
+  clear()
+  ;(building || Promise.resolve()).catch(() => {}).finally(() => rebuild().catch(() => {}))
+}

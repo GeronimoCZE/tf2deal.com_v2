@@ -81,6 +81,7 @@
     "items_page": "TF2 物品价格（第 {page} 页）| TF2Deal.com",
     "not_found": "404 - 页面未找到 - TF2deal.com",
     "giveaway": "免费 TF2 抽奖 – 赢取 TF2 物品 | TF2Deal.com",
+    "giveaway_active": "免费抽奖：{item} | TF2Deal.com",
     "blog": "TF2 交易博客 – 指南与价格动态 | TF2Deal.com",
     "blog_page": "TF2 交易博客（第 {page} 页）| TF2Deal.com",
     "about": "关于 TF2Deal.com – 自动化 TF2 交易网站",

@@ -81,6 +81,7 @@
     "items_page": "Prix des objets TF2 (page {page}) | TF2Deal.com",
     "not_found": "404 - Page introuvable - TF2deal.com",
     "giveaway": "Concours TF2 gratuit – Gagnez des objets TF2 | TF2Deal.com",
+    "giveaway_active": "Concours gratuit : {item} | TF2Deal.com",
     "blog": "Blog du trading TF2 – Guides et prix | TF2Deal.com",
     "blog_page": "Blog du trading TF2 (page {page}) | TF2Deal.com",
     "about": "À propos de TF2Deal.com – Site de trading TF2 automatique",
