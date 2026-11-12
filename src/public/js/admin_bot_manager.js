@@ -1931,7 +1931,11 @@
             flush = setTimeout(() => { const list = [...due]; due.clear(); list.forEach(([fn, arg]) => fn(arg)) }, 700)
         })
 
-        try { await draw(box, ctx) } catch (err) { console.log(err); box.innerHTML = `<p class="admin-error">This page failed: ${esc(err.message)}</p>` }
+        try { await draw(box, ctx) } catch (err) {
+            console.log(err)
+            // bot_manager offline: one part of the tab already said so and the others found their places gone
+            if(!box.querySelector('.admin-bm-offline')){ box.innerHTML = `<p class="admin-error">This page failed: ${esc(err.message)}</p>` }
+        }
         return () => { off(); clearTimeout(flush); timers.forEach(clearInterval) }
     }
 
