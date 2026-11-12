@@ -27,7 +27,7 @@
     /* ========================= TICKETS ========================= */
 
     const tickets = async (root, filter = 'open') => {
-        root.innerHTML = `<h2>Support tickets</h2>
+        root.innerHTML = head('Tickets', 'Questions users sent from the Support page. Open ones are waiting for your reply.') + `
             <div class="admin-tabs">
                 ${['open', 'answered', 'closed', 'all'].map((f) => `<button data-filter="${f}" class="${f == filter ? 'active' : ''}">${f[0].toUpperCase() + f.slice(1)}</button>`).join('')}
             </div>
@@ -271,7 +271,7 @@
     </button>`
 
     const giveaways = async (root) => {
-        root.innerHTML = `<h2>Giveaways</h2><div id="admin-giveaways">Loading...</div>`
+        root.innerHTML = head('Giveaways', 'One giveaway runs at a time. A random entrant wins when it ends and the bank bot sends them the prize.') + `<div id="admin-giveaways"><div class="admin-loading"><span class="admin-spinner"></span> Loading…</div></div>`
         const box = root.querySelector('#admin-giveaways')
 
         const res = await api('/api/admin/giveaways')
@@ -283,7 +283,8 @@
 
         const default_end = new Date(Date.now() + 7 * 86400000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)
         const posts_off = Object.keys(POST_SERVICES).filter((key) => !res.posts?.[key]).map((key) => POST_SERVICES[key])
-        const posts_note = posts_off.length == 0 ? '<p class="admin-note muted">New giveaways are announced on the Steam group and the Facebook Page. The posts are removed when the giveaway ends or is cancelled.</p>'
+        // only when something is off: when both work, the announcements need no note
+        const posts_note = posts_off.length == 0 ? ''
             : `<p class="admin-note">${posts_off.join(' and ')} announcement${posts_off.length > 1 ? 's are' : ' is'} off. To announce new giveaways there, add the settings to <code>.env</code> and restart (see <code>docs/SETUP.md</code>).</p>`
         const prizes_note = PRIZE_BLOCKED[res.prizes] ? `<p class="admin-note">${PRIZE_BLOCKED[res.prizes]}</p>` : ''
 
@@ -298,7 +299,7 @@
                     <div class="muted" data-posts="${esc(active._id)}">${post_states(active, res.posts)}</div>
                     <div class="actions"><button class="end-giveaway primary">End now &amp; draw winner</button> <button class="cancel-giveaway">Cancel giveaway</button> ${prize_actions(active)}</div>
                 </div>
-            </div>` : `<form class="admin-form gw-form" id="giveaway-form">
+            </div>` : `<form class="admin-card admin-form gw-form" id="giveaway-form">
                 <h3>Start a giveaway</h3>
                 <div class="gw-bank" id="gw-bank"><span class="muted">Loading the bank bot…</span></div>
                 <div class="gw-prize">
@@ -317,7 +318,7 @@
                 <label class="check"><input type="checkbox" name="steam_group" checked> Must be in our Steam group</label>
                 <label class="check"><input type="checkbox" name="trade" checked> Must make 1 trade during the giveaway</label>
                 <div class="actions"><button type="submit" class="primary" ${res.prizes != 'ready' ? 'disabled' : ''}>Start giveaway</button></div>
-                <p class="muted">Starting moves the prize to the bank bot, where nothing else can trade it. When the giveaway ends, a random entrant wins, gets a notification, and the bank bot sends them the offer. You get the winner's details in your bell and here.</p>
+                <p class="muted small">The prize moves to the bank bot right away, so nothing else can trade it.</p>
             </form>`) + (latest_win ? winner_card(latest_win) : '') + `
             <h3>Previous giveaways</h3>
             ${past.length == 0 ? '<p class="admin-empty">None yet.</p>' : `<div class="admin-table-wrap"><table>
@@ -2099,7 +2100,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
     const TR_STATUS = { shown: 'Shown', skipped: 'Skipped', duplicate: 'Duplicate', older: 'Not in the newest 15' }
 
     const trade_records = async (root) => {
-        root.innerHTML = head('Trade records', "The newest trades the bots saved, and whether Latest trades on the home page shows each one. If one is skipped and shouldn't be, copy it and send it to us.",
+        root.innerHTML = head('Trade records', "The newest trades the bots saved, and whether Latest trades on the home page shows each one.",
             '<button type="button" id="tr-copy-all">Copy all records</button> <button type="button" id="tr-reload">Reload</button>') + '<div id="tr-body"><div class="admin-loading"><span class="admin-spinner"></span> Loading…</div></div>'
         let records = []
 
@@ -2118,8 +2119,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
                         <span>Bot gave ${esc(r.gave)}, got ${esc(r.got)}</span>
                         <span class="muted">${r.time ? when(r.time) : 'no time'}${r.partner ? ` · <a href="https://steamcommunity.com/profiles/${esc(r.partner)}" target="_blank" rel="nofollow">user</a>` : ''}${r.bot ? ` · bot ${esc(r.bot)}` : ''}</span></div>
                     ${r.reason ? `<p class="admin-tr-reason">${esc(r.reason)}</p>` : ''}
-                    <p class="muted small">${esc(r.layout)}</p>
-                    <details><summary>Record as saved</summary><pre>${esc(r.raw)}</pre><button type="button" data-copy="${i}">Copy record</button></details>
+                    <details><summary>Record as saved</summary><p class="muted small">${esc(r.layout)}</p><pre>${esc(r.raw)}</pre><button type="button" data-copy="${i}">Copy record</button></details>
                 </li>`).join('')}</ul>`
         }
 
@@ -2143,7 +2143,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
         : esc(n.type)
 
     const notifications_section = async (root) => {
-        root.innerHTML = head('Notifications', 'Shown under the bell in the menu, for everyone. New giveaways and winners are added automatically; ticket replies and giveaway wins go only to that user.') + `
+        root.innerHTML = head('Notifications', 'Messages under the bell in the menu. New giveaways and winners are added by themselves.') + `
             <div class="admin-card">
                 <h3>Send to everyone</h3>
                 <form class="admin-form" id="notif-form">
