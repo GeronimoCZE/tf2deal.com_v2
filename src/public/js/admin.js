@@ -1004,97 +1004,97 @@
 
         root.innerHTML = head('Live settings', 'Changes apply to the website right away and are sent to every connected app.') + `
             <div class="admin-meta" id="set-meta"></div>
-            <div class="admin-settings">
-                <div class="admin-card" data-card="trading">
-                    <div class="admin-card-head">
-                        <div><h3>Trading</h3><p class="muted">Pause to stop new trade offers. Visitors see a notice; offers already sent are not touched.</p></div>
-                        <label class="admin-switch big"><input type="checkbox" id="set-trading"><span></span></label>
+            <div class="admin-setting-list">
+                <div class="admin-card admin-setting" data-card="trading">
+                    <div class="admin-setting-info"><h3>Trading</h3><p class="muted">Pause to stop new trade offers. Visitors see a notice; offers already sent are not touched.</p></div>
+                    <div class="admin-setting-body">
+                        <div class="admin-toggle-row"><label class="admin-switch"><input type="checkbox" id="set-trading" aria-label="Trading"><span></span></label><span class="admin-state" id="set-trading-state"></span></div>
                     </div>
-                    <div class="admin-state" id="set-trading-state"></div>
                 </div>
 
-                <div class="admin-card" data-card="announcement">
-                    <div class="admin-card-head">
-                        <div><h3>Announcement banner</h3><p class="muted">A short line under the menu on every page.</p></div>
-                        <label class="admin-switch"><input type="checkbox" id="set-ann-enabled"><span></span></label>
+                <div class="admin-card admin-setting" data-card="announcement">
+                    <div class="admin-setting-info"><h3>Announcement banner</h3><p class="muted">A short line under the menu on every page.</p></div>
+                    <div class="admin-setting-body">
+                        <label class="admin-toggle-row"><span class="admin-switch"><input type="checkbox" id="set-ann-enabled"><span></span></span>Show the banner</label>
+                        <label class="admin-field">Text
+                            <textarea id="set-ann-text" rows="2" maxlength="300" placeholder="e.g. Steam is having trouble, trades may be slow."></textarea>
+                            <span class="admin-counter" id="set-ann-count"></span>
+                        </label>
+                        <div class="admin-segment" id="set-ann-level" role="radiogroup" aria-label="Banner color">
+                            ${LEVELS.map(([v, t]) => `<button type="button" role="radio" data-level="${v}" class="lvl-${v}">${t}</button>`).join('')}
+                        </div>
+                        <div class="site-announcement admin-banner-preview" id="set-ann-preview"><span class="site-announcement-dot"></span><span class="site-announcement-text"></span></div>
+                        <div class="admin-card-foot"><span class="admin-dirty">Unsaved changes</span><button type="button" data-discard>Discard</button><button type="button" class="primary" data-save>Save banner</button></div>
                     </div>
-                    <label class="admin-field">Text
-                        <textarea id="set-ann-text" rows="2" maxlength="300" placeholder="e.g. Steam is having trouble, trades may be slow."></textarea>
-                        <span class="admin-counter" id="set-ann-count"></span>
-                    </label>
-                    <div class="admin-segment" id="set-ann-level" role="radiogroup" aria-label="Banner color">
-                        ${LEVELS.map(([v, t]) => `<button type="button" role="radio" data-level="${v}" class="lvl-${v}">${t}</button>`).join('')}
+                </div>
+
+                <div class="admin-card admin-setting" data-card="limits">
+                    <div class="admin-setting-info"><h3>Item price limits</h3><p class="muted">The cheapest and dearest item the bot and item servers deal in.</p></div>
+                    <div class="admin-setting-body">
+                        <div class="admin-row-fields">
+                            <label class="admin-field">Minimum <span class="admin-input-unit"><input type="number" id="set-min" min="0" step="0.01"><em>keys</em></span></label>
+                            <label class="admin-field">Maximum <span class="admin-input-unit"><input type="number" id="set-max" min="0" step="0.01"><em>keys</em></span></label>
+                        </div>
+                        <div class="admin-card-foot"><span class="admin-dirty">Unsaved changes</span><button type="button" data-discard>Discard</button><button type="button" class="primary" data-save>Save limits</button></div>
                     </div>
-                    <div class="site-announcement admin-banner-preview" id="set-ann-preview"><span class="site-announcement-dot"></span><span class="site-announcement-text"></span></div>
-                    <div class="admin-card-foot"><span class="admin-dirty">Unsaved changes</span><button type="button" data-discard>Discard</button><button type="button" class="primary" data-save>Save banner</button></div>
                 </div>
 
-                <div class="admin-card" data-card="limits">
-                    <h3>Item price limits</h3>
-                    <p class="muted">In keys. Sent to the bot and item servers as <code>min_item_key</code> and <code>max_item_key</code>.</p>
-                    <div class="admin-row-fields">
-                        <label class="admin-field">Minimum <span class="admin-input-unit"><input type="number" id="set-min" min="0" step="0.01"><em>keys</em></span></label>
-                        <label class="admin-field">Maximum <span class="admin-input-unit"><input type="number" id="set-max" min="0" step="0.01"><em>keys</em></span></label>
+                <div class="admin-card admin-setting" data-card="reviews">
+                    <div class="admin-setting-info"><h3>Ratings after trades</h3><p class="muted">After an accepted trade, users can rate the site with 1 to 5 stars. 4 or 5 stars also get a button to your Trustpilot page. See them under <a href="#ratings">Ratings</a>.</p></div>
+                    <div class="admin-setting-body">
+                        <label class="admin-toggle-row"><span class="admin-switch"><input type="checkbox" id="set-rev-enabled"><span></span></span>Ask for a rating</label>
+                        <label class="admin-field">Trustpilot review link
+                            <input type="url" id="set-rev-url" placeholder="https://www.trustpilot.com/review/tf2deal.com">
+                            <span class="admin-help">Leave it empty to only collect ratings on the site.</span>
+                        </label>
+                        <div class="admin-card-foot"><span class="admin-dirty">Unsaved changes</span><button type="button" data-discard>Discard</button><button type="button" class="primary" data-save>Save link</button></div>
                     </div>
-                    <div class="admin-card-foot"><span class="admin-dirty">Unsaved changes</span><button type="button" data-discard>Discard</button><button type="button" class="primary" data-save>Save limits</button></div>
                 </div>
 
-                <div class="admin-card" data-card="reviews">
-                    <div class="admin-card-head">
-                        <div><h3>Ratings after trades</h3><p class="muted">After an accepted trade, users can rate the site with 1 to 5 stars. 4 or 5 stars also get a button to your Trustpilot page. See them under <a href="#ratings">Ratings</a>.</p></div>
-                        <label class="admin-switch"><input type="checkbox" id="set-rev-enabled"><span></span></label>
+                <div class="admin-card admin-setting" data-card="season">
+                    <div class="admin-setting-info"><h3>Seasonal theme</h3><p class="muted">The look visitors get during TF2 events. Auto follows the event dates on teamfortress.com. Visitors can still pick their own theme in the menu.</p></div>
+                    <div class="admin-setting-body">
+                        <div class="admin-segment wrap" id="set-season" role="radiogroup" aria-label="Seasonal theme">
+                            ${SEASON_CHOICES.map(([v, t]) => `<button type="button" role="radio" data-season="${v}">${t}</button>`).join('')}
+                        </div>
+                        <p class="muted small" id="set-season-state"></p>
                     </div>
-                    <label class="admin-field">Trustpilot review link
-                        <input type="url" id="set-rev-url" placeholder="https://www.trustpilot.com/review/tf2deal.com">
-                    </label>
-                    <p class="muted small">Leave it empty to only collect ratings on the site.</p>
-                    <div class="admin-card-foot"><span class="admin-dirty">Unsaved changes</span><button type="button" data-discard>Discard</button><button type="button" class="primary" data-save>Save link</button></div>
                 </div>
 
-                <div class="admin-card" data-card="season">
-                    <h3>Seasonal theme</h3>
-                    <p class="muted">During TF2 events the site changes its home picture, background, colours and the falling particles. On Auto the dates come from the TF2 update notes on teamfortress.com, with the usual dates as a fallback. This is what visitors see on Automatic; anyone can pick another theme for themselves in the menu.</p>
-                    <div class="admin-segment wrap" id="set-season" role="radiogroup" aria-label="Seasonal theme">
-                        ${SEASON_CHOICES.map(([v, t]) => `<button type="button" role="radio" data-season="${v}">${t}</button>`).join('')}
+                <div class="admin-card admin-setting" data-card="blacklist">
+                    <div class="admin-setting-info"><h3>Item blacklist <span class="admin-count" id="set-bl-count"></span></h3><p class="muted">The website refuses trades with these items. The list also goes to the bot server.</p></div>
+                    <div class="admin-setting-body">
+                        <form class="admin-inline-form" id="set-bl-form">
+                            <input id="set-bl-input" list="set-bl-items" autocomplete="off" placeholder="Item name, e.g. Team Captain (paste several, one per line)">
+                            <datalist id="set-bl-items"></datalist>
+                            <button type="submit">Add</button>
+                        </form>
+                        <input type="search" class="admin-filter" id="set-bl-filter" placeholder="Filter the list…" hidden>
+                        <div class="admin-chips" id="set-bl-list"></div>
                     </div>
-                    <p class="muted small" id="set-season-state"></p>
                 </div>
 
-                <div class="admin-card" data-card="clients">
-                    <h3>Connected apps</h3>
-                    <ul class="admin-clients" id="set-clients"></ul>
-                </div>
-
-                <div class="admin-card wide" data-card="blacklist">
-                    <div class="admin-card-head">
-                        <div><h3>Item blacklist <span class="admin-count" id="set-bl-count"></span></h3>
-                        <p class="muted">Trades with these items are refused by the website. The list is also sent to the bot server.</p></div>
-                    </div>
-                    <form class="admin-inline-form" id="set-bl-form">
-                        <input id="set-bl-input" list="set-bl-items" autocomplete="off" placeholder="Item name, e.g. Team Captain (paste several, one per line)">
-                        <datalist id="set-bl-items"></datalist>
-                        <button type="submit" class="primary">Add</button>
-                    </form>
-                    <input type="search" class="admin-filter" id="set-bl-filter" placeholder="Filter the list…" hidden>
-                    <div class="admin-chips" id="set-bl-list"></div>
-                </div>
-
-                <div class="admin-card wide" data-card="extra">
-                    <h3>App values</h3>
-                    <p class="muted">Your own settings for other apps, as a JSON object. Apps read them from <code>settings.extra</code> and can change them too.</p>
-                    <textarea id="set-extra" class="admin-code" rows="6" spellcheck="false"></textarea>
-                    <p class="admin-error" id="set-extra-error" hidden></p>
-                    <div class="admin-card-foot"><span class="admin-dirty">Unsaved changes</span><button type="button" data-discard>Discard</button><button type="button" class="primary" data-save>Save values</button></div>
-                </div>
-
-                <div class="admin-card wide" data-card="activity">
-                    <h3>Recent changes</h3>
-                    <ul class="admin-activity" id="set-activity"></ul>
-                </div>
-
-                <details class="admin-card wide admin-howto">
-                    <summary>Connect another app to these settings</summary>
-                    <p class="muted">Use the same <code>SERVER_TOKEN</code> and <code>SERVER_SECRET</code> as the bot and item servers. Full guide: <code>SETTINGS.md</code> in the project.</p>
+                <details class="admin-card wide admin-dev" id="set-dev">
+                    <summary><span>For developers</span> <span class="muted" id="set-dev-sum"></span></summary>
+                    <div class="admin-dev-body">
+                        <section data-card="clients">
+                            <h3>Connected apps</h3>
+                            <ul class="admin-clients" id="set-clients"></ul>
+                        </section>
+                        <section data-card="activity">
+                            <h3>Recent changes</h3>
+                            <ul class="admin-activity" id="set-activity"></ul>
+                        </section>
+                        <section data-card="extra">
+                            <h3>App values</h3>
+                            <p class="muted">Your own settings for other apps, as a JSON object. Apps read them from <code>settings.extra</code> and can change them too.</p>
+                            <textarea id="set-extra" class="admin-code" rows="6" spellcheck="false"></textarea>
+                            <p class="admin-error" id="set-extra-error" hidden></p>
+                            <div class="admin-card-foot"><span class="admin-dirty">Unsaved changes</span><button type="button" data-discard>Discard</button><button type="button" class="primary" data-save>Save values</button></div>
+                        </section>
+                        <section>
+                            <h3>Connect another app</h3>
+                            <p class="muted">Use the same <code>SERVER_TOKEN</code> and <code>SERVER_SECRET</code> as the bot and item servers. Full guide: <code>SETTINGS.md</code> in the project.</p>
 <pre class="admin-code"><code>import { io } from "socket.io-client";
 
 const live = io("${esc(location.origin)}/settings", {
@@ -1106,6 +1106,8 @@ live.on("settings:changed", ({ settings, changed, by }) =&gt; apply(settings));
 
 // change something (only the fields you send are changed)
 live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.status, res.message));</code></pre>
+                        </section>
+                    </div>
                 </details>
             </div>`
 
@@ -1122,7 +1124,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
         const fill_trading = () => {
             const on = live.settings.trading_state === 1
             $('#set-trading').checked = on
-            $('#set-trading-state').innerHTML = on ? `${pill(true, 'Trading is on')}` : `${pill(false, 'On', 'Trading is paused')} <span class="muted">Visitors can't create new trades.</span>`
+            $('#set-trading-state').innerHTML = on ? 'On: visitors can trade.' : '<span class="admin-bad">Paused:</span> visitors can\'t create new trades.'
         }
         const ann_preview = () => {
             const text = $('#set-ann-text').value.trim()
@@ -1175,9 +1177,11 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
         }
         const fill_meta = () => {
             const s = live.settings
-            $('#set-meta').innerHTML = `Version ${num(s.version)} · last change ${ago(s.updated)}${s.updated_by ? ` by ${by_label(parse_by(s.updated_by))}` : ''}`
+            $('#set-meta').innerHTML = s.updated ? `Last change ${ago(s.updated)}${s.updated_by ? ` by ${by_label(parse_by(s.updated_by))}` : ''}` : ''
         }
         const fill_clients = () => {
+            const apps = live.clients.filter((c) => c.kind != 'admin').length
+            $('#set-dev-sum').textContent = `${apps} app${apps == 1 ? '' : 's'} connected`
             $('#set-clients').innerHTML = live.clients.length == 0 ? '<li class="admin-empty">No app is connected.</li>'
                 : live.clients.map((c) => `<li><span class="admin-dot kind-${c.kind}"></span><div><strong>${c.kind == 'admin' ? 'Admin panel' : esc(c.name)}</strong>
                     <span class="muted">${c.can_write ? 'read & write' : 'read only'} · connected ${ago(c.since)}</span></div></li>`).join('')
