@@ -146,6 +146,7 @@ router.get('/blog/items', async (req, res) => {
   const items = await item_model.find({ bp_sku: pattern, sell: { $gt: 0 } }, { bp_sku: 1, image: 1, qualityID: 1, 'stock.cur': 1 })
     .sort({ 'stock.cur': -1 }).limit(12).maxTimeMS(5000).lean();
   res.json({ status: 'ok', items: items.map((item) => ({ bp_sku: item.bp_sku, image: item.image, qualityID: item.qualityID, stock: item.stock?.cur || 0 })) });
+});
 
 router.get('/blog/:id', valid_id, async (req, res) => {
   const post = await blog_model.findById(req.params.id).lean();
@@ -161,8 +162,6 @@ router.post('/blog/:id/translate', valid_id, async (req, res) => {
   if(!post.published){ return res.status(400).json({ status: 'error', message: 'Publish the post first: drafts are not translated.' }) }
   translate.queue_post(post._id, true);
   res.json({ status: 'ok' });
-});
-
 });
 
 router.post('/blog', async (req, res) => {

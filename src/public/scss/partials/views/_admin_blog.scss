@@ -64,9 +64,11 @@
     // ---------- editor frame ----------
     .be{ margin: -.25rem 0 0 0; [hidden]{ display: none !important; } }
     .be-list [hidden]{ display: none !important; }
+    // stays under the admin bar while writing (32px, partials/_admin_bar.scss); on narrower windows the rail is a
+    // sticky row of links there instead, so the bar scrolls away with the page
     .be-bar{
         position: sticky;
-        top: 64px;
+        top: 32px;
         z-index: 5;
         display: flex;
         flex-wrap: wrap;
@@ -74,13 +76,13 @@
         gap: .6rem 1rem;
         margin: 0 0 1rem 0;
         padding: .6rem 0;
-        background: var(--surface);
-        @media (max-width: 640px){ position: static; }
+        background: var(--admin-page, var(--surface));
+        @media (max-width: 959px){ position: static; }
     }
     .be-back{ color: var(--violet); font-weight: 600; text-decoration: none; white-space: nowrap; }
     .be-state{ display: inline-flex; align-items: center; gap: .6rem; font-size: 13px; }
     .be-unsaved{ color: #edc06a; }
-    .be-bar-actions{ display: flex; flex-wrap: wrap; gap: .4rem; margin-left: auto; }
+    .be-bar-actions{ display: flex; flex-wrap: wrap; gap: .4rem; margin-left: auto; @media (max-width: 640px){ margin-left: 0; } }
     .be-switch{
         display: inline-flex;
         padding: 3px;
@@ -169,7 +171,12 @@
 
     // ---------- blocks ----------
     .be-blocks{ max-width: none !important; }
-    .be-blocks > .be-block{ max-width: var(--bp-text); margin-left: auto; margin-right: auto; }
+    // centred at the text's width; the block's .5rem padding sits outside the text, so blocks line up with the title
+    .be-blocks > .be-block{
+        max-width: calc(var(--bp-text) + 1rem);
+        margin-left: max(-.5rem, calc((100% - var(--bp-text)) / 2 - .5rem));
+        margin-right: max(-.5rem, calc((100% - var(--bp-text)) / 2 - .5rem));
+    }
     .be-block{
         position: relative;
         padding: .1rem .5rem;
@@ -353,8 +360,8 @@
     // ---------- side panel ----------
     .be-side{
         position: sticky;
-        top: 128px;
-        max-height: calc(100vh - 148px);
+        top: 104px; // under the editor bar
+        max-height: calc(100vh - 120px);
         overflow: auto;
         border-radius: var(--r-md);
         background: var(--surface-2);
