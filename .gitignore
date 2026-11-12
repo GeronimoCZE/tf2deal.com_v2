@@ -10,3 +10,6 @@ npm-debug.log*
 # sitemaps are built on request (service/sitemap.js); old generated files may still be on a server
 src/public/sitemap.xml
 src/public/sitemaps/
+
+# pictures uploaded in the admin panel (service/uploads.js), kept on the server only
+uploads/

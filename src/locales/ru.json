@@ -769,7 +769,13 @@
     "show_original": "Показать оригинал ({lang})",
     "reading_original": "Вы читаете оригинал ({lang}).",
     "show_translation": "Показать перевод",
-    "original_only": "Эта запись доступна только на языке оригинала: {lang}."
+    "original_only": "Эта запись доступна только на языке оригинала: {lang}.",
+    "contents": "Содержание",
+    "min_read": "{count} мин чтения",
+    "item_buy": "Купить за {price}",
+    "item_sell": "Продать за {price}",
+    "item_view": "Открыть предмет",
+    "video_play": "Смотреть видео"
   },
   "support": {
     "title": "Создать тикет в поддержку",

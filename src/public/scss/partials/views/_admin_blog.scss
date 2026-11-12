@@ -1,0 +1,566 @@
+// Admin → Blog (js/admin_blog.js): the post list and the block editor.
+// The editor's page is the post itself: blocks use the post's own styles (.post-content, _blog.scss), so what you see
+// while writing is what readers get. Controls stay out of the way until a block is pointed at or being edited: the
+// gutter (+ and drag) on the left, the block's tool row above it. Same plain rules as the rest: no outlines around
+// boxes, no shadows, colour changes only.
+
+.admin{
+    // ---------- list ----------
+    .be-list{ display: grid; gap: .4rem; }
+    a.be-row{
+        display: grid;
+        grid-template-columns: 88px minmax(0, 1fr) auto;
+        gap: 1rem;
+        align-items: center;
+        padding: .6rem .8rem .6rem .6rem;
+        border-radius: var(--r-md);
+        background: var(--surface-2);
+        color: var(--ink-2);
+        text-decoration: none;
+        transition: background 150ms ease;
+        &:hover{ background: var(--surface-3); strong{ color: var(--ink); } }
+        strong{ display: block; color: var(--ink); font-size: 1.02rem; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        @media (max-width: 640px){
+            grid-template-columns: 64px minmax(0, 1fr);
+            .be-row-side{ grid-column: 2; justify-items: start; }
+        }
+    }
+    .be-thumb{
+        display: grid; place-items: center;
+        width: 88px; aspect-ratio: 16 / 9;
+        border-radius: var(--r-sm);
+        background: var(--well);
+        overflow: hidden;
+        img{ width: 100%; height: 100%; object-fit: cover; }
+        svg{ width: 22px; height: 22px; fill: var(--ink-3); }
+        @media (max-width: 640px){ width: 64px; }
+    }
+    .be-row-meta{ display: block; margin-top: .15rem; font-size: 13px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .be-row-side{ display: grid; gap: .3rem; justify-items: end; }
+    .be-status{
+        display: inline-flex; align-items: center; gap: .35rem;
+        padding: .15rem .55rem;
+        border-radius: 999px;
+        font-size: 12.5px; font-weight: 600;
+        &::before{ content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        &.live{ background: rgba(76, 217, 100, .12); color: #8fe08a; }
+        &.draft{ background: rgba(237, 179, 65, .14); color: #edc06a; }
+    }
+    .be-tr{
+        font-size: 12.5px; color: var(--ink-3);
+        &.ok{ color: #8fd88a; }
+        &.bad{ color: #f0958b; }
+    }
+    .be-empty{
+        display: grid; gap: .5rem; justify-items: start;
+        padding: 2rem;
+        border-radius: var(--r-md);
+        background: var(--surface-2);
+        strong{ font-family: var(--font-heading); font-size: 1.2rem; color: var(--ink); }
+        span{ color: var(--ink-3); max-width: 50ch; }
+        a.primary{ @include button(primary); margin-top: .5rem; }
+    }
+
+    // ---------- editor frame ----------
+    .be{ margin: -.25rem 0 0 0; [hidden]{ display: none !important; } }
+    .be-list [hidden]{ display: none !important; }
+    // stays under the admin bar while writing (32px, partials/_admin_bar.scss); on narrower windows the rail is a
+    // sticky row of links there instead, so the bar scrolls away with the page
+    .be-bar{
+        position: sticky;
+        top: 32px;
+        z-index: 5;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .6rem 1rem;
+        margin: 0 0 1rem 0;
+        padding: .6rem 0;
+        background: var(--admin-page, var(--surface));
+        @media (max-width: 959px){ position: static; }
+    }
+    .be-back{ color: var(--violet); font-weight: 600; text-decoration: none; white-space: nowrap; }
+    .be-state{ display: inline-flex; align-items: center; gap: .6rem; font-size: 13px; }
+    .be-unsaved{ color: #edc06a; }
+    .be-bar-actions{ display: flex; flex-wrap: wrap; gap: .4rem; margin-left: auto; @media (max-width: 640px){ margin-left: 0; } }
+    .be-switch{
+        display: inline-flex;
+        padding: 3px;
+        border-radius: var(--r-md);
+        background: var(--well);
+        button{ background: transparent; padding: .3rem .7rem; font-size: 13px; color: var(--ink-3); border-radius: 7px; &.on{ background: var(--surface-3); color: var(--ink); } }
+    }
+    button.be-go{
+        &.filled{ background: var(--go); color: #fff; &:hover:not(:disabled){ background: var(--go-hover); } }
+    }
+    .be-restore{
+        display: flex; flex-wrap: wrap; align-items: center; gap: .6rem;
+        margin-bottom: 1rem;
+        padding: .6rem .9rem;
+        border-radius: var(--r-md);
+        background: rgba(237, 179, 65, .12);
+        color: var(--ink);
+        span{ margin-right: auto; }
+    }
+    .be-grid{
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 290px;
+        gap: 1.5rem;
+        align-items: start;
+        @media (max-width: 1180px){ grid-template-columns: minmax(0, 1fr); }
+    }
+
+    // ---------- the page being written ----------
+    .be-canvas.post-content{
+        --bp-text: 680px;
+        --bp-wide: 100%;
+        position: relative;
+        padding: .5rem 0 3rem 44px;
+        min-height: 60vh;
+        @media (max-width: 760px){ padding-left: 0; }
+        > *{ max-width: var(--bp-text); }
+        // the admin's form styles would make these boxes; here they are the post's own text
+        textarea.be-title, textarea.be-excerpt, textarea.be-source{
+            display: block;
+            width: 100%;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: var(--ink);
+            resize: none;
+            overflow: hidden;
+            &:focus{ box-shadow: none; border: 0; }
+        }
+        textarea.be-title{
+            @include page-title;
+            width: 100%;
+            margin: 1rem auto .4rem auto;
+            line-height: 1.2;
+        }
+        textarea.be-excerpt{ margin: 0 auto 1.5rem auto; font-size: 1.15rem; line-height: 1.55; color: var(--ink-2); }
+        textarea.be-source{
+            min-height: 60vh;
+            padding: 1rem;
+            border-radius: var(--r-md);
+            background: var(--well);
+            font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            color: var(--ink);
+            overflow: auto;
+        }
+    }
+    .be-cover{
+        position: relative;
+        margin: 0 auto;
+        img{ display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--r-md); }
+        .be-cover-actions{ position: absolute; right: .6rem; bottom: .6rem; display: flex; gap: .4rem; opacity: 0; transition: opacity 150ms ease; }
+        &:hover .be-cover-actions, &:focus-within .be-cover-actions{ opacity: 1; }
+        .be-cover-actions button{ background: rgba(8, 10, 30, .78); color: #fff; &:hover{ background: rgba(8, 10, 30, .92); } }
+        button.be-cover-add{
+            width: 100%;
+            justify-content: flex-start;
+            padding: .7rem .9rem;
+            background: transparent;
+            color: var(--ink-3);
+            font-weight: 500;
+            svg{ width: 20px; height: 20px; fill: currentColor; }
+            span{ font-weight: 400; font-size: 13px; opacity: .8; }
+            &:hover{ background: var(--surface-2); color: var(--ink-2); }
+        }
+    }
+
+    // ---------- blocks ----------
+    .be-blocks{ max-width: none !important; }
+    // centred at the text's width; the block's .5rem padding sits outside the text, so blocks line up with the title
+    .be-blocks > .be-block{
+        max-width: calc(var(--bp-text) + 1rem);
+        margin-left: max(-.5rem, calc((100% - var(--bp-text)) / 2 - .5rem));
+        margin-right: max(-.5rem, calc((100% - var(--bp-text)) / 2 - .5rem));
+    }
+    .be-block{
+        position: relative;
+        padding: .1rem .5rem;
+        margin-left: -.5rem;
+        margin-right: -.5rem;
+        border-radius: var(--r-sm);
+        transition: background 150ms ease;
+        &:focus-within{ background: rgba(var(--tint-rgb), .05); }
+        &.dragging{ opacity: .4; }
+        &.drop-before::after, &.drop-after::after{ content: ''; position: absolute; left: 0; right: 0; height: 2px; border-radius: 1px; background: var(--violet); }
+        &.drop-before::after{ top: -2px; }
+        &.drop-after::after{ bottom: -2px; }
+        // pointing at a block shows its controls; while typing, only blocks with options keep their tool row
+        // (a text block's row would cover the line above)
+        &:hover{ .be-gutter, .be-tools{ opacity: 1; pointer-events: auto; } }
+        &:focus-within{ .be-gutter{ opacity: 1; pointer-events: auto; } }
+        &:focus-within:not(.be-paragraph) .be-tools{ opacity: 1; pointer-events: auto; }
+        > .be-body > :last-child, > .be-body > * > :last-child{ margin-bottom: .6rem; }
+        > .be-body > :first-child{ margin-top: .4rem; }
+    }
+    .be-gutter{
+        position: absolute;
+        left: -40px;
+        top: .35rem;
+        display: flex;
+        gap: 2px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 150ms ease;
+        button{ padding: 0; width: 18px; height: 26px; background: transparent; border-radius: 5px; color: var(--ink-3); svg{ width: 18px; height: 18px; fill: currentColor; } &:hover{ background: var(--surface-3); color: var(--ink); } }
+        .be-drag{ cursor: grab; }
+        @media (max-width: 760px){ display: none; }
+    }
+    .be-tools{
+        position: absolute;
+        right: 0;
+        bottom: 100%;
+        z-index: 3;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: .25rem;
+        padding: .25rem;
+        border-radius: var(--r-sm);
+        background: var(--dialog);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 150ms ease;
+        font-size: 12.5px;
+        line-height: 1;
+        button{ padding: .3rem .5rem; font-size: 12.5px; font-weight: 500; background: transparent; color: var(--ink-2); &:hover{ background: var(--surface-3); color: var(--ink); } &.on{ background: var(--surface-3); color: var(--ink); } }
+        svg{ width: 15px; height: 15px; fill: currentColor; display: block; }
+        .be-type{ display: inline-flex; align-items: center; gap: .3rem; padding: 0 .4rem; color: var(--ink-3); }
+        .be-seg{ display: inline-flex; gap: 1px; padding: 0 .2rem; border-left: 1px solid var(--line); }
+        .be-tools-end{ display: inline-flex; gap: 1px; padding-left: .2rem; border-left: 1px solid var(--line); button{ padding: .3rem .35rem; } }
+        @media (max-width: 760px){
+            position: static;
+            display: none;
+            margin: .3rem 0;
+            opacity: 1;
+            pointer-events: auto;
+        }
+    }
+    .be-block:focus-within .be-tools{ @media (max-width: 760px){ display: flex; } }
+    .be-block:first-child .be-tools{ bottom: auto; top: -2.3rem; }
+
+    .be-rich{
+        outline: none;
+        min-height: 1.6em;
+        &:empty::before, &.be-empty-text::before{ content: attr(data-placeholder); color: var(--ink-3); pointer-events: none; }
+    }
+    .be-body > .be-rich{ margin: .4rem 0 .6rem 0; }
+    .be-h2{ font-family: var(--font-heading); font-size: 1.65rem; line-height: 1.3; color: var(--ink); margin-top: 1.2rem !important; }
+    .be-h3{ font-family: var(--font-heading); font-size: 1.3rem; line-height: 1.3; color: var(--ink); margin-top: 1rem !important; }
+    .be-list-edit{ ul, ol{ margin: .4rem 0 .6rem 0; } }
+    .be-multi > p:empty::before{ content: ''; }
+    .be-multi:has(> p:only-child > br:only-child)::before, .be-multi:empty::before{ content: attr(data-placeholder); color: var(--ink-3); position: absolute; pointer-events: none; }
+    .be-multi{ position: relative; }
+    .be-caption{ text-align: center; font-size: 15px; color: var(--ink-3); min-height: 1.4em; }
+    .be-body figure{ margin-top: .6rem; margin-bottom: .4rem; }
+    .be-body .pb-figure.size-full, .be-body .pb-figure.size-wide{ max-width: 100%; }
+
+    input.be-alt{
+        margin: .2rem 0 .6rem 0;
+        padding: .35rem .6rem;
+        font-size: 13px;
+        background: transparent;
+        &.missing{ border-color: rgba(237, 179, 65, .45); }
+    }
+    .be-drop{
+        display: grid;
+        justify-items: center;
+        gap: .4rem;
+        margin: .5rem 0 .7rem 0;
+        padding: 1.6rem 1rem;
+        border-radius: var(--r-md);
+        background: var(--well);
+        color: var(--ink-3);
+        font-size: 14px;
+        text-align: center;
+        > svg{ width: 28px; height: 28px; fill: currentColor; opacity: .7; }
+        .be-drop-actions{ display: flex; flex-wrap: wrap; justify-content: center; gap: .35rem; }
+    }
+    .be-gallery{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: .5rem;
+        margin: .5rem 0;
+        .be-gal-item{ position: relative; img{ display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--r-sm); } input.be-alt{ margin: .3rem 0 0 0; } }
+        .be-gal-x{ position: absolute; top: .3rem; right: .3rem; width: 26px; height: 26px; padding: 0; border-radius: 50%; background: rgba(8, 10, 30, .8); color: #fff; font-size: 16px; }
+        .be-gal-add{ margin: 0; padding: .8rem; align-content: center; aspect-ratio: 4 / 3; }
+    }
+    .be-body .pb-split{ margin: .6rem 0; figure{ align-self: start; } }
+    .be-canvas a.pb-item{ display: grid; color: var(--ink); text-decoration: none; }
+    .be-item{
+        position: relative;
+        display: grid;
+        gap: .5rem;
+        margin: .5rem 0 .7rem 0;
+        .be-item-card .pb-item{ pointer-events: none; }
+        .be-item-card > p{ margin: 0; }
+    }
+    .be-item-results{
+        position: absolute;
+        top: 2.6rem;
+        left: 0;
+        right: 0;
+        z-index: 4;
+        display: grid;
+        max-height: 320px;
+        overflow: auto;
+        padding: .3rem;
+        border-radius: var(--r-md);
+        background: var(--dialog);
+        button{
+            display: grid;
+            grid-template-columns: 36px minmax(0, 1fr) auto;
+            align-items: center;
+            gap: .6rem;
+            width: 100%;
+            justify-content: stretch;
+            padding: .3rem .5rem;
+            background: transparent;
+            text-align: left;
+            font-weight: 500;
+            img{ width: 36px; height: 36px; object-fit: contain; }
+            small{ color: var(--ink-3); font-weight: 400; }
+            &:hover{ background: var(--surface-3); }
+        }
+        .muted{ padding: .5rem; }
+    }
+    .be-button-edit{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .5rem .8rem;
+        align-items: end;
+        margin: .5rem 0 .7rem 0;
+        .pb-button-row{ grid-column: 1 / -1; margin: 0 0 .3rem 0; }
+        .pb-button{ @include button(success); background: var(--go); color: #fff; }
+        label{ display: grid; gap: .25rem; font-size: 13px; color: var(--ink-3); }
+        @media (max-width: 560px){ grid-template-columns: 1fr; }
+    }
+    .be-yt{ display: grid; gap: .5rem; margin: .5rem 0 .7rem 0; .pb-video{ margin: 0; } }
+    .be-body hr{ margin: 1.2rem 0; }
+
+    button.be-add-end{
+        display: flex;
+        width: 100%;
+        max-width: var(--bp-text);
+        justify-content: flex-start;
+        margin: 1rem auto 0 auto;
+        padding: .6rem .7rem;
+        background: transparent;
+        color: var(--ink-3);
+        font-weight: 500;
+        svg{ width: 18px; height: 18px; fill: currentColor; }
+        span{ font-weight: 400; font-size: 13px; opacity: .75; }
+        &:hover{ background: var(--surface-2); color: var(--ink-2); }
+    }
+
+    // ---------- side panel ----------
+    .be-side{
+        position: sticky;
+        top: 104px; // under the editor bar
+        max-height: calc(100vh - 120px);
+        overflow: auto;
+        border-radius: var(--r-md);
+        background: var(--surface-2);
+        padding: .4rem .9rem 1rem .9rem;
+        @media (max-width: 1180px){ position: static; max-height: none; }
+        section{ padding: .9rem 0; border-bottom: 1px solid var(--line); &:last-child{ border-bottom: 0; } }
+        h3{ display: flex; align-items: baseline; justify-content: space-between; margin: 0 0 .55rem 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+        select{ width: 100%; }
+    }
+    .be-tabs{
+        display: flex;
+        gap: 2px;
+        margin: .2rem -.4rem 0 -.4rem;
+        button{ flex: 1; background: transparent; color: var(--ink-3); border-radius: 7px; &.on{ background: var(--surface-3); color: var(--ink); } }
+    }
+    .be-score{
+        margin-left: .3rem;
+        padding: .05rem .4rem;
+        border-radius: 999px;
+        font-size: 11.5px;
+        &.ok{ background: rgba(76, 217, 100, .15); color: #8fe08a; }
+        &.mid{ background: rgba(237, 179, 65, .16); color: #edc06a; }
+        &.low{ background: rgba(224, 96, 79, .16); color: #f3a097; }
+    }
+    .be-count{ font-weight: 400; text-transform: none; letter-spacing: 0; }
+    .be-hint{ margin: .45rem 0 0 0; font-size: 12.5px; line-height: 1.45; color: var(--ink-3); }
+    .be-layouts{
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: .4rem;
+        button{
+            display: grid; justify-items: center; gap: .3rem;
+            width: 100%;
+            padding: .5rem .3rem .4rem .3rem;
+            background: var(--well);
+            font-size: 12.5px;
+            svg{ width: 100%; height: auto; fill: var(--ink-3); }
+            &.on{ background: rgba(var(--tint-rgb), .2); color: var(--ink); svg{ fill: var(--violet); } }
+        }
+    }
+    .be-slug{
+        display: flex;
+        align-items: center;
+        border-radius: var(--r-md);
+        background: var(--well);
+        span{ padding-left: .7rem; color: var(--ink-3); font-size: 14px; }
+        input{ border: 0 !important; background: transparent !important; padding-left: .15rem !important; }
+    }
+    .be-langs{
+        display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .6rem;
+        a{ padding: .15rem .5rem; border-radius: 999px; font-size: 12.5px; text-decoration: none; background: var(--surface-3); color: var(--ink-3);
+            &.done{ color: #8fd88a; } &.error{ color: #f0958b; } }
+    }
+    .be-quiet{
+        display: inline-block;
+        margin-top: .5rem;
+        padding: .3rem .1rem;
+        background: transparent !important;
+        color: var(--violet);
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        &.bad{ color: #f0958b; }
+        &:hover{ text-decoration: underline; }
+    }
+    .be-danger{ display: flex; flex-wrap: wrap; gap: .2rem 1rem; }
+
+    // SEO tab
+    .be-serp{
+        display: grid;
+        gap: .2rem;
+        padding: .8rem .9rem;
+        border-radius: var(--r-md);
+        background: #fff;
+        font-family: Arial, sans-serif;
+        .be-serp-site{ display: flex; align-items: center; gap: .45rem; color: #4d5156; font-size: 12px; img{ width: 18px; height: 18px; border-radius: 50%; background: #eef; } }
+        .be-serp-title{ color: #1a0dab; font-size: 17px; line-height: 1.3; }
+        .be-serp-desc{ color: #4d5156; font-size: 13px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    }
+    .be-share{
+        overflow: hidden;
+        border-radius: var(--r-md);
+        background: var(--well);
+        img, .be-share-none{ display: grid; place-items: center; width: 100%; aspect-ratio: 1.91 / 1; object-fit: cover; }
+        .be-share-none{ color: var(--ink-3); font-size: 13px; background: var(--surface-3); }
+        .be-share-text{ display: grid; gap: .15rem; padding: .6rem .75rem .7rem .75rem; font-size: 13px; color: var(--ink-3);
+            small{ font-size: 11px; letter-spacing: .04em; }
+            strong{ color: var(--ink); font-size: 14px; line-height: 1.3; }
+            span{ display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } }
+    }
+    .be-checks{
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: .45rem;
+        li{ display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: .5rem; font-size: 13.5px; line-height: 1.35; }
+        strong{ font-weight: 500; color: var(--ink-2); }
+        small{ display: block; margin-top: .1rem; color: var(--ink-3); font-size: 12.5px; }
+        .be-check-mark{ width: 16px; height: 16px; margin-top: .05rem; border-radius: 50%; background: rgba(237, 179, 65, .22); position: relative; }
+        li.todo .be-check-mark::after{ content: ''; position: absolute; left: 7px; top: 3px; width: 2px; height: 7px; border-radius: 1px; background: #edc06a; }
+        li.ok .be-check-mark{ background: rgba(76, 217, 100, .2); &::after{ content: ''; position: absolute; left: 5px; top: 3px; width: 4px; height: 7px; border: solid #8fe08a; border-width: 0 2px 2px 0; transform: rotate(45deg); } }
+        li.ok strong{ color: var(--ink-3); }
+    }
+    .be-field{
+        display: grid;
+        gap: .3rem;
+        margin-bottom: .7rem;
+        grid-template-columns: 1fr auto;
+        font-size: 13px;
+        color: var(--ink-2);
+        input, textarea{ grid-column: 1 / -1; font-size: 14px; }
+        .be-len{ color: var(--ink-3); font-variant-numeric: tabular-nums; &.over{ color: #f0958b; } }
+    }
+}
+
+// ---------- floating on <body>: block list and text formatting (above everything on the page) ----------
+.be-palette, .be-format{
+    &[hidden]{ display: none !important; }
+    button{ border: 0; cursor: pointer; font-family: inherit; color: var(--ink-2); border-radius: 7px; transition: background 150ms ease, color 150ms ease; }
+    input{ @include input; box-sizing: border-box !important; }
+}
+.be-palette{
+    position: fixed;
+    z-index: 50;
+    display: grid;
+    width: 320px;
+    max-height: min(420px, 70vh);
+    overflow: auto;
+    padding: .35rem;
+    border-radius: var(--r-md);
+    background: var(--dialog);
+    button{
+        display: grid;
+        grid-template-columns: 34px minmax(0, 1fr);
+        gap: .65rem;
+        align-items: center;
+        width: 100%;
+        justify-content: stretch;
+        padding: .45rem .55rem;
+        background: transparent;
+        text-align: left;
+        svg{ width: 34px; height: 34px; padding: 7px; border-radius: 8px; background: var(--surface-2); fill: var(--violet); box-sizing: border-box !important; }
+        strong{ display: block; color: var(--ink); font-size: 14px; }
+        small{ display: block; color: var(--ink-3); font-size: 12.5px; font-weight: 400; line-height: 1.35; }
+        &:hover, &.on{ background: var(--surface-3); }
+    }
+    .muted{ padding: .6rem; }
+}
+.be-format{
+    position: fixed;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border-radius: var(--r-sm);
+    background: var(--dialog);
+    > button{ padding: .35rem; background: transparent; color: var(--ink-2); svg{ width: 17px; height: 17px; fill: currentColor; display: block; } &:hover{ background: var(--surface-3); color: var(--ink); } }
+    .be-link-form{ display: flex; gap: 3px; margin-left: 3px; input{ width: 220px; padding: .3rem .5rem; font-size: 13px; } button{ padding: .3rem .6rem; font-size: 13px; } }
+}
+
+
+// dialogs on <body> (outside the admin panel): uploaded pictures, preview
+.be-dialog{
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: var(--scrim);
+    animation: beFade 150ms ease;
+    .be-dialog-card{
+        width: min(760px, 100%);
+        max-height: calc(100vh - 2rem);
+        overflow: auto;
+        border-radius: var(--r-lg);
+        background: var(--dialog);
+        color: var(--ink-2);
+    }
+    .be-dialog-head{
+        position: sticky; top: 0; z-index: 2;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: .8rem 1rem;
+        background: var(--dialog);
+        strong{ color: var(--ink); }
+    }
+    .be-x{ width: 32px; height: 32px; border: 0; border-radius: 8px; background: var(--surface-2); color: var(--ink); font-size: 20px; cursor: pointer; &:hover{ background: var(--surface-3); } }
+    .be-library{
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: .5rem;
+        padding: 0 1rem 1rem 1rem;
+        button{ padding: 0; border: 0; border-radius: var(--r-sm); overflow: hidden; background: var(--well); cursor: pointer; transition: opacity 150ms ease; &:hover{ opacity: .8; } }
+        img{ display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+        .admin-loading, .admin-empty{ grid-column: 1 / -1; color: var(--ink-3); padding: 1rem 0; }
+    }
+    &.be-preview-dialog .be-dialog-card{ width: min(1180px, 100%); }
+    .be-preview-page{ padding: 0 1.25rem 2.5rem 1.25rem !important; margin: 0 auto; min-height: 0 !important; max-width: none !important; }
+}
+@keyframes beFade{ from{ opacity: 0; } to{ opacity: 1; } }

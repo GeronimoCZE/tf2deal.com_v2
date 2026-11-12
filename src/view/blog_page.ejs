@@ -5,29 +5,93 @@
         <%- include('./partials/nav.ejs') %>
         
         <main>
-            <div class="page-section blog blog-post">
-                <a href="<%= lurl('/blog') %>" class="back">&larr; <%= __('blog.all_posts') %></a>
-                <% if (!info.post.published) { %>
-                    <div class="draft-note"><%= __('blog.draft_note') %></div>
-                <% } %>
-                <% if (info.shown.translated) { %>
-                    <div class="legal-english-note ai-note"><%= __('common.ai_translated') %> <a href="<%= info.original_url %>" rel="nofollow"><%= __('blog.show_original', { lang: lang_names[info.source] }) %></a></div>
-                <% } else if (info.shown.lang != lang && info.translation_ready) { %>
-                    <div class="legal-english-note ai-note"><%= __('blog.reading_original', { lang: lang_names[info.source] }) %> <a href="<%= info.translation_url %>"><%= __('blog.show_translation') %></a></div>
-                <% } else if (info.shown.lang != lang) { %>
-                    <div class="legal-english-note"><%= __('blog.original_only', { lang: lang_names[info.source] }) %></div>
-                <% } %>
-                <article lang="<%= lang_tags[info.shown.lang] %>">
-                    <h1><%= info.shown.title %></h1>
-                    <div class="date"><%= new Date(info.post.created).toLocaleDateString(html_lang, { day: 'numeric', month: 'long', year: 'numeric' }) %></div>
-                    <% if (info.post.cover) { %>
-                        <img class="cover" src="<%= info.post.cover %>" alt="<%= locals.shown?.title || info.post.title %>">
+            <%# Three layouts (Admin → Blog → post settings): standard = one text column; feature = big cover on top,
+                larger title, the excerpt as an intro; guide = a contents list beside the text (from the h2/h3 headings).
+                Pictures, galleries, item cards and boxes in the text: service/blog_render.js, styles in _blog.scss %>
+            <% const L = info.layout, T = info.toc || []; const day = new Date(info.post.created); %>
+            <div class="page-section blog blog-post layout-<%= L %>">
+                <div class="bp-top">
+                    <a href="<%= lurl('/blog') %>" class="back">&larr; <%= __('blog.all_posts') %></a>
+                    <% if (!info.post.published) { %>
+                        <div class="draft-note"><%= __('blog.draft_note') %></div>
                     <% } %>
-                    <div class="post-content">
-                        <%- info.html %>
-                    </div>
+                    <% if (info.shown.translated) { %>
+                        <div class="legal-english-note ai-note"><%= __('common.ai_translated') %> <a href="<%= info.original_url %>" rel="nofollow"><%= __('blog.show_original', { lang: lang_names[info.source] }) %></a></div>
+                    <% } else if (info.shown.lang != lang && info.translation_ready) { %>
+                        <div class="legal-english-note ai-note"><%= __('blog.reading_original', { lang: lang_names[info.source] }) %> <a href="<%= info.translation_url %>"><%= __('blog.show_translation') %></a></div>
+                    <% } else if (info.shown.lang != lang) { %>
+                        <div class="legal-english-note"><%= __('blog.original_only', { lang: lang_names[info.source] }) %></div>
+                    <% } %>
+                </div>
+                <article lang="<%= lang_tags[info.shown.lang] %>">
+                    <header class="bp-head">
+                        <% if (info.cover && L == 'feature') { %>
+                            <img class="cover bp-hero" src="<%= info.cover %>" alt="<%= info.shown.title %>" fetchpriority="high">
+                        <% } %>
+                        <h1><%= info.shown.title %></h1>
+                        <% if (L == 'feature' && info.shown.excerpt) { %>
+                            <p class="bp-dek"><%= info.shown.excerpt %></p>
+                        <% } %>
+                        <div class="date">
+                            <time datetime="<%= day.toISOString() %>"><%= day.toLocaleDateString(html_lang, { day: 'numeric', month: 'long', year: 'numeric' }) %></time>
+                            <span aria-hidden="true">·</span>
+                            <span><%= __('blog.min_read', { count: info.minutes }) %></span>
+                        </div>
+                        <% if (info.cover && L != 'feature') { %>
+                            <img class="cover" src="<%= info.cover %>" alt="<%= info.shown.title %>" fetchpriority="high">
+                        <% } %>
+                    </header>
+                    <% if (L == 'guide' && T.length > 1) { %>
+                        <div class="bp-body">
+                            <nav class="bp-toc" aria-label="<%= __('blog.contents') %>">
+                                <details open>
+                                    <summary><%= __('blog.contents') %></summary>
+                                    <ol>
+                                        <% T.forEach((h) => { %>
+                                            <li class="lv-<%= h.level %>"><a href="#<%= h.id %>"><%= h.text %></a></li>
+                                        <% }) %>
+                                    </ol>
+                                </details>
+                            </nav>
+                            <div class="post-content">
+                                <%- info.html %>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="post-content">
+                            <%- info.html %>
+                        </div>
+                    <% } %>
                 </article>
             </div>
+            <script>
+                // YouTube blocks are a picture until they're played (no YouTube code on page load);
+                // the guide layout's contents list marks the section being read
+                (() => {
+                    document.addEventListener('click', (e) => {
+                        const link = e.target.closest('a[data-youtube]')
+                        if (!link || e.ctrlKey || e.metaKey || e.shiftKey) return
+                        e.preventDefault()
+                        const frame = document.createElement('iframe')
+                        frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(link.dataset.youtube) + '?autoplay=1&rel=0'
+                        frame.title = link.getAttribute('aria-label') || 'YouTube'
+                        frame.allow = 'accelerometer; autoplay; encrypted-media; picture-in-picture'
+                        frame.allowFullscreen = true
+                        frame.referrerPolicy = 'strict-origin-when-cross-origin'
+                        link.replaceWith(frame)
+                    })
+                    const toc = document.querySelector('.bp-toc')
+                    if (!toc || !('IntersectionObserver' in window)) return
+                    const links = new Map([...toc.querySelectorAll('a')].map((a) => [decodeURIComponent(a.hash.slice(1)), a]))
+                    if (window.matchMedia('(max-width: 959px)').matches) toc.querySelector('details').open = false
+                    const seen = new IntersectionObserver((entries) => entries.forEach((entry) => {
+                        if (!entry.isIntersecting) return
+                        links.forEach((a) => a.classList.remove('on'))
+                        links.get(entry.target.id)?.classList.add('on')
+                    }), { rootMargin: '0px 0px -70% 0px' })
+                    links.forEach((a, id) => { const h = document.getElementById(id); if (h) seen.observe(h) })
+                })()
+            </script>
         </main>
         
         <%- include('./partials/footer.ejs') %>
