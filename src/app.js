@@ -29,6 +29,7 @@ import { ticket_model } from './model/Ticket.js'
 import * as sitemap from './service/sitemap.js'
 import * as markdown from './service/markdown.js'
 import * as indexnow from './service/indexnow.js'
+import * as uploads from './service/uploads.js'
 import * as inventory_value from './service/inventory_value.js'
 import * as flips from './service/flips.js'
 import * as item_lists from './service/item_lists.js'
@@ -182,6 +183,8 @@ app.get('/:file.txt', indexnow.key_file) // the IndexNow key file, when INDEXNOW
 // else is checked on each visit
 app.use('/font', express.static(path.join(__dirname, 'public/font'), { maxAge: '30d' }))
 app.use('/img', express.static(path.join(__dirname, 'public/img'), { maxAge: '30d' }))
+// pictures uploaded in the admin panel (service/uploads.js): named by their content, so they never change
+app.use('/uploads', express.static(uploads.dir(), { maxAge: '365d', immutable: true, index: false, dotfiles: 'deny' }))
 app.use(express.static(path.join(__dirname,'public'), { setHeaders: static_headers }));
 
 app.locals.site_url = fn.site_url

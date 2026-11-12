@@ -12,6 +12,8 @@ import * as giveaway_prize from '../../service/giveaway_prize.js';
 import * as giveaway_posts from '../../service/giveaway_posts.js';
 import * as translate from '../../service/translate.js';
 import * as sitemap from '../../service/sitemap.js';
+import * as blog_render from '../../service/blog_render.js';
+import * as uploads from '../../service/uploads.js';
 import { LANGS, LANG_NAMES } from '../../i18n.js';
 import { trade_model } from '../../model/Trade.js';
 import { rating_model } from '../../model/Rating.js';
@@ -89,6 +91,8 @@ router.post('/tickets/:id/close', valid_id, async (req, res) => {
 
 /* ========================= BLOG ========================= */
 
+const BLOG_LAYOUTS = ['standard', 'feature', 'guide'];
+
 const blog_fields = (body) => ({
   title: text(body?.title, 150),
   slug: fn.slugify(text(body?.slug, 100) || text(body?.title, 150)),
@@ -96,7 +100,10 @@ const blog_fields = (body) => ({
   excerpt: text(body?.excerpt, 300),
   content: text(body?.content, 50000),
   published: body?.published === true || body?.published === 'true',
-  lang: LANGS.includes(body?.lang) ? body.lang : 'en' // the language the post is written in
+  lang: LANGS.includes(body?.lang) ? body.lang : 'en', // the language the post is written in
+  layout: BLOG_LAYOUTS.includes(body?.layout) ? body.layout : 'standard',
+  seo_title: text(body?.seo_title, 120),
+  seo_description: text(body?.seo_description, 320)
 });
 
 // AI translation state for the admin panel (service/translate.js)
@@ -111,6 +118,34 @@ router.get('/blog', async (req, res) => {
   // the list doesn't need the text itself (only to work out the translation state)
   res.json({ status: 'ok', translation: translation_info(), posts: posts.map((post) => { const { content, ...rest } = with_translation(post); return rest; }) });
 });
+
+// the editor's preview: the post as the page shows it (item cards with live prices), with its contents and reading time
+router.post('/blog/preview', async (req, res) => {
+  const post = await blog_render.render(text(req.body?.content, 50000), { title: text(req.body?.title, 150), __: req.__, lurl: req.lurl });
+  res.json({ status: 'ok', html: post.html, toc: post.toc, words: post.words, minutes: post.minutes, images: post.images });
+});
+
+// pictures for posts and covers (service/uploads.js): the file itself as the request body
+router.post('/blog/upload', express.raw({ type: () => true, limit: uploads.MAX_BYTES }), async (req, res) => {
+  try {
+    res.json({ status: 'ok', ...(await uploads.save('blog', req.body)) });
+  } catch (error) {
+    res.status(400).json({ status: 'error', message: error.message });
+  }
+});
+
+router.get('/blog/uploads', async (req, res) => {
+  res.json({ status: 'ok', files: await uploads.list('blog') });
+});
+
+// item names for the editor's item card block (the names the item pages use)
+router.get('/blog/items', async (req, res) => {
+  const q = text(req.query.q, 100);
+  if(q.length < 2){ return res.json({ status: 'ok', items: [] }) }
+  const pattern = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+  const items = await item_model.find({ bp_sku: pattern, sell: { $gt: 0 } }, { bp_sku: 1, image: 1, qualityID: 1, 'stock.cur': 1 })
+    .sort({ 'stock.cur': -1 }).limit(12).maxTimeMS(5000).lean();
+  res.json({ status: 'ok', items: items.map((item) => ({ bp_sku: item.bp_sku, image: item.image, qualityID: item.qualityID, stock: item.stock?.cur || 0 })) });
 
 router.get('/blog/:id', valid_id, async (req, res) => {
   const post = await blog_model.findById(req.params.id).lean();
@@ -128,8 +163,6 @@ router.post('/blog/:id/translate', valid_id, async (req, res) => {
   res.json({ status: 'ok' });
 });
 
-router.post('/blog/preview', (req, res) => {
-  res.json({ status: 'ok', html: fn.render_markdown(text(req.body?.content, 50000)) });
 });
 
 router.post('/blog', async (req, res) => {

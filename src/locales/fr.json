@@ -769,7 +769,13 @@
     "show_original": "Voir l'original ({lang})",
     "reading_original": "Vous lisez l'original ({lang}).",
     "show_translation": "Voir la traduction",
-    "original_only": "Cet article n'est disponible que dans sa langue d'origine : {lang}."
+    "original_only": "Cet article n'est disponible que dans sa langue d'origine : {lang}.",
+    "contents": "Sommaire",
+    "min_read": "{count} min de lecture",
+    "item_buy": "Acheter pour {price}",
+    "item_sell": "Vendre pour {price}",
+    "item_view": "Voir l'objet",
+    "video_play": "Lire la vidéo"
   },
   "support": {
     "title": "Créer un ticket d'assistance",

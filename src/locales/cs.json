@@ -769,7 +769,13 @@
     "show_original": "Zobrazit originál ({lang})",
     "reading_original": "Čtete originál ({lang}).",
     "show_translation": "Zobrazit překlad",
-    "original_only": "Tento příspěvek je k dispozici jen v původním jazyce: {lang}."
+    "original_only": "Tento příspěvek je k dispozici jen v původním jazyce: {lang}.",
+    "contents": "Obsah",
+    "min_read": "{count} min čtení",
+    "item_buy": "Koupit za {price}",
+    "item_sell": "Prodat za {price}",
+    "item_view": "Zobrazit předmět",
+    "video_play": "Přehrát video"
   },
   "support": {
     "title": "Vytvořit tiket podpory",

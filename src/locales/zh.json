@@ -769,7 +769,13 @@
     "show_original": "查看原文（{lang}）",
     "reading_original": "你正在阅读原文（{lang}）。",
     "show_translation": "查看译文",
-    "original_only": "这篇文章仅提供原文语言版本：{lang}。"
+    "original_only": "这篇文章仅提供原文语言版本：{lang}。",
+    "contents": "目录",
+    "min_read": "阅读约 {count} 分钟",
+    "item_buy": "购买价 {price}",
+    "item_sell": "出售价 {price}",
+    "item_view": "查看物品",
+    "video_play": "播放视频"
   },
   "support": {
     "title": "创建支持工单",

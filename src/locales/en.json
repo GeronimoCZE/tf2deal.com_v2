@@ -769,7 +769,13 @@
     "show_original": "Show original ({lang})",
     "reading_original": "You're reading the original ({lang}).",
     "show_translation": "Show translation",
-    "original_only": "This post is only available in its original language: {lang}."
+    "original_only": "This post is only available in its original language: {lang}.",
+    "contents": "Contents",
+    "min_read": "{count} min read",
+    "item_buy": "Buy for {price}",
+    "item_sell": "Sell for {price}",
+    "item_view": "View item",
+    "video_play": "Play the video"
   },
   "support": {
     "title": "Create a Support Ticket",

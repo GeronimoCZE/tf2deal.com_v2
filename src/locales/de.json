@@ -769,7 +769,13 @@
     "show_original": "Original anzeigen ({lang})",
     "reading_original": "Du liest das Original ({lang}).",
     "show_translation": "Übersetzung anzeigen",
-    "original_only": "Dieser Beitrag ist nur in seiner Originalsprache verfügbar: {lang}."
+    "original_only": "Dieser Beitrag ist nur in seiner Originalsprache verfügbar: {lang}.",
+    "contents": "Inhalt",
+    "min_read": "{count} Min. Lesezeit",
+    "item_buy": "Kaufen für {price}",
+    "item_sell": "Verkaufen für {price}",
+    "item_view": "Item ansehen",
+    "video_play": "Video abspielen"
   },
   "support": {
     "title": "Support-Ticket erstellen",

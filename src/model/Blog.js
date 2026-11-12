@@ -18,10 +18,16 @@ const Blog = mongoose.Schema({
         type: String,
         default: ''
     },
-    content: { // markdown-lite, rendered by fn.render_markdown()
+    content: { // Markdown with layout blocks (public/js/blog_format.js), rendered by service/blog_render.js
         type: String,
         required: true
     },
+    // how the page is laid out: standard (text column), feature (big cover on top, larger title, the excerpt as an
+    // intro) or guide (a contents list beside the text, from the headings)
+    layout: { type: String, default: 'standard' },
+    // search results and shares; empty = made from the title and the excerpt / text (routes/router.js blog_page)
+    seo_title: { type: String, default: '' },
+    seo_description: { type: String, default: '' },
     published: {
         type: Boolean,
         default: false

@@ -15,6 +15,7 @@ import * as categories from '../service/categories.js'
 import * as buy from '../service/buy_link.js'
 import * as item_lists from '../service/item_lists.js'
 import * as variants from '../service/variants.js'
+import * as blog_render from '../service/blog_render.js'
 import { localize_path, LANG_TAGS } from '../i18n.js'
 import { isNumberObject } from 'util/types'
 
@@ -639,48 +640,77 @@ const blog_page = async (req, res, next) => {
     const path = `/blog/${encodeURIComponent(post.slug)}`
     const url_in = (lang) => fn.site_url + localize_path(lang, path)
     const langs = translate.available_langs(post)
-    // the cover as a full https address (og:image and the structured data need one; a cover may be a site path)
-    const cover = fn.absolute_url(post.cover)
     const alternates = langs.length > 1
       ? [...langs.map((lang) => ({ hreflang: LANG_TAGS[lang], href: url_in(lang) })), { hreflang: 'x-default', href: url_in(langs.includes('en') ? 'en' : source) }]
       : null
 
+    // the post body with its contents (headings), pictures and reading time (service/blog_render.js)
+    const body = await blog_render.render(shown.content, { title: shown.title, __: req.__, lurl: req.lurl })
+    const layout = ['standard', 'feature', 'guide'].includes(post.layout) ? post.layout : 'standard'
+
+    // SEO, made from the post unless the editor's SEO fields say otherwise:
+    //   title        "<title> – TF2Deal.com Blog", shorter forms when that's over 70 characters
+    //   description  the excerpt, else the start of the text (155 characters)
+    //   picture      the cover, else the first picture in the post (full https addresses)
+    const page_title = shown.seo_title || [`${shown.title} – TF2Deal.com Blog`, `${shown.title} | TF2Deal.com`].find((t) => t.length <= 70) || shown.title
+    const description = shown.seo_description || blog_render.description(shown.excerpt, shown.content)
+    const cover = fn.absolute_url(post.cover)
+    const images = [...new Set([cover, ...body.images.map(fn.absolute_url)].filter(Boolean))]
+    const page_url = url_in(shown.lang)
+    const blog_url = fn.site_url + localize_path(shown.lang, '/blog')
+    const modified = Math.max(post.updated || post.created, translation?.translated ? (post.translations?.[shown.lang]?.updated || 0) : 0)
+
     res.render(
       'blog_page',
-      fn.res_data(!!req.user, req.user, user_cookie, `${shown.title} - TF2Deal.com Blog`, {
+      fn.res_data(!!req.user, req.user, user_cookie, page_title, {
         view: 'blog_page',
         post_id: String(post._id), // the admin bar's Edit post link
         promtLogin: true,
-        // SEO: excerpt, or the start of the post when there's no excerpt
-        description: fn.markdown_excerpt(shown.excerpt || shown.content), // at most 155 characters, also a long excerpt
-        canonical: url_in(shown.lang),
+        description,
+        canonical: page_url,
         alternates,
         no_hreflang: !alternates,
-        image: cover,
+        image: images[0],
         og_type: 'article',
         noindex: !post.published,
         json_ld: {
           '@context': 'https://schema.org',
-          '@type': 'BlogPosting',
-          headline: shown.title,
-          description: shown.excerpt || undefined,
-          inLanguage: LANG_TAGS[shown.lang],
-          image: cover,
-          datePublished: new Date(post.created).toISOString(),
-          dateModified: new Date(Math.max(post.updated || post.created, translation?.translated ? (post.translations?.[shown.lang]?.updated || 0) : 0)).toISOString(),
-          author: { '@type': 'Organization', '@id': `${fn.site_url}/#organization`, name: 'TF2Deal.com', url: `${fn.site_url}/` },
-          publisher: { '@id': `${fn.site_url}/#organization` },
-          isPartOf: { '@type': 'Blog', '@id': `${fn.site_url}${localize_path(shown.lang, '/blog')}#blog` },
-          mainEntityOfPage: url_in(shown.lang),
-          url: url_in(shown.lang)
+          '@graph': [{
+            '@type': 'BlogPosting',
+            '@id': page_url + '#post',
+            headline: shown.title.slice(0, 110),
+            description,
+            inLanguage: LANG_TAGS[shown.lang],
+            ...(images.length && { image: images.slice(0, 5) }),
+            datePublished: new Date(post.created).toISOString(),
+            dateModified: new Date(modified).toISOString(),
+            wordCount: body.words,
+            timeRequired: `PT${body.minutes}M`,
+            author: { '@type': 'Organization', '@id': `${fn.site_url}/#organization`, name: 'TF2Deal.com', url: `${fn.site_url}/` },
+            publisher: { '@id': `${fn.site_url}/#organization` },
+            isPartOf: { '@type': 'Blog', '@id': blog_url + '#blog' },
+            mainEntityOfPage: page_url,
+            url: page_url
+          }, {
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'TF2Deal.com', item: fn.site_url + localize_path(shown.lang, '/') },
+              { '@type': 'ListItem', position: 2, name: req.__('blog.h1'), item: blog_url },
+              { '@type': 'ListItem', position: 3, name: shown.title, item: page_url }
+            ]
+          }]
         },
         post,
-        shown, // { title, excerpt, content, lang, translated }
+        shown, // { title, excerpt, content, seo_title, seo_description, lang, translated }
         source,
+        layout,
+        toc: body.toc.filter((h) => h.level == 2 || h.level == 3),
+        minutes: body.minutes,
+        cover: post.cover ? fn.https_url(post.cover) : '',
         translation_ready: Boolean(translation?.translated),
         original_url: req.lurl(path) + '?original=1',
         translation_url: req.lurl(path),
-        html: fn.render_markdown(shown.content, shown.title)
+        html: body.html
       })
     )
   } catch (err) {
