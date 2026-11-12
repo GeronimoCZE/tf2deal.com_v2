@@ -3,7 +3,7 @@
 // Kept calm on purpose: few flakes, small and see-through, a soft breeze that swells slowly instead of a storm.
 // Nothing runs for people who ask for less motion, and it stops while the tab is hidden.
 (() => {
-    if (!document.body || !document.body.classList.contains('season-smissmas')) { return }
+    if (!document.body || !document.body.classList.contains('season-smissmas') || document.body.classList.contains('admin-app')) { return } // no snow in the admin panel
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return }
 
     const canvas = document.createElement('canvas')

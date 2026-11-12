@@ -375,9 +375,11 @@
         const trade_offer = `<%- tl(trade) %>`;
     </script>
 <% } %>
-    <script src="/js/main.js" type="module"></script>
+    <%# the admin panel (view/admin/admin.ejs) has none of the shop's menu, search or trade parts that these scripts run %>
+    <% const shop_scripts = locals.page_path != '/admin' %>
+    <% if (shop_scripts) { %><script src="/js/main.js" type="module"></script><% } %>
     <script src="<%= asset('/js/motion.js') %>" defer></script>
-    <script src="<%= asset('/js/window.js') %>" defer></script>
+    <% if (shop_scripts) { %><script src="<%= asset('/js/window.js') %>" defer></script><% } %>
 </head>
 
 <%# the toast close button gets a name for screen readers and browser agents %>

@@ -1,86 +1,92 @@
 <!DOCTYPE html>
 <html lang="<%= html_lang %>">
     <%- include('../partials/head.ejs') %>
-    <body class="<%= season_class %>">
-        <%- include('../partials/nav.ejs') %>
-        <main>
-            <div class="page-section admin">
-                <div class="admin-shell">
-                    <aside class="admin-sidebar">
-                        <div class="admin-brand">
-                            <img src="/img/logo_icon.png" alt="TF2Deal.com">
-                            <div>
-                                <strong>Admin</strong>
-                                <span class="admin-live" id="admin-live" data-state="connecting"><i></i><span>Connecting…</span></span>
-                            </div>
+    <%# The admin panel is its own app: the admin bar on top (View site goes back to the shop), a rail of sections on
+        the left and the open section beside it. No shop menu, banner or footer here. Styles: views/_admin.scss %>
+    <body class="<%= season_class %> admin-app">
+        <%- include('../partials/admin_bar.ejs') %>
+        <main class="admin">
+            <div class="admin-shell">
+                <aside class="admin-rail">
+                    <div class="admin-brand">
+                        <img src="/img/logo_icon.png" alt="" width="32" height="32">
+                        <div>
+                            <strong>TF2Deal admin</strong>
+                            <span class="admin-live" id="admin-live" data-state="connecting"><i></i><span>Connecting…</span></span>
                         </div>
-                        <nav class="admin-nav" aria-label="Admin sections">
-                            <a href="#overview" data-section="overview">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3zm0 8h8v-6H3zm10 0h8V11h-8zm0-18v6h8V3z"/></svg>
-                                Overview
-                            </a>
-                            <a href="#value" data-section="value">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.6 9 11.6l4 4 8-8V12h2V4h-8v2h4.6L13 12.2l-4-4-7.4 7.4z"/></svg>
-                                Inventory value
-                            </a>
-                            <a href="#flips" data-section="flips">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3 2 8l5 5V9.5h7v-3H7zm10 8v3.5h-7v3h7V21l5-5z"/></svg>
-                                Flips
-                            </a>
-                            <a href="#settings" data-section="settings">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.9a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>
-                                Live settings
-                            </a>
-                            <a href="#bots" data-section="bots">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 1.5a2 2 0 0 1 1 3.73V7h5a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3h5V5.23a2 2 0 0 1 1-3.73zM8.5 11a1.75 1.75 0 1 0 0 3.5 1.75 1.75 0 0 0 0-3.5zm7 0a1.75 1.75 0 1 0 0 3.5 1.75 1.75 0 0 0 0-3.5zM8 16.5v1.5h8v-1.5z"/></svg>
-                                Bot manager
-                            </a>
-                            <a href="#users" data-section="users">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-8 0a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm0 2c-2.7 0-8 1.3-8 4v3h8v-3c0-1.1.4-2.1 1.2-3A11 11 0 0 0 8 13zm8 0c-2.7 0-8 1.3-8 4v3h16v-3c0-2.7-5.3-4-8-4z"/></svg>
-                                Users
-                            </a>
-                            <a href="#ratings" data-section="ratings">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3 18.2 21l-1.6-7 5.4-4.7-7.2-.6L12 2 9.2 8.7 2 9.3 7.4 14l-1.6 7z"/></svg>
-                                Ratings
-                            </a>
-                            <a href="#trades" data-section="trades">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3 1.4-1.4L21.8 8l-5.4 5.4L15 12l3-3H7zm10 10H6l3 3-1.4 1.4L2.2 16l5.4-5.4L9 12l-3 3h11z"/></svg>
-                                Trade records
-                            </a>
-                            <a href="#notifications" data-section="notifications">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-1.7 1.7a1 1 0 0 0 .7 1.7h16a1 1 0 0 0 .7-1.7z"/></svg>
-                                Notifications
-                            </a>
-                            <a href="#tickets" data-section="tickets">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>
-                                Tickets
-                                <span class="admin-count" id="nav-tickets-count" hidden></span>
-                            </a>
-                            <a href="#blog" data-section="blog">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.3V21h3.7l11-11-3.7-3.7zM20.7 7a1 1 0 0 0 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.7 3.7z"/></svg>
-                                Blog
-                            </a>
-                            <a href="#giveaways" data-section="giveaways">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-2.2A3 3 0 0 0 12 3.8 3 3 0 0 0 6.2 7H4a2 2 0 0 0-2 2v3h20V9a2 2 0 0 0-2-2zM9 7a1 1 0 1 1 1-1v1zm6 0h-1V6a1 1 0 1 1 1 1zM3 14v6a2 2 0 0 0 2 2h6v-8zm10 8h6a2 2 0 0 0 2-2v-6h-8z"/></svg>
-                                Giveaways
-                            </a>
-                        </nav>
-                        <div class="admin-sidebar-foot">
-                            <span class="muted">Signed in as admin</span>
-                            <a href="/logout">Log out</a>
-                        </div>
-                    </aside>
+                    </div>
+                    <nav class="admin-nav" aria-label="Admin sections">
+                        <a href="#overview" data-section="overview">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3zm0 8h8v-6H3zm10 0h8V11h-8zm0-18v6h8V3z"/></svg>
+                            Overview
+                        </a>
 
-                    <section class="admin-main">
-                        <div class="content" id="admin-content" aria-live="polite">
-                            <div class="admin-loading"><span class="admin-spinner"></span> Loading…</div>
-                        </div>
-                    </section>
-                </div>
+                        <span class="admin-nav-label">Trading</span>
+                        <a href="#bots" data-section="bots">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 1.5a2 2 0 0 1 1 3.73V7h5a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3h5V5.23a2 2 0 0 1 1-3.73zM8.5 11a1.75 1.75 0 1 0 0 3.5 1.75 1.75 0 0 0 0-3.5zm7 0a1.75 1.75 0 1 0 0 3.5 1.75 1.75 0 0 0 0-3.5zM8 16.5v1.5h8v-1.5z"/></svg>
+                            Bot manager
+                        </a>
+                        <a href="#trades" data-section="trades">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3 1.4-1.4L21.8 8l-5.4 5.4L15 12l3-3H7zm10 10H6l3 3-1.4 1.4L2.2 16l5.4-5.4L9 12l-3 3h11z"/></svg>
+                            Trade records
+                        </a>
+                        <a href="#settings" data-section="settings">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.9a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>
+                            Live settings
+                        </a>
+
+                        <span class="admin-nav-label">Money</span>
+                        <a href="#value" data-section="value">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.6 9 11.6l4 4 8-8V12h2V4h-8v2h4.6L13 12.2l-4-4-7.4 7.4z"/></svg>
+                            Inventory value
+                        </a>
+                        <a href="#flips" data-section="flips">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3 2 8l5 5V9.5h7v-3H7zm10 8v3.5h-7v3h7V21l5-5z"/></svg>
+                            Flips
+                        </a>
+
+                        <span class="admin-nav-label">People</span>
+                        <a href="#users" data-section="users">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm-8 0a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm0 2c-2.7 0-8 1.3-8 4v3h8v-3c0-1.1.4-2.1 1.2-3A11 11 0 0 0 8 13zm8 0c-2.7 0-8 1.3-8 4v3h16v-3c0-2.7-5.3-4-8-4z"/></svg>
+                            Users
+                        </a>
+                        <a href="#tickets" data-section="tickets">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/></svg>
+                            Tickets
+                            <span class="admin-count" id="nav-tickets-count" hidden></span>
+                        </a>
+                        <a href="#ratings" data-section="ratings">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3 18.2 21l-1.6-7 5.4-4.7-7.2-.6L12 2 9.2 8.7 2 9.3 7.4 14l-1.6 7z"/></svg>
+                            Ratings
+                        </a>
+
+                        <span class="admin-nav-label">Content</span>
+                        <a href="#blog" data-section="blog">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.3V21h3.7l11-11-3.7-3.7zM20.7 7a1 1 0 0 0 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.7 3.7z"/></svg>
+                            Blog
+                        </a>
+                        <a href="#giveaways" data-section="giveaways">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-2.2A3 3 0 0 0 12 3.8 3 3 0 0 0 6.2 7H4a2 2 0 0 0-2 2v3h20V9a2 2 0 0 0-2-2zM9 7a1 1 0 1 1 1-1v1zm6 0h-1V6a1 1 0 1 1 1 1zM3 14v6a2 2 0 0 0 2 2h6v-8zm10 8h6a2 2 0 0 0 2-2v-6h-8z"/></svg>
+                            Giveaways
+                        </a>
+                        <a href="#notifications" data-section="notifications">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-1.7 1.7a1 1 0 0 0 .7 1.7h16a1 1 0 0 0 .7-1.7z"/></svg>
+                            Notifications
+                        </a>
+                    </nav>
+                    <div class="admin-rail-foot">
+                        <a href="/logout">Log out</a>
+                    </div>
+                </aside>
+
+                <section class="admin-main">
+                    <div class="content" id="admin-content" aria-live="polite">
+                        <div class="admin-loading"><span class="admin-spinner"></span> Loading…</div>
+                    </div>
+                </section>
             </div>
         </main>
         <script src="<%= asset('/js/admin.js') %>"></script>
         <script src="<%= asset('/js/admin_bot_manager.js') %>"></script>
-        <%- include('../partials/footer.ejs') %>
     </body>
 </html>
