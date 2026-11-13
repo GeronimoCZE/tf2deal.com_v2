@@ -51,6 +51,65 @@ const status = (state, job) => {
     } : null
 }
 
+// Scrolling loads the next items by itself AUTO_LOADS times, then the list ends in a "Show more items" button, so
+// the footer can be reached. The count starts again for every new list (filters, search) and on every page load.
+// One click adds CLICK_PAGES pages of /api/items (30 items, a few rows); the button stays put under the new cards.
+const AUTO_LOADS = 2
+const CLICK_PAGES = 2
+list.auto = 0
+list.more_loading = false
+
+// cards on the page and the "N items found" count of the whole list
+const counts = () => ({
+    shown: document.querySelectorAll('.item-content .items a.item_card').length,
+    count: Number(String(document.querySelector('.h2-info #item_count')?.textContent || '').replace(/\D/g, ''))
+})
+
+const show_more = () => {
+    const content = document.querySelector('.item-content')
+    if(!content){ return }
+    let box = content.querySelector('.item-more')
+    if(!box){
+        box = document.createElement('div')
+        box.className = 'item-more'
+        box.hidden = true
+        box.innerHTML = '<button type="button"></button><span class="item-more-count" aria-live="polite"></span>'
+        box.querySelector('button').onclick = load_more
+        content.append(box)
+    }
+    const { shown, count } = counts()
+    if(list.auto >= AUTO_LOADS && count > 0 && shown >= count && !list.more_loading && !pace.job){
+        content.classList.add('last-page') // every item is on the page: "You've reached the end." instead of a button
+    }
+    const on = list.auto >= AUTO_LOADS && content.classList.contains('loaded')
+        && !['last-page', 'no-items', 'load-failed'].some((name) => content.classList.contains(name))
+    content.classList.toggle('show-more', on)
+    if(on && box.hidden){ content.append(box) } // under the list, its loader and the status line
+    box.hidden = !on
+    if(!on){ return }
+    const button = box.querySelector('button')
+    button.disabled = list.more_loading
+    button.setAttribute('aria-busy', String(list.more_loading))
+    button.textContent = list.more_loading ? __('items.loading_more') : __('items.show_more')
+    const lang = document.documentElement.lang || undefined
+    box.querySelector('.item-more-count').textContent = count >= shown && shown > 0
+        ? __('items.shown_count', { shown: shown.toLocaleString(lang), count: count.toLocaleString(lang) }) : ''
+}
+
+const load_more = async () => {
+    if(list.more_loading){ return }
+    list.more_loading = true
+    show_more()
+    for (let i = 0; i < CLICK_PAGES; i++) {
+        // false: the request failed (Try again) or a new list replaced it; a rejection: the last page
+        const ok = await get_items(list.page + 1).catch(() => false)
+        const { shown, count } = counts()
+        if(!ok || (count > 0 && shown >= count)){ break } // nothing more to ask for
+    }
+    list.more_loading = false
+    show_more()
+}
+
 // reset: replace the list (first load, new filters or search) instead of adding to it
 const get_items = (page, validInputs, reset = page === 0) => {
     if(validInputs === false){
@@ -70,7 +129,9 @@ const get_items = (page, validInputs, reset = page === 0) => {
         pace.job = null
     }
     list.page = page
+    if(reset){ list.auto = 0 } // a new list scrolls by itself again
     status(null)
+    show_more()
 
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
@@ -139,6 +200,7 @@ const get_items = (page, validInputs, reset = page === 0) => {
                 finish()
                 status(null)
                 show(res, reset, job.resolve, job.reject)
+                show_more()
             })
             .fail((xhr) => {
                 if(job.cancelled || xhr.statusText == 'abort'){ return }
@@ -154,6 +216,7 @@ const get_items = (page, validInputs, reset = page === 0) => {
                 if(!reset){ list.page = page - 1 } // scrolling or Try again asks for this page again
                 document.querySelector('.item-content > .item-loader')?.classList.remove('loading')
                 status('failed', job)
+                show_more()
                 job.resolve(false)
             })
         }, Math.max(0, pace.next - Date.now()))
@@ -285,5 +348,5 @@ const query_change = async () => {}
 
 
 export {
-    get_items, query_change, clear_filter_elements, normalizeGerman, list
+    get_items, query_change, clear_filter_elements, normalizeGerman, list, show_more, AUTO_LOADS
 };

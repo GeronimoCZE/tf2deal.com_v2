@@ -481,7 +481,10 @@
       "item_database": "Base de datos de objetos",
       "loading_slow": "Todavía se están cargando los objetos…",
       "load_failed": "No se pudieron cargar los objetos.",
-      "try_again": "Reintentar"
+      "try_again": "Reintentar",
+      "show_more": "Mostrar más objetos",
+      "loading_more": "Cargando…",
+      "shown_count": "Mostrando {shown} de {count} objetos"
     },
     "offer": {
       "loading_title": "Cargando oferta de intercambio...",
