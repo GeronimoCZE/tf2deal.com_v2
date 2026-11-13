@@ -25,6 +25,7 @@ import {router as profileRoute} from './routes/profile.js'
 
 import { bot_socket, createSocket, item_socket } from './service/socket.js'
 import * as seasons from './service/season.js'
+import * as trade_url from './service/trade_url.js'
 import { ticket_model } from './model/Ticket.js'
 import * as sitemap from './service/sitemap.js'
 import * as markdown from './service/markdown.js'
@@ -342,6 +343,19 @@ app.use((req, res, next) => {
   // account/admin/trade-offer pages are kept out of search results
   res.locals.noindex = /^\/(profile|admin|login|support|buy|auth|logout|get_userDB_)(\/|$)/.test(page_path)
   res.locals.login_error = req.query.login_error === 'true' // the Steam sign-in failed (app.js /auth/steam, /get_userDB_)
+  next()
+})
+
+// A signed-in user without a trade URL gets the trade URL window over every page until they save their own
+// (views/partials/trade_url_modal.ejs, public/js/welcome.js); their inventory doesn't load until then (api/routes/user.js).
+// needs_trade_url: false, or { accountid, name } for the window (it checks a pasted URL is this account's own).
+app.use((req, res, next) => {
+  const steamid = req.user?.steamid
+  res.locals.needs_trade_url = steamid && !req.path.startsWith('/api/') &&
+    !trade_url.is_set(req.cookies?.[`td_${steamid}`]?.user?.tradelink) &&
+    !trade_url.FREE_PAGES.test(res.locals.page_path || req.path)
+    ? { accountid: trade_url.account_of(steamid), name: String(req.user.personaname || '') }
+    : false
   next()
 })
 
@@ -723,7 +737,7 @@ app.get('/get_userDB_', mw.isLogged, async (req, res) => {
         saveUser.save().then(() => {
           const tradeOffer = (trade_offers.get(req.user.steamid) == undefined) ? {}:{id: trade_offers.get(req.user.steamid).id}
           const cookie = fn.user_cookie(req.user.steamid, saveUser, tradeOffer)
-          res.cookie(cookie.name, cookie.value, cookie.setting).redirect("/?new_user=true")
+          res.cookie(cookie.name, cookie.value, cookie.setting).redirect(req.cookies['td_current_url'] || '/') // the page asks for the trade URL itself
         }).catch((error) => {
           console.log(`Sign-in: new user ${req.user.steamid} not saved:`, error?.message || error)
           res.redirect('/logout?login_error=true')
@@ -731,8 +745,7 @@ app.get('/get_userDB_', mw.isLogged, async (req, res) => {
       } else {
         const tradeOffer = (trade_offers.get(req.user.steamid) == undefined) ? {}:{id: trade_offers.get(req.user.steamid).id}
         const cookie = fn.user_cookie(req.user.steamid, user, tradeOffer)
-        let new_user = (user?.tradelink == "" || user?.tradelink == undefined) ? "?new_user=true":""
-        res.cookie(cookie.name, cookie.value, cookie.setting).redirect((req.cookies['td_current_url'] || '/trade') + new_user)
+        res.cookie(cookie.name, cookie.value, cookie.setting).redirect(req.cookies['td_current_url'] || '/trade')
       }
     }).catch((error) => {
       console.log(`Sign-in: user ${req.user.steamid} not read:`, error?.message || error)

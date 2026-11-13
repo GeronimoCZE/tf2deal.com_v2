@@ -673,6 +673,19 @@
       "skin_item": "TF2-Waffe mit Kriegsbemalung",
       "unusual_item": "Unusual-TF2-Item mit Effekt",
       "tool_item": "TF2-Werkzeug"
+    },
+    "trade_url": {
+      "looks_right": "Sieht gut aus. Speichere sie, um weiterzumachen.",
+      "other_account": "Diese Tausch-URL gehört zu einem anderen Steam-Konto. Kopiere die von dem Konto, mit dem du angemeldet bist.",
+      "empty": "Füge zuerst deine Tausch-URL ein.",
+      "format": "Das ist keine Tausch-URL. Sie beginnt mit https://steamcommunity.com/tradeoffer/new/",
+      "saving": "Wird gespeichert…",
+      "save_button": "Tausch-URL speichern",
+      "saved_button": "Gespeichert",
+      "saved": "Gespeichert! Viel Spaß beim Tauschen.",
+      "failed": "Konnte nicht gespeichert werden. Versuch es gleich noch einmal.",
+      "inventory_locked": "Füge deine Steam-Tausch-URL hinzu, um dein Inventar zu laden.",
+      "add": "Tausch-URL hinzufügen"
     }
   },
   "items": {
@@ -907,7 +920,9 @@
     "account_blocked": "Dein Konto kann keine Trades erstellen. Öffne ein Support-Ticket, wenn du das für einen Fehler hältst.",
     "buy_link_gone": "Dieser Gegenstand ist nicht mehr auf Lager.",
     "buy_link_half_scrap": "Dieser Gegenstand ist 0.055 Ref wert (ein halber Scrap), das lässt sich allein nicht mit Schlüsseln und Metall bezahlen. Wähle auf der Gegenstandsseite zwei davon.",
-    "buy_link_pick": "Wähle zuerst, welchen Gegenstand du möchtest."
+    "buy_link_pick": "Wähle zuerst, welchen Gegenstand du möchtest.",
+    "trade_url_required": "Füge deine Steam-Tausch-URL hinzu, um dein Inventar zu laden.",
+    "trade_url_other_account": "Diese Tausch-URL gehört zu einem anderen Steam-Konto. Kopiere die von dem Konto, mit dem du angemeldet bist."
   },
   "cookies": {
     "banner_title": "Cookies auf TF2Deal.com",
@@ -927,5 +942,54 @@
     "notice_text_html": "TF2Deal.com verwendet nur notwendige Cookies: um dich mit Steam anzumelden, die Seite sicher zu halten und die von dir gewählte Sprache zu speichern. Lies unsere {policy}.",
     "ok": "OK",
     "no_optional": "TF2Deal.com verwendet derzeit keine optionalen Cookies."
+  },
+  "welcome": {
+    "kicker": "Schön, dass du da bist",
+    "title": "Willkommen bei TF2Deal!",
+    "intro": "Danke, dass du vorbeischaust! TF2Deal ist eine TF2-Tauschseite, die ich seit 2020 in meiner Freizeit baue, mit einem Ziel: faire, schnelle Trades, ohne dass du auf eine Antwort warten musst. Unsere Bots sind bereit, wann immer du es bist. Schau dich in Ruhe um.",
+    "signature": "Nikolas, der Mensch hinter TF2Deal",
+    "features_title": "Was du hier machen kannst",
+    "features": {
+      "trade_title": "Mit unseren Bots tauschen",
+      "trade_text": "Wähle bis zu 10 Items und ein Bot schickt dir das Steam-Tauschangebot in Sekunden.",
+      "pure_title": "Für Keys und Ref kaufen oder verkaufen",
+      "pure_text": "Hol dir ein einzelnes Item für Pure oder verkaufe deins dafür, solange die Bots Vorrat haben.",
+      "items_title": "Jedes Item nachschlagen",
+      "items_text": "Jede Item-Seite zeigt Vorrat, Preis und letzte Verkäufe.",
+      "giveaways_title": "Gratis-Items gewinnen",
+      "giveaways_text": "Tritt unserer Steam-Gruppe bei und mach bei den Giveaways mit.",
+      "safe_title": "Sicher tauschen",
+      "safe_text": "Jeder Trade ist ein Steam-Tauschangebot, das du vor dem Annehmen prüfst. Nur die Bots auf unserer Über-uns-Seite gehören zu uns.",
+      "yours_title": "Mach es zu deinem",
+      "yours_text": "8 Sprachen und Looks für Tag, Nacht und jedes TF2-Event, alles im Menü."
+    },
+    "news_title": "Neuigkeiten",
+    "tag_giveaway": "Giveaway",
+    "tag_blog": "Blog",
+    "tag_update": "Neu",
+    "ends": "endet am {date}",
+    "news_giveaway": "Gewinne {item}",
+    "updates": {
+      "themes": "Zwei neue Looks: Mitternacht und Weiß",
+      "collections": "Item-Kollektionen",
+      "killstreak": "Killstreak-Items, jedes für sich",
+      "item_details": "Rechtsklick für Item-Details"
+    },
+    "once": "Das siehst du nur einmal.",
+    "go": "Los geht's"
+  },
+  "trade_url": {
+    "kicker": "Ein letzter Schritt",
+    "title": "Füge deine Steam-Tausch-URL hinzu",
+    "intro": "Hi {name}! Unsere Bots verschicken Items über Steam-Tauschangebote, und über deine Tausch-URL erreichen sie dich. Damit können sie dir nur Angebote schicken: Jeden Trade prüfst und nimmst du weiterhin selbst an.",
+    "step_open": "Öffne deine Tauschangebot-Einstellungen auf Steam.",
+    "open_steam": "Steam öffnen",
+    "step_copy": "Kopiere die Tausch-URL unter „Websites von Drittanbietern“.",
+    "step_paste": "Füge sie unten ein und speichere. Fertig!",
+    "label": "Deine Tausch-URL",
+    "save": "Tausch-URL speichern",
+    "terms_html": "Mit dem Speichern stimmst du unseren {terms} zu.",
+    "terms_link": "Nutzungsbedingungen",
+    "sign_out": "Abmelden"
   }
 }

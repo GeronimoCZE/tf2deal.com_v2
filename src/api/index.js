@@ -23,6 +23,7 @@ import * as settings from '../service/settings.js'
 import * as notifications from '../service/notifications.js'
 import * as buy_link from '../service/buy_link.js'
 import * as latest_trades from '../service/latest_trades.js'
+import * as welcome from '../service/welcome.js'
 import { bptf_link, FIELDS as BPTF_FIELDS } from '../service/bptf_link.js'
 import UserModel from '../model/User.js'
 import { log } from 'console';
@@ -90,6 +91,16 @@ router.get('/latest_trades', async (req, res) => {
     } catch (e) {
       res.status(500).json({status: 'error', message: 'failed to fetch latest trades'})
     }
+});
+
+// The welcome window for a new visitor (service/welcome.js, public/js/welcome.js): HTML in the language of the page
+// that asks for it, with the running giveaway, the newest blog posts and site updates
+router.get('/welcome', async (req, res) => {
+    let news = []
+    try { news = await welcome.news(req.lang, req.__) } catch (e) {}
+    res.set('Cache-Control', 'no-store')
+    res.set('X-Robots-Tag', 'noindex')
+    res.render('partials/welcome_modal', { news, features: welcome.FEATURES })
 });
 
 router.get('/bots', (req, res) => {

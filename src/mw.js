@@ -34,13 +34,9 @@ const curPath = (req, res, next) => {
   if(req.user){
     if(req.cookies[`td_${req.user.steamid}`] == undefined){
       return res.redirect('/logout')
-    } else {
-      if(req.cookies[`td_${req.user.steamid}`].user?.tradelink == 'null' || req.cookies[`td_${req.user.steamid}`].user?.tradelink == '' || typeof req.cookies[`td_${req.user.steamid}`].user?.tradelink == "undefined"){
-        return res.render('new_user', fn.res_data(true, req.user, req.cookies[`td_${req.user.steamid}`], req.__('title.register')))
-      } else {
-        return next();
-      }
     }
+    // no trade URL yet: the page opens as usual with the trade URL window over it (app.js needs_trade_url)
+    return next();
   } else {
     return next();
   }

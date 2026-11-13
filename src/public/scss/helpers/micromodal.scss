@@ -3,68 +3,6 @@
 \**************************/
 @import './media-queries';
 
-#new_user_toast{
-  background: radial-gradient(circle, rgba(7,8,8,1) 80%, rgba(49,40,200,1) 100%) !important;
-  border: 1px solid;
-  border-bottom: none;
-  border-color: var(--line) !important;
-  @include lt-sm{
-    width: 90% !important;
-    border-radius: 5px !important;
-  }
-  .iziToast-icon{
-    filter: invert(1);
-  }
-  .iziToast-texts{
-    strong{
-      color: #e1e1e1;
-    }
-    p{
-      margin-top: 5px !important;
-      color: #dddcdc;
-      *{
-        display: inline-block;
-      }
-    }
-  }
-  .iziToast-inputs{
-    margin-top: 20px !important;
-    width: 90%;
-    *{
-      display: block;
-      width: 90%;
-    }
-    label{
-      margin-bottom: 5px !important;
-    }
-    input{
-      background: rgb(203, 203, 203);
-      color: #1f1f1f;
-      border-color: var(--line) !important;
-    }
-  }
-  .iziToast-buttons{
-    *{
-      display: inline-block;
-    }
-    button{
-      background: rgb(203, 203, 203);
-      color: #1f1f1f;
-      border-color: var(--line) !important;
-    }
-    span{
-      font-weight: bold;
-      padding: 0 .5rem;
-      &.error{
-        color: rgb(134, 29, 11);
-      }
-      &.success{
-        color: rgb(10, 159, 10);
-      }
-    }
-  }
-}
-
 .modal {
     font-family: -apple-system,BlinkMacSystemFont,avenir next,avenir,helvetica neue,helvetica,ubuntu,roboto,noto,segoe ui,arial,sans-serif;
     min-width: 510px;

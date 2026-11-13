@@ -1012,9 +1012,23 @@ const load_site_inventory_single = async (bp_sku) => {
     })
 }
 
+// A signed-in user's inventory loads only once they have saved a trade URL: until then the trade URL window is over the
+// page (public/js/welcome.js) and the inventory box says why it is empty, with a button that opens the window again.
+// The server refuses the inventory too (api/routes/user.js).
+const trade_url_missing = () => typeof user_tradeurl != 'undefined' && user != 'no_session' && user_tradeurl === ''
+const show_trade_url_needed = (grid, loading) => {
+    $(grid).empty().append(`<div class="inventory-message"><div class="inv-trade-url"><span>${__('trade_url.inventory_locked')}</span><button type="button" data-open-trade-url>${__('trade_url.add')}</button></div></div>`)
+    $(loading).addClass('hidden')
+}
+document.addEventListener('click', (e) => {
+    if(e.target.closest('[data-open-trade-url]') && typeof window.td_trade_url_window == 'function'){ window.td_trade_url_window() }
+})
+
 const load_user_inventory_single = async (bp_sku) => {
     hide_item_filters() // shown again once the items are in
     clearStorage()
+
+    if(trade_url_missing()){ show_trade_url_needed('#trade-item-grid', '.loading-items#trade-loading'); return; }
 
     let userSettings = {
         "async": true,
@@ -1062,6 +1076,12 @@ const load_user_inventory = async (page, change, reload) => {
     if(processing_user_inventory){ return; }
 
     clearStorage()
+
+    if(trade_url_missing()){
+        $('.item-grid #user-grid .invisible-item').remove()
+        show_trade_url_needed('#user-item-grid', '.loading-items#user-loading')
+        return;
+    }
 
     if(localStorage.getItem(`tradeoffer${user}`)){
         try {

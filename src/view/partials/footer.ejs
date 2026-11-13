@@ -146,3 +146,7 @@ opens it). At the end of the page, so its headings don't come before the page's 
 </dialog>
 <%# outside the footer: the footer's z-index would keep the cookie window under the nav %>
 <%- include('./cookie_banner.ejs') %>
+<%# a signed-in user without a trade URL: the window that asks for it (app.js needs_trade_url); for everyone else
+    public/js/welcome.js opens the welcome window on a first visit (GET /api/welcome) %>
+<% if (locals.needs_trade_url) { %><%- include('./trade_url_modal.ejs') %><% } %>
+<script src="<%= asset('/js/welcome.js') %>" defer></script>

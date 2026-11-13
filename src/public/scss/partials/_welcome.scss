@@ -1,0 +1,433 @@
+/* ---------- the welcome window and the trade URL window (public/js/welcome.js) ---------- */
+// views/partials/welcome_modal.ejs and trade_url_modal.ejs. Wider than the other windows: a cropped picture strip on
+// top, the content in a middle that scrolls on its own, a footer row with the one main (green) button. On phones the
+// window is a sheet at the bottom of the screen, so the top of the page stays in view. Plain like the rest of the
+// site: boxes apart by their background, no shadows, a fade as the only motion.
+
+dialog.td-modal{
+    margin: auto;
+    width: min(58rem, calc(100vw - 2rem));
+    max-width: none;
+    min-height: 0;
+    max-height: min(46rem, calc(100dvh - 2rem));
+    padding: 0 !important;                 // (the page's generic dialog has padding, a black background and no overflow)
+    border: none !important;
+    border-radius: var(--r-lg);
+    background: var(--dialog) !important;
+    color: var(--ink);
+    overflow: hidden !important;
+    &[open]{
+        display: flex;
+        flex-direction: column;
+        animation: tdmFade 220ms ease-out;
+    }
+    &::backdrop{ background: rgba(2, 4, 18, 0.62); }
+    // the window itself takes the focus when it opens (screen readers start at its heading, no ring on a button)
+    &:focus, &:focus-visible{ outline: none; }
+    &.trade-url-modal{
+        width: min(42rem, calc(100vw - 2rem));
+        &::backdrop{ background: var(--scrim); } // nothing to do on the page until the trade URL is in
+    }
+
+    // the picture: a strip of it, fading into the window at the bottom
+    .tdm-banner{
+        position: relative;
+        flex: none;
+        height: 7.5rem;
+        overflow: hidden;
+        img{
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: 50% 24%;      // the Medic's face and waving hands
+        }
+        &::after{
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 45%;
+            background: linear-gradient(to bottom, transparent, var(--dialog));
+            pointer-events: none;
+        }
+    }
+    .tdm-banner-cabin{
+        height: 7rem;
+        img{ object-position: 50% 62%; }   // the lit cabin windows
+    }
+    // over the picture, so it keeps its own dark look in every theme
+    .tdm-close{
+        position: absolute;
+        top: .7rem;
+        right: .7rem;
+        z-index: 1;
+        display: grid;
+        place-items: center;
+        width: 2.2rem;
+        height: 2.2rem;
+        padding: 0;
+        border: none;
+        border-radius: var(--r-sm);
+        background: rgba(4, 6, 20, 0.55);
+        color: #fff;
+        font-size: 1.5rem;
+        line-height: 1;
+        cursor: pointer;
+        transition: background-color 150ms;
+        &:hover{ background: rgba(4, 6, 20, 0.85); }
+        &:focus-visible{ outline: 2px solid #fff; outline-offset: 2px; }
+    }
+
+    .tdm-scroll{
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+    .tdm-kicker{
+        margin: 0 0 .3rem 0;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--violet);
+    }
+    h2{
+        margin: 0 0 .55rem 0;
+        font-family: var(--font-heading);
+        font-size: 1.65rem;
+        line-height: 1.15;
+        color: var(--ink);
+    }
+    .tdm-label{
+        display: block;
+        margin: 1.3rem 0 .6rem 0;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+    }
+    a{ color: var(--violet); }
+    p a{ display: inline; }                // (the site's links are blocks by default)
+
+    // the footer row: a short note on the left, the main button on the right
+    .tdm-foot{
+        flex: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: .85rem 1.8rem;
+        background: var(--surface-2);
+        p{
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.4;
+            color: var(--ink-3);
+        }
+    }
+    .tdm-primary{
+        flex: none;
+        padding: .6rem 1.3rem;
+        border: none;
+        border-radius: var(--r-sm);
+        background: var(--go);
+        color: #fff;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background-color 150ms, opacity 150ms;
+        &:hover:not(:disabled){ background: var(--go-hover); }
+        &:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
+        &:disabled{ opacity: .75; cursor: progress; }
+    }
+}
+
+/* ---------- welcome ---------- */
+.welcome-modal{
+    // the greeting beside "What's new", the features in a row of three under both
+    .wm-body{
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+        grid-template-areas: "main news" "what what";
+        column-gap: 1.6rem;
+        padding: .1rem 1.8rem 1.4rem 1.8rem;
+        &.no-news{
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas: "main" "what";
+        }
+    }
+    .wm-main{ grid-area: main; }
+    .wm-what{ grid-area: what; }
+    .wm-intro{
+        max-width: 36rem;
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--ink-2);
+    }
+    .wm-sign{
+        margin: .45rem 0 0 0;
+        font-size: 14px;
+        font-style: italic;
+        color: var(--ink-3);
+    }
+    .wm-features{
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: .5rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        li{
+            display: flex;
+            align-items: flex-start;
+            gap: .7rem;
+            padding: .65rem .75rem;
+            border-radius: var(--r-md);
+            background: var(--surface-2);
+        }
+        .wm-icon{
+            flex: none;
+            display: grid;
+            place-items: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: var(--r-sm);
+            background: var(--surface-3);
+            color: var(--violet);
+            font-size: 1rem;
+        }
+        a, strong{
+            display: block;
+            margin: 0;
+            font-size: 14.5px;
+            font-weight: 600;
+            line-height: 1.35;
+            color: var(--ink);
+            text-decoration: none;
+        }
+        a:hover{ color: var(--violet); }
+        p{
+            margin: .15rem 0 0 0;
+            font-size: 13px;
+            line-height: 1.45;
+            color: var(--ink-3);
+        }
+    }
+    // "What's new": the running giveaway, the newest blog posts and site updates (service/welcome.js)
+    .wm-news{
+        grid-area: news;
+        align-self: start;
+        padding: 1rem 1.1rem 1.1rem 1.1rem;
+        border-radius: var(--r-md);
+        background: var(--surface-2);
+        .tdm-label{ margin-top: 0; }
+        ul{
+            display: flex;
+            flex-direction: column;
+            gap: .85rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        .wm-meta{
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin-bottom: .25rem;
+            font-size: 12px;
+            color: var(--ink-3);
+        }
+        .wm-tag{
+            padding: .1rem .5rem;
+            border-radius: 999px;
+            background: var(--surface-3);
+            color: var(--ink-2);
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+        .wm-news-giveaway .wm-tag{ background: var(--go); color: #fff; }
+        a, strong{
+            display: block;
+            margin: 0;
+            font-size: 14.5px;
+            font-weight: 600;
+            line-height: 1.35;
+            color: var(--ink);
+            text-decoration: none;
+        }
+        a:hover{ color: var(--violet); }
+    }
+}
+
+/* ---------- trade URL ---------- */
+.trade-url-modal{
+    .tu-body{ padding: .2rem 1.8rem 1.2rem 1.8rem; }
+    .tu-intro{
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--ink-2);
+    }
+    .tu-steps{
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: .5rem;
+        margin: 1.1rem 0 0 0;
+        padding: 0;
+        list-style: none;
+        li{
+            display: flex;
+            align-items: flex-start;
+            gap: .6rem;
+            padding: .7rem .75rem;
+            border-radius: var(--r-md);
+            background: var(--surface-2);
+            font-size: 13.5px;
+            line-height: 1.4;
+            color: var(--ink-2);
+        }
+        .tu-num{
+            flex: none;
+            display: grid;
+            place-items: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background: var(--brand);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        li > div > span{ display: block; }  // the step, then its Steam button under it
+        .tu-steam{
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            margin-top: .45rem;
+            padding: .3rem .6rem;
+            border-radius: var(--r-sm);
+            background: var(--brand-muted);
+            color: var(--ink);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 150ms;
+            &:hover{ background: var(--brand-muted-hover); }
+        }
+    }
+    .tu-row{
+        display: flex;
+        gap: .5rem;
+        input{
+            flex: 1 1 auto;
+            min-width: 0;
+            padding: .65rem .8rem;
+            border: none;
+            border-radius: var(--r-sm);
+            background: var(--well);
+            color: var(--ink);
+            font-family: inherit;
+            font-size: 14px;
+            &::placeholder{ color: var(--ink-3); }
+            &:focus{ outline: 2px solid var(--violet); outline-offset: 0; }
+            &[aria-invalid="true"]{ outline: 2px solid var(--danger); outline-offset: 0; }
+            &:read-only{ opacity: .75; }
+        }
+    }
+    .tu-msg{
+        min-height: 1.3rem;
+        margin: .45rem 0 0 0;
+        font-size: 13px;
+        line-height: 1.4;
+        color: var(--ink-3);
+        &.error{ color: #ff8f86; }
+        &.ok{ color: #7ddc84; }
+    }
+    .tu-out{
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        color: var(--ink-3);
+        font-size: 13px;
+        text-decoration: none;
+        white-space: nowrap;
+        &:hover{ color: var(--ink); }
+    }
+}
+
+// the inventory box while the trade URL is missing (public/js/plugins/trade.js)
+.inv-trade-url{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .7rem;
+    button{
+        padding: .45rem 1rem;
+        border: none;
+        border-radius: var(--r-sm);
+        background: var(--brand-muted);
+        color: var(--ink);
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 150ms;
+        &:hover{ background: var(--brand-muted-hover); }
+    }
+}
+
+body.theme-white{
+    .trade-url-modal .tu-msg{
+        &.error{ color: #b3261e; }
+        &.ok{ color: #1e7a32; }
+    }
+}
+
+@media screen and (max-width: 900px){
+    .welcome-modal .wm-features{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+// phones: a sheet at the bottom, one column
+@media screen and (max-width: 640px){
+    dialog.td-modal, dialog.td-modal.trade-url-modal{
+        width: 100vw;
+        max-width: 100vw;
+        max-height: 80dvh;                 // the top of the page stays in view
+        margin: auto 0 0 0;
+        border-radius: var(--r-lg) var(--r-lg) 0 0;
+        .tdm-banner{ height: 5.5rem; }
+        .tdm-banner-cabin{ height: 4.5rem; }
+        h2{ font-size: 1.35rem; }
+        .tdm-foot{ padding: .75rem 1.1rem calc(.75rem + env(safe-area-inset-bottom)) 1.1rem; }
+    }
+    .welcome-modal{
+        .wm-body, .wm-body.no-news{
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas: "main" "news" "what";
+            row-gap: 1.1rem;
+            padding: .1rem 1.1rem 1.2rem 1.1rem;
+        }
+        .wm-what .tdm-label{ margin-top: .2rem; }
+        .wm-intro{ font-size: 14.5px; }
+        .wm-features{ grid-template-columns: minmax(0, 1fr); }
+    }
+    .trade-url-modal{
+        .tu-body{ padding: .1rem 1.1rem 1rem 1.1rem; }
+        .tu-steps{ grid-template-columns: minmax(0, 1fr); }
+        .tu-row{ flex-direction: column; } // input and button both full width
+        .tdm-foot{ flex-wrap: wrap; }
+    }
+}
+
+@keyframes tdmFade{ from{ opacity: 0; } to{ opacity: 1; } }
+@media (prefers-reduced-motion: reduce){
+    dialog.td-modal[open]{ animation: none; }
+}

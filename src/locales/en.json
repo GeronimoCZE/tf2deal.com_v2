@@ -673,6 +673,19 @@
       "skin_item": "TF2 weapon with a war paint",
       "unusual_item": "Unusual TF2 item with its effect",
       "tool_item": "TF2 tool item"
+    },
+    "trade_url": {
+      "looks_right": "Looks right. Save it to continue.",
+      "other_account": "This trade URL belongs to another Steam account. Copy the one from the account you signed in with.",
+      "empty": "Paste your trade URL first.",
+      "format": "That isn't a trade URL. It starts with https://steamcommunity.com/tradeoffer/new/",
+      "saving": "Saving…",
+      "save_button": "Save trade URL",
+      "saved_button": "Saved",
+      "saved": "Saved! Have fun trading.",
+      "failed": "Couldn't save it. Try again in a moment.",
+      "inventory_locked": "Add your Steam trade URL to load your inventory.",
+      "add": "Add trade URL"
     }
   },
   "items": {
@@ -907,7 +920,9 @@
     "account_blocked": "Your account can't create trades. Open a support ticket if you think this is a mistake.",
     "buy_link_gone": "This item isn't in stock any more.",
     "buy_link_half_scrap": "This item is worth 0.055 ref (half a scrap), which keys and metal can't pay on its own. Pick two of them on the item page.",
-    "buy_link_pick": "Pick which item you want first."
+    "buy_link_pick": "Pick which item you want first.",
+    "trade_url_required": "Add your Steam trade URL to load your inventory.",
+    "trade_url_other_account": "This trade URL belongs to another Steam account. Copy the one from the account you signed in with."
   },
   "cookies": {
     "banner_title": "Cookies on TF2Deal.com",
@@ -927,5 +942,54 @@
     "notice_text_html": "TF2Deal.com only uses necessary cookies: to sign you in with Steam, keep the site secure and remember the language you pick. Read our {policy}.",
     "ok": "OK",
     "no_optional": "There are no optional cookies on TF2Deal.com right now."
+  },
+  "welcome": {
+    "kicker": "Nice to meet you",
+    "title": "Welcome to TF2Deal!",
+    "intro": "Thanks for stopping by! TF2Deal is a TF2 trading site I've been building in my free time since 2020, with one goal: fair, quick trades without waiting for anyone to reply. Our bots are ready whenever you are, so take a look around.",
+    "signature": "Nikolas, the person behind TF2Deal",
+    "features_title": "What you can do here",
+    "features": {
+      "trade_title": "Trade with our bots",
+      "trade_text": "Pick up to 10 items and a bot sends you the Steam trade offer within seconds.",
+      "pure_title": "Buy or sell for keys and ref",
+      "pure_text": "Get a single item for pure, or sell yours for it, while the bots have stock.",
+      "items_title": "Look up any item",
+      "items_text": "Every item page shows the stock, the price and recent sales.",
+      "giveaways_title": "Win free items",
+      "giveaways_text": "Join our Steam group and enter the giveaways.",
+      "safe_title": "Trade safely",
+      "safe_text": "Every trade is a Steam trade offer you check before accepting. Only the bots on our About page are ours.",
+      "yours_title": "Make it yours",
+      "yours_text": "8 languages, and looks for day, night and every TF2 event, all in the menu."
+    },
+    "news_title": "What's new",
+    "tag_giveaway": "Giveaway",
+    "tag_blog": "Blog",
+    "tag_update": "New",
+    "ends": "ends {date}",
+    "news_giveaway": "Win {item}",
+    "updates": {
+      "themes": "Two new looks: Midnight and White",
+      "collections": "Item collections",
+      "killstreak": "Killstreak items, each on its own",
+      "item_details": "Right-click for item details"
+    },
+    "once": "You'll only see this once.",
+    "go": "Let's go"
+  },
+  "trade_url": {
+    "kicker": "One last step",
+    "title": "Add your Steam trade URL",
+    "intro": "Hi {name}! Our bots send items through Steam trade offers, and your trade URL is how they reach you. It only lets them send you offers: you still check and accept every trade yourself.",
+    "step_open": "Open your trade offer settings on Steam.",
+    "open_steam": "Open Steam",
+    "step_copy": "Copy the Trade URL under “Third-Party Sites”.",
+    "step_paste": "Paste it below and save. That's it!",
+    "label": "Your trade URL",
+    "save": "Save trade URL",
+    "terms_html": "By saving, you agree to our {terms}.",
+    "terms_link": "Terms of Service",
+    "sign_out": "Sign out"
   }
 }

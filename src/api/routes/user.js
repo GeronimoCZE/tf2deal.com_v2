@@ -23,6 +23,7 @@ import { giveaway_model } from '../../model/Giveaway.js';
 import { check_requirements, in_steam_group, group_url, add_entry, recent_view } from '../../service/giveaway.js';
 import { winner_saved_tradelink } from '../../service/giveaway_prize.js';
 import { public_bot, read_accounts } from '../../service/bot_names.js';
+import * as trade_url from '../../service/trade_url.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -83,27 +84,29 @@ router.post('/update', isLogged, per_user(60*60*1000, 6), async (req, res) => {
     }
     
     if(req.body['tradeurl']){
-      const accountid = new SteamID(req.user.steamid).accountid;
-      if( 
-          req.body['tradeurl'] == 'null' || 70 < req.body['tradeurl'].length && 80 > req.body['tradeurl'].length && 
-          req.body['tradeurl'].includes(`?partner=${accountid}`) && req.body['tradeurl'].includes(`&token`) &&
-          cookie.user['tradelink'] != req.body['tradeurl']
-      ){
-        try{
-          await User.updateOne(
-            { steamid: req.user.steamid }, 
-            { $set: { tradelink: (req.body['tradeurl'] == 'null') ? "":req.body['tradeurl']} }
-          ).then(() => {
-            cookie.user['tradelink'] = req.body['tradeurl']
-            // a giveaway prize waiting for this trade link goes out now
-            if(req.body['tradeurl'] != 'null'){ winner_saved_tradelink(req.user.steamid).catch(() => {}) }
-            const user_cookie = func.user_cookie(req.user.steamid, cookie.user, cookie.trade_offer)
-            res.cookie(user_cookie.name, user_cookie.value, user_cookie.setting).send({status: 'OK', message: req.__('api.saved')})
-          });
-        } catch(e){ res.send({status: 'ERROR', message: req.__('api.save_failed')}) }
-      } else {
-        res.send({status: 'ERROR', message: req.__('api.invalid_trade_url')})
+      // 'null' removes it; anything else has to be the trade URL of the signed-in account (service/trade_url.js)
+      const checked = req.body['tradeurl'] == 'null' ? { result: 'ok', url: '' } : trade_url.check(req.body['tradeurl'], req.user.steamid)
+      if(checked.result != 'ok'){
+        return res.send({status: 'ERROR', code: checked.result, message: req.__(checked.result == 'other_account' ? 'api.trade_url_other_account' : 'api.invalid_trade_url')})
       }
+      const saved = trade_url.is_set(cookie.user['tradelink']) ? cookie.user['tradelink'] : ''
+      if(saved == checked.url){
+        // already saved (sent twice, or a second tab): nothing to change
+        return res.send({status: 'OK', message: req.__('api.saved'), tradeurl: checked.url})
+      }
+      try{
+        await User.updateOne(
+          { steamid: req.user.steamid }, 
+          { $set: { tradelink: checked.url } }
+        ).then(() => {
+          cookie.user['tradelink'] = checked.url
+          // a giveaway prize waiting for this trade link goes out now
+          if(checked.url){ winner_saved_tradelink(req.user.steamid).catch(() => {}) }
+          const user_cookie = func.user_cookie(req.user.steamid, cookie.user, cookie.trade_offer)
+          res.cookie(user_cookie.name, user_cookie.value, user_cookie.setting).send({status: 'OK', message: req.__('api.saved'), tradeurl: checked.url})
+        });
+      } catch(e){ res.send({status: 'ERROR', message: req.__('api.save_failed')}) }
+      return
     }
     if(req.body['email']){
       
@@ -203,7 +206,18 @@ router.post('/remove_wishlist', isLogged, per_user(60*60*1000, 60), async (req, 
   }
 })
 
-router.post('/inventory', isLogged, inv_limiter, async (req, res) => {
+// The user's inventory loads only once they have saved a trade URL (until then every page asks for it). The sign-in
+// cookie says so; a cookie without one is checked against the database (the URL may have been saved in another browser).
+const has_trade_url = async (req, res, next) => {
+  if(trade_url.is_set(req.cookies[`td_${req.user.steamid}`]?.user?.tradelink)){ return next() }
+  const saved = process.db_status?.connected
+    ? await User.findOne({ steamid: String(req.user.steamid) }, { tradelink: 1 }).lean().catch(() => null)
+    : null
+  if(trade_url.is_set(saved?.tradelink)){ return next() }
+  res.status(403).json({status: 'error', code: 'trade_url_required', message: req.__('api.trade_url_required')})
+}
+
+router.post('/inventory', isLogged, inv_limiter, has_trade_url, async (req, res) => {
   const filters = req.body.filters
     if(filters == undefined || typeof filters !== 'object'){ 
       res.status(500).json({status: 'error', message: 'missing headers'}); return false;
@@ -277,7 +291,7 @@ router.post('/inventory', isLogged, inv_limiter, async (req, res) => {
   }
 })
 
-router.post('/inventory/:bp_sku', isLogged, inv_limiter, async (req, res) => {
+router.post('/inventory/:bp_sku', isLogged, inv_limiter, has_trade_url, async (req, res) => {
   if(req.body?.inventory == undefined){ res.status(500).json({status: "error", message: "unathorized request"}); return false; }
 
   if(!bot_socket.socket){

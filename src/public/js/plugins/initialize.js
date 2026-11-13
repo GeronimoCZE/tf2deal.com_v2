@@ -9,9 +9,6 @@ const init = () => {
     lang_suggest();
 
     if(user != 'no_session'){
-        if(user_tradeurl == ``){
-            // popUp.new_user('show')
-        }
         if(trade_offer != ``){
             
         }
