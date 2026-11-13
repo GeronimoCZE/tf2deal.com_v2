@@ -26,6 +26,8 @@
             message.textContent = text || ''
             message.className = 'tu-msg' + (state ? ' ' + state : '')
             input.setAttribute('aria-invalid', String(state == 'error'))
+            // on a short screen the message can sit below the fold of the window
+            if (text) { message.scrollIntoView({ block: 'nearest' }) }
         }
 
         // the same check as the server (service/trade_url.js), so most mistakes are explained before anything is sent
