@@ -481,7 +481,10 @@
       "item_database": "Banco de dados de itens",
       "loading_slow": "Ainda carregando os itens…",
       "load_failed": "Não foi possível carregar os itens.",
-      "try_again": "Tentar novamente"
+      "try_again": "Tentar novamente",
+      "show_more": "Mostrar mais itens",
+      "loading_more": "Carregando…",
+      "shown_count": "{shown} de {count} itens exibidos"
     },
     "offer": {
       "loading_title": "Carregando oferta de troca...",

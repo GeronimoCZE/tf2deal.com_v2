@@ -1181,7 +1181,9 @@ addEventListener('DOMContentLoaded', (event) => {
                 $(window).on('resize scroll', function() {
                     // after a failed load the list waits for its Try again button (items.js)
                     if($('.item-loader').isInViewport(100) && !document.querySelector('.item-content.load-failed')){
-                        if(!$('.item-loader').hasClass('loading')){
+                        // after AUTO_LOADS loads the list waits for its "Show more items" button (items.js show_more)
+                        if(!$('.item-loader').hasClass('loading') && items.list.auto < items.AUTO_LOADS){
+                            items.list.auto++
                             $('.item-loader').addClass('loading')
                             items.get_items(items.list.page + 1).catch(() => {}) // "last page" ends the list; items.js paces the requests
                         }

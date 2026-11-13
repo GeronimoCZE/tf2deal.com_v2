@@ -481,7 +481,10 @@
       "item_database": "Item Database",
       "loading_slow": "Still loading the items…",
       "load_failed": "The items couldn't be loaded.",
-      "try_again": "Try again"
+      "try_again": "Try again",
+      "show_more": "Show more items",
+      "loading_more": "Loading…",
+      "shown_count": "{shown} of {count} items shown"
     },
     "offer": {
       "loading_title": "Loading trade offer...",
