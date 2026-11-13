@@ -673,6 +673,19 @@
       "skin_item": "带战绘的 TF2 武器",
       "unusual_item": "带特效的 TF2 Unusual 物品",
       "tool_item": "TF2 工具物品"
+    },
+    "trade_url": {
+      "looks_right": "看起来没问题，保存后继续。",
+      "other_account": "此交易链接属于另一个 Steam 账号。请复制你当前登录账号的链接。",
+      "empty": "请先粘贴你的交易链接。",
+      "format": "这不是交易链接。它以 https://steamcommunity.com/tradeoffer/new/ 开头",
+      "saving": "正在保存…",
+      "save_button": "保存交易链接",
+      "saved_button": "已保存",
+      "saved": "已保存！祝你交易愉快。",
+      "failed": "保存失败，请稍后再试。",
+      "inventory_locked": "请添加你的 Steam 交易链接以加载库存。",
+      "add": "添加交易链接"
     }
   },
   "items": {
@@ -907,7 +920,9 @@
     "account_blocked": "您的账户无法创建交易。如果您认为这是错误，请提交支持工单。",
     "buy_link_gone": "此物品已无库存。",
     "buy_link_half_scrap": "此物品价值 0.055 ref（半个 scrap），无法单独用钥匙和金属支付。请在物品页面选择两个。",
-    "buy_link_pick": "请先选择你想要的物品。"
+    "buy_link_pick": "请先选择你想要的物品。",
+    "trade_url_required": "请添加你的 Steam 交易链接以加载库存。",
+    "trade_url_other_account": "此交易链接属于另一个 Steam 账号。请复制你当前登录账号的链接。"
   },
   "cookies": {
     "banner_title": "TF2Deal.com 上的 Cookie",
@@ -927,5 +942,54 @@
     "notice_text_html": "TF2Deal.com 只使用必要的 Cookie：用于通过 Steam 登录、保障网站安全以及记住你选择的语言。请阅读我们的{policy}。",
     "ok": "知道了",
     "no_optional": "TF2Deal.com 目前没有使用任何可选 Cookie。"
+  },
+  "welcome": {
+    "kicker": "很高兴认识你",
+    "title": "欢迎来到 TF2Deal！",
+    "intro": "感谢你的到来！TF2Deal 是我从 2020 年起利用业余时间打造的 TF2 交易网站，目标只有一个：公平、快速的交易，不用等任何人回复。我们的机器人随时待命，先随便看看吧。",
+    "signature": "Nikolas，TF2Deal 的创建者",
+    "features_title": "你可以在这里做什么",
+    "features": {
+      "trade_title": "与机器人交易",
+      "trade_text": "最多选择 10 件物品，机器人会在几秒内向你发送 Steam 交易报价。",
+      "pure_title": "用钥匙和精炼金属买卖",
+      "pure_text": "在机器人有库存时，用 pure 买下单件物品，或把你的卖给它们。",
+      "items_title": "查询任意物品",
+      "items_text": "每个物品页面都会显示库存、价格和近期成交。",
+      "giveaways_title": "赢取免费物品",
+      "giveaways_text": "加入我们的 Steam 群组，参加赠品抽奖。",
+      "safe_title": "安全交易",
+      "safe_text": "每笔交易都是你在接受前自己检查的 Steam 报价。只有“关于我们”页面列出的机器人才是我们的。",
+      "yours_title": "随心定制",
+      "yours_text": "8 种语言，以及白天、夜晚和每个 TF2 活动的外观，都在菜单里。"
+    },
+    "news_title": "最新动态",
+    "tag_giveaway": "抽奖",
+    "tag_blog": "博客",
+    "tag_update": "新功能",
+    "ends": "{date} 截止",
+    "news_giveaway": "赢取 {item}",
+    "updates": {
+      "themes": "两个新外观：午夜和白色",
+      "collections": "物品收藏系列",
+      "killstreak": "连杀物品单独列出",
+      "item_details": "右键查看物品详情"
+    },
+    "once": "此窗口只会显示一次。",
+    "go": "开始吧"
+  },
+  "trade_url": {
+    "kicker": "最后一步",
+    "title": "添加你的 Steam 交易链接",
+    "intro": "你好，{name}！我们的机器人通过 Steam 交易报价发送物品，而交易链接就是它们找到你的方式。它只允许向你发送报价：每笔交易仍由你自己检查并接受。",
+    "step_open": "在 Steam 上打开你的交易报价设置。",
+    "open_steam": "打开 Steam",
+    "step_copy": "复制“第三方网站”下的交易链接。",
+    "step_paste": "粘贴到下方并保存。就这样！",
+    "label": "你的交易链接",
+    "save": "保存交易链接",
+    "terms_html": "保存即表示你同意我们的{terms}。",
+    "terms_link": "服务条款",
+    "sign_out": "退出登录"
   }
 }

@@ -673,6 +673,19 @@
       "skin_item": "Arme TF2 avec une peinture de guerre",
       "unusual_item": "Objet Unusual TF2 avec son effet",
       "tool_item": "Outil TF2"
+    },
+    "trade_url": {
+      "looks_right": "Ça semble correct. Enregistrez-la pour continuer.",
+      "other_account": "Cette URL d'échange appartient à un autre compte Steam. Copiez celle du compte avec lequel vous êtes connecté.",
+      "empty": "Collez d'abord votre URL d'échange.",
+      "format": "Ce n'est pas une URL d'échange. Elle commence par https://steamcommunity.com/tradeoffer/new/",
+      "saving": "Enregistrement…",
+      "save_button": "Enregistrer l'URL",
+      "saved_button": "Enregistrée",
+      "saved": "Enregistrée ! Bons échanges.",
+      "failed": "Impossible d'enregistrer. Réessayez dans un instant.",
+      "inventory_locked": "Ajoutez votre URL d'échange Steam pour charger votre inventaire.",
+      "add": "Ajouter l'URL"
     }
   },
   "items": {
@@ -907,7 +920,9 @@
     "account_blocked": "Votre compte ne peut pas créer d'échanges. Ouvrez un ticket au support si vous pensez que c'est une erreur.",
     "buy_link_gone": "Cet objet n'est plus en stock.",
     "buy_link_half_scrap": "Cet objet vaut 0.055 ref (un demi-scrap), ce qui ne se paie pas seul en clés et en métal. Choisissez-en deux sur la page de l'objet.",
-    "buy_link_pick": "Choisissez d'abord l'objet que vous voulez."
+    "buy_link_pick": "Choisissez d'abord l'objet que vous voulez.",
+    "trade_url_required": "Ajoutez votre URL d'échange Steam pour charger votre inventaire.",
+    "trade_url_other_account": "Cette URL d'échange appartient à un autre compte Steam. Copiez celle du compte avec lequel vous êtes connecté."
   },
   "cookies": {
     "banner_title": "Cookies sur TF2Deal.com",
@@ -927,5 +942,54 @@
     "notice_text_html": "TF2Deal.com n'utilise que des cookies nécessaires : pour vous connecter via Steam, sécuriser le site et mémoriser la langue que vous choisissez. Consultez notre {policy}.",
     "ok": "OK",
     "no_optional": "TF2Deal.com n'utilise actuellement aucun cookie facultatif."
+  },
+  "welcome": {
+    "kicker": "Ravi de vous rencontrer",
+    "title": "Bienvenue sur TF2Deal !",
+    "intro": "Merci de votre visite ! TF2Deal est un site d'échange TF2 que je construis sur mon temps libre depuis 2020, avec un seul but : des échanges justes et rapides, sans attendre que quelqu'un réponde. Nos bots sont prêts dès que vous l'êtes, alors prenez le temps de jeter un œil.",
+    "signature": "Nikolas, la personne derrière TF2Deal",
+    "features_title": "Ce que vous pouvez faire ici",
+    "features": {
+      "trade_title": "Échangez avec nos bots",
+      "trade_text": "Choisissez jusqu'à 10 objets et un bot vous envoie l'offre d'échange Steam en quelques secondes.",
+      "pure_title": "Achetez ou vendez contre des clés et du ref",
+      "pure_text": "Obtenez un objet contre du pure, ou vendez le vôtre, tant que les bots en ont en stock.",
+      "items_title": "Consultez n'importe quel objet",
+      "items_text": "Chaque page d'objet indique le stock, le prix et les ventes récentes.",
+      "giveaways_title": "Gagnez des objets",
+      "giveaways_text": "Rejoignez notre groupe Steam et participez aux giveaways.",
+      "safe_title": "Échangez en sécurité",
+      "safe_text": "Chaque échange est une offre Steam que vous vérifiez avant d'accepter. Seuls les bots de notre page À propos sont les nôtres.",
+      "yours_title": "Personnalisez",
+      "yours_text": "8 langues et des thèmes pour le jour, la nuit et chaque événement TF2, le tout dans le menu."
+    },
+    "news_title": "Nouveautés",
+    "tag_giveaway": "Giveaway",
+    "tag_blog": "Blog",
+    "tag_update": "Nouveau",
+    "ends": "se termine le {date}",
+    "news_giveaway": "Gagnez {item}",
+    "updates": {
+      "themes": "Deux nouveaux thèmes : Minuit et Blanc",
+      "collections": "Collections d'objets",
+      "killstreak": "Les objets killstreak à part",
+      "item_details": "Clic droit pour les détails"
+    },
+    "once": "Vous ne verrez ceci qu'une fois.",
+    "go": "C'est parti"
+  },
+  "trade_url": {
+    "kicker": "Une dernière étape",
+    "title": "Ajoutez votre URL d'échange Steam",
+    "intro": "Bonjour {name} ! Nos bots envoient les objets par des offres d'échange Steam, et votre URL d'échange leur permet de vous joindre. Elle leur permet seulement de vous envoyer des offres : vous vérifiez et acceptez toujours chaque échange vous-même.",
+    "step_open": "Ouvrez vos paramètres d'offres d'échange sur Steam.",
+    "open_steam": "Ouvrir Steam",
+    "step_copy": "Copiez l'URL d'échange sous « Sites tiers ».",
+    "step_paste": "Collez-la ci-dessous et enregistrez. C'est tout !",
+    "label": "Votre URL d'échange",
+    "save": "Enregistrer l'URL",
+    "terms_html": "En enregistrant, vous acceptez nos {terms}.",
+    "terms_link": "conditions d'utilisation",
+    "sign_out": "Se déconnecter"
   }
 }

@@ -1,0 +1,55 @@
+<%# The welcome window for new visitors. GET /api/welcome renders it in the page language (service/welcome.js puts
+    the "What's new" list together) and public/js/welcome.js opens it; closing it saves the record that keeps it
+    from coming back. The texts are under "welcome" in locales/<lang>.json. %>
+<% const day = (ms) => { try { return new Intl.DateTimeFormat(html_lang, { day: 'numeric', month: 'short' }).format(new Date(ms)) } catch (e) { return new Date(ms).toISOString().slice(0, 10) } } %>
+<dialog class="td-modal welcome-modal" id="welcomeModal" autofocus tabindex="-1" aria-labelledby="welcomeTitle" aria-describedby="welcomeIntro">
+    <div class="tdm-banner">
+        <img src="/img/welcome-1200.webp" srcset="/img/welcome-640.webp 640w, /img/welcome-1200.webp 1200w" sizes="(max-width: 700px) 100vw, 58rem" width="1200" height="360" alt="">
+        <button type="button" class="tdm-close" data-welcome-close aria-label="<%= __('common.close') %>">&times;</button>
+    </div>
+    <div class="tdm-scroll">
+        <div class="wm-body<%= news.length ? '' : ' no-news' %>">
+            <div class="wm-main">
+                <p class="tdm-kicker"><%= __('welcome.kicker') %></p>
+                <h2 id="welcomeTitle"><%= __('welcome.title') %></h2>
+                <p class="wm-intro" id="welcomeIntro"><%= __('welcome.intro') %></p>
+                <p class="wm-sign"><%= __('welcome.signature') %></p>
+            </div>
+            <div class="wm-what">
+                <h3 class="tdm-label"><%= __('welcome.features_title') %></h3>
+                <ul class="wm-features">
+                    <% for (const f of features) { %>
+                    <li>
+                        <span class="wm-icon icon icon-<%= f.icon %>" aria-hidden="true"></span>
+                        <div>
+                            <% if (f.href) { %><a href="<%= lurl(f.href) %>"><%= __('welcome.features.' + f.key + '_title') %></a><% } else { %><strong><%= __('welcome.features.' + f.key + '_title') %></strong><% } %>
+                            <p><%= __('welcome.features.' + f.key + '_text') %></p>
+                        </div>
+                    </li>
+                    <% } %>
+                </ul>
+            </div>
+            <% if (news.length) { %>
+            <section class="wm-news" aria-labelledby="welcomeNewsTitle">
+                <h3 class="tdm-label" id="welcomeNewsTitle"><%= __('welcome.news_title') %></h3>
+                <ul>
+                    <% for (const n of news) { %>
+                    <li class="wm-news-<%= n.kind %>">
+                        <div class="wm-meta">
+                            <span class="wm-tag"><%= __('welcome.tag_' + n.kind) %></span>
+                            <% if (n.kind == 'giveaway' && n.end) { %><time datetime="<%= new Date(n.end).toISOString() %>"><%= __('welcome.ends', { date: day(n.end) }) %></time>
+                            <% } else if (n.date) { %><time datetime="<%= new Date(n.date).toISOString().slice(0, 10) %>"><%= day(n.date) %></time><% } %>
+                        </div>
+                        <% if (n.href) { %><a href="<%= lurl(n.href) %>"><%= n.title %></a><% } else { %><strong><%= n.title %></strong><% } %>
+                    </li>
+                    <% } %>
+                </ul>
+            </section>
+            <% } %>
+        </div>
+    </div>
+    <div class="tdm-foot">
+        <p><%= __('welcome.once') %></p>
+        <button type="button" class="tdm-primary" data-welcome-close><%= __('welcome.go') %></button>
+    </div>
+</dialog>

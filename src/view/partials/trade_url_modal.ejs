@@ -1,0 +1,41 @@
+<%# A signed-in user without a trade URL (app.js needs_trade_url) gets this window over every page until they save
+    their own: POST /api/user/update, checked by service/trade_url.js (it has to be their own account's). It can't be
+    closed (public/js/welcome.js), signing out is offered. Their inventory doesn't load until then. %>
+<% const tu = locals.needs_trade_url %>
+<dialog class="td-modal trade-url-modal" id="tradeUrlModal" autofocus tabindex="-1" aria-labelledby="tradeUrlTitle" aria-describedby="tradeUrlIntro" data-accountid="<%= tu.accountid %>">
+    <div class="tdm-banner tdm-banner-cabin">
+        <img src="/img/cabin-960.webp" width="960" height="408" alt="">
+    </div>
+    <div class="tdm-scroll">
+        <form class="tu-body" id="tradeUrlForm" novalidate>
+            <p class="tdm-kicker"><%= __('trade_url.kicker') %></p>
+            <h2 id="tradeUrlTitle"><%= __('trade_url.title') %></h2>
+            <p class="tu-intro" id="tradeUrlIntro"><%= __('trade_url.intro', { name: tu.name || 'Steam' }) %></p>
+
+            <ol class="tu-steps">
+                <li>
+                    <span class="tu-num" aria-hidden="true">1</span>
+                    <div>
+                        <span><%= __('trade_url.step_open') %></span>
+                        <a class="tu-steam" href="https://steamcommunity.com/my/tradeoffers/privacy#trade_offer_access_url" target="_blank" rel="noopener"><span class="icon icon-steam_circle" aria-hidden="true"></span> <%= __('trade_url.open_steam') %></a>
+                    </div>
+                </li>
+                <li><span class="tu-num" aria-hidden="true">2</span><div><span><%= __('trade_url.step_copy') %></span></div></li>
+                <li><span class="tu-num" aria-hidden="true">3</span><div><span><%= __('trade_url.step_paste') %></span></div></li>
+            </ol>
+
+            <label class="tdm-label" for="tradeUrlInput"><%= __('trade_url.label') %></label>
+            <div class="tu-row">
+                <input id="tradeUrlInput" name="tradeurl" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" required
+                    placeholder="https://steamcommunity.com/tradeoffer/new/?partner=…&amp;token=…" aria-describedby="tradeUrlMsg"
+                    toolname="save_trade_url" tooldescription="The Steam trade offer URL of the signed-in account, like https://steamcommunity.com/tradeoffer/new/?partner=123&amp;token=abc">
+                <button type="submit" class="tdm-primary tu-save"><%= __('trade_url.save') %></button>
+            </div>
+            <p class="tu-msg" id="tradeUrlMsg" role="status" aria-live="polite"></p>
+        </form>
+    </div>
+    <div class="tdm-foot">
+        <p><%- __('trade_url.terms_html', { terms: '<a href="' + lurl('/terms-of-service') + '" target="_blank">' + esc(__('trade_url.terms_link')) + '</a>' }) %></p>
+        <a class="tu-out" href="/logout"><span class="icon icon-logout" aria-hidden="true"></span> <%= __('trade_url.sign_out') %></a>
+    </div>
+</dialog>
