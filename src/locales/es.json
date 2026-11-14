@@ -969,12 +969,6 @@
     "tag_update": "Nuevo",
     "ends": "termina el {date}",
     "news_giveaway": "Gana {item}",
-    "updates": {
-      "themes": "Dos estilos nuevos: Medianoche y Blanco",
-      "collections": "Colecciones de objetos",
-      "killstreak": "Objetos killstreak, cada uno por separado",
-      "item_details": "Clic derecho para ver detalles"
-    },
     "once": "Solo verás esto una vez.",
     "go": "¡Vamos!"
   },
@@ -991,5 +985,24 @@
     "terms_html": "Al guardar, aceptas nuestros {terms}.",
     "terms_link": "Términos del servicio",
     "sign_out": "Cerrar sesión"
+  },
+  "news": {
+    "kicker": "Novedad en TF2Deal",
+    "items": {
+      "themes": {
+        "title": "Dos estilos nuevos: Medianoche y Blanco",
+        "text": "Negro medianoche es negro puro para habitaciones oscuras y pantallas OLED, y Blanco es un estilo claro para el día. Están junto a Cielo nocturno y los estilos de los eventos de TF2, y la web recuerda el que elijas.",
+        "button": "Elegir tema"
+      },
+      "collections": {
+        "title": "Colecciones de objetos"
+      },
+      "killstreak": {
+        "title": "Objetos killstreak, cada uno por separado"
+      },
+      "item_details": {
+        "title": "Clic derecho para ver detalles"
+      }
+    }
   }
 }

@@ -969,12 +969,6 @@
     "tag_update": "Novo",
     "ends": "termina em {date}",
     "news_giveaway": "Ganhe {item}",
-    "updates": {
-      "themes": "Dois visuais novos: Meia-noite e Branco",
-      "collections": "Coleções de itens",
-      "killstreak": "Itens killstreak, cada um no seu lugar",
-      "item_details": "Clique direito para ver detalhes"
-    },
     "once": "Você só verá isto uma vez.",
     "go": "Vamos lá"
   },
@@ -991,5 +985,24 @@
     "terms_html": "Ao salvar, você concorda com nossos {terms}.",
     "terms_link": "Termos de Serviço",
     "sign_out": "Sair"
+  },
+  "news": {
+    "kicker": "Novidade no TF2Deal",
+    "items": {
+      "themes": {
+        "title": "Dois visuais novos: Meia-noite e Branco",
+        "text": "Preto meia-noite é preto de verdade para ambientes escuros e telas OLED, e Branco é um visual claro para o dia. Eles ficam ao lado de Céu noturno e dos visuais dos eventos do TF2, e o site lembra o que você escolher.",
+        "button": "Escolher tema"
+      },
+      "collections": {
+        "title": "Coleções de itens"
+      },
+      "killstreak": {
+        "title": "Itens killstreak, cada um no seu lugar"
+      },
+      "item_details": {
+        "title": "Clique direito para ver detalhes"
+      }
+    }
   }
 }

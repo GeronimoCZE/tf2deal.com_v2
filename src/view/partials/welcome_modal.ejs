@@ -1,11 +1,12 @@
 <%# The welcome window for new visitors. GET /api/welcome renders it in the page language (service/welcome.js puts
     the "What's new" list together) and public/js/welcome.js opens it; closing it saves the record that keeps it
-    from coming back. The texts are under "welcome" in locales/<lang>.json. %>
+    from coming back. The texts are under "welcome" in locales/<lang>.json. data-news: the newest feature (service/news.js),
+    in its "What's new" list, so closing this window counts as having seen it. %>
 <% const day = (ms) => { try { return new Intl.DateTimeFormat(html_lang, { day: 'numeric', month: 'short' }).format(new Date(ms)) } catch (e) { return new Date(ms).toISOString().slice(0, 10) } } %>
-<dialog class="td-modal welcome-modal" id="welcomeModal" autofocus tabindex="-1" aria-labelledby="welcomeTitle" aria-describedby="welcomeIntro">
+<dialog class="td-modal welcome-modal" id="welcomeModal" data-news="<%= news_key() %>" autofocus tabindex="-1" aria-labelledby="welcomeTitle" aria-describedby="welcomeIntro">
     <div class="tdm-banner">
         <img src="/img/welcome-1200.webp" srcset="/img/welcome-640.webp 640w, /img/welcome-1200.webp 1200w" sizes="(max-width: 700px) 100vw, 58rem" width="1200" height="360" alt="">
-        <button type="button" class="tdm-close" data-welcome-close aria-label="<%= __('common.close') %>">&times;</button>
+        <button type="button" class="tdm-close" data-tdm-close aria-label="<%= __('common.close') %>">&times;</button>
     </div>
     <div class="tdm-scroll">
         <div class="wm-body<%= news.length ? '' : ' no-news' %>">
@@ -50,6 +51,6 @@
     </div>
     <div class="tdm-foot">
         <p><%= __('welcome.once') %></p>
-        <button type="button" class="tdm-primary" data-welcome-close><%= __('welcome.go') %></button>
+        <button type="button" class="tdm-primary" data-tdm-close><%= __('welcome.go') %></button>
     </div>
 </dialog>

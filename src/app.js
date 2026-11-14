@@ -26,6 +26,7 @@ import {router as profileRoute} from './routes/profile.js'
 import { bot_socket, createSocket, item_socket } from './service/socket.js'
 import * as seasons from './service/season.js'
 import * as trade_url from './service/trade_url.js'
+import * as site_news from './service/news.js'
 import { ticket_model } from './model/Ticket.js'
 import * as sitemap from './service/sitemap.js'
 import * as markdown from './service/markdown.js'
@@ -324,6 +325,7 @@ app.get('/theme/:choice', (req, res) => {
 app.locals.season_class = ''
 app.locals.theme = 'auto'
 app.locals.theme_choices = seasons.CHOICES // the theme menus (views/partials/nav.ejs, footer.ejs): auto, off, midnight, white, seasons
+app.locals.news_key = () => site_news.live()?.key || '' // the newest feature for the news window (footer.ejs, public/js/welcome.js)
 // the admin pages are made for the dark looks: a visitor who picked White sees them in the normal look
 const DARK_ONLY_PAGES = /^\/(?:[a-z]{2}\/)?(?:admin|login)(?:\/|$)/
 app.use((req, res, next) => {
