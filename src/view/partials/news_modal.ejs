@@ -1,0 +1,33 @@
+<%# The news window: the newest feature on the site (service/news.js, `entry`), shown once to every visitor who hasn't
+    seen it. GET /api/news renders it in the page language and public/js/welcome.js opens it; closing it, its button
+    or its link counts as seen. Texts: news.kicker and news.items.<key>.title / text / button in locales/<lang>.json.
+    Styles: scss/partials/_welcome.scss (the same window family as the welcome window). %>
+<% const day = (ms) => { try { return new Intl.DateTimeFormat(html_lang, { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(ms)) } catch (e) { return new Date(ms).toISOString().slice(0, 10) } } %>
+<% const when = Date.parse(entry.date + 'T00:00:00Z') %>
+<dialog class="td-modal news-modal<%= entry.image ? '' : ' no-picture' %>" id="newsModal" data-news="<%= entry.key %>" autofocus tabindex="-1" aria-labelledby="newsTitle" aria-describedby="newsText">
+    <% if (entry.image) { %>
+    <div class="nm-picture">
+        <img src="/img/news/<%= entry.image %>-1200.webp" srcset="/img/news/<%= entry.image %>-640.webp 640w, /img/news/<%= entry.image %>-1200.webp 1200w" sizes="(max-width: 640px) 100vw, 38rem" width="1200" height="500" alt="">
+    </div>
+    <% } %>
+    <div class="tdm-scroll">
+        <div class="nm-body">
+            <%# under the picture, not on it: the picture has its own corners full of page (menu buttons, logos) %>
+            <button type="button" class="tdm-close" data-tdm-close aria-label="<%= __('common.close') %>">&times;</button>
+            <p class="tdm-kicker"><span><%= __('news.kicker') %></span><time datetime="<%= entry.date %>"><%= day(when) %></time></p>
+            <h2 id="newsTitle"><%= __('news.items.' + entry.key + '.title') %></h2>
+            <p class="nm-text" id="newsText"><%= __('news.items.' + entry.key + '.text') %></p>
+        </div>
+    </div>
+    <div class="tdm-foot">
+        <p><%= __('welcome.once') %></p>
+        <div class="nm-actions">
+            <button type="button" class="nm-later" data-tdm-close><%= __('common.close') %></button>
+            <% if (entry.action) { %>
+            <button type="button" class="tdm-primary" data-news-action="<%= entry.action %>"><%= __('news.items.' + entry.key + '.button') %></button>
+            <% } else if (entry.href) { %>
+            <a class="tdm-primary" href="<%= lurl(entry.href) %>"><%= __('news.items.' + entry.key + '.button') %></a>
+            <% } %>
+        </div>
+    </div>
+</dialog>

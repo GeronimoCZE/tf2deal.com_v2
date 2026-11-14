@@ -4,21 +4,15 @@
 // window saves it and the window doesn't come back. Its "What's new" list is put together when it is asked for:
 //   1. the giveaway that is running, if any
 //   2. the newest blog posts (titles in the page language once translated)
-//   3. UPDATES below: site changes worth telling a newcomer about
-// newest first, at most NEWS_LIMIT, each a date and a title. To announce a new feature, add it to UPDATES (newest on
-// top) with its title welcome.updates.<key> in every locales/<lang>.json; it shows in the next window opened.
+//   3. the site's news (service/news.js): features, with their titles news.items.<key>.title
+// newest first, at most NEWS_LIMIT, each a date and a title. The entry the news window shows is always in the list:
+// closing the welcome window counts as having seen it, so a new visitor doesn't get the news window as well.
 // The "What you can do here" list is FEATURES, with texts welcome.features.<key>_title / _text.
 
 import * as app from '../app.js'
 import { blog_model } from '../model/Blog.js'
 import * as translate from './translate.js'
-
-export const UPDATES = [
-  { key: 'themes', date: '2026-11-03' },
-  { key: 'collections', date: '2026-11-03', href: '/items' },
-  { key: 'killstreak', date: '2026-11-02', href: '/items' },
-  { key: 'item_details', date: '2026-10-28', href: '/trade' }
-]
+import * as site_news from './news.js'
 
 export const FEATURES = [
   { key: 'trade', icon: 'trade2', href: '/trade' },
@@ -59,9 +53,14 @@ export const news = async (lang, __) => {
     const shown = translate.localized(post, lang, ['title']) || { title: post.title }
     dated.push({ kind: 'blog', date: Number(post.created) || 0, title: shown.title, href: '/blog/' + encodeURIComponent(post.slug) })
   }
-  for (const update of UPDATES) {
-    dated.push({ kind: 'update', date: Date.parse(update.date + 'T12:00:00Z') || 0, title: __(`welcome.updates.${update.key}`), href: update.href || null })
+  for (const entry of site_news.published()) {
+    // (noon UTC: the day shows the same in every time zone, as the window prints it)
+    dated.push({ kind: 'update', key: entry.key, date: site_news.time(entry) + 12 * 3600 * 1000, title: __(`news.items.${entry.key}.title`), href: entry.href || null })
   }
   dated.sort((a, b) => b.date - a.date)
-  return list.concat(dated).slice(0, NEWS_LIMIT)
+  // the news window's entry, then the newest of the rest
+  const top = site_news.live()?.key
+  const kept = dated.filter((n) => top && n.key === top)
+  const rest = dated.filter((n) => !top || n.key !== top).slice(0, Math.max(0, NEWS_LIMIT - list.length - kept.length))
+  return list.concat(kept.concat(rest).sort((a, b) => b.date - a.date)).slice(0, NEWS_LIMIT)
 }

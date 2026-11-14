@@ -969,12 +969,6 @@
     "tag_update": "Novinka",
     "ends": "končí {date}",
     "news_giveaway": "Vyhrajte {item}",
-    "updates": {
-      "themes": "Dva nové vzhledy: Půlnoc a Bílý",
-      "collections": "Kolekce předmětů",
-      "killstreak": "Killstreak předměty zvlášť",
-      "item_details": "Pravým tlačítkem na detaily"
-    },
     "once": "Tohle uvidíte jen jednou.",
     "go": "Jdeme na to"
   },
@@ -991,5 +985,24 @@
     "terms_html": "Uložením souhlasíte s našimi {terms}.",
     "terms_link": "Podmínkami služby",
     "sign_out": "Odhlásit se"
+  },
+  "news": {
+    "kicker": "Novinka na TF2Deal",
+    "items": {
+      "themes": {
+        "title": "Dva nové vzhledy: Půlnoc a Bílý",
+        "text": "Půlnoční černá je opravdu černá pro tmavé místnosti a OLED displeje, Bílá je světlý vzhled na den. Najdete je vedle Noční oblohy a vzhledů TF2 událostí a web si vybraný vzhled zapamatuje.",
+        "button": "Vybrat motiv"
+      },
+      "collections": {
+        "title": "Kolekce předmětů"
+      },
+      "killstreak": {
+        "title": "Killstreak předměty zvlášť"
+      },
+      "item_details": {
+        "title": "Pravým tlačítkem na detaily"
+      }
+    }
   }
 }

@@ -969,12 +969,6 @@
     "tag_update": "Nouveau",
     "ends": "se termine le {date}",
     "news_giveaway": "Gagnez {item}",
-    "updates": {
-      "themes": "Deux nouveaux thèmes : Minuit et Blanc",
-      "collections": "Collections d'objets",
-      "killstreak": "Les objets killstreak à part",
-      "item_details": "Clic droit pour les détails"
-    },
     "once": "Vous ne verrez ceci qu'une fois.",
     "go": "C'est parti"
   },
@@ -991,5 +985,24 @@
     "terms_html": "En enregistrant, vous acceptez nos {terms}.",
     "terms_link": "conditions d'utilisation",
     "sign_out": "Se déconnecter"
+  },
+  "news": {
+    "kicker": "Nouveau sur TF2Deal",
+    "items": {
+      "themes": {
+        "title": "Deux nouveaux thèmes : Minuit et Blanc",
+        "text": "Noir minuit est un vrai noir pour les pièces sombres et les écrans OLED, et Blanc un thème clair pour la journée. Ils rejoignent Ciel nocturne et les thèmes des événements TF2, et le site retient celui que vous choisissez.",
+        "button": "Choisir un thème"
+      },
+      "collections": {
+        "title": "Collections d'objets"
+      },
+      "killstreak": {
+        "title": "Les objets killstreak à part"
+      },
+      "item_details": {
+        "title": "Clic droit pour les détails"
+      }
+    }
   }
 }

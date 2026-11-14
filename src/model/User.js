@@ -50,6 +50,10 @@ const UserScheme = mongoose.Schema({
         type: Number,
         default: 0
     }, // unix ms: the bell counts notifications newer than this
+    news_seen: {
+        type: String,
+        default: ""
+    }, // the newest site news this user has seen (service/news.js key): the news window isn't shown again on other devices
     loyal_user: {
         type: Boolean,
         default: false

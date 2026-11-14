@@ -24,6 +24,7 @@ import * as notifications from '../service/notifications.js'
 import * as buy_link from '../service/buy_link.js'
 import * as latest_trades from '../service/latest_trades.js'
 import * as welcome from '../service/welcome.js'
+import * as site_news from '../service/news.js'
 import { bptf_link, FIELDS as BPTF_FIELDS } from '../service/bptf_link.js'
 import UserModel from '../model/User.js'
 import { log } from 'console';
@@ -101,6 +102,49 @@ router.get('/welcome', async (req, res) => {
     res.set('Cache-Control', 'no-store')
     res.set('X-Robots-Tag', 'noindex')
     res.render('partials/welcome_modal', { news, features: welcome.FEATURES })
+});
+
+// The news window (service/news.js, public/js/welcome.js): the newest feature, once for every visitor who hasn't seen
+// it. ?seen=<key> is the entry this browser saw last. A signed-in user's account keeps it as well (users.news_seen),
+// so the window doesn't come back on their other devices. ?preview=1 (the page address ending in #news) shows it
+// anyway. Answers { show: true, key, html } or { show: false, key } (key: what the browser can save as seen).
+const news_limiter = rateLimit({ windowMs: 60 * 1000, max: 20, skip: crawlers.skip })
+
+const account_news_seen = async (steamid) => {
+  if (!steamid || process.db_status?.connected !== true) return ''
+  const user = await UserModel.findOne({ steamid: String(steamid) }, { news_seen: 1 }).lean().catch(() => null)
+  return typeof user?.news_seen == 'string' ? user.news_seen : ''
+}
+
+router.get('/news', news_limiter, async (req, res) => {
+  res.set('Cache-Control', 'no-store')
+  res.set('X-Robots-Tag', 'noindex')
+  const entry = site_news.live()
+  if (!entry) return res.json({ show: false, key: '' })
+  if (req.query.preview !== '1') {
+    const seen = String(req.query.seen ?? '').slice(0, 64)
+    if (site_news.covers(seen, entry.key) || site_news.covers(await account_news_seen(req.user?.steamid), entry.key)) {
+      return res.json({ show: false, key: entry.key })
+    }
+  }
+  res.render('partials/news_modal', { entry }, (error, html) => {
+    if (error) {
+      console.log('news: the window could not be rendered:', error.message)
+      return res.status(500).json({ show: false, key: '' })
+    }
+    res.json({ show: true, key: entry.key, html })
+  })
+});
+
+// the news window was closed (or the welcome window, which lists the same news): saved on the account, signed in
+router.post('/news/seen', news_limiter, async (req, res) => {
+  const key = String(req.body?.key ?? '')
+  if (!site_news.find(key)) return res.status(400).json({ status: 'error', message: 'unknown news' })
+  const steamid = req.user?.steamid
+  if (steamid && process.db_status?.connected === true && !site_news.covers(await account_news_seen(steamid), key)) {
+    await UserModel.updateOne({ steamid: String(steamid) }, { $set: { news_seen: key } }).catch(() => {})
+  }
+  res.json({ status: 'ok' })
 });
 
 router.get('/bots', (req, res) => {

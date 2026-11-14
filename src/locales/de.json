@@ -969,12 +969,6 @@
     "tag_update": "Neu",
     "ends": "endet am {date}",
     "news_giveaway": "Gewinne {item}",
-    "updates": {
-      "themes": "Zwei neue Looks: Mitternacht und Weiß",
-      "collections": "Item-Kollektionen",
-      "killstreak": "Killstreak-Items, jedes für sich",
-      "item_details": "Rechtsklick für Item-Details"
-    },
     "once": "Das siehst du nur einmal.",
     "go": "Los geht's"
   },
@@ -991,5 +985,24 @@
     "terms_html": "Mit dem Speichern stimmst du unseren {terms} zu.",
     "terms_link": "Nutzungsbedingungen",
     "sign_out": "Abmelden"
+  },
+  "news": {
+    "kicker": "Neu auf TF2Deal",
+    "items": {
+      "themes": {
+        "title": "Zwei neue Looks: Mitternacht und Weiß",
+        "text": "Mitternachtsschwarz ist echtes Schwarz für dunkle Räume und OLED-Bildschirme, Weiß ein heller Look für den Tag. Beide gibt es neben Nachthimmel und den Looks der TF2-Events, und die Seite merkt sich deine Wahl.",
+        "button": "Design wählen"
+      },
+      "collections": {
+        "title": "Item-Kollektionen"
+      },
+      "killstreak": {
+        "title": "Killstreak-Items, jedes für sich"
+      },
+      "item_details": {
+        "title": "Rechtsklick für Item-Details"
+      }
+    }
   }
 }
