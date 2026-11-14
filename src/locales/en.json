@@ -694,9 +694,6 @@
     "end": "You've reached the end.",
     "none": "No matching items found...",
     "search_placeholder": "Search for items ...",
-    "pages": "Item list pages",
-    "prev_page": "Previous",
-    "next_page": "Next",
     "category_h1": "TF2 {category}"
   },
   "item": {

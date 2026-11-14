@@ -694,9 +694,6 @@
     "end": "已经到底了。",
     "none": "未找到匹配的物品……",
     "search_placeholder": "搜索物品……",
-    "pages": "物品列表分页",
-    "prev_page": "上一页",
-    "next_page": "下一页",
     "category_h1": "TF2 {category}"
   },
   "item": {

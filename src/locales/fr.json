@@ -694,9 +694,6 @@
     "end": "Vous avez atteint la fin de la liste.",
     "none": "Aucun objet correspondant...",
     "search_placeholder": "Rechercher des objets...",
-    "pages": "Pages de la liste d'objets",
-    "prev_page": "Précédente",
-    "next_page": "Suivante",
     "category_h1": "TF2 {category}"
   },
   "item": {

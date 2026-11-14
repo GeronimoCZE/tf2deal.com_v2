@@ -694,9 +694,6 @@
     "end": "Du hast das Ende erreicht.",
     "none": "Keine passenden Items gefunden...",
     "search_placeholder": "Nach Items suchen ...",
-    "pages": "Seiten der Item-Liste",
-    "prev_page": "Zurück",
-    "next_page": "Weiter",
     "category_h1": "TF2 {category}"
   },
   "item": {

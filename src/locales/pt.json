@@ -694,9 +694,6 @@
     "end": "Você chegou ao fim.",
     "none": "Nenhum item encontrado...",
     "search_placeholder": "Buscar itens ...",
-    "pages": "Páginas da lista de itens",
-    "prev_page": "Anterior",
-    "next_page": "Próxima",
     "category_h1": "TF2 {category}"
   },
   "item": {
