@@ -969,12 +969,6 @@
     "tag_update": "新功能",
     "ends": "{date} 截止",
     "news_giveaway": "赢取 {item}",
-    "updates": {
-      "themes": "两个新外观：午夜和白色",
-      "collections": "物品收藏系列",
-      "killstreak": "连杀物品单独列出",
-      "item_details": "右键查看物品详情"
-    },
     "once": "此窗口只会显示一次。",
     "go": "开始吧"
   },
@@ -991,5 +985,24 @@
     "terms_html": "保存即表示你同意我们的{terms}。",
     "terms_link": "服务条款",
     "sign_out": "退出登录"
+  },
+  "news": {
+    "kicker": "TF2Deal 新功能",
+    "items": {
+      "themes": {
+        "title": "两个新外观：午夜和白色",
+        "text": "午夜黑是适合暗光环境和 OLED 屏幕的纯黑外观，白色则是适合白天的明亮外观。它们与夜空和 TF2 活动外观并列，网站会记住你的选择。",
+        "button": "选择主题"
+      },
+      "collections": {
+        "title": "物品收藏系列"
+      },
+      "killstreak": {
+        "title": "连杀物品单独列出"
+      },
+      "item_details": {
+        "title": "右键查看物品详情"
+      }
+    }
   }
 }

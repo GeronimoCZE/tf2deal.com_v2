@@ -266,6 +266,79 @@ dialog.td-modal{
     }
 }
 
+/* ---------- news (the newest feature, public/js/welcome.js) ---------- */
+// views/partials/news_modal.ejs: narrower than the welcome window. The picture of the feature on top, kept whole (no
+// fade over it: it shows the thing), the date and a heading, a few lines, then the footer row with the feature's
+// one green button. Pictures are 12:5 (public/img/news/, service/news.js); gaps left transparent in them show the
+// window's own colour, so one picture works in every theme.
+dialog.td-modal.news-modal{
+    width: min(38rem, calc(100vw - 2rem));
+    .nm-picture{
+        flex: none;
+        aspect-ratio: 12 / 5;
+        img{
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+    .nm-body{
+        position: relative;
+        padding: 1.25rem 4rem 1.4rem 1.8rem;  // (room for the x on the right)
+    }
+    // the x on the window's own colour, beside the date and heading (under the picture, never on it)
+    .tdm-close{
+        top: 1rem;
+        right: 1rem;
+        background: var(--surface-2);
+        color: var(--ink-2);
+        &:hover{ background: var(--surface-3); color: var(--ink); }
+        &:focus-visible{ outline-color: var(--violet); }
+    }
+    .tdm-kicker{
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: .2rem .55rem;
+        time{
+            color: var(--ink-3);
+            font-weight: 500;
+            letter-spacing: .04em;
+        }
+    }
+    .nm-text{
+        max-width: 32rem;
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--ink-2);
+    }
+    .nm-actions{
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: .35rem;
+    }
+    // the quiet way out, next to the green button
+    .nm-later{
+        padding: .6rem 1rem;
+        border: none;
+        border-radius: var(--r-sm);
+        background: transparent;
+        color: var(--ink-2);
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 150ms, color 150ms;
+        &:hover{ background: var(--surface-3); color: var(--ink); }
+        &:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
+    }
+    a.tdm-primary{ display: inline-block; text-decoration: none; } // (the site's links are blocks)
+    &.no-picture .nm-body{ padding-top: 1.5rem; }
+}
+
 /* ---------- trade URL ---------- */
 .trade-url-modal{
     .tu-body{ padding: .2rem 1.8rem 1.2rem 1.8rem; }
@@ -418,6 +491,19 @@ body.theme-white{
         .wm-what .tdm-label{ margin-top: .2rem; }
         .wm-intro{ font-size: 14.5px; }
         .wm-features{ grid-template-columns: minmax(0, 1fr); }
+    }
+    dialog.td-modal.news-modal{
+        width: 100vw;                       // (a sheet like the others, over its own wider rule above)
+        .nm-body{ padding: 1rem 3.6rem 1.1rem 1.1rem; }
+        &.no-picture .nm-body{ padding-top: 1.2rem; }
+        .tdm-close{ top: .8rem; right: .8rem; }
+        .nm-text{ font-size: 14.5px; }
+        // the note on a row of its own, the two buttons sharing the row under it
+        .tdm-foot{ flex-wrap: wrap; row-gap: .55rem; }
+        .tdm-foot p{ flex: 1 1 100%; }
+        .nm-actions{ flex: 1 1 100%; }
+        .nm-later{ flex: none; }
+        .tdm-primary{ flex: 1 1 auto; text-align: center; }
     }
     .trade-url-modal{
         .tu-body{ padding: .1rem 1.1rem 1rem 1.1rem; }

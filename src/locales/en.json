@@ -969,12 +969,6 @@
     "tag_update": "New",
     "ends": "ends {date}",
     "news_giveaway": "Win {item}",
-    "updates": {
-      "themes": "Two new looks: Midnight and White",
-      "collections": "Item collections",
-      "killstreak": "Killstreak items, each on its own",
-      "item_details": "Right-click for item details"
-    },
     "once": "You'll only see this once.",
     "go": "Let's go"
   },
@@ -991,5 +985,24 @@
     "terms_html": "By saving, you agree to our {terms}.",
     "terms_link": "Terms of Service",
     "sign_out": "Sign out"
+  },
+  "news": {
+    "kicker": "New on TF2Deal",
+    "items": {
+      "themes": {
+        "title": "Two new looks: Midnight and White",
+        "text": "Midnight black is true black for dark rooms and OLED screens, and White is a bright look for daytime. Both sit next to Night sky and the TF2 event looks, and the site remembers the one you pick.",
+        "button": "Choose a theme"
+      },
+      "collections": {
+        "title": "Item collections"
+      },
+      "killstreak": {
+        "title": "Killstreak items, each on its own"
+      },
+      "item_details": {
+        "title": "Right-click for item details"
+      }
+    }
   }
 }
