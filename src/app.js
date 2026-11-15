@@ -41,6 +41,7 @@ import * as memory from './service/memory.js'
 import * as crawlers from './service/crawlers.js'
 import * as categories from './service/categories.js'
 import { site_version } from './service/site_version.js'
+import * as steam_browser from './service/steam_browser.js'
 
 const DOMAIN = 'localhost' 
 const PORT = 8080; // change to 8080
@@ -161,6 +162,13 @@ app.use((req, res, next) => {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
   }
   next()
+})
+
+// Steam as a bot for the admin (service/steam_browser.js): a window whose requests go to bot_manager. Before the body
+// parsers (the request body goes on to Steam as it came) and the rate limit (one Steam page is dozens of requests).
+// The random token in the address is what lets a request through; only the admin gets one.
+app.all(steam_browser.ROUTE, express.raw({ type: () => true, limit: '20mb' }), (req, res, next) => {
+  Promise.resolve(steam_browser.handler(req, res)).catch(next)
 })
 
 app.use( bodyParser.json({limit: '1mb'}) );       // to support JSON-encoded bodies
