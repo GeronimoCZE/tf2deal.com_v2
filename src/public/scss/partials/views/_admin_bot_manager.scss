@@ -171,6 +171,20 @@
         .admin-input-unit{ max-width: 10rem; }
         button{ color: #f3a097; }
     }
+    // kind and backpack.tf key / token, on each bot card
+    .admin-bm-settings{
+        margin-top: .8rem;
+        summary{ cursor: pointer; color: var(--ink-3); font-size: 13.5px; &:hover{ color: var(--ink); } }
+        &[open] summary{ margin-bottom: .6rem; }
+        form{ margin: 0; display: grid; gap: .6rem; }
+        .admin-card-foot{ margin-top: 0; }
+    }
+    .admin-bm-kind{
+        display: grid;
+        gap: .35rem;
+        label{ display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .5rem; }
+        .admin-help{ margin: 0; }
+    }
     .admin-bm-forms{
         margin-top: 1rem;
         form{ margin: 0; }

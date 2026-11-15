@@ -602,6 +602,9 @@
         : a.status == 'pending' ? ['warn', 'Not logged in yet']
         : a.notRunning == 'not_started' ? ['warn', 'Not started'] : ['bad', 'Offline']
 
+    const bptf_state = (a) => a.hasBptfKey && a.hasBptfToken ? 'key and token saved'
+        : `<span class="admin-error">${!a.hasBptfKey && !a.hasBptfToken ? 'no key, no token' : a.hasBptfToken ? 'no API key' : 'no token'}</span>`
+
     const bot_card = (a, b, live) => {
         const [cls, label] = bot_state(a, live)
         const steamid = a.steamid || b?.steamid
@@ -620,7 +623,7 @@
             ${a.stopping ? `<p class="admin-note">Logs off ${a.stopping.until ? later(a.stopping.until) : 'soon'}${a.stopping.openOffers ? `, once its ${num(a.stopping.openOffers)} open offer${a.stopping.openOffers == 1 ? ' is' : 's are'} done` : ''}.</p>` : ''}
             ${!live ? facts([
                 ['Steam ID', steamid ? esc(steamid) : 'not logged in yet'],
-                a.type != 'warehouse' && ['backpack.tf', a.hasBptfToken ? 'token saved' : '<span class="admin-error">no token</span>'],
+                a.type != 'warehouse' && ['backpack.tf', bptf_state(a)],
                 ['Saved', ago(a.updated)],
                 disabled && a.disabledBy && ['Disabled by', /^\d{17}$/.test(a.disabledBy) ? profile(a.disabledBy, `…${a.disabledBy.slice(-5)}`) : esc(a.disabledBy)]
             ]) : facts([
@@ -630,7 +633,7 @@
                 ['Listings', `${num(a.listings?.sell ?? b?.listings?.sell)} sell, ${num(a.listings?.buy ?? b?.listings?.buy)} buy${b?.listings?.slots ? ` <span class="muted">of ${num(b.listings.slots)}</span>` : ''}`],
                 b && ['Sent offers', `${num(b.offers?.sent)} / ${num(b.offers?.limit)}${b.offers?.limitOverride != null ? ' <span class="admin-tag">set by hand</span>' : ''}`],
                 b && ['Web session', b.webSession ? 'OK' : '<span class="admin-error">missing</span>'],
-                a.type != 'warehouse' && !a.hasBptfToken && ['backpack.tf', '<span class="admin-error">no token</span>'],
+                a.type != 'warehouse' && ['backpack.tf', bptf_state(a)],
                 b?.inventory?.resync?.lastError && ['Inventory reload', `<span class="admin-error">${esc(b.inventory.resync.lastError)}</span>`]
             ])}
             <div class="admin-bm-actions">
@@ -638,12 +641,25 @@
                     <button type="button" data-offer-limit="${esc(steamid)}" data-current="${esc(b.offers?.limitOverride ?? '')}">Offer limit</button>
                     ${act('admin:bots:relog', { steamid }, 'Log in again', { confirm: `Log ${name} off and on again?`, ok: 'Logging in again.' })}
                     ${act('admin:bots:web_relog', { steamid }, 'New web session', { ok: 'New web session requested.' })}
+                    ${b.webSession ? `<button type="button" class="primary" data-open-steam="${esc(a.accountName)}" title="A new window on Steam, logged in as ${esc(name)}">Open Steam</button>` : ''}
                     ${act('admin:bots:resync_inventory', { steamid }, 'Reload inventory', { ok: 'Inventory reloaded from Steam.' })}
                     ${a.type != 'warehouse' ? act('admin:bots:bptf_refresh', { steamid }, 'Refresh on backpack.tf', { ok: 'backpack.tf asked to load the inventory again.' }) : ''}` : ''}
                 ${!live ? `<button type="button" data-db-enabled="${esc(a.accountName)}" data-on="${disabled ? '1' : '0'}"${disabled ? ' class="primary"' : ''}>${disabled ? 'Enable' : 'Disable'}</button>`
                     : disabled || (!running && !a.stopping) || a.stopping ? act('admin:bots:enable', { bot: a.accountName }, a.stopping ? 'Keep it running' : 'Enable and log in', { cls: 'primary', ok: `${name} is logging in.` }) : ''}
                 ${disabled && !running && !a.stopping ? `<button type="button" data-remove-bot="${esc(a.accountName)}">Remove</button>` : ''}
             </div>
+            <details class="admin-bm-settings"><summary>Kind and backpack.tf…</summary>
+                <form class="admin-bm-settings-form" data-bot-settings="${esc(a.accountName)}" autocomplete="off">
+                    <div class="admin-bm-kind" role="radiogroup" aria-label="Kind of bot">
+                        <label class="check"><input type="radio" name="type" value="trade" ${a.type != 'warehouse' ? 'checked' : ''}> Trade bot <span class="admin-help">lists on backpack.tf and trades with users</span></label>
+                        <label class="check"><input type="radio" name="type" value="warehouse" ${a.type == 'warehouse' ? 'checked' : ''}> Warehouse <span class="admin-help">holds stock and pure for the trade bots, never lists</span></label>
+                    </div>
+                    <label class="admin-field">backpack.tf API key <input type="password" name="bptf_key" autocomplete="new-password" spellcheck="false" placeholder="${a.hasBptfKey ? 'saved, leave empty to keep it' : 'not set'}"></label>
+                    <label class="admin-field">backpack.tf access token <input type="password" name="bptf_token" autocomplete="new-password" spellcheck="false" placeholder="${a.hasBptfToken ? 'saved, leave empty to keep it' : 'not set'}"></label>
+                    <p class="admin-help">From backpack.tf → Settings → API access, logged in as this bot. ${live ? 'The key and token apply right away, a new kind too.' : 'Used when bot_manager starts.'}</p>
+                    <div class="admin-card-foot"><button type="submit" class="primary">Save</button></div>
+                </form>
+            </details>
             ${live && !disabled && !a.stopping ? `<details class="admin-bm-disable"><summary>Disable this bot…</summary>
                 <p class="admin-help">It stops trading now and its listings come down. It logs off once its open sent offers are done, then its items and pure leave the stock. It isn't started again after a restart.</p>
                 <label class="check"><input type="checkbox" name="cancel"> Cancel its open sent offers now</label>
@@ -694,7 +710,7 @@
 
         // the accounts come from the database (service/bot_accounts.js), bot_manager's live state is added when it's
         // connected; redrawn only when something changed, so an open form or menu isn't reset
-        let shown = null
+        let shown = null, shown_accounts = []
         const draw = async (force) => {
             const acc = await kit.api('/api/admin/bot_accounts')
             const run = acc.live ? await bm('admin:bots:list') : null
@@ -705,6 +721,7 @@
             shown = now
             const live = new Map((run?.status == 'ok' ? run.data : []).map((b) => [String(b.steamid), b]))
             const accounts = acc.accounts || []
+            shown_accounts = accounts
             // bots running that aren't in the database (an older bot_manager) still get a card
             const extra = [...live.values()].filter((b) => !accounts.some((a) => String(a.steamid) == String(b.steamid)))
                 .map((b) => ({ accountName: b.accountName || b.name, name: b.name, steamid: b.steamid, type: b.type, online: b.online, paused: b.paused, running: true, enabled: true }))
@@ -740,6 +757,19 @@
                 const res = await busy(btn, () => kit.api('/api/admin/bot_accounts/add', payload))
                 if(toast(res, `${esc(payload.accountName)} saved in the database${res.started ? ' and logging in' : ''}.${res.note ? ` ${esc(res.note)}` : ''}`)){ form.reset(); draw(true) }
             }
+            if(form.dataset.botSettings){
+                const bot = form.dataset.botSettings
+                const account = (shown_accounts || []).find((x) => x.accountName == bot)
+                const payload = { bot }
+                const type = form.querySelector('[name="type"]:checked')?.value
+                if(type && type != (account?.type == 'warehouse' ? 'warehouse' : 'trade')){ payload.type = type }
+                for (const name of ['bptf_key', 'bptf_token']) { if(form[name].value.trim()){ payload[name] = form[name].value.trim() } }
+                if(Object.keys(payload).length == 1){ return iziToast.info({ title: 'Nothing to save', message: 'Pick another kind or enter a new key or token.' }) }
+                if(payload.type == 'warehouse' && !confirm(`Make ${bot} a warehouse? It stops listing and trading with users; its priced items go to the trade bots on the next balance run.`)){ return }
+                const res = await busy(btn, () => kit.api('/api/admin/bot_accounts/update', payload))
+                const now = Array.isArray(res.appliedNow) ? res.appliedNow : []
+                if(toast(res, res.saved_only ? 'Saved. bot_manager uses it when it starts.' : `Saved.${now.length ? ` Used now: ${esc(now.map((k) => ({ bptf_key: 'API key', bptf_token: 'token', type: 'kind' }[k] || k)).join(', '))}.` : ''}`)){ form.reset(); form.closest('details').open = false; draw(true) }
+            }
             if(form.id == 'bm-login'){
                 const payload = { bot: form.bot.value }
                 for (const [name] of SECRET_FIELDS) { if(form[name].value.trim()){ payload[name] = form[name].value.trim() } }
@@ -752,6 +782,22 @@
             }
         })
         box.addEventListener('click', async (e) => {
+            const steam = e.target.closest('[data-open-steam]')
+            if(steam){
+                // the window is opened right away (a window opened after an await is blocked as a popup), without a
+                // way back to this page, and gets its address once bot_manager has opened the view
+                const win = window.open('about:blank', '_blank')
+                if(win){ win.opener = null; win.document.title = 'Opening Steam…' }
+                const res = await busy(steam, () => kit.api('/api/admin/steam_browser/open', { bot: steam.dataset.openSteam }))
+                if(res.status == 'ok' && res.url){
+                    if(win && !win.closed){ win.location.replace(res.url) } else { window.open(res.url, '_blank', 'noopener') }
+                    iziToast.success({ title: 'Steam', message: `Opened as ${esc(res.name || steam.dataset.openSteam)}. The window ends after ${num(res.idleMin)} minutes without use.` })
+                } else {
+                    if(win){ win.close() }
+                    toast(res)
+                }
+                return
+            }
             const limit = e.target.closest('[data-offer-limit]')
             if(limit){
                 const value = prompt('Most sent offers this bot keeps open at once. Empty = the default (30).', limit.dataset.current)

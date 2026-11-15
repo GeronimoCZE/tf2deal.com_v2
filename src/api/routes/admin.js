@@ -25,6 +25,7 @@ import * as listings from '../../service/listings.js';
 import * as bot_manager from '../../service/bot_manager.js';
 import * as manual_prices from '../../service/manual_prices.js';
 import * as bot_accounts from '../../service/bot_accounts.js';
+import * as steam_browser from '../../service/steam_browser.js';
 import * as latest_trades from '../../service/latest_trades.js';
 import { notification_model } from '../../model/Notification.js';
 import { clients as settings_clients } from '../../service/settings_socket.js';
@@ -560,6 +561,15 @@ for (const [path, action] of [['add', bot_accounts.add], ['update', bot_accounts
     res.status(result.status == 'ok' ? 200 : 400).json(result);
   });
 }
+
+/* ========================= STEAM AS A BOT (service/steam_browser.js) ========================= */
+// { bot } → { url } of a new window showing Steam logged in as that bot (bot_manager makes every request with the
+// bot's own web session; the login never leaves bot_manager)
+
+router.post('/steam_browser/open', async (req, res) => {
+  const result = await steam_browser.open(req.body || {}, req.user?.steamid, req.ip);
+  res.status(result.status == 'ok' ? 200 : (result.offline ? 503 : 400)).json(result);
+});
 
 /* ========================= PRICES SET BY HAND (service/manual_prices.js) ========================= */
 

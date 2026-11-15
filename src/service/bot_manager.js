@@ -17,7 +17,7 @@ const SLOW = new Set([
   'admin:listings:sync', 'admin:listings:verify', 'admin:listings:clear', 'admin:listings:rematch', 'admin:listings:unlisted',
   'admin:stock:recompute', 'admin:stock:sellers', 'admin:holds:backfill', 'admin:buyorders:scan', 'admin:buyorders:keysale',
   'admin:bots:resync_inventory', 'admin:bots:bptf_refresh', 'admin:bots:add', 'admin:bots:enable', 'admin:bots:disable',
-  'admin:balance:run', 'admin:balance:move', 'admin:trading:offer:cancel', 'admin:trading:offer:reprocess', 'admin:trading:recent'
+  'admin:balance:run', 'admin:balance:move', 'admin:steam:fetch', 'admin:trading:offer:cancel', 'admin:trading:offer:reprocess', 'admin:trading:recent'
 ])
 
 // bot_manager's error codes in words (ADMIN_SOCKET_API.md → Error codes); anything else is shown as it came
