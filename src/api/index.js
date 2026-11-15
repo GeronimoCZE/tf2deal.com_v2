@@ -25,6 +25,7 @@ import * as buy_link from '../service/buy_link.js'
 import * as latest_trades from '../service/latest_trades.js'
 import * as welcome from '../service/welcome.js'
 import * as site_news from '../service/news.js'
+import * as news_times from '../service/news_times.js'
 import { bptf_link, FIELDS as BPTF_FIELDS } from '../service/bptf_link.js'
 import UserModel from '../model/User.js'
 import { log } from 'console';
@@ -127,7 +128,7 @@ router.get('/news', news_limiter, async (req, res) => {
       return res.json({ show: false, key: entry.key })
     }
   }
-  res.render('partials/news_modal', { entry }, (error, html) => {
+  res.render('partials/news_modal', { entry, when: news_times.live_at(entry) }, (error, html) => {
     if (error) {
       console.log('news: the window could not be rendered:', error.message)
       return res.status(500).json({ show: false, key: '' })

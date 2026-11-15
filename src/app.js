@@ -27,6 +27,7 @@ import { bot_socket, createSocket, item_socket } from './service/socket.js'
 import * as seasons from './service/season.js'
 import * as trade_url from './service/trade_url.js'
 import * as site_news from './service/news.js'
+import * as news_times from './service/news_times.js'
 import { ticket_model } from './model/Ticket.js'
 import * as sitemap from './service/sitemap.js'
 import * as markdown from './service/markdown.js'
@@ -95,7 +96,7 @@ app.use((req, res, next) => {
 // One address per page, by redirect (Bing's webmaster guidelines: redirects, not canonical tags, for the same page at
 // two addresses). Express answers /about/, /About and /ABOUT/ like /about; they now move (301) to /about. Only the
 // language and the site's own page names are lowercased: item names and blog addresses keep their capitals.
-const PAGE_ADDRESS = new RegExp(`^(/(?:${i18n.LANGS.join('|')}))?(/(?:items|trade|about|blog|giveaway|terms-of-service|cookies|support|profile))(?=/|$)(.*)$`, 'i')
+const PAGE_ADDRESS = new RegExp(`^(/(?:${i18n.LANGS.join('|')}))?(/(?:items|trade|about|news|blog|giveaway|terms-of-service|cookies|support|profile))(?=/|$)(.*)$`, 'i')
 app.use((req, res, next) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') return next()
   const at = req.originalUrl.indexOf('?')
@@ -490,6 +491,7 @@ const connectDB = async () => {
     process.db_status = { connected: true }
     // the item list is read before the first visitor asks for /items, then the sitemap is built from it
     item_lists.refresh().then(() => sitemap.warm())
+    news_times.record() // when the features on /news went live (service/news_times.js)
   });
 }
 
@@ -696,6 +698,7 @@ app.get('/giveaway', mw.curPath, router.giveaway);
 app.get('/blog', mw.curPath, router.blog);
 app.get('/blog/:slug', mw.curPath, router.blog_page);
 app.get('/about', mw.curPath, router.about);
+app.get('/news', mw.curPath, router.news); // the updates page: every feature of service/news.js
 app.get('/terms-of-service', router.terms_of_service);
 app.get('/cookies', router.cookies);
 app.get('/support', mw.curPath, mw.isLogged, router.create_ticket);
@@ -847,6 +850,7 @@ copy_details.start(); // remembers the details (paint, spells, parts, killstreak
 memory.start(); // gives memory the site no longer uses back to the server (service/memory.js)
 item_lists.start(); // stock counts on /items between full reads of the item list (service/item_lists.js stock pass)
 crawlers.start(); // reads the crawlers' published address lists, then once a day (service/crawlers.js)
+news_times.start(); // writes down when each feature on /news went live
 sitemap.start(); // the sitemap follows the items traded now: built again when the item list changes (service/sitemap.js)
 
 app.use((err, req, res, next) => {

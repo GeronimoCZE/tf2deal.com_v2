@@ -85,6 +85,7 @@
     "blog": "TF2-Trading-Blog – Guides & Preis-News | TF2Deal.com",
     "blog_page": "TF2-Trading-Blog (Seite {page}) | TF2Deal.com",
     "about": "Über TF2Deal.com – automatische TF2-Trading-Seite",
+    "news": "Neu auf TF2Deal.com – Updates und neue Funktionen der Seite",
     "tos": "Nutzungsbedingungen – Regeln für TF2-Trading | TF2Deal.com",
     "posts": "TF2Deal.com - Beiträge",
     "support": "TF2Deal.com - Support & Hilfe",
@@ -112,6 +113,7 @@
     "blog": "TF2-Trading-Guides, News und Preis-Updates von TF2Deal.com, der Seite mit TF2-Trade-Bots: wie du tradest und was Items in Keys und Ref wert sind.",
     "blog_page": "Ältere Beiträge im Blog von TF2Deal.com (Seite {page}): TF2-Trading-Guides, News und Preis-Updates der Seite mit automatischen TF2-Trade-Bots.",
     "about": "Über TF2Deal.com, eine automatische TF2-Trading-Seite: wie unsere TF2-Trade-Bots arbeiten, wie Preise in Keys und Ref entstehen und wie du uns erreichst.",
+    "news": "Alle neuen Funktionen von TF2Deal.com, der automatischen TF2-Trade-Bot-Seite, die neueste zuerst, mit Tag und Uhrzeit ihres Starts: Item-Seiten, Trading-Tools und neue Looks.",
     "tos": "Regeln für das Tauschen von TF2-Items mit den Trade-Bots von TF2Deal.com: wer traden darf, wie Trades ablaufen, Erstattungen, Item-Eigentum, Bot-Ausfälle.",
     "giveaway_active": "Gewinne {item} im kostenlosen Gewinnspiel von TF2Deal.com. Mit Steam anmelden, vor dem Ende mitmachen und frühere Gewinner sehen.",
     "giveaway_none": "Kostenlose TF2-Item-Gewinnspiele auf TF2Deal.com, der automatischen TF2-Trading-Seite. Sieh dir frühere Gewinner an und schau bald wieder vorbei.",
@@ -985,20 +987,40 @@
   },
   "news": {
     "kicker": "Neu auf TF2Deal",
+    "link": "Neuigkeiten",
+    "all": "Alle Updates",
+    "page": {
+      "kicker": "Updates der Seite",
+      "h1": "Neu auf TF2Deal",
+      "intro": "Alle Funktionen, die wir der Seite hinzugefügt haben, die neueste zuerst, mit Tag und Uhrzeit ihres Starts.",
+      "elsewhere_html": "Gewinnspiele findest du auf der Seite {giveaway}, Trading-Guides und Preis-News im {blog}.",
+      "zone_utc": "Zeiten in UTC.",
+      "zone_local": "Zeiten in deiner Zeitzone.",
+      "newest": "Neueste",
+      "open": "Ansehen",
+      "empty": "Noch nichts hier. Neue Funktionen erscheinen hier, sobald sie online sind."
+    },
     "items": {
+      "updates_page": {
+        "title": "Alle Updates auf einer Seite",
+        "text": "Diese Seite zeigt jede neue Funktion der Seite, die neueste zuerst, mit Tag und Uhrzeit ihres Starts. Du findest sie unter Neuigkeiten unten auf jeder Seite."
+      },
       "themes": {
         "title": "Zwei neue Looks: Mitternacht und Weiß",
         "text": "Mitternachtsschwarz ist echtes Schwarz für dunkle Räume und OLED-Bildschirme, Weiß ein heller Look für den Tag. Beide gibt es neben Nachthimmel und den Looks der TF2-Events, und die Seite merkt sich deine Wahl.",
         "button": "Design wählen"
       },
       "collections": {
-        "title": "Item-Kollektionen"
+        "title": "Item-Kollektionen",
+        "text": "Item-Seiten zeigen jetzt die Kollektion, aus der ein Item stammt, mit allen anderen Items darin, die höchste Stufe zuerst. Waffen mit Kriegsbemalung zeigen die Kollektion ihrer Kriegsbemalung."
       },
       "killstreak": {
-        "title": "Killstreak-Items, jedes für sich"
+        "title": "Killstreak-Items, jedes für sich",
+        "text": "Killstreak-, Specialized-Killstreak- und Professional-Killstreak-Waffen haben jetzt eigene Item-Seiten, jede mit eigenem Preis und Bestand, damit du genau die findest, die du willst."
       },
       "item_details": {
-        "title": "Rechtsklick für Item-Details"
+        "title": "Rechtsklick für Item-Details",
+        "text": "Rechtsklicke auf ein Item auf der Tauschseite oder einer Item-Seite, um alles über dieses Exemplar zu sehen: Farbe, Zauber, Strange Parts, Killstreak und Links zu backpack.tf, dem TF2 Wiki und Steam. Am Handy tippst du auf den Tooltip des Items."
       }
     }
   }

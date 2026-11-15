@@ -85,6 +85,7 @@
     "blog": "Blog sobre trading de TF2 – Guias e preços | TF2Deal.com",
     "blog_page": "Blog sobre trading de TF2 (página {page}) | TF2Deal.com",
     "about": "Sobre o TF2Deal.com – Site de trading automático de TF2",
+    "news": "Novidades do TF2Deal.com – Atualizações e novos recursos",
     "tos": "Termos de serviço – Regras do trading de TF2 | TF2Deal.com",
     "posts": "TF2Deal.com - Publicações",
     "support": "TF2Deal.com - Suporte e ajuda",
@@ -112,6 +113,7 @@
     "blog": "Guias, notícias e preços do trading de TF2 do TF2Deal.com, o site de bots de troca de TF2: como fazer trades e quanto valem os itens em chaves e ref.",
     "blog_page": "Posts anteriores do blog do TF2Deal.com (página {page}): guias, notícias e preços do trading de TF2 do site de bots de troca de TF2.",
     "about": "Sobre o TF2Deal.com, um site automatizado de trading de TF2: como nossos bots funcionam, como os preços em chaves e ref são definidos e como falar conosco.",
+    "news": "Todos os novos recursos do TF2Deal.com, o site de bots de troca automática de TF2, do mais novo ao mais antigo, com o dia e a hora em que entraram no ar.",
     "tos": "Regras para trocar itens de TF2 com os bots do TF2Deal.com: quem pode trocar, como funcionam as trocas, reembolsos, propriedade dos itens e quedas.",
     "giveaway_active": "Ganhe {item} no sorteio grátis do TF2Deal.com. Entre com a Steam, participe antes do fim e veja os vencedores anteriores.",
     "giveaway_none": "Sorteios grátis de itens de TF2 no TF2Deal.com, o site automatizado de trading de TF2. Veja os vencedores anteriores e volte para o próximo sorteio.",
@@ -985,20 +987,40 @@
   },
   "news": {
     "kicker": "Novidade no TF2Deal",
+    "link": "Novidades",
+    "all": "Todas as novidades",
+    "page": {
+      "kicker": "Atualizações do site",
+      "h1": "Novidades no TF2Deal",
+      "intro": "Todos os recursos que adicionamos ao site, do mais novo ao mais antigo, com o dia e a hora em que entraram no ar.",
+      "elsewhere_html": "Os sorteios ficam na página {giveaway}, e os guias de trading e notícias de preços, no {blog}.",
+      "zone_utc": "Horários em UTC.",
+      "zone_local": "Horários no seu fuso horário.",
+      "newest": "Mais recente",
+      "open": "Dar uma olhada",
+      "empty": "Nada por aqui ainda. Novos recursos aparecem aqui assim que entram no ar."
+    },
     "items": {
+      "updates_page": {
+        "title": "Todas as novidades em uma página",
+        "text": "Esta página lista cada recurso adicionado ao site, do mais novo ao mais antigo, com o dia e a hora em que entrou no ar. Você a encontra em Novidades, no rodapé de cada página."
+      },
       "themes": {
         "title": "Dois visuais novos: Meia-noite e Branco",
         "text": "Preto meia-noite é preto de verdade para ambientes escuros e telas OLED, e Branco é um visual claro para o dia. Eles ficam ao lado de Céu noturno e dos visuais dos eventos do TF2, e o site lembra o que você escolher.",
         "button": "Escolher tema"
       },
       "collections": {
-        "title": "Coleções de itens"
+        "title": "Coleções de itens",
+        "text": "As páginas de itens agora mostram a coleção de onde o item vem, com todos os outros itens dela, do grau mais alto ao mais baixo. Armas com pintura de guerra mostram a coleção da sua pintura."
       },
       "killstreak": {
-        "title": "Itens killstreak, cada um no seu lugar"
+        "title": "Itens killstreak, cada um no seu lugar",
+        "text": "Armas Killstreak, Specialized Killstreak e Professional Killstreak agora têm páginas próprias, cada uma com seu preço e estoque, para você achar exatamente a que quer."
       },
       "item_details": {
-        "title": "Clique direito para ver detalhes"
+        "title": "Clique direito para ver detalhes",
+        "text": "Clique com o botão direito em um item na página de troca ou na página de um item para ver tudo sobre aquela cópia: pintura, feitiços, strange parts, killstreak e links para backpack.tf, a TF2 Wiki e a Steam. No celular, toque na dica do item."
       }
     }
   }

@@ -16,6 +16,7 @@ import * as buy from '../service/buy_link.js'
 import * as item_lists from '../service/item_lists.js'
 import * as variants from '../service/variants.js'
 import * as blog_render from '../service/blog_render.js'
+import * as news_times from '../service/news_times.js'
 import { localize_path, LANG_TAGS } from '../i18n.js'
 import { isNumberObject } from 'util/types'
 
@@ -765,9 +766,20 @@ const cookies = (req, res) => {
   )
 }
 
+// the updates page: every feature the site has had added (service/news.js), newest first, with the moment it went live
+// (service/news_times.js). Giveaways and blog posts are not on it: they have their own pages.
+const news = (req, res) => {
+  const user_cookie = req.user ? req.cookies[`td_${req.user.steamid}`] : undefined
+  res.render('news', fn.res_data(!!req.user, req.user, user_cookie, req.__('title.news'), {
+    view: 'news',
+    description: req.__('desc.news'),
+    entries: news_times.page()
+  }))
+}
+
+// the old address of the site's updates (it once went to the blog)
 const updates = (req, res) => {
-  // there is no "updates" view (this answered with an error page); news now lives on the blog
-  res.redirect(301, req.lurl('/blog'))
+  res.redirect(301, req.lurl('/news'))
 }
 
 const posts = (req, res) => {
@@ -793,6 +805,7 @@ export {
   blog,
   blog_page,
   about,
+  news,
   updates,
   posts,
   terms_of_service,

@@ -1,0 +1,110 @@
+<%# The updates page (/news): every feature added to the site (service/news.js), newest first, each with the moment it
+    went live (service/news_times.js, info.entries). The times are printed in UTC; the script at the end shows them in
+    the visitor's own time zone. Giveaways and blog posts are not features: they have their own pages.
+    Texts: news.page and news.items.<key> in locales/<lang>.json. Styles: scss/partials/views/_news.scss %>
+<%
+    const entries = info.entries || []
+    // where on the site the feature is, as the menu names it
+    const AREAS = { items: 'nav.items', trade: 'nav.trade', giveaway: 'nav.giveaway', blog: 'nav.blog', about: 'nav.about', profile: 'nav.profile' }
+    const ACTION_AREAS = { themes: 'nav.theme' }
+    const area = (entry) => entry.action ? ACTION_AREAS[entry.action] : AREAS[String(entry.href || '').split(/[/?#]/)[1]]
+    const format = (ms, options) => {
+        try { return new Intl.DateTimeFormat(html_lang, { ...options, timeZone: 'UTC' }).format(new Date(ms)) }
+        catch (e) { return new Date(ms).toISOString().slice(0, 16).replace('T', ' ') }
+    }
+    const link = (path, text) => '<a href="' + lurl(path) + '">' + text + '</a>'
+%>
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+    <%- include('./partials/head.ejs') %>
+    <body class="<%= season_class %>">
+        <%- include('./partials/nav.ejs') %>
+
+        <div class="main-wrapper">
+            <%- include('./partials/chat.ejs') %>
+
+            <main>
+                <div class="page-section news-ps" id="newsPage">
+                    <header class="np-head">
+                        <p class="np-kicker"><%= __('news.page.kicker') %></p>
+                        <h1><%= __('news.page.h1') %></h1>
+                        <p class="np-intro"><%= __('news.page.intro') %></p>
+                        <p class="np-note">
+                            <%- __('news.page.elsewhere_html', { giveaway: link('/giveaway', __('nav.giveaway')), blog: link('/blog', __('nav.blog')) }) %>
+                            <% if (entries.some((entry) => entry.exact)) { %><span class="np-zone" data-local="<%= __('news.page.zone_local') %>"><%= __('news.page.zone_utc') %></span><% } %>
+                        </p>
+                    </header>
+
+                    <% if (!entries.length) { %>
+                    <p class="np-empty"><%= __('news.page.empty') %></p>
+                    <% } %>
+
+                    <ol class="np-list" data-intro-list>
+                        <% entries.forEach((entry, i) => { const where = area(entry); const self = entry.href == '/news' %>
+                        <li class="np-entry" id="news-<%= entry.key %>">
+                            <div class="np-when">
+                                <% if (entry.exact) { %>
+                                <time datetime="<%= new Date(entry.at).toISOString().slice(0, 16) %>Z" data-exact>
+                                    <span class="np-date"><%= format(entry.at, { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
+                                    <span class="np-time"><%= format(entry.at, { weekday: 'long', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }) %></span>
+                                </time>
+                                <% } else { %>
+                                <time datetime="<%= new Date(entry.at).toISOString().slice(0, 10) %>">
+                                    <span class="np-date"><%= format(entry.at, { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
+                                    <span class="np-time"><%= format(entry.at, { weekday: 'long' }) %></span>
+                                </time>
+                                <% } %>
+                            </div>
+                            <article class="np-card" aria-labelledby="news-<%= entry.key %>-title">
+                                <% if (entry.image) { %>
+                                <div class="np-picture">
+                                    <img src="/img/news/<%= entry.image %>-1200.webp" srcset="/img/news/<%= entry.image %>-640.webp 640w, /img/news/<%= entry.image %>-1200.webp 1200w" sizes="(max-width: 640px) 100vw, 48rem" width="1200" height="500" alt="" <%- i > 1 ? 'loading="lazy"' : '' %>>
+                                </div>
+                                <% } %>
+                                <div class="np-body">
+                                    <% if (i == 0 || where) { %>
+                                    <p class="np-tags">
+                                        <% if (i == 0) { %><span class="np-tag np-newest"><%= __('news.page.newest') %></span><% } %>
+                                        <% if (where) { %><span class="np-tag"><%= __(where) %></span><% } %>
+                                    </p>
+                                    <% } %>
+                                    <h2 id="news-<%= entry.key %>-title"><%= __('news.items.' + entry.key + '.title') %></h2>
+                                    <p class="np-text"><%= __('news.items.' + entry.key + '.text') %></p>
+                                    <% const label = entry.window ? __('news.items.' + entry.key + '.button') : __('news.page.open') %>
+                                    <% if (entry.action) { %>
+                                    <button type="button" class="np-link" data-news-action="<%= entry.action %>"><%= label %> <span aria-hidden="true">&rarr;</span></button>
+                                    <% } else if (entry.href && !self) { %>
+                                    <a class="np-link" href="<%= lurl(entry.href) %>"><%= label %> <span aria-hidden="true">&rarr;</span></a>
+                                    <% } %>
+                                </div>
+                            </article>
+                        </li>
+                        <% }) %>
+                    </ol>
+                </div>
+            </main>
+        </div>
+
+        <%- include('./partials/footer.ejs') %>
+        <script>
+            // the go-live times in the visitor's time zone (printed in UTC above)
+            (() => {
+                const page = document.getElementById('newsPage')
+                const lang = document.documentElement.lang || undefined
+                let date, time
+                try {
+                    date = new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'long', year: 'numeric' })
+                    time = new Intl.DateTimeFormat(lang, { weekday: 'long', hour: 'numeric', minute: '2-digit' })
+                } catch (e) { return }
+                for (const el of page.querySelectorAll('time[data-exact]')) {
+                    const at = new Date(el.dateTime)
+                    if (isNaN(at)) continue
+                    el.querySelector('.np-date').textContent = date.format(at)
+                    el.querySelector('.np-time').textContent = time.format(at)
+                }
+                const zone = page.querySelector('.np-zone')
+                if (zone && zone.dataset.local) zone.textContent = zone.dataset.local
+            })()
+        </script>
+    </body>
+</html>

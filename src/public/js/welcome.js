@@ -14,9 +14,26 @@
 //    record; a signed-in user's account keeps it too (POST /api/news/seen), for their other devices. Closed the same
 //    ways as the welcome window. A page address ending in #news opens it anyway (to look at it).
 //
-// Windows 2 and 3 wait while another window is open, and skip search engine robots.
+// Windows 2 and 3 wait while another window is open, and skip search engine robots. The updates page (/news,
+// views/news.ejs) lists every feature, so there the news window stays closed and its feature counts as seen.
 (() => {
     const t = (key, vars) => (typeof window.__ == 'function' ? window.__(key, vars) : key)
+
+    // what a news button can do besides opening a page (service/news.js ACTIONS): in the news window and on /news
+    const ACTIONS = {
+        // the language and theme window (end of views/partials/footer.ejs)
+        themes: () => {
+            const dialog = document.getElementById('siteSettings')
+            if (dialog && !dialog.open && typeof dialog.showModal == 'function') {
+                dialog.showModal()
+                dialog.querySelector('.ss-theme.active, .ss-theme')?.focus()
+            }
+        }
+    }
+    document.addEventListener('click', (e) => {
+        const button = e.target.closest?.('#newsPage [data-news-action]')
+        if (button) { ACTIONS[button.dataset.newsAction]?.() }
+    })
 
     /* ========================= TRADE URL ========================= */
 
@@ -137,18 +154,6 @@
         }).catch(() => {})
     }
 
-    // what the news window's main button can do besides opening a page (service/news.js ACTIONS)
-    const ACTIONS = {
-        // the language and theme window (end of views/partials/footer.ejs)
-        themes: () => {
-            const dialog = document.getElementById('siteSettings')
-            if (dialog && !dialog.open && typeof dialog.showModal == 'function') {
-                dialog.showModal()
-                dialog.querySelector('.ss-theme.active, .ss-theme')?.focus()
-            }
-        }
-    }
-
     // a window from the server's HTML; `seen(dialog)` runs once when it's closed or one of its links is followed
     const open_window = (html, seen) => {
         const template = document.createElement('template')
@@ -214,7 +219,12 @@
     const preview = location.hash == '#news'
     if (!preview && !read('td_welcome')) { later(welcome); return }
     const seen = read('td_news') || ''
-    if (live_news && (preview || seen != live_news)) { later(() => news(seen, preview)) }
+    if (document.getElementById('newsPage') && !preview) {
+        // the updates page has the news on it already
+        if (live_news && seen != live_news) { news_seen(live_news) }
+    } else if (live_news && (preview || seen != live_news)) {
+        later(() => news(seen, preview))
+    }
     // #news typed after the page has opened
     window.addEventListener('hashchange', () => { if (location.hash == '#news' && live_news) { news('', true) } })
 })()

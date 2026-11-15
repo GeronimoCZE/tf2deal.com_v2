@@ -85,6 +85,7 @@
     "blog": "Blog de trading de TF2 – Guías y precios | TF2Deal.com",
     "blog_page": "Blog de trading de TF2 (página {page}) | TF2Deal.com",
     "about": "Acerca de TF2Deal.com – Web de trading automático de TF2",
+    "news": "Novedades de TF2Deal.com – Actualizaciones y nuevas funciones",
     "tos": "Términos de servicio – Normas del trading de TF2 | TF2Deal.com",
     "posts": "TF2Deal.com - Publicaciones",
     "support": "TF2Deal.com - Soporte y ayuda",
@@ -112,6 +113,7 @@
     "blog": "Guías, noticias y precios del trading de TF2 de TF2Deal.com, la web de bots de TF2: cómo hacer trades y cuánto valen los objetos en llaves y ref.",
     "blog_page": "Entradas anteriores del blog de TF2Deal.com (página {page}): guías, noticias y precios del trading de TF2 de la web de bots de intercambio de TF2.",
     "about": "Acerca de TF2Deal.com, una web automatizada de trading de TF2: cómo funcionan nuestros bots, cómo se fijan los precios en llaves y ref y cómo contactarnos.",
+    "news": "Todas las funciones nuevas de TF2Deal.com, la web de bots de trading automático de TF2, de la más reciente a la más antigua, con el día y la hora en que llegaron.",
     "tos": "Normas para intercambiar objetos de TF2 con los bots de TF2Deal.com: quién puede hacer trades, cómo funcionan, reembolsos, propiedad y caídas de los bots.",
     "giveaway_active": "Gana {item} en el sorteo gratis de TF2Deal.com. Entra con Steam, participa antes de que termine y mira los ganadores anteriores.",
     "giveaway_none": "Sorteos gratuitos de objetos de TF2 en TF2Deal.com, la web automatizada de trading de TF2. Mira los ganadores anteriores y vuelve para el próximo.",
@@ -985,20 +987,40 @@
   },
   "news": {
     "kicker": "Novedad en TF2Deal",
+    "link": "Novedades",
+    "all": "Todas las novedades",
+    "page": {
+      "kicker": "Actualizaciones de la web",
+      "h1": "Novedades en TF2Deal",
+      "intro": "Todas las funciones que hemos añadido a la web, de la más reciente a la más antigua, con el día y la hora en que llegaron.",
+      "elsewhere_html": "Los sorteos están en la página {giveaway}, y las guías de trading y noticias de precios, en el {blog}.",
+      "zone_utc": "Las horas están en UTC.",
+      "zone_local": "Las horas están en tu zona horaria.",
+      "newest": "Lo más nuevo",
+      "open": "Echar un vistazo",
+      "empty": "Aún no hay nada aquí. Las funciones nuevas aparecerán en cuanto lleguen."
+    },
     "items": {
+      "updates_page": {
+        "title": "Todas las novedades en una página",
+        "text": "Esta página muestra cada función añadida a la web, de la más reciente a la más antigua, con el día y la hora en que llegó. La encontrarás en Novedades, al pie de cada página."
+      },
       "themes": {
         "title": "Dos estilos nuevos: Medianoche y Blanco",
         "text": "Negro medianoche es negro puro para habitaciones oscuras y pantallas OLED, y Blanco es un estilo claro para el día. Están junto a Cielo nocturno y los estilos de los eventos de TF2, y la web recuerda el que elijas.",
         "button": "Elegir tema"
       },
       "collections": {
-        "title": "Colecciones de objetos"
+        "title": "Colecciones de objetos",
+        "text": "Las páginas de objetos ahora muestran la colección de la que viene cada objeto, con todos los demás objetos que contiene, del grado más alto al más bajo. Las armas con pintura de guerra muestran la colección de su pintura."
       },
       "killstreak": {
-        "title": "Objetos killstreak, cada uno por separado"
+        "title": "Objetos killstreak, cada uno por separado",
+        "text": "Las armas Killstreak, Specialized Killstreak y Professional Killstreak ahora tienen su propia página, cada una con su precio y su stock, para que encuentres justo la que buscas."
       },
       "item_details": {
-        "title": "Clic derecho para ver detalles"
+        "title": "Clic derecho para ver detalles",
+        "text": "Haz clic derecho en un objeto en la página de intercambio o en la de un objeto para ver todo sobre esa copia: pintura, hechizos, strange parts, killstreak y enlaces a backpack.tf, la TF2 Wiki y Steam. En el móvil, toca la ficha del objeto."
       }
     }
   }

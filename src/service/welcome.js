@@ -13,6 +13,7 @@ import * as app from '../app.js'
 import { blog_model } from '../model/Blog.js'
 import * as translate from './translate.js'
 import * as site_news from './news.js'
+import * as news_times from './news_times.js'
 
 export const FEATURES = [
   { key: 'trade', icon: 'trade2', href: '/trade' },
@@ -24,6 +25,7 @@ export const FEATURES = [
 ]
 
 const NEWS_LIMIT = 4
+const DAY = 24 * 3600 * 1000
 const BLOG_LIMIT = 2
 
 // the newest posts are read at most once every 10 minutes (the window is asked for on many first visits)
@@ -54,8 +56,10 @@ export const news = async (lang, __) => {
     dated.push({ kind: 'blog', date: Number(post.created) || 0, title: shown.title, href: '/blog/' + encodeURIComponent(post.slug) })
   }
   for (const entry of site_news.published()) {
-    // (noon UTC: the day shows the same in every time zone, as the window prints it)
-    dated.push({ kind: 'update', key: entry.key, date: site_news.time(entry) + 12 * 3600 * 1000, title: __(`news.items.${entry.key}.title`), href: entry.href || null })
+    // the day it went live (service/news_times.js), at noon UTC: the day shows the same in every time zone, as the
+    // window prints it
+    const day = Math.floor((news_times.live_at(entry) ?? site_news.day(entry)) / DAY) * DAY
+    dated.push({ kind: 'update', key: entry.key, date: day + DAY / 2, title: __(`news.items.${entry.key}.title`), href: entry.href || null })
   }
   dated.sort((a, b) => b.date - a.date)
   // the news window's entry, then the newest of the rest
