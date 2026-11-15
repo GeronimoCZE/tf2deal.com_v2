@@ -46,23 +46,30 @@ for (const file of locales) check('language file', file, () => {
 // The site news (src/service/news.js): a feature's news goes live with the feature, so an entry has to be complete
 // before it's merged: its texts in all 8 languages, its picture in both sizes, newest entries on top.
 const news_file = path.join(root, 'src/service/news.js')
-const { NEWS, ACTIONS } = await import(pathToFileURL(news_file))
+const { NEWS, ACTIONS, DATE, day: news_day, time: news_time, exact: news_exact } = await import(pathToFileURL(news_file))
 const { sniff } = await import(pathToFileURL(path.join(root, 'src/service/uploads.js')))
 check('news', news_file, () => {
   const dicts = Object.fromEntries(locales.map((file) => [path.basename(file), JSON.parse(fs.readFileSync(file, 'utf8'))]))
   const text_at = (obj, key) => key.split('.').reduce((o, k) => (o != null ? o[k] : undefined), obj)
   const problems = []
   const seen = new Set()
-  let newer = Infinity
+  let above = null
   for (const entry of NEWS) {
     const key = entry.key
     if (!/^[a-z0-9_]+$/.test(key || '')) problems.push(`"${key}": a key has only a-z, 0-9 and _`)
     if (seen.has(key)) problems.push(`${key}: in the list twice`)
     seen.add(key)
-    const time = /^\d{4}-\d{2}-\d{2}$/.test(entry.date || '') ? Date.parse(`${entry.date}T00:00:00Z`) : NaN
-    if (Number.isNaN(time)) { problems.push(`${key}: date "${entry.date}" is not YYYY-MM-DD`) }
-    else if (time > newer) { problems.push(`${key}: newer than the entry above it (the newest goes on top)`) }
-    else { newer = time }
+    const [, date, at] = DATE.exec(entry.date || '') || []
+    const parsed = date ? Date.parse(`${date}T${at || '00:00'}:00Z`) : NaN
+    const valid = !Number.isNaN(parsed) && new Date(parsed).toISOString().slice(0, 16) == `${date}T${at || '00:00'}` // (no 31 April, no 25:00)
+    if (!valid) { problems.push(`${key}: date "${entry.date}" is not YYYY-MM-DD (or YYYY-MM-DD HH:MM in UTC)`) }
+    else {
+      // newest on top: by day, and by time within a day when both entries have one
+      if (above && (news_day(entry) > news_day(above) || (news_day(entry) == news_day(above) && news_exact(entry) && news_exact(above) && news_time(entry) > news_time(above)))) {
+        problems.push(`${key}: newer than the entry above it (the newest goes on top)`)
+      }
+      above = entry
+    }
     if (entry.href && entry.action) problems.push(`${key}: href or action, not both`)
     if (entry.href && !/^\/(?!\/)/.test(entry.href)) problems.push(`${key}: href has to be a site path like /items`)
     if (entry.action && !ACTIONS.includes(entry.action)) problems.push(`${key}: unknown action "${entry.action}" (known: ${ACTIONS.join(', ')})`)
@@ -75,7 +82,8 @@ check('news', news_file, () => {
         if (info?.type != 'image/webp' || info.width != width || info.height != height) problems.push(`${key}: ${file} has to be a ${width} x ${height} WebP`)
       }
     }
-    for (const field of entry.window ? ['title', 'text', 'button'] : ['title']) {
+    // every entry is on the updates page (/news) with its title and text; the news window adds the button
+    for (const field of entry.window ? ['title', 'text', 'button'] : ['title', 'text']) {
       for (const [file, dict] of Object.entries(dicts)) {
         const text = text_at(dict, `news.items.${key}.${field}`)
         if (typeof text != 'string' || !text.trim()) problems.push(`${key}: news.items.${key}.${field} is missing in ${file}`)

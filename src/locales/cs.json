@@ -85,6 +85,7 @@
     "blog": "Blog o TF2 tradingu – návody a ceny | TF2Deal.com",
     "blog_page": "Blog o TF2 tradingu (strana {page}) | TF2Deal.com",
     "about": "O nás – TF2Deal.com, automatický TF2 trading",
+    "news": "Novinky na TF2Deal.com – aktualizace a nové funkce webu",
     "tos": "Podmínky užití – pravidla TF2 tradingu | TF2Deal.com",
     "posts": "TF2Deal.com - Příspěvky",
     "support": "TF2Deal.com - Podpora a pomoc",
@@ -112,6 +113,7 @@
     "blog": "Návody, novinky a ceny z TF2 tradingu od TF2Deal.com, webu s automatickými TF2 trade boty: jak tradovat a kolik předměty stojí v klíčích a ref.",
     "blog_page": "Starší články blogu TF2Deal.com (strana {page}): návody, novinky a ceny z TF2 tradingu od webu s automatickými TF2 trade boty.",
     "about": "O TF2Deal.com, automatickém webu pro TF2 trading: jak fungují naši TF2 trade boti, jak určujeme ceny v klíčích a ref a jak nás kontaktovat.",
+    "news": "Všechny nové funkce TF2Deal.com, automatického webu s TF2 trade boty, od nejnovější, se dnem a časem spuštění: stránky předmětů, nástroje pro výměny a nové vzhledy.",
     "tos": "Pravidla pro trading TF2 předmětů s trade boty TF2Deal.com: kdo může tradovat, jak výměny probíhají, vrácení, vlastnictví předmětů a výpadky botů.",
     "giveaway_active": "Vyhrajte {item} v soutěži zdarma na TF2Deal.com. Přihlaste se přes Steam, zapojte se, než skončí, a podívejte se na minulé výherce.",
     "giveaway_none": "Soutěže o TF2 předměty zdarma na TF2Deal.com, automatickém webu pro TF2 trading. Podívejte se na minulé výherce a vraťte se na další soutěž.",
@@ -694,9 +696,6 @@
     "end": "Jste na konci seznamu.",
     "none": "Nenalezeny žádné odpovídající předměty...",
     "search_placeholder": "Hledat předměty ...",
-    "pages": "Stránky seznamu předmětů",
-    "prev_page": "Předchozí",
-    "next_page": "Další",
     "category_h1": "TF2 {category}"
   },
   "item": {
@@ -988,20 +987,40 @@
   },
   "news": {
     "kicker": "Novinka na TF2Deal",
+    "link": "Co je nového",
+    "all": "Všechny novinky",
+    "page": {
+      "kicker": "Aktualizace webu",
+      "h1": "Co je nového na TF2Deal",
+      "intro": "Všechny funkce, které jsme na web přidali, od nejnovější, se dnem a časem, kdy byly spuštěny.",
+      "elsewhere_html": "Soutěže najdete na stránce {giveaway}, návody k obchodování a novinky o cenách v sekci {blog}.",
+      "zone_utc": "Časy jsou v UTC.",
+      "zone_local": "Časy jsou ve vašem časovém pásmu.",
+      "newest": "Nejnovější",
+      "open": "Podívat se",
+      "empty": "Zatím tu nic není. Nové funkce se tu objeví hned, jak budou spuštěny."
+    },
     "items": {
+      "updates_page": {
+        "title": "Všechny novinky na jedné stránce",
+        "text": "Tato stránka ukazuje všechny funkce přidané na web, od nejnovější, se dnem a časem spuštění. Najdete ji pod odkazem Co je nového v patičce každé stránky."
+      },
       "themes": {
         "title": "Dva nové vzhledy: Půlnoc a Bílý",
         "text": "Půlnoční černá je opravdu černá pro tmavé místnosti a OLED displeje, Bílá je světlý vzhled na den. Najdete je vedle Noční oblohy a vzhledů TF2 událostí a web si vybraný vzhled zapamatuje.",
         "button": "Vybrat motiv"
       },
       "collections": {
-        "title": "Kolekce předmětů"
+        "title": "Kolekce předmětů",
+        "text": "Stránky předmětů teď ukazují kolekci, ze které předmět pochází, se všemi dalšími předměty v ní, od nejvyššího stupně. Zbraně s war paintem ukazují kolekci svého war paintu."
       },
       "killstreak": {
-        "title": "Killstreak předměty zvlášť"
+        "title": "Killstreak předměty zvlášť",
+        "text": "Zbraně Killstreak, Specialized Killstreak a Professional Killstreak mají teď vlastní stránky předmětů, každá se svou cenou a skladem, takže najdete přesně tu, kterou chcete."
       },
       "item_details": {
-        "title": "Pravým tlačítkem na detaily"
+        "title": "Pravým tlačítkem na detaily",
+        "text": "Klikněte pravým tlačítkem na předmět na stránce výměny nebo na stránce předmětu a uvidíte vše o daném kusu: barvu, kouzla, strange parts, killstreak a odkazy na backpack.tf, TF2 Wiki a Steam. Na telefonu klepněte na popisek předmětu."
       }
     }
   }

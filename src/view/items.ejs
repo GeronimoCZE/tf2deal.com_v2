@@ -127,7 +127,8 @@
                     </div>
 
                     <%# One page of the list as plain HTML (routes/router.js items). public/js/plugins/items.js loads the next
-                        items while scrolling, or replaces the list when filters are picked. %>
+                        items while scrolling and with Show more, or replaces the list when filters are picked. No page links
+                        under it (Nikolas asked, 2026-11-15): ?page=N still opens that page and the sitemap lists every item. %>
                     <% const list = info.list %>
                     <div class="item-content<%= list?.cards.length ? ' loaded' : '' %>">
                         <div class="items" data-intro-list data-page="<%= list?.page || 0 %>" data-per-page="<%= list?.per_page || 0 %>">
@@ -139,21 +140,6 @@
                         <div class="end"><span class="icon icon-info"></span> <%= __('items.end') %></div>
                         <div class="none"><%= __('items.none') %></div>
                     </div>
-
-                    <% if (list && list.pages > 1) {
-                        const page_url = (n) => { const q = new URLSearchParams(list.query || {}); if (n > 1) q.set('page', n); return lurl('/items') + (String(q) ? '?' + q : '') } // the filters stay
-                        // first, last and two pages on each side of this one
-                        const shown = [...new Set([1, list.page - 2, list.page - 1, list.page, list.page + 1, list.page + 2, list.pages])].filter((n) => n >= 1 && n <= list.pages).sort((a, b) => a - b)
-                        const link = 'display: inline-block; min-width: 2.2rem; padding: .35rem .6rem; border-radius: 5px; text-align: center; color: #b88ef7;' %>
-                    <nav class="item-pages" aria-label="<%= __('items.pages') %>" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .3rem; margin: 3.5rem auto 1rem auto; font-size: 16px;">
-                        <% if (list.page > 1) { %><a href="<%= page_url(list.page - 1) %>" style="<%= link %>">&larr; <%= __('items.prev_page') %></a><% } %>
-                        <% shown.forEach((n, i) => { %>
-                            <% if (i > 0 && n - shown[i - 1] > 1) { %><span aria-hidden="true">&hellip;</span><% } %>
-                            <% if (n == list.page) { %><span aria-current="page" style="<%= link %> color: inherit; background: var(--surface-2, rgba(255, 255, 255, .08));"><%= n %></span><% } else { %><a href="<%= page_url(n) %>" style="<%= link %>"><%= n %></a><% } %>
-                        <% }) %>
-                        <% if (list.page < list.pages) { %><a href="<%= page_url(list.page + 1) %>" style="<%= link %>"><%= __('items.next_page') %> &rarr;</a><% } %>
-                    </nav>
-                    <% } %>
                 </div>
             </main>    
         </div>

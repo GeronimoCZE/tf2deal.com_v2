@@ -85,6 +85,7 @@
     "blog": "Blog du trading TF2 – Guides et prix | TF2Deal.com",
     "blog_page": "Blog du trading TF2 (page {page}) | TF2Deal.com",
     "about": "À propos de TF2Deal.com – Site de trading TF2 automatique",
+    "news": "Nouveautés de TF2Deal.com – Mises à jour et nouvelles fonctions",
     "tos": "Conditions d'utilisation – Règles du trading TF2 | TF2Deal.com",
     "posts": "TF2Deal.com - Articles",
     "support": "TF2Deal.com - Aide et assistance",
@@ -112,6 +113,7 @@
     "blog": "Guides, actualités et prix du trading TF2 par TF2Deal.com, le site de bots d'échange TF2 : comment échanger et combien valent les objets en clés et en ref.",
     "blog_page": "Articles précédents du blog de TF2Deal.com (page {page}) : guides, actualités et prix du trading TF2 par le site de bots d'échange TF2.",
     "about": "À propos de TF2Deal.com, un site de trading TF2 automatisé : le fonctionnement de nos bots, la fixation des prix en clés et ref et comment nous contacter.",
+    "news": "Toutes les nouvelles fonctions de TF2Deal.com, le site de bots d'échange TF2 automatiques, de la plus récente à la plus ancienne, avec le jour et l'heure de leur arrivée.",
     "tos": "Règles pour échanger des objets TF2 avec les bots de TF2Deal.com : qui peut échanger, déroulement, remboursements, propriété des objets et pannes des bots.",
     "giveaway_active": "Gagnez {item} au concours gratuit de TF2Deal.com. Connectez-vous via Steam, participez avant la fin et voyez les gagnants précédents.",
     "giveaway_none": "Concours d'objets TF2 gratuits sur TF2Deal.com, le site de trading TF2 automatisé. Découvrez les anciens gagnants et revenez pour le prochain concours.",
@@ -694,9 +696,6 @@
     "end": "Vous avez atteint la fin de la liste.",
     "none": "Aucun objet correspondant...",
     "search_placeholder": "Rechercher des objets...",
-    "pages": "Pages de la liste d'objets",
-    "prev_page": "Précédente",
-    "next_page": "Suivante",
     "category_h1": "TF2 {category}"
   },
   "item": {
@@ -988,20 +987,40 @@
   },
   "news": {
     "kicker": "Nouveau sur TF2Deal",
+    "link": "Nouveautés",
+    "all": "Toutes les nouveautés",
+    "page": {
+      "kicker": "Mises à jour du site",
+      "h1": "Nouveautés sur TF2Deal",
+      "intro": "Toutes les fonctions que nous avons ajoutées au site, de la plus récente à la plus ancienne, avec le jour et l'heure de leur mise en ligne.",
+      "elsewhere_html": "Les concours sont sur la page {giveaway}, les guides d'échange et l'actualité des prix sur le {blog}.",
+      "zone_utc": "Heures en UTC.",
+      "zone_local": "Heures dans votre fuseau horaire.",
+      "newest": "Le plus récent",
+      "open": "Voir",
+      "empty": "Rien pour l'instant. Les nouvelles fonctions apparaîtront ici dès leur mise en ligne."
+    },
     "items": {
+      "updates_page": {
+        "title": "Toutes les nouveautés sur une page",
+        "text": "Cette page liste chaque fonction ajoutée au site, de la plus récente à la plus ancienne, avec le jour et l'heure de sa mise en ligne. Vous la trouverez sous Nouveautés, en bas de chaque page."
+      },
       "themes": {
         "title": "Deux nouveaux thèmes : Minuit et Blanc",
         "text": "Noir minuit est un vrai noir pour les pièces sombres et les écrans OLED, et Blanc un thème clair pour la journée. Ils rejoignent Ciel nocturne et les thèmes des événements TF2, et le site retient celui que vous choisissez.",
         "button": "Choisir un thème"
       },
       "collections": {
-        "title": "Collections d'objets"
+        "title": "Collections d'objets",
+        "text": "Les pages d'objets montrent maintenant la collection d'où vient un objet, avec tous les autres objets qu'elle contient, du grade le plus élevé au plus bas. Les armes avec peinture de guerre montrent la collection de leur peinture."
       },
       "killstreak": {
-        "title": "Les objets killstreak à part"
+        "title": "Les objets killstreak à part",
+        "text": "Les armes Killstreak, Specialized Killstreak et Professional Killstreak ont maintenant leur propre page, chacune avec son prix et son stock, pour trouver exactement celle que vous voulez."
       },
       "item_details": {
-        "title": "Clic droit pour les détails"
+        "title": "Clic droit pour les détails",
+        "text": "Faites un clic droit sur un objet sur la page d'échange ou sur la page d'un objet pour tout voir sur cet exemplaire : peinture, sorts, strange parts, killstreak et liens vers backpack.tf, le TF2 Wiki et Steam. Sur téléphone, touchez l'infobulle de l'objet."
       }
     }
   }

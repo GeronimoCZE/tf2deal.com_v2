@@ -41,6 +41,7 @@ Only the Steam bots listed on the [About page](https://tf2deal.com/about) belong
 - [About](https://tf2deal.com/about): how to trade and the list of the site's Steam bots.
 - [Giveaway](https://tf2deal.com/giveaway): the current free item giveaway and past winners.
 - [Blog](https://tf2deal.com/blog): news, guides and updates about TF2 trading.
+- [What's new](https://tf2deal.com/news): every feature added to the site, newest first, with the date and time it went live.
 - [Sitemap](https://tf2deal.com/sitemap.xml): all indexed pages, in every language.
 
 ## For AI agents

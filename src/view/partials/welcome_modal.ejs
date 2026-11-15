@@ -32,7 +32,10 @@
             </div>
             <% if (news.length) { %>
             <section class="wm-news" aria-labelledby="welcomeNewsTitle">
-                <h3 class="tdm-label" id="welcomeNewsTitle"><%= __('welcome.news_title') %></h3>
+                <div class="wm-news-head">
+                    <h3 class="tdm-label" id="welcomeNewsTitle"><%= __('welcome.news_title') %></h3>
+                    <a class="wm-all" href="<%= lurl('/news') %>"><%= __('news.all') %></a>
+                </div>
                 <ul>
                     <% for (const n of news) { %>
                     <li class="wm-news-<%= n.kind %>">

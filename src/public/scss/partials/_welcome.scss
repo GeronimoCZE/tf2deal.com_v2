@@ -228,6 +228,23 @@ dialog.td-modal{
         border-radius: var(--r-md);
         background: var(--surface-2);
         .tdm-label{ margin-top: 0; }
+        // the heading, and the way to every update (/news) beside it
+        .wm-news-head{
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: .75rem;
+            margin: 0 0 .6rem 0;
+            .tdm-label{ margin: 0; }
+            a.wm-all{
+                display: inline;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--violet);
+                white-space: nowrap;
+                &:hover{ color: var(--ink); }
+            }
+        }
         ul{
             display: flex;
             flex-direction: column;
@@ -313,6 +330,11 @@ dialog.td-modal.news-modal{
         font-size: 15px;
         line-height: 1.55;
         color: var(--ink-2);
+    }
+    .tdm-foot a.nm-all{
+        font-weight: 600;
+        white-space: nowrap;
+        &:hover{ color: var(--ink); }
     }
     .nm-actions{
         flex: none;

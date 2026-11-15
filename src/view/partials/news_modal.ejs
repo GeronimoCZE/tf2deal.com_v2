@@ -3,7 +3,7 @@
     or its link counts as seen. Texts: news.kicker and news.items.<key>.title / text / button in locales/<lang>.json.
     Styles: scss/partials/_welcome.scss (the same window family as the welcome window). %>
 <% const day = (ms) => { try { return new Intl.DateTimeFormat(html_lang, { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(ms)) } catch (e) { return new Date(ms).toISOString().slice(0, 10) } } %>
-<% const when = Date.parse(entry.date + 'T00:00:00Z') %>
+<% const when = locals.when || Date.parse(entry.date.slice(0, 10) + 'T00:00:00Z') %>
 <dialog class="td-modal news-modal<%= entry.image ? '' : ' no-picture' %>" id="newsModal" data-news="<%= entry.key %>" autofocus tabindex="-1" aria-labelledby="newsTitle" aria-describedby="newsText">
     <% if (entry.image) { %>
     <div class="nm-picture">
@@ -14,13 +14,13 @@
         <div class="nm-body">
             <%# under the picture, not on it: the picture has its own corners full of page (menu buttons, logos) %>
             <button type="button" class="tdm-close" data-tdm-close aria-label="<%= __('common.close') %>">&times;</button>
-            <p class="tdm-kicker"><span><%= __('news.kicker') %></span><time datetime="<%= entry.date %>"><%= day(when) %></time></p>
+            <p class="tdm-kicker"><span><%= __('news.kicker') %></span><time datetime="<%= new Date(when).toISOString().slice(0, 10) %>"><%= day(when) %></time></p>
             <h2 id="newsTitle"><%= __('news.items.' + entry.key + '.title') %></h2>
             <p class="nm-text" id="newsText"><%= __('news.items.' + entry.key + '.text') %></p>
         </div>
     </div>
     <div class="tdm-foot">
-        <p><%= __('welcome.once') %></p>
+        <p><%= __('welcome.once') %> <a class="nm-all" href="<%= lurl('/news') %>"><%= __('news.all') %></a></p>
         <div class="nm-actions">
             <button type="button" class="nm-later" data-tdm-close><%= __('common.close') %></button>
             <% if (entry.action) { %>

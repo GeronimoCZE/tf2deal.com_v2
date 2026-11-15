@@ -17,7 +17,8 @@
 // Item pages whose prices, stock or status changed get a <lastmod> and go to IndexNow within a minute
 // (service/page_changes.js).
 //
-// Blog posts and the giveaway page carry a lastmod: a post's last edit, the giveaway page's last start / end / cancel.
+// Blog posts, the giveaway page and the updates page carry a lastmod: a post's last edit, the giveaway page's last
+// start / end / cancel, the moment the newest feature on /news went live (service/news_times.js).
 // refresh() builds the sitemap again at once; the blog admin routes, the translation queue (a new language of a post)
 // and the giveaway state (service/giveaway.js refresh_state) call it, and every main-file URL that is new or has a new
 // lastmod goes to IndexNow (a new post, its translations, a new giveaway, an ended one).
@@ -32,6 +33,7 @@ import { available_langs } from './translate.js'
 import * as fn from '../fn.js'
 import * as indexnow from './indexnow.js'
 import * as page_changes from './page_changes.js'
+import * as news_times from './news_times.js'
 
 const CACHE_MS = 10 * 60 * 1000
 const CHECK_EVERY = 60 * 1000
@@ -45,6 +47,7 @@ const PAGES = [
   { path: '/items', changefreq: 'always', priority: '0.8' },
   { path: '/giveaway', changefreq: 'daily', priority: '0.6' },
   { path: '/blog', changefreq: 'daily', priority: '0.6' },
+  { path: '/news', changefreq: 'weekly', priority: '0.5' },
   { path: '/about', changefreq: 'monthly', priority: '0.5' }
 ]
 const ENGLISH_ONLY = [
@@ -132,6 +135,9 @@ const build = async () => {
     complete = false
     console.log('Sitemap: giveaways not read, the last date stays:', error?.message || error)
   }
+  // the updates page changes when a new feature goes live (service/news.js, from the code: no database needed)
+  const news_change = news_times.last_change()
+  last_lastmod = { ...last_lastmod, '/news': news_change > 0 ? stamp(news_change) : '' }
   const pages = main_pages()
 
   // published blog posts, in every language they exist in (the original + AI translations, see service/translate.js)
