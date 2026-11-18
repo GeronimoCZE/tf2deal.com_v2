@@ -131,6 +131,27 @@
     .admin-input-unit.no-unit input{ padding-right: .75rem !important; }
 
     // ---------- bots ----------
+    // Chrome window as a bot (extension/, service/bot_browser.js)
+    .admin-bm-browser{
+        .admin-bm-browser-state{ margin: .6rem 0; color: var(--ink-2); font-size: 14px; .admin-pill{ margin-right: .35rem; } }
+        .admin-bm-steps{
+            margin: .4rem 0 .8rem 1.25rem;
+            padding: 0;
+            color: var(--ink-2);
+            font-size: 14px;
+            li{ margin: .25rem 0; padding-left: .2rem; }
+            b{ color: var(--ink); font-weight: 600; }
+        }
+        code{ padding: .05rem .35rem; border-radius: 4px; background: var(--surface-3); color: var(--ink); font-size: 13px; }
+        a.admin-button{
+            @include button(secondary);
+            display: inline-flex;
+            align-items: center;
+            padding: .45rem .95rem;
+            font-size: .92rem;
+            text-decoration: none;
+        }
+    }
     .admin-bm-max{
         display: flex;
         flex-wrap: wrap;

@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "tf2deal admin: bot browser",
+  "version": "1.0.0",
+  "description": "From the tf2deal.com admin panel, opens a private Chrome window logged in as a bot on Steam and backpack.tf.",
+  "minimum_chrome_version": "116",
+  "incognito": "spanning",
+  "permissions": ["cookies", "declarativeNetRequest", "storage"],
+  "host_permissions": [
+    "https://steamcommunity.com/*",
+    "https://store.steampowered.com/*",
+    "https://help.steampowered.com/*",
+    "https://login.steampowered.com/*",
+    "https://checkout.steampowered.com/*",
+    "https://backpack.tf/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://tf2deal.com/admin*", "https://www.tf2deal.com/admin*", "http://localhost/admin*", "http://127.0.0.1/admin*"],
+      "js": ["bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://steamcommunity.com/openid/login*"],
+      "js": ["openid.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": { "default_title": "tf2deal bot browser: open it from Admin → Bot manager → Bots" },
+  "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+}
