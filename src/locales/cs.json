@@ -23,6 +23,7 @@
     "theme_night": "Noční obloha",
     "theme_midnight": "Půlnoční černá",
     "theme_white": "Bílá",
+    "theme_nebula": "Mlhovina",
     "theme_summer": "Léto",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
@@ -1001,6 +1002,11 @@
       "empty": "Zatím tu nic není. Nové funkce se tu objeví hned, jak budou spuštěny."
     },
     "items": {
+      "nebula": {
+        "title": "Nový vzhled: Mlhovina",
+        "text": "Obloha z hlubokého vesmíru s fialovým, modrým a tyrkysovým plynem a hvězdným prachem, který se za stránkou pomalu třpytí. Texty a boxy na ní zůstávají dobře čitelné, i na telefonu. Vyberte si ji v nabídce motivů a web si ji zapamatuje.",
+        "button": "Vyzkoušet Mlhovinu"
+      },
       "updates_page": {
         "title": "Všechny novinky na jedné stránce",
         "text": "Tato stránka ukazuje všechny funkce přidané na web, od nejnovější, se dnem a časem spuštění. Najdete ji pod odkazem Co je nového v patičce každé stránky."

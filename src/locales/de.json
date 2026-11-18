@@ -23,6 +23,7 @@
     "theme_night": "Nachthimmel",
     "theme_midnight": "Mitternachtsschwarz",
     "theme_white": "Weiß",
+    "theme_nebula": "Sternennebel",
     "theme_summer": "Sommer",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
@@ -1001,6 +1002,11 @@
       "empty": "Noch nichts hier. Neue Funktionen erscheinen hier, sobald sie online sind."
     },
     "items": {
+      "nebula": {
+        "title": "Neuer Look: Sternennebel",
+        "text": "Ein Himmel aus dem tiefen All mit violettem, blauem und türkisem Gas und Sternenstaub, der hinter der Seite langsam funkelt. Texte und Boxen bleiben darauf gut lesbar, auch auf dem Handy. Wähle ihn im Design-Menü, die Seite merkt sich deine Wahl.",
+        "button": "Sternennebel ausprobieren"
+      },
       "updates_page": {
         "title": "Alle Updates auf einer Seite",
         "text": "Diese Seite zeigt jede neue Funktion der Seite, die neueste zuerst, mit Tag und Uhrzeit ihres Starts. Du findest sie unter Neuigkeiten unten auf jeder Seite."
