@@ -23,6 +23,7 @@
     "theme_night": "夜空",
     "theme_midnight": "午夜黑",
     "theme_white": "白色",
+    "theme_nebula": "星云",
     "theme_summer": "夏季",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
@@ -1001,6 +1002,11 @@
       "empty": "这里还没有内容。新功能一上线就会出现在这里。"
     },
     "items": {
+      "nebula": {
+        "title": "新外观：星云",
+        "text": "由紫色、蓝色和青色气体组成的深空星空，页面背后还有缓缓闪烁的星尘。上面的文字和方框依然清晰易读，手机上也一样。在主题菜单中选择它，网站会记住你的选择。",
+        "button": "试试星云"
+      },
       "updates_page": {
         "title": "所有更新集中在一页",
         "text": "此页面按从新到旧列出网站添加的每项功能，并附上线日期和时间。你可以在每个页面底部的“最新动态”中找到它。"

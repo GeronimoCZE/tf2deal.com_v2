@@ -333,13 +333,13 @@ app.get('/theme/:choice', (req, res) => {
 })
 app.locals.season_class = ''
 app.locals.theme = 'auto'
-app.locals.theme_choices = seasons.CHOICES // the theme menus (views/partials/nav.ejs, footer.ejs): auto, off, midnight, white, seasons
+app.locals.theme_choices = seasons.CHOICES // the theme menus (views/partials/nav.ejs, footer.ejs): auto, off, midnight, white, nebula, seasons
 app.locals.news_key = () => site_news.live()?.key || '' // the newest feature for the news window (footer.ejs, public/js/welcome.js)
 // the admin pages are made for the dark looks: a visitor who picked White sees them in the normal look
 const DARK_ONLY_PAGES = /^\/(?:[a-z]{2}\/)?(?:admin|login)(?:\/|$)/
 app.use((req, res, next) => {
   res.locals.theme = seasons.theme_choice(req)
-  res.locals.season_class = seasons.body_class(res.locals.theme) // '' = the normal look, else season-summer / -halloween / -smissmas, theme-midnight / theme-white
+  res.locals.season_class = seasons.body_class(res.locals.theme) // '' = the normal look, else season-summer / -halloween / -smissmas, theme-midnight / -white / -nebula
   if (res.locals.season_class == 'theme-white' && DARK_ONLY_PAGES.test(req.path)) { res.locals.season_class = '' }
   next()
 })

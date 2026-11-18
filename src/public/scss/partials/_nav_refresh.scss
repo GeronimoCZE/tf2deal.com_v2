@@ -574,7 +574,7 @@ dialog.site-settings{
         span{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         &:hover{ background: var(--surface-3); color: var(--ink); }
     }
-    // four a row: Automatic and the three everyday looks, then the three TF2 events
+    // four a row: Automatic, Night sky and the everyday looks first, then the TF2 events
     .ss-themes{
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -629,6 +629,20 @@ dialog.site-settings{
         line-height: 1.2rem;
         text-align: center;
         font-size: 11px;
+    }
+}
+// phones reach it from the news window's theme button: nearly the full width (the page-wide dialog rule's 70vw and
+// 2.5rem padding left too little room for four columns), two languages and three looks a row, and it scrolls
+@media screen and (max-width: 640px){
+    dialog.site-settings{
+        width: calc(100vw - 1.5rem);
+        max-width: none;
+        max-height: calc(100dvh - 2rem);
+        padding: 1rem 1rem 1.2rem 1rem !important;
+        overflow: auto !important;
+        .ss-langs{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .ss-themes{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .ss-theme .theme-swatch{ height: 2.8rem; }
     }
 }
 @keyframes ssFade{ from{ opacity: 0; } to{ opacity: 1; } }

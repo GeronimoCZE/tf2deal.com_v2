@@ -7,8 +7,8 @@
 //
 // The admin panel (Live settings → Seasonal theme) can force a theme or turn it off: settings.season is
 // 'auto' (default), 'off', 'summer', 'halloween' or 'smissmas'. Each visitor can also pick a theme of their own in
-// the menu (body_class(choice)); 'auto' follows the site. Two more looks are only for visitors, never for an event:
-// Midnight (black) and White (light), see THEMES.
+// the menu (body_class(choice)); 'auto' follows the site. Three more looks are only for visitors, never for an event:
+// Midnight (black), White (light) and Nebula (a starry nebula sky), see THEMES.
 //
 //   current()  { id: 'halloween' | 'summer' | 'smissmas' | null, name, ends, source }
 //   status()   the same plus what was read from teamfortress.com (for the admin panel)
@@ -23,7 +23,8 @@ export const SEASONS = {
 // the visitor's own everyday looks next to the normal night sky: they stay the same all year (TF2 events don't change them)
 export const THEMES = {
   midnight: { name: 'Midnight black' },
-  white: { name: 'White' }
+  white: { name: 'White' },
+  nebula: { name: 'Nebula' }
 }
 export const CHOICES = ['auto', 'off', ...Object.keys(THEMES), ...Object.keys(SEASONS)]
 
@@ -154,8 +155,8 @@ export const status = () => ({
 })
 
 // the class on <body>: '' outside events. `choice` is a visitor's own theme (the td_theme cookie, see theme_choice):
-// 'off' = the normal look, a season = that season's look all year, midnight / white = theme-midnight / theme-white
-// (scss/partials/_themes.scss), 'auto' = what the site shows (above)
+// 'off' = the normal look, a season = that season's look all year, midnight / white / nebula = theme-midnight /
+// theme-white / theme-nebula (scss/partials/_themes.scss), 'auto' = what the site shows (above)
 export const body_class = (choice = 'auto') => {
   if (choice == 'off') { return '' }
   if (THEMES[choice]) { return `theme-${choice}` }

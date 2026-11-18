@@ -23,6 +23,7 @@
     "theme_night": "Night sky",
     "theme_midnight": "Midnight black",
     "theme_white": "White",
+    "theme_nebula": "Nebula",
     "theme_summer": "Summer",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
@@ -1001,6 +1002,11 @@
       "empty": "Nothing here yet. New features will show up here as soon as they go live."
     },
     "items": {
+      "nebula": {
+        "title": "New look: Nebula",
+        "text": "A deep-space sky of violet, blue and teal gas, with stardust that slowly twinkles behind the page. Texts and boxes stay easy to read on it, on phones too. Pick it in the theme menu and the site remembers it.",
+        "button": "Try Nebula"
+      },
       "updates_page": {
         "title": "Every update on one page",
         "text": "This page lists every feature added to the site, newest first, with the day and time it went live. You'll find it under What's new at the bottom of every page."
