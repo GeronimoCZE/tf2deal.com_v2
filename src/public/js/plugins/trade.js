@@ -195,6 +195,29 @@ const site_filters_key = () => { const { page, ...filters } = SiteTrade.filters;
 // visitors who aren't signed in see this many pages (the site's /api/bots/inventory answers no more)
 const SITE_PAGES_SIGNED_OUT = 2
 
+// The inventories the page knows: one record per item (bp_sku) with every copy it was sent, so a tile's copies are always
+// found by asset id (adding to the trade, tooltips). The bot server sends an item in more than one entry when the list
+// is sorted by price or filtered by a price range: one entry per price, each with the copies of that price (a
+// killstreak copy costs more than the plain ones). Newer item fields win, copies are added, never removed (the trade can
+// hold copies the grid no longer shows). Records are copies of the answer's items, which render_items shows as sent.
+const remember_items = (known, items, party) => {
+    if(!Array.isArray(items)){ return known; }
+    const copies_of = (item) => party == 'site' ? (Array.isArray(item?.stock?.items) ? item.stock.items : []) : (Array.isArray(item?.user_stock) ? item.user_stock : []);
+    const with_copies = (item, copies) => party == 'site' ? { ...item, stock: { ...(item.stock || {}), items: copies } } : { ...item, user_stock: copies };
+    for (const item of items) {
+        if(!item || typeof item.bp_sku != 'string'){ continue; }
+        const at = known.findIndex(itm => itm.bp_sku == item.bp_sku);
+        if(at < 0){ known.push(with_copies(item, [...copies_of(item)])); continue; }
+        const merged = [...copies_of(known[at])];
+        const ids = new Set(merged.map(c => String(c?.a)));
+        for (const copy of copies_of(item)) {
+            if(!ids.has(String(copy?.a))){ merged.push(copy); ids.add(String(copy?.a)); }
+        }
+        known[at] = with_copies(item, merged);
+    }
+    return known;
+}
+
 let processing_site_inventory = false;
 // page: 'next' for the next page of what the grid shows (scrolling to its end), anything else for page 1
 // change: 'change' once the page is set up (the first load also resets the filter menus)
@@ -305,14 +328,7 @@ const load_site_inventory = async (page, change, reload) => {
                     if(!Array.isArray(SiteTrade.inventory)){ SiteTrade.inventory = [] }
                     if( response.inventory.items.length < response?.page_limit ){ fetched_all_pages = true }
         
-                    let new_items = []
-                    for (const item of response.inventory.items) {
-                        if(!SiteTrade.inventory.find(itm => itm.bp_sku == item.bp_sku)){
-                            new_items.push(item)
-                        }
-                    }
-    
-                    SiteTrade.inventory = [...SiteTrade.inventory, ...new_items];
+                    remember_items(SiteTrade.inventory, response.inventory.items, 'site');
                     
                     SiteTrade.pure = response.inventory.pure;
                     await render_items('site', response, ask - 1, change, fetched_all_pages)
@@ -1202,11 +1218,8 @@ const load_user_inventory = async (page, change, reload) => {
         user_trusted.bptf = response?.inventory?.userTrust
 
         if( response.inventory.items.length < response?.page_limit ){ fetched_all_user_pages = true }
-        if(Array.isArray(UserTrade.inventory)){
-            UserTrade.inventory.push(...response?.inventory?.items);
-        } else {
-            UserTrade.inventory = response?.inventory?.items;
-        }
+        if(!Array.isArray(UserTrade.inventory)){ UserTrade.inventory = []; }
+        remember_items(UserTrade.inventory, response?.inventory?.items, 'user');
         UserTrade.pure = response?.inventory?.pure;
         UserTrade.pureAssets.key = response.keys;
         UserTrade.pureAssets.ref = response.refs;
