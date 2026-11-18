@@ -1,0 +1,93 @@
+// ============================================================================
+// ITEM QUALITY WITHOUT COLOURED EDGES
+//
+// Nikolas 2026-11-18: "Get rid of highlighted top or bottom solid border with colour. Every page made by ai uses that.
+// Find alternative." An item shows its quality the way TF2 shows it, not with a stripe:
+//   - a soft glow of the quality colour behind the item's picture (TF2's backpack tints an item's slot by its quality),
+//   - item cards with a name (/items, similar items, the home page's popular items, the wishlist, blog items) write the
+//     name in the quality colour, as the game and backpack.tf write item names.
+// Tiles keep the same edge on every side and stand apart by their background, as everywhere else.
+// Unique is most of the shop, so its glow is the faintest: the rarer qualities are the ones that stand out.
+// ============================================================================
+
+// --q: the quality colour (the glow); --q-name: the same hue made readable as text on the page (dark themes here,
+// the White theme below); --q-weight: how strong the glow is next to the other qualities
+.q-0{ --q: #B2B2B2; --q-name: #c9c9c9; }
+.q-1{ --q: var(--q-genuine); --q-name: #6fbf7f; }
+.q-3{ --q: var(--q-vintage); --q-name: #7f9fd6; }
+.q-5{ --q: var(--q-unusual); --q-name: #b77fe0; }
+.q-6{ --q: var(--q-unique); --q-name: #f2d24b; --q-weight: .5; }
+.q-7{ --q: var(--q-community); --q-name: #8cc96a; }
+.q-8{ --q: #A50F79; --q-name: #e062bd; }
+.q-9{ --q: var(--q-self-made); --q-name: #8cc96a; }
+.q-11{ --q: var(--q-strange); --q-name: #e8834b; }
+.q-13{ --q: var(--q-haunted); --q-name: #38f3ab; }
+.q-14{ --q: var(--q-collectors); --q-name: #e05555; }
+.q-15{ --q: var(--q-decorated); --q-name: #f2f2f2; }
+
+// the glow's strength at its centre
+:root{
+    --q-glow: 34%;
+    --q-glow-hover: 50%;
+}
+body.theme-white{
+    --q-glow: 30%;
+    --q-glow-hover: 44%;
+    .q-0{ --q-name: #5c5c5c; }
+    .q-1{ --q-name: #3b6b47; }
+    .q-3{ --q-name: #3b5687; }
+    .q-5{ --q-name: #6e3e96; }
+    .q-6{ --q-name: #866a00; }
+    .q-7, .q-9{ --q-name: #3f7a22; }
+    .q-8{ --q-name: #8e0c68; }
+    .q-11{ --q-name: #a84e1c; }
+    .q-13{ --q-name: #11845a; }
+    .q-14{ --q-name: #a00000; }
+    .q-15{ --q-name: #4a4c57; }
+}
+
+@function q-glow($at, $size, $strength){
+    @return radial-gradient($size at $at, color-mix(in srgb, var(--q, transparent) calc($strength * var(--q-weight, 1)), transparent), transparent);
+}
+@mixin quality-glow($at: 50% 50%, $size: closest-side){
+    isolation: isolate;
+    &::before{
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        pointer-events: none;
+        background: q-glow($at, $size, var(--q-glow));
+        transition: background 150ms ease;
+    }
+    &:hover::before, &:focus-visible::before{ background: q-glow($at, $size, var(--q-glow-hover)); }
+}
+
+// picture tiles: the trade page's inventories and trade panels, latest trades, trade records, the item page's lists
+.item[class*="q-"]:not(.pure){
+    @include quality-glow();
+    // an unusual's effect picture behind the item is its own glow
+    &[style*="particles"]::before{ display: none; }
+}
+
+// item cards with a name: the glow sits right behind the picture, the name takes the quality colour
+a.item_card[class*="q-"], .wish-card[class*="q-"]{
+    position: relative;
+    @include quality-glow(50% 47%, 44% 30%);
+    .item-name, .name, .wish-name{ color: var(--q-name, inherit) !important; }
+}
+// the home page's popular items and the wishlist have the picture at the top of the card
+.home-popular a.item_card[class*="q-"], .wish-card[class*="q-"]{ @include quality-glow(50% 31%, 44% 34%); }
+
+// a blog post's item: --pb-q is its quality colour (service/blog_render.js)
+.post-body .pb-item, .pb-item{
+    .pb-item-pic:not([style*="particles"]){
+        background-image: radial-gradient(closest-side, color-mix(in srgb, var(--pb-q, transparent) var(--q-glow), transparent), transparent);
+    }
+}
+
+// giveaway pictures on the profile: --edge is their quality colour (public/js/plugins/profile.js gw_image)
+.gw-thumb:not([style*="particles"]){
+    background-image: radial-gradient(closest-side, color-mix(in srgb, var(--edge, transparent) var(--q-glow), transparent), transparent) !important;
+}

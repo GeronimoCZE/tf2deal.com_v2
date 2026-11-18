@@ -129,7 +129,7 @@
         logo: seo_site + '/img/logo_icon.png',
         description: __('home.intro_1'),
         founder: { '@type': 'Person', name: 'Nikolas Malík' },
-        sameAs: ['https://steamcommunity.com/groups/tradetf2deal', 'https://discord.gg/br3WvWaW5y'] // the footer links
+        sameAs: ['https://steamcommunity.com/groups/tradetf2deal', 'https://discord.gg/br3WvWaW5y', 'https://www.reddit.com/r/tf2deal/'] // the footer links
     }
     const seo_website = {
         '@type': 'WebSite',
@@ -294,20 +294,17 @@
                     "Accept": "*/*",
                 }
             }).done(async function (response) {
-                localStorage.setItem('unusual_effects', JSON.stringify(response))
-                localStorage.setItem('unusual_update', Date.now() + 1000*60*60*24)
+                try {
+                    localStorage.setItem('unusual_effects', JSON.stringify(response))
+                    localStorage.setItem('unusual_update', Date.now() + 1000*60*60*24)
+                } catch {}
             });
         }
 
-        if(localStorage.getItem('names') == null){
-            get_itemNames()
-        } else {
-            try{ 
-                if(JSON.parse(localStorage.getItem('names_update')) < (Date.now())){
-                    get_itemNames()
-                }
-            } catch{}
-        }
+        // The search's item names (over 3 MB) no longer fit in localStorage: every page downloaded them again and the
+        // failed save left no room for the effects and war paints. main.js keeps them in IndexedDB and loads them when the
+        // search opens; old copies go.
+        try { localStorage.removeItem('names'); localStorage.removeItem('names_update') } catch {}
 
         if(localStorage.getItem('warpaints') == null){
             get_warpaints()
@@ -317,27 +314,6 @@
                     get_warpaints()
                 }
             } catch{}
-        }
-
-        async function get_itemNames(){
-            $.ajax({
-                "async": true,
-                "crossDomain": true,
-                "url": '../api/item_names',
-                "method": "GET",
-                "headers": {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer ",
-                    "Accept": "*/*",
-                }
-            }).done(async function (response) {
-                if(Array.isArray(response?.item_names)){
-                    if(response?.item_names.length > 0){
-                        localStorage.setItem('names', JSON.stringify(response))
-                        localStorage.setItem('names_update', Date.now() + 1000*60*60*6)
-                    }
-                }
-            });
         }
 
         async function get_warpaints(){
@@ -352,8 +328,10 @@
                     "Accept": "*/*",
                 }
             }).done(async function (response) {
-                localStorage.setItem('warpaints', JSON.stringify(response))
-                localStorage.setItem('warpaints_update', Date.now() + 1000*60*60*24)
+                try {
+                    localStorage.setItem('warpaints', JSON.stringify(response))
+                    localStorage.setItem('warpaints_update', Date.now() + 1000*60*60*24)
+                } catch {}
             });
         }
         const session = `<%- tl(season_class) %>`;

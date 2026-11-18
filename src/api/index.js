@@ -61,12 +61,15 @@ router.use('/admin', adminApi)
 
 let bot_cache = []
 
-// The search suggestions: the items the bots trade, { name: stock limit } of each, and a version that changes with
-// either (service/item_lists.js reads the items again once a minute)
+// The search suggestions: the items the bots trade, the stock limit of each (limits[i] is item_names[i]'s) and a
+// version that changes with either (service/item_lists.js reads the items again once a minute). 70,000 names are over
+// 3 MB, more than the browser's localStorage holds next to the rest, so main.js keeps them in IndexedDB and asks for
+// /api/item_names?v=<version> (from /api/item_stock): that address changes with the list, so browsers keep it for good.
 router.get('/item_names', async (req, res) => {
   try {
     const { names, limits, version } = await item_lists.names()
-    res.send({ item_names: names, limits, version })
+    res.set('Cache-Control', req.query.v === version ? 'public, max-age=31536000, immutable' : 'no-cache')
+    res.send({ item_names: names, limits: names.map((name) => limits[name] ?? null), version })
   } catch {
     // the item list isn't read yet: why (service/item_lists.js status)
     res.status(503).set('Retry-After', '10').send({ status: 'error', message: 'db error', item_list: item_lists.status() })

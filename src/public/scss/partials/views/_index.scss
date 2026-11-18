@@ -367,7 +367,6 @@ img[src="/img/background.jpg"]{
                     background: var(--tile);
                     border: 2px solid var(--tile-line);
                     border-radius: 5px;
-                    border-bottom: 2px solid var(--line);
                     cursor: pointer;
                     background-size: contain;
                     background-repeat: no-repeat;
@@ -398,39 +397,6 @@ img[src="/img/background.jpg"]{
                     &.c-0{
                         border-style: dashed !important;
                     }
-                    &.q-6{
-                            border-bottom-color:orange;
-                            border-bottom-color: var(--q-unique) !important;
-                        }
-                        &.q-11{
-                            border-bottom-color: rgb(214, 93, 37) !important;
-                            border-bottom-color: var(--q-strange) !important;
-                        }
-                        &.q-5{
-                            border-bottom-color: rgb(127, 50, 235) !important;
-                            border-bottom-color: var(--q-unusual) !important;
-                        }
-                        &.q-15{
-                            border-bottom-color: var(--q-decorated) !important;
-                        }
-                        &.q-13{
-                            border-bottom-color: var(--q-haunted) !important;
-                        }
-                        &.q-1{
-                            border-bottom-color: var(--q-genuine) !important;
-                        }
-                        &.q-3{
-                            border-bottom-color: var(--q-vintage) !important;
-                        }
-                        &[class*="q-14"]{
-                            border-bottom-color: var(--q-collectors) !important;
-                        }
-                        &.q-9{
-                            border-bottom-color: var(--q-self-made) !important;
-                        }
-                        &.q-7{
-                            border-bottom-color: var(--q-community) !important;
-                        }
                 }
             }
         }
@@ -1287,7 +1253,6 @@ img[src="/img/background.jpg"]{
                         background: var(--tile);
                         border: 2px solid var(--tile-line);
                         border-radius: 5px;
-                        border-bottom: 2px solid var(--line);
                         cursor: pointer;
                         background-size: contain;
                         background-repeat: no-repeat;
@@ -1328,7 +1293,6 @@ img[src="/img/background.jpg"]{
                         }
                         &.c-0{
                             border-style: dashed !important;
-                            border-bottom: 2px solid var(--line) !important;
                         }
                         &[class*="hdn"]{
                             display: none;
@@ -1349,39 +1313,6 @@ img[src="/img/background.jpg"]{
                         }
                         &.non-craftable{
                             /* border-style: dashed !important; */
-                        }
-                        &.q-6{
-                            border-bottom-color:orange;
-                            border-bottom-color: var(--q-unique) !important;
-                        }
-                        &.q-11{
-                            border-bottom-color: rgb(214, 93, 37) !important;
-                            border-bottom-color: var(--q-strange) !important;
-                        }
-                        &.q-5{
-                            border-bottom-color: rgb(127, 50, 235) !important;
-                            border-bottom-color: var(--q-unusual) !important;
-                        }
-                        &.q-15{
-                            border-bottom-color: var(--q-decorated) !important;
-                        }
-                        &.q-13{
-                            border-bottom-color: var(--q-haunted) !important;
-                        }
-                        &.q-1{
-                            border-bottom-color: var(--q-genuine) !important;
-                        }
-                        &.q-3{
-                            border-bottom-color: var(--q-vintage) !important;
-                        }
-                        &[class*="q-14"]{
-                            border-bottom-color: var(--q-collectors) !important;
-                        }
-                        &.q-9{
-                            border-bottom-color: var(--q-self-made) !important;
-                        }
-                        &.q-7{
-                            border-bottom-color: var(--q-community) !important;
                         }
                         &[class*="in-trade"]{
                             cursor: default;
