@@ -105,7 +105,7 @@
     <meta name="twitter:title" content="<%= seo_title %>">
     <meta name="twitter:description" content="<%= seo_description %>">
     <meta name="twitter:image" content="<%= seo_image %>">
-    <meta name="theme-color" content="<%= ({ 'theme-midnight': '#000000', 'theme-white': '#ffffff' })[locals.season_class] || '#3f2a77' %>">
+    <meta name="theme-color" content="<%= ({ 'theme-midnight': '#000000', 'theme-white': '#ffffff', 'theme-nebula': '#0b0824' })[locals.season_class] || '#3f2a77' %>">
     <meta name="trustpilot-one-time-domain-verification-id" content="52e55ef4-45c6-4737-9d51-05ac93a6f222"/>
     <meta name="msvalidate.01" content="9195A6F398D088FC940A29A7FBEC7B6C" />
 
@@ -158,6 +158,10 @@
     <script src="<%= asset('/js/socket.js') %>" defer></script>
     <script src="<%= asset('/js/connection.js') %>" defer></script>
     <% if (season_class == 'season-smissmas') { %><script src="<%= asset('/js/blizzard.js') %>" defer></script><% } %>
+    <%# Nebula: the sky picture (scss/partials/_themes.scss) comes with the first paint, the stardust canvas after %>
+    <% if (season_class == 'theme-nebula') { %><link rel="preload" href="/img/themes/nebula-sky.webp" as="image" type="image/webp" media="(min-aspect-ratio: 4/5)">
+    <link rel="preload" href="/img/themes/nebula-sky-tall.webp" as="image" type="image/webp" media="(max-aspect-ratio: 4/5)">
+    <script src="<%= asset('/js/stardust.js') %>" defer></script><% } %>
     <link rel="preload" href="/font/rubik-700-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/font/icomoon.woff2?k1nzd2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="<%= asset('/css/style.css') %>">

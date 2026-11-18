@@ -19,6 +19,8 @@ body.admin-app{
     &::before{ display: none; }
     canvas.blizzard{ display: none; }
     &.theme-midnight{ --admin-page: #000; --admin-rail: #08080b; }
+    &.theme-nebula{ --admin-page: rgb(11, 8, 32); --admin-rail: rgb(6, 4, 20); } // the colours of the sky, without the picture
+    canvas.stardust{ display: none; }
 }
 
 .admin{

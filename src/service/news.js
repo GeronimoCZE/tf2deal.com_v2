@@ -27,6 +27,7 @@
 // This file imports nothing, so the check can read it without starting the site.
 
 export const NEWS = [
+  { key: 'nebula', date: '2026-11-18', action: 'themes', image: 'nebula', window: true },
   { key: 'updates_page', date: '2026-11-15', href: '/news' },
   { key: 'themes', date: '2026-11-03 21:20', action: 'themes', image: 'themes', window: true },
   { key: 'collections', date: '2026-11-03 16:01', href: '/items' },

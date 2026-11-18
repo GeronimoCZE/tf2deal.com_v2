@@ -23,6 +23,7 @@
     "theme_night": "Ciel nocturne",
     "theme_midnight": "Noir minuit",
     "theme_white": "Blanc",
+    "theme_nebula": "Nébuleuse",
     "theme_summer": "Été",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
@@ -1001,6 +1002,11 @@
       "empty": "Rien pour l'instant. Les nouvelles fonctions apparaîtront ici dès leur mise en ligne."
     },
     "items": {
+      "nebula": {
+        "title": "Nouveau thème : Nébuleuse",
+        "text": "Un ciel de l'espace lointain fait de gaz violet, bleu et turquoise, avec de la poussière d'étoiles qui scintille doucement derrière la page. Les textes et les encadrés restent faciles à lire, sur mobile aussi. Choisissez-le dans le menu des thèmes, le site le retient.",
+        "button": "Essayer Nébuleuse"
+      },
       "updates_page": {
         "title": "Toutes les nouveautés sur une page",
         "text": "Cette page liste chaque fonction ajoutée au site, de la plus récente à la plus ancienne, avec le jour et l'heure de sa mise en ligne. Vous la trouverez sous Nouveautés, en bas de chaque page."

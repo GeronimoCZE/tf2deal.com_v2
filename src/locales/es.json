@@ -23,6 +23,7 @@
     "theme_night": "Cielo nocturno",
     "theme_midnight": "Negro medianoche",
     "theme_white": "Blanco",
+    "theme_nebula": "Nebulosa",
     "theme_summer": "Verano",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
@@ -1001,6 +1002,11 @@
       "empty": "Aún no hay nada aquí. Las funciones nuevas aparecerán en cuanto lleguen."
     },
     "items": {
+      "nebula": {
+        "title": "Nuevo estilo: Nebulosa",
+        "text": "Un cielo del espacio profundo con gas violeta, azul y turquesa, y polvo de estrellas que centellea despacio detrás de la página. Los textos y los recuadros se leen bien sobre él, también en el móvil. Elígelo en el menú de temas y la web lo recordará.",
+        "button": "Probar Nebulosa"
+      },
       "updates_page": {
         "title": "Todas las novedades en una página",
         "text": "Esta página muestra cada función añadida a la web, de la más reciente a la más antigua, con el día y la hora en que llegó. La encontrarás en Novedades, al pie de cada página."

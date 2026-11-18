@@ -23,6 +23,7 @@
     "theme_night": "Céu noturno",
     "theme_midnight": "Preto meia-noite",
     "theme_white": "Branco",
+    "theme_nebula": "Nebulosa",
     "theme_summer": "Verão",
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
@@ -1001,6 +1002,11 @@
       "empty": "Nada por aqui ainda. Novos recursos aparecem aqui assim que entram no ar."
     },
     "items": {
+      "nebula": {
+        "title": "Visual novo: Nebulosa",
+        "text": "Um céu do espaço profundo com gás violeta, azul e turquesa, e poeira de estrelas que cintila devagar atrás da página. Os textos e as caixas continuam fáceis de ler, no celular também. Escolha no menu de temas e o site vai lembrar.",
+        "button": "Experimentar Nebulosa"
+      },
       "updates_page": {
         "title": "Todas as novidades em uma página",
         "text": "Esta página lista cada recurso adicionado ao site, do mais novo ao mais antigo, com o dia e a hora em que entrou no ar. Você a encontra em Novidades, no rodapé de cada página."
