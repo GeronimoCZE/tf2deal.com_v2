@@ -1002,6 +1002,10 @@
       "empty": "Nada por aqui ainda. Novos recursos aparecem aqui assim que entram no ar."
     },
     "items": {
+      "quality_glow": {
+        "title": "Qualidade do item num relance",
+        "text": "Os cards de itens não têm mais uma barra colorida. A qualidade de um item agora brilha suavemente atrás da imagem e colore o nome, do jeito que o TF2 mostra: laranja para Strange, roxo para Unusual, turquesa para Haunted. Itens Unique brilham menos, para que os mais raros se destaquem."
+      },
       "nebula": {
         "title": "Visual novo: Nebulosa",
         "text": "Um céu do espaço profundo com gás violeta, azul e turquesa, e poeira de estrelas que cintila devagar atrás da página. Os textos e as caixas continuam fáceis de ler, no celular também. Escolha no menu de temas e o site vai lembrar.",

@@ -1002,6 +1002,10 @@
       "empty": "Rien pour l'instant. Les nouvelles fonctions apparaîtront ici dès leur mise en ligne."
     },
     "items": {
+      "quality_glow": {
+        "title": "La qualité d'un objet en un coup d'œil",
+        "text": "Les cartes d'objets n'ont plus de barre de couleur. La qualité d'un objet brille maintenant doucement derrière son image et colore son nom, comme dans TF2 : orange pour Strange, violet pour Unusual, turquoise pour Haunted. Les objets Unique brillent le moins, pour que les plus rares ressortent."
+      },
       "nebula": {
         "title": "Nouveau thème : Nébuleuse",
         "text": "Un ciel de l'espace lointain fait de gaz violet, bleu et turquoise, avec de la poussière d'étoiles qui scintille doucement derrière la page. Les textes et les encadrés restent faciles à lire, sur mobile aussi. Choisissez-le dans le menu des thèmes, le site le retient.",

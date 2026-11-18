@@ -1002,6 +1002,10 @@
       "empty": "Noch nichts hier. Neue Funktionen erscheinen hier, sobald sie online sind."
     },
     "items": {
+      "quality_glow": {
+        "title": "Item-Qualität auf einen Blick",
+        "text": "Item-Karten haben keinen farbigen Balken mehr. Die Qualität eines Items leuchtet jetzt sanft hinter seinem Bild und färbt seinen Namen, so wie TF2 sie zeigt: Orange für Strange, Lila für Unusual, Türkis für Haunted. Unique-Items leuchten am schwächsten, damit die selteneren hervorstechen."
+      },
       "nebula": {
         "title": "Neuer Look: Sternennebel",
         "text": "Ein Himmel aus dem tiefen All mit violettem, blauem und türkisem Gas und Sternenstaub, der hinter der Seite langsam funkelt. Texte und Boxen bleiben darauf gut lesbar, auch auf dem Handy. Wähle ihn im Design-Menü, die Seite merkt sich deine Wahl.",
