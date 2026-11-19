@@ -1,8 +1,10 @@
 // Nebula theme only (view/partials/head.ejs loads it when service/season.js puts theme-nebula on <body>):
 // stardust over the nebula sky (scss/partials/_themes.scss). One fixed canvas behind the page content that never
-// takes clicks. The stars stay where they are and only fade in and out, slowly and each at its own pace; a few
-// bright ones have a soft glow. The page boxes are solid, so the stars show only on the open sky, never under the
-// text of a box. People who ask for less motion get the same stars, still. Nothing is drawn while the tab is hidden.
+// takes clicks. The stars drift slowly along the nebula (from the violet upper left towards the teal lower right),
+// the nearer, bigger ones a little faster than the far ones, and each fades in and out at its own pace; a few bright
+// ones have a soft glow. A star that drifts off one edge comes back in at the other. The page content sits on solid
+// sheets, so the stars show only on the open sky, never under text. People who ask for less motion get the same
+// stars, still. Nothing is drawn while the tab is hidden.
 (() => {
     const body = document.body
     if (!body || !body.classList.contains('theme-nebula') || body.classList.contains('admin-app')) { return } // not in the admin panel
@@ -17,7 +19,12 @@
 
     // star colours: mostly white, some cold blue, some lavender, a rare warm pink (as in pictures of nebulae)
     const TINTS = [[255, 255, 255], [255, 255, 255], [214, 232, 255], [200, 222, 255], [226, 212, 255], [255, 214, 240]]
-    const FRAME_MS = 1000 / 30 // a slow fade needs no more than 30 frames a second
+    const FRAME_MS = 1000 / 30 // a slow drift and fade need no more than 30 frames a second
+    // the drift: px per second for the farthest and the nearest stars, along the nebula (a shallow slope down to the right)
+    const SPEED_FAR = 2.5
+    const SPEED_NEAR = 11
+    const HEADING = 0.38 // radians below the horizontal
+    const EDGE = 24 // px off screen before a star comes back at the other side (so its glow never pops)
 
     let width = 0, height = 0, ratio = 1, stars = [], frame = null, last = 0
     const glows = new Map() // a soft glow per tint, drawn once
@@ -28,9 +35,15 @@
     const new_star = () => {
         const size = Math.random()
         const bright = size > 0.93 // a few bright ones with a glow
+        // how near the star is (0 far .. 1 near): bigger and brighter stars are nearer, so they drift faster
+        const near = bright ? 0.75 + Math.random() * 0.25 : size * size * 0.8
+        const heading = HEADING + (Math.random() - 0.5) * 0.3 // not all exactly parallel
+        const speed = SPEED_FAR + (SPEED_NEAR - SPEED_FAR) * near
         return {
             x: Math.random(), // 0..1 of the screen, so a resize keeps them spread out
             y: Math.random(),
+            vx: Math.cos(heading) * speed, // px per second
+            vy: Math.sin(heading) * speed,
             r: bright ? 1.1 + Math.random() * 0.7 : 0.35 + size * size * 0.9,
             alpha: bright ? 0.75 + Math.random() * 0.25 : 0.22 + Math.random() * 0.5,
             tint: TINTS[Math.floor(Math.random() * TINTS.length)],
@@ -74,13 +87,23 @@
         const want = star_count()
         while (stars.length < want) { stars.push(new_star()) }
         stars.length = want
-        if (still || !frame) { draw(performance.now(), true) }
+        if (still || !frame) { draw(performance.now(), 0, true) }
     }
 
-    const draw = (now, once) => {
+    // moves a star by its drift over `dt` seconds; off one edge (with its glow), back in at the other
+    const drift = (s, dt) => {
+        const pad_x = EDGE / width, pad_y = EDGE / height
+        s.x += s.vx * dt / width
+        s.y += s.vy * dt / height
+        if (s.x > 1 + pad_x) { s.x -= 1 + 2 * pad_x } else if (s.x < -pad_x) { s.x += 1 + 2 * pad_x }
+        if (s.y > 1 + pad_y) { s.y -= 1 + 2 * pad_y } else if (s.y < -pad_y) { s.y += 1 + 2 * pad_y }
+    }
+
+    const draw = (now, dt, once) => {
         ctx.clearRect(0, 0, width, height)
         for (const s of stars) {
-            // a slow breath between (1 - depth) and full brightness; the stars never move
+            if (dt) { drift(s, dt) }
+            // a slow breath between (1 - depth) and full brightness
             const wave = still ? 1 : 0.5 + 0.5 * Math.sin(now / s.period * Math.PI * 2 + s.phase)
             const alpha = s.alpha * (1 - s.depth * (1 - wave * wave))
             const x = s.x * width, y = s.y * height
@@ -100,12 +123,15 @@
     }
 
     const tick = (now) => {
+        if (!last) { last = now }
         if (now - last < FRAME_MS) { frame = requestAnimationFrame(tick); return }
+        // at most a tenth of a second of drift per frame, so a slow or busy page never makes the stars jump
+        const dt = Math.min(now - last, 100) / 1000
         last = now
-        draw(now)
+        draw(now, dt)
     }
 
-    const start = () => { if (!still && !frame) { frame = requestAnimationFrame(tick) } }
+    const start = () => { if (!still && !frame) { last = 0; frame = requestAnimationFrame(tick) } }
     const stop = () => { if (frame) { cancelAnimationFrame(frame); frame = null } }
 
     let resizing = null

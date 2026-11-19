@@ -85,16 +85,19 @@ body.theme-white{
 // ========================= NEBULA =========================
 // A deep-space sky: violet and magenta gas upper left, a blue band across, teal filaments lower right, and stardust.
 // The sky is one still picture fixed behind the page (img/themes/nebula-sky*.webp, painted for this theme: it stays
-// put while the page scrolls over it); js/stardust.js adds a canvas of stars that slowly fade in and out.
+// put while the page scrolls over it); js/stardust.js adds a canvas of stars that drift slowly and fade in and out.
 // Readable on purpose: every pixel of the picture is kept under a relative luminance of 0.05, so the lightest text
 // tokens below keep at least 4.5:1 on the open sky, and every box is solid (nothing of the sky shows through text).
+// Each page's content sits on a solid sheet of deep indigo (--sheet, below), so the page stands apart from the gas;
+// the nebula shows around the sheets, behind the home picture and between the sections.
 // Accents: the logo purple for the main buttons (as everywhere), stardust cyan for links and selected states.
 body.theme-nebula{
     --ink: #f0eeff;
     --ink-2: rgba(234, 230, 255, 0.84);
     --ink-3: rgba(234, 230, 255, 0.72);     // hints stay readable on the brightest gas, not only in the boxes
     --tint-rgb: 150, 124, 255;
-    --surface: rgb(13, 10, 38);             // boxes: darker than the gas, so they read as windows onto the content
+    --sheet: rgb(11, 8, 32);                // the page under the content: as dark as the darkest gas
+    --surface: rgb(20, 16, 52);             // boxes: a step lighter than the sheet, so they stand out on it
     --surface-2: rgba(150, 124, 255, 0.07);
     --surface-3: rgba(150, 124, 255, 0.13);
     --line: rgba(255, 255, 255, 0.08);
@@ -145,11 +148,37 @@ body.theme-nebula{
     .trade-status.online{ background: rgb(14, 34, 50) !important; }
     .trade-status.offline{ background: rgb(40, 20, 52) !important; }
     .about-ps .info-div{ background: rgb(52, 22, 52); }
-    // the end of the home page: no snowy tree, the ground is the dark rim of a moon under the nebula
-    .home-ps-3 .images{
-        img{ display: none; }
-        .snow-bottom{ background: rgb(15, 11, 40); border-top: 1px solid rgba(138, 216, 255, 0.28); }
+    // the page sheet: one solid, rounded sheet under each page's content, a little in from the screen's edges.
+    // Not under the home picture (the first section stays open sky), and not on the profile pages, which are one box
+    // already. border-box (beats the page-wide `*{box-sizing: unset !important}`): the sheet's
+    // padding stays inside the section's own width.
+    main .page-section:not(.home-ps-1):not(.profile-ps){
+        box-sizing: border-box !important;
+        width: calc(100% - 2rem);
+        margin-top: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 2rem 2rem 2.25rem 2rem !important;
+        background: var(--sheet);
+        border-radius: 1.25rem;
+        @media screen and (max-width: 677px){
+            width: calc(100% - 1rem);
+            margin-top: .75rem;
+            margin-bottom: 1rem;
+            padding: 1.5rem 1rem 1.75rem 1rem !important;
+            border-radius: 1rem;
+        }
     }
+    // the end of the home page: the FAQ and the last call to trade in the middle of their sheet (no snowy tree and
+    // no snow ground under it: the sheet is the ground)
+    main .page-section.home-ps-3{ margin-top: 2rem !important; }
+    .home-ps-3{
+        .images{ display: none !important; }
+        .text-area{ width: 100%; max-width: 820px; margin: 0 auto; padding-bottom: 0; }
+    }
+    main .page-section.ticket-ps{ max-width: 44rem; } // the support form: a sheet as wide as the form
+    // the 404 and error pages: a small sheet that fits the message (the page's inline margins are for the open page)
+    main .page-section.e404{ max-width: 36rem; }
+    .e404 .e404-text{ margin: 0 auto !important; padding: 0 !important; }
 }
 // Nebula: the texts drawn in a fixed grey, purple or quality colour that is too dim on the sky or the deep boxes
 // (measured against the pixels behind them: every text keeps at least 4.5:1, big text 3:1)
