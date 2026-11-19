@@ -85,7 +85,7 @@ body.theme-white{
 // ========================= NEBULA =========================
 // A deep-space sky: violet and magenta gas upper left, a blue band across, teal filaments lower right, and stardust.
 // The sky is one still picture fixed behind the page (img/themes/nebula-sky*.webp, painted for this theme: it stays
-// put while the page scrolls over it); js/stardust.js adds a canvas of stars that slowly fade in and out.
+// put while the page scrolls over it); js/stardust.js adds a canvas of stars that drift slowly and fade in and out.
 // Readable on purpose: every pixel of the picture is kept under a relative luminance of 0.05, so the lightest text
 // tokens below keep at least 4.5:1 on the open sky, and every box is solid (nothing of the sky shows through text).
 // Each page's content sits on a solid sheet of deep indigo (--sheet, below), so the page stands apart from the gas;
