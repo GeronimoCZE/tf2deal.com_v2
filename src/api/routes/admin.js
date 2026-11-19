@@ -581,7 +581,7 @@ router.post('/bot_browser/login', async (req, res) => {
   res.status(result.status == 'ok' ? 200 : (result.offline ? 503 : 400)).json(result);
 });
 
-// the extension to install (chrome://extensions → Developer mode → Load unpacked), and its current version
+// the extension to install (chrome://extensions or edge://extensions → Developer mode → Load unpacked), and its current version
 router.get('/bot_browser/extension.zip', (req, res) => {
   const { file, data } = bot_browser.extension_zip();
   res.set({ 'Content-Type': 'application/zip', 'Content-Disposition': `attachment; filename="${file}"`, 'Cache-Control': 'no-store' });
