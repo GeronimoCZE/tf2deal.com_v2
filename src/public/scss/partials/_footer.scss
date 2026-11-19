@@ -240,6 +240,15 @@ footer{
 
                         }
                     }
+                    // a brand mark the icon font doesn't have (Reddit): the same size and colours as the font's icons
+                    svg.icon-svg{
+                        display: block;
+                        width: 2rem;
+                        height: 2rem;
+                        fill: rgb(145, 143, 143);
+                        transition: fill 150ms;
+                    }
+                    &:hover svg.icon-svg, &:focus-visible svg.icon-svg{ fill: rgb(191, 190, 190); }
                 }
             }
         }

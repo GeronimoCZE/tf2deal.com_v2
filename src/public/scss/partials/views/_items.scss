@@ -639,108 +639,6 @@
                             line-height: 1.425rem;
                             /* line-height: 1.725rem; */
                         }
-                        .quality{
-                            display: block;
-                            height: 3px;
-                            width: 85%;
-                            margin: 0rem auto 0 auto;
-                            border-radius: 5px;
-                            &.q-0{
-                                --qual_col: #B2B2B2;
-                                background: var(--qual_col);
-                                span.ks{
-                                    background: var(--qual_col);
-                                }
-                            }
-                            &.q-1{
-                                --qual_col: #4D7455;
-                                background: var(--qual_col);
-                                span.ks{
-                                    background: var(--qual_col);
-                                }
-                                color: var(--qual_col);
-                            }
-                            &.q-3{
-                                --qual_col: #476291;
-                                background: var(--qual_col);
-                                span.ks{
-                                    background: var(--qual_col);
-                                }
-                                color: var(--qual_col);
-                            }
-                            &.q-5{
-                                --qual_col: #8650AC;
-                                background: var(--qual_col);
-                                span.ks{
-                                    background: var(--qual_col);
-                                }
-                                color: var(--qual_col);
-                            }
-                            &.q-6{
-                                --qual_col: #FFD700;
-                                background: var(--qual_col);
-                                span.ks{
-                                    background: var(--qual_col);
-                                }
-                                color: #c8af22;
-                            }
-                            &.q-7{
-                                --qual_col: #70B04A;
-                                background: var(--qual_col);
-                                span.ks{
-                                    background: var(--qual_col);
-                                }
-                            }
-                            &.q-8{
-                                --qual_col: #A50F79;
-                                background: var(--qual_col);
-                                span.ks{
-                                    background: var(--qual_col);
-                                }
-                            }
-                            &.q-9{
-                                --qual_col: #70B04A;
-                                background: var(--qual_col);
-                                span.ks{
-                                    background: var(--qual_col);
-                                }
-                            }
-                            &.q-11{
-                                --qual_col: #CF6A32;
-                                background: var(--qual_col);
-                                span.ks{
-                                    background: var(--qual_col);
-                                }
-                                color: var(--qual_col);
-            
-                            }
-                            &.q-13{
-                                --qual_col: #38F3AB;
-                                background: var(--qual_col);
-                                span.ks{
-                                    background: var(--qual_col);
-                                }
-                                color: var(--qual_col);
-            
-                            }
-                            &.q-14{
-                                --qual_col: #AA0000;
-                                background: var(--qual_col);
-                                span.ks{
-                                    background: var(--qual_col);
-                                }
-                                color: var(--qual_col);
-            
-                            }
-                            &.q-15{
-                                --qual_col: #FAFAFA;
-                                background: var(--qual_col);
-                                span.ks{
-                                    background: var(--qual_col);
-                                }
-            
-                            }
-                        }
                     }
                     &.non-craftable{
                         /* border-style: dashed; */
@@ -1192,7 +1090,6 @@
                         background: var(--tile);
                         border: 2px solid var(--tile-line);
                         border-radius: var(--r-sm);
-                        border-bottom: 2px solid var(--line);
                         cursor: pointer;
                         background-size: contain;
                         background-repeat: no-repeat;
@@ -1247,7 +1144,6 @@
                         }
                         &.c-0{
                             border-style: dashed !important;
-                            border-bottom: 2px solid var(--line) !important;
                         }
                         &[class*="hdn"]{
                             display: none;
@@ -1271,39 +1167,6 @@
                         }
                         &.non-craftable{
                             /* border-style: dashed !important; */
-                        }
-                        &.q-6{
-                            border-bottom-color:orange;
-                            border-bottom-color: var(--q-unique) !important;
-                        }
-                        &.q-11{
-                            border-bottom-color: rgb(214, 93, 37) !important;
-                            border-bottom-color: var(--q-strange) !important;
-                        }
-                        &.q-5{
-                            border-bottom-color: rgb(127, 50, 235) !important;
-                            border-bottom-color: var(--q-unusual) !important;
-                        }
-                        &.q-15{
-                            border-bottom-color: var(--q-decorated) !important;
-                        }
-                        &.q-13{
-                            border-bottom-color: var(--q-haunted) !important;
-                        }
-                        &.q-1{
-                            border-bottom-color: var(--q-genuine) !important;
-                        }
-                        &.q-3{
-                            border-bottom-color: var(--q-vintage) !important;
-                        }
-                        &[class*="q-14"]{
-                            border-bottom-color: var(--q-collectors) !important;
-                        }
-                        &.q-9{
-                            border-bottom-color: var(--q-self-made) !important;
-                        }
-                        &.q-7{
-                            border-bottom-color: var(--q-community) !important;
                         }
                         &[class*="in-trade"]{
                             cursor: pointer;
@@ -1957,7 +1820,6 @@
                 position: relative;
                 background: var(--tile);
     border: 2px solid var(--tile-line);
-                border-bottom: 2px solid var(--line);
                 cursor: pointer;
                 transition: 150ms ease-in-out;
 
@@ -1968,51 +1830,39 @@
                         }
                 &.q-0{
                     --qual_col: #B2B2B2;
-                    border-color: var(--qual_col);
                 }
                 &.q-1{
                     --qual_col: #4D7455;
-                    border-color: var(--qual_col);
                 }
                 &.q-3{
                     --qual_col: #476291;
-                    border-color: var(--qual_col);
                 }
                 &.q-5{
                     --qual_col: #8650AC;
-                    border-color: var(--qual_col);
                 }
                 &.q-6{
                     --qual_col: #FFD700;
-                    border-color: var(--qual_col);
                 }
                 &.q-7{
                     --qual_col: #70B04A;
-                    border-color: var(--qual_col);
                 }
                 &.q-8{
                     --qual_col: #A50F79;
-                    border-color: var(--qual_col);
                 }
                 &.q-9{
                     --qual_col: #70B04A;
-                    border-color: var(--qual_col);
                 }
                 &.q-11{
                     --qual_col: #CF6A32;
-                    border-color: var(--qual_col);
                 }
                 &.q-13{
                     --qual_col: #38F3AB;
-                    border-color: var(--qual_col);
                 }
                 &.q-14{
                     --qual_col: #AA0000;
-                    border-color: var(--qual_col);
                 }
                 &.q-15{
                     --qual_col: #FAFAFA;
-                    border-color: var(--qual_col);
                 }    
                 *{
                     pointer-events: none;
@@ -2366,109 +2216,6 @@
                         line-height: 1.425rem;
                         /* line-height: 1.725rem; */
                     }
-                    .quality{
-                        display: block;
-                        height: 3px;
-                        width: 85%;
-                        margin: 0.3rem auto  0 auto;
-                        transition: 200ms;
-                        border-radius: 5px;
-                        &.q-0{
-                            --qual_col: #B2B2B2;
-                            background: var(--qual_col);
-                            span.ks{
-                                background: var(--qual_col);
-                            }
-                        }
-                        &.q-1{
-                            --qual_col: #4D7455;
-                            background: var(--qual_col);
-                            span.ks{
-                                background: var(--qual_col);
-                            }
-                            color: var(--qual_col);
-                        }
-                        &.q-3{
-                            --qual_col: #476291;
-                            background: var(--qual_col);
-                            span.ks{
-                                background: var(--qual_col);
-                            }
-                            color: var(--qual_col);
-                        }
-                        &.q-5{
-                            --qual_col: #8650AC;
-                            background: var(--qual_col);
-                            span.ks{
-                                background: var(--qual_col);
-                            }
-                            color: var(--qual_col);
-                        }
-                        &.q-6{
-                            --qual_col: #FFD700;
-                            background: var(--qual_col);
-                            span.ks{
-                                background: var(--qual_col);
-                            }
-                            color: #c8af22;
-                        }
-                        &.q-7{
-                            --qual_col: #70B04A;
-                            background: var(--qual_col);
-                            span.ks{
-                                background: var(--qual_col);
-                            }
-                        }
-                        &.q-8{
-                            --qual_col: #A50F79;
-                            background: var(--qual_col);
-                            span.ks{
-                                background: var(--qual_col);
-                            }
-                        }
-                        &.q-9{
-                            --qual_col: #70B04A;
-                            background: var(--qual_col);
-                            span.ks{
-                                background: var(--qual_col);
-                            }
-                        }
-                        &.q-11{
-                            --qual_col: #CF6A32;
-                            background: var(--qual_col);
-                            span.ks{
-                                background: var(--qual_col);
-                            }
-                            color: var(--qual_col);
-        
-                        }
-                        &.q-13{
-                            --qual_col: #38F3AB;
-                            background: var(--qual_col);
-                            span.ks{
-                                background: var(--qual_col);
-                            }
-                            color: var(--qual_col);
-        
-                        }
-                        &.q-14{
-                            --qual_col: #AA0000;
-                            background: var(--qual_col);
-                            span.ks{
-                                background: var(--qual_col);
-                            }
-                            color: var(--qual_col);
-        
-                        }
-                        &.q-15{
-                            --qual_col: #FAFAFA;
-                            background: var(--qual_col);
-                            span.ks{
-                                background: var(--qual_col);
-                            }
-        
-                        }
-                    }
                 }
                 &.non-craftable{
                     /* border-style: dashed; */
@@ -2477,37 +2224,6 @@
         }
     }
 }
-// Hover on an item card (/items, similar items): a faint glow of the item's quality colour rising from the quality
-// edge at the bottom. It fades in (no movement), under the picture and the words.
-a.item_card{
-    --card-q: transparent;
-    position: relative;
-    isolation: isolate;
-    &.q-0{ --card-q: #B2B2B2; }
-    &.q-1{ --card-q: #4D7455; }
-    &.q-3{ --card-q: #476291; }
-    &.q-5{ --card-q: #8650AC; }
-    &.q-6{ --card-q: #FFD700; }
-    &.q-7, &.q-9{ --card-q: #70B04A; }
-    &.q-8{ --card-q: #A50F79; }
-    &.q-11{ --card-q: #CF6A32; }
-    &.q-13{ --card-q: #38F3AB; }
-    &.q-14{ --card-q: #AA0000; }
-    &.q-15{ --card-q: var(--q-decorated, #FAFAFA); }
-    &::before{
-        content: '';
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        border-radius: inherit;
-        pointer-events: none;
-        background: radial-gradient(120% 70% at 50% 100%, color-mix(in srgb, var(--card-q) 13%, transparent), transparent 75%);
-        opacity: 0;
-        transition: opacity .25s ease;
-    }
-    &:hover::before, &:focus-visible::before, &:target::before{ opacity: 1; }
-}
-
 // Item page: the quality, type and classes link to the item list with that filter (a quiet underline that fills in on
 // hover: colour only), and the questions about the item ("<name> price and trading", fn.item_faq)
 .item-page{

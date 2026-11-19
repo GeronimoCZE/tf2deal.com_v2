@@ -34,11 +34,35 @@ const maxSuggestions = 10;
 // would open a missing page).
 const search_stock = { stock: {}, time: 0, pending: null }
 
-const stored_names = () => {
-    try {
-        const names = JSON.parse(localStorage.getItem('names'))
-        return Array.isArray(names?.item_names) ? names : null
-    } catch { return null }
+// The item names ({ item_names, limits: [limit of each name], version }) are over 3 MB: more than localStorage holds, so
+// they live in IndexedDB (database 'td', store 'kv') and in memory while the page is open. /api/item_names?v=<version>
+// changes with the list, so the browser's cache keeps the answer too.
+const names_store = { value: null, read: false, limit_of: null }
+const kv = (mode, act) => new Promise((resolve, reject) => {
+    if(!window.indexedDB){ return reject(new Error('no IndexedDB')) }
+    const open = indexedDB.open('td', 1)
+    open.onupgradeneeded = () => open.result.createObjectStore('kv')
+    open.onerror = () => reject(open.error)
+    open.onsuccess = () => {
+        const db = open.result
+        const tx = db.transaction('kv', mode)
+        const req = act(tx.objectStore('kv'))
+        tx.oncomplete = () => { db.close(); resolve(req?.result) }
+        tx.onerror = tx.onabort = () => { db.close(); reject(tx.error) }
+    }
+})
+const stored_names = () => names_store.value
+const set_names = (value) => {
+    names_store.value = value
+    names_store.limit_of = null
+}
+// a name's stock limit (older answers sent { name: limit })
+const name_limit = (name) => {
+    const names = names_store.value
+    if(!names) return undefined
+    if(!Array.isArray(names.limits)) return names.limits?.[name]
+    if(!names_store.limit_of){ names_store.limit_of = new Map(names.item_names.map((n, i) => [n, names.limits[i]])) }
+    return names_store.limit_of.get(name)
 }
 
 const load_search_data = () => {
@@ -47,13 +71,16 @@ const load_search_data = () => {
     search_stock.pending = get_json('/api/item_stock').then(async (res) => {
         search_stock.stock = (res?.stock && typeof res.stock == 'object') ? res.stock : {}
         search_stock.time = Date.now()
+        if(!names_store.read){
+            names_store.read = true
+            const saved = await kv('readonly', (store) => store.get('names')).catch(() => null)
+            if(Array.isArray(saved?.item_names) && !names_store.value){ set_names(saved) }
+        }
         if(res?.names_version && stored_names()?.version !== res.names_version){
-            const fresh = await get_json('/api/item_names')
+            const fresh = await get_json('/api/item_names?v=' + encodeURIComponent(res.names_version))
             if(Array.isArray(fresh?.item_names)){
-                try {
-                    localStorage.setItem('names', JSON.stringify(fresh))
-                    localStorage.setItem('names_update', Date.now() + 1000*60*60*6)
-                } catch {}
+                set_names(fresh)
+                kv('readwrite', (store) => store.put(fresh, 'names')).catch(() => {})
             }
         }
     }).catch(() => {}).finally(() => {
@@ -323,7 +350,6 @@ addEventListener('DOMContentLoaded', (event) => {
 
             const words = input.toLowerCase().trim().split(/\s+/);
             const stock = search_stock.stock
-            const limits = stored_names()?.limits || {}
             // the items the bots trade, and everything in stock (killstreak versions too)
             const names = [...new Set([...(stored_names()?.item_names || []), ...Object.keys(stock)])]
 
@@ -335,7 +361,7 @@ addEventListener('DOMContentLoaded', (event) => {
                     return words.every(word => normalized.includes(word));
                 })
                 .map(name => {
-                    const [copies, limit] = Array.isArray(stock[name]) ? stock[name] : [0, limits[name]]
+                    const [copies, limit] = Array.isArray(stock[name]) ? stock[name] : [0, name_limit(name)]
                     return { name, score: score(items.normalizeGerman(name).toLowerCase()), stock: Number(copies) || 0, limit: Number.isFinite(limit) ? limit : null }
                 })
                 // the closest names first, and of those the ones in stock

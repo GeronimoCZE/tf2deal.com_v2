@@ -199,12 +199,16 @@
         background: var(--surface-2);
         font-size: .9em;
     }
+    // a quote stands apart by its background and a larger, slanted voice, not a coloured bar on its side
     blockquote{
-        padding: .6rem 1.1rem;
-        border-left: 3px solid var(--violet);
+        margin-left: 0;
+        margin-right: 0;
+        padding: .9rem 1.25rem;
         background: var(--surface-2);
-        border-radius: 0 var(--r-sm) var(--r-sm) 0;
+        border-radius: var(--r-sm);
         color: var(--ink);
+        font-size: 1.08em;
+        font-style: italic;
     }
     hr{ border: 0; height: 1px; background: var(--line-strong); margin-top: 2.25rem; margin-bottom: 2.25rem; }
     figcaption{ margin-top: .5rem; font-size: 15px; line-height: 1.5; color: var(--ink-3); text-align: center; }
@@ -275,7 +279,6 @@
         padding: .75rem 1rem .75rem .75rem;
         border-radius: var(--r-md);
         background: var(--tile);
-        border-bottom: 3px solid var(--pb-q, var(--q-unique));
         color: var(--ink);
         text-decoration: none;
         transition: background 150ms ease;

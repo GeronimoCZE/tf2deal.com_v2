@@ -28,13 +28,22 @@ const check = (name, file, run) => {
   }
 }
 
-const scripts = walk(path.join(root, 'src'), ['.js', '.mjs'])
+// the site's scripts and the admin's Chrome extension (extension/, docs/BOT_BROWSER.md)
+const scripts = [...walk(path.join(root, 'src'), ['.js', '.mjs']), ...walk(path.join(root, 'extension'), ['.js'])]
 for (const file of scripts) check('script', file, () => execFileSync(process.execPath, ['--check', file], { stdio: 'pipe' }))
 
 const views = walk(path.join(root, 'src/view'), ['.ejs'])
 for (const file of views) check('template', file, () => ejs.compile(fs.readFileSync(file, 'utf8'), { filename: file }))
 
 const keys = (obj, prefix = '') => Object.entries(obj).flatMap(([k, v]) => (v && typeof v == 'object' && !Array.isArray(v)) ? keys(v, `${prefix}${k}.`) : [`${prefix}${k}`])
+// the extension's manifest: valid JSON, and every file it names is there
+check('extension manifest', path.join(root, 'extension/manifest.json'), () => {
+  const dir = path.join(root, 'extension')
+  const m = JSON.parse(fs.readFileSync(path.join(dir, 'manifest.json'), 'utf8'))
+  const named = [m.background?.service_worker, ...(m.content_scripts || []).flatMap((c) => c.js || []), ...(m.web_accessible_resources || []).flatMap((w) => w.resources || []), ...Object.values(m.icons || {})]
+  const gone = named.filter((file) => file && !fs.existsSync(path.join(dir, file)))
+  if (gone.length) throw new Error(`missing: ${gone.join(', ')}`)
+})
 const locales = walk(path.join(root, 'src/locales'), ['.json'])
 const english = JSON.parse(fs.readFileSync(path.join(root, 'src/locales/en.json'), 'utf8'))
 for (const file of locales) check('language file', file, () => {

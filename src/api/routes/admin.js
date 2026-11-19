@@ -26,6 +26,7 @@ import * as bot_manager from '../../service/bot_manager.js';
 import * as manual_prices from '../../service/manual_prices.js';
 import * as bot_accounts from '../../service/bot_accounts.js';
 import * as steam_browser from '../../service/steam_browser.js';
+import * as bot_browser from '../../service/bot_browser.js';
 import * as latest_trades from '../../service/latest_trades.js';
 import { notification_model } from '../../model/Notification.js';
 import { clients as settings_clients } from '../../service/settings_socket.js';
@@ -569,6 +570,26 @@ for (const [path, action] of [['add', bot_accounts.add], ['update', bot_accounts
 router.post('/steam_browser/open', async (req, res) => {
   const result = await steam_browser.open(req.body || {}, req.user?.steamid, req.ip);
   res.status(result.status == 'ok' ? 200 : (result.offline ? 503 : 400)).json(result);
+});
+
+/* ========================= CHROME WINDOW AS A BOT (service/bot_browser.js, extension/) ========================= */
+// { bot } → the bot's web login for the admin's tf2deal extension, which opens a private Chrome window with it
+
+router.post('/bot_browser/login', async (req, res) => {
+  const result = await bot_browser.login(req.body || {}, req.user?.steamid);
+  res.set('Cache-Control', 'no-store');
+  res.status(result.status == 'ok' ? 200 : (result.offline ? 503 : 400)).json(result);
+});
+
+// the extension to install (chrome://extensions → Developer mode → Load unpacked), and its current version
+router.get('/bot_browser/extension.zip', (req, res) => {
+  const { file, data } = bot_browser.extension_zip();
+  res.set({ 'Content-Type': 'application/zip', 'Content-Disposition': `attachment; filename="${file}"`, 'Cache-Control': 'no-store' });
+  res.send(data);
+});
+
+router.get('/bot_browser/version', (req, res) => {
+  res.json({ status: 'ok', version: bot_browser.extension_version() });
 });
 
 /* ========================= PRICES SET BY HAND (service/manual_prices.js) ========================= */
