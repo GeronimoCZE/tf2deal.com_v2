@@ -3,9 +3,9 @@
 // Nikolas 2026-11-18: "open new browser where the selected steam account would login on steam and open the bot's steam
 // profile, also allow login on backpack.tf". A website can't log a browser into steamcommunity.com, an extension can:
 // Admin → Bot manager → Bots → "Open in Chrome" gets the bot's web login from bot_manager (admin:steam:cookies, admin
-// session only) and hands it to this extension through bridge.js. We open a private (incognito) window, put the login
-// cookies into the private window's cookie jar only, and open the bot's Steam profile and backpack.tf there
-// (openid.js confirms backpack.tf's "Sign in through Steam" in that window).
+// session only) and hands it to this extension through bridge.js. We open a private window (Chrome incognito, Edge
+// InPrivate: the same extension works in both), put the login cookies into the private window's cookie jar only, and
+// open the bot's Steam profile and backpack.tf there (openid.js confirms backpack.tf's "Sign in through Steam" there).
 //
 // - Your own Steam login in normal windows is never touched: everything goes into the private windows' jar.
 // - All private windows share one jar, so one bot at a time: opening another bot closes the first bot's window.
@@ -56,6 +56,47 @@ chrome.windows.onRemoved.addListener(async (windowId) => {
   if (bot && bot.windowId === windowId) await ended()
 })
 
+// The private window, its first tab and its cookie jar. windows.create usually hands back the window with its tab, but
+// for a private window a browser may answer with no window at all while it still opens one (w3c/webextensions#407), or
+// with a window whose tab and jar aren't listed yet (Nikolas 2026-11-19: "doesn't work in Edge"). So the new private
+// window is also caught by windows.onCreated, and the tab and jar are looked up for up to 2 seconds, not read once.
+const later = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+const private_window = async () => {
+  const before = new Set((await chrome.windows.getAll().catch(() => [])).map((w) => w.id))
+  let on
+  const seen = new Promise((resolve) => {
+    on = (w) => { if (w.incognito && !before.has(w.id)) resolve(w) }
+    chrome.windows.onCreated.addListener(on)
+  })
+  const create = (extra) => chrome.windows.create({ incognito: true, url: 'about:blank', focused: true, ...extra })
+  try {
+    // maximized where the browser allows it; if it refuses that, plain (the first call opened nothing then)
+    let win = await create({ state: 'maximized' }).catch(() => create({}))
+    if (!win?.id) win = await Promise.race([seen, later(5000).then(() => null)])
+    if (!win?.id) {
+      const now = await chrome.windows.getAll().catch(() => [])
+      win = now.find((w) => w.incognito && !before.has(w.id)) || null
+    }
+    if (!win?.id) return { error: 'window_hidden' }
+    let tab = win.tabs?.[0], storeId
+    for (let i = 0; i < 20 && !(tab && storeId); i++) {
+      if (i) await later(100)
+      tab = tab || (await chrome.tabs.query({ windowId: win.id }).catch(() => []))[0]
+      const stores = await chrome.cookies.getAllCookieStores().catch(() => [])
+      storeId = (tab && stores.find((s) => s.tabIds.includes(tab.id)))?.id
+    }
+    // a private tab's jar is never the normal one ('0'); if the lookup found none, the one jar that isn't normal
+    if (!storeId || storeId == '0') storeId = (await chrome.cookies.getAllCookieStores().catch(() => [])).find((s) => s.id != '0')?.id
+    if (!tab || !storeId || storeId == '0') {
+      await chrome.windows.remove(win.id).catch(() => {})
+      return { error: 'window_failed' }
+    }
+    return { win, tab, storeId }
+  } finally {
+    chrome.windows.onCreated.removeListener(on)
+  }
+}
+
 const open = async (bot, targets) => {
   if (!valid(bot)) return { ok: false, error: 'bad_request' }
   if (!(await chrome.extension.isAllowedIncognitoAccess())) return { ok: false, error: 'incognito_off' }
@@ -67,12 +108,9 @@ const open = async (bot, targets) => {
     await ended()
   }
 
-  const win = await chrome.windows.create({ incognito: true, url: 'about:blank', focused: true, state: 'maximized' }).catch(() => null)
-  const first = win?.tabs?.[0]
-  if (!first) return { ok: false, error: 'window_failed' }
-  const stores = await chrome.cookies.getAllCookieStores()
-  const storeId = (stores.find((s) => s.tabIds.includes(first.id)) || stores.find((s) => s.id != '0'))?.id
-  if (!storeId || storeId == '0') { await chrome.windows.remove(win.id).catch(() => {}); return { ok: false, error: 'window_failed' } }
+  const got = await private_window()
+  if (got.error) return { ok: false, error: got.error }
+  const { win, tab: first, storeId } = got
 
   // the block first, the login after: if anything fails on the way, the window closes and its cookies go
   await save({ windowId: win.id, storeId, steamid: String(bot.steamid), name: String(bot.name || '').slice(0, 64), opened: Date.now() })

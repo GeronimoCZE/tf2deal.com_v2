@@ -113,6 +113,16 @@
     // bot_manager's settings come as { config, defaults }. The card shows a field per value (switch, number, text, list,
     // "name = number" lines for the maps), grouped by their first key, with the default under each; Save sends only
     // what changed (bot_manager merges a partial config), Reset asks bot_manager for its defaults.
+    // the admin's browser, for the names on "Open in …" and its card: Edge calls its private windows InPrivate, has its
+    // extensions page at edge://extensions and Developer mode in the left menu (Nikolas 2026-11-19 uses Edge)
+    const BROWSER = (() => {
+        const brands = (navigator.userAgentData?.brands || []).map((b) => b.brand)
+        if(brands.includes('Microsoft Edge') || /\bEdg\//.test(navigator.userAgent)){
+            return { name: 'Edge', page: 'edge://extensions', private: 'InPrivate', allow: 'Allow in InPrivate', dev_where: 'in the menu on the left' }
+        }
+        return { name: 'Chrome', page: 'chrome://extensions', private: 'incognito', allow: 'Allow in Incognito', dev_where: 'top right' }
+    })()
+
     const HELP = {
         stock: {
             enabled: 'Off: only the per-item stock.limit stored in the DB is used (old behaviour).',
@@ -642,7 +652,7 @@
                     ${act('admin:bots:relog', { steamid }, 'Log in again', { confirm: `Log ${name} off and on again?`, ok: 'Logging in again.' })}
                     ${act('admin:bots:web_relog', { steamid }, 'New web session', { ok: 'New web session requested.' })}
                     ${b.webSession ? `<button type="button" class="primary" data-open-steam="${esc(a.accountName)}" title="A new window on Steam, logged in as ${esc(name)}">Open Steam</button>` : ''}
-                    ${b.webSession ? `<button type="button" data-open-browser="${esc(a.accountName)}" title="A private Chrome window logged in as ${esc(name)} on Steam and backpack.tf (needs the tf2deal extension, see the bottom of this tab)">Open in Chrome</button>` : ''}
+                    ${b.webSession ? `<button type="button" data-open-browser="${esc(a.accountName)}" title="A private ${BROWSER.name} window (${BROWSER.private}) logged in as ${esc(name)} on Steam and backpack.tf (needs the tf2deal extension, see the bottom of this tab)">Open in ${BROWSER.name}</button>` : ''}
                     ${act('admin:bots:resync_inventory', { steamid }, 'Reload inventory', { ok: 'Inventory reloaded from Steam.' })}
                     ${a.type != 'warehouse' ? act('admin:bots:bptf_refresh', { steamid }, 'Refresh on backpack.tf', { ok: 'backpack.tf asked to load the inventory again.' }) : ''}` : ''}
                 ${!live ? `<button type="button" data-db-enabled="${esc(a.accountName)}" data-on="${disabled ? '1' : '0'}"${disabled ? ' class="primary"' : ''}>${disabled ? 'Enable' : 'Disable'}</button>`
@@ -707,13 +717,13 @@
                     <div class="admin-card-foot"><button type="submit" class="primary">Save login</button></div>
                 </form>
                 <section class="admin-card admin-bm-browser" id="bm-browser" aria-labelledby="bm-browser-title">
-                    <h3 id="bm-browser-title">Chrome window as a bot</h3>
-                    <p class="muted">"Open in Chrome" on a bot opens a private Chrome window that is really logged in as that bot: its Steam profile, and backpack.tf signed in through Steam. It needs the tf2deal extension in this Chrome. Your own Steam login in normal windows stays as it is.</p>
+                    <h3 id="bm-browser-title">${BROWSER.name} window as a bot</h3>
+                    <p class="muted">"Open in ${BROWSER.name}" on a bot opens a private ${BROWSER.name} window (${BROWSER.private}) that is really logged in as that bot: its Steam profile, and backpack.tf signed in through Steam. It needs the tf2deal extension in this ${BROWSER.name}. It works in Chrome and Edge. Your own Steam login in normal windows stays as it is.</p>
                     <p class="admin-bm-browser-state" data-browser-state>Checking for the extension…</p>
                     <ol class="admin-bm-steps">
-                        <li>Download the extension and unzip it.</li>
-                        <li>Open <code>chrome://extensions</code>, switch on <b>Developer mode</b>, click <b>Load unpacked</b> and pick the unzipped folder.</li>
-                        <li>Click <b>Details</b> on "tf2deal admin: bot browser" and switch on <b>Allow in Incognito</b>.</li>
+                        <li>Download the extension and unzip it where it can stay (on Windows: right-click the zip → <b>Extract All</b>).</li>
+                        <li>Open <code>${BROWSER.page}</code> (type it in the address bar), switch on <b>Developer mode</b> (${BROWSER.dev_where}), click <b>Load unpacked</b> and pick the unzipped <b>tf2deal-bot-browser</b> folder, the one with <code>manifest.json</code> in it.</li>
+                        <li>Click <b>Details</b> on "tf2deal admin: bot browser" and switch on <b>${BROWSER.allow}</b>.</li>
                         <li>Reload this page.</li>
                     </ol>
                     <p class="admin-help">One bot at a time: opening another bot closes the first one's window. While it is open, Steam's log out and deauthorize pages are blocked in every window, because they would log the bot itself out. Closing the window deletes its Steam and backpack.tf cookies. The login lasts about a day; open it again after that.</p>
@@ -802,17 +812,18 @@
             const have = document.documentElement.dataset.tdBotBrowser
             const latest = (await kit.api('/api/admin/bot_browser/version').catch(() => null))?.version
             const older = have && latest && have.localeCompare(latest, undefined, { numeric: true }) < 0
-            el.innerHTML = !have ? '<span class="admin-pill warn"><i></i>Not installed in this Chrome</span>'
-                : older ? `<span class="admin-pill warn"><i></i>Version ${esc(have)} installed, ${esc(latest)} is out</span> Download it, replace the folder and click the reload arrow on the extension in <code>chrome://extensions</code>.`
+            el.innerHTML = !have ? `<span class="admin-pill warn"><i></i>Not installed in this ${BROWSER.name}</span>`
+                : older ? `<span class="admin-pill warn"><i></i>Version ${esc(have)} installed, ${esc(latest)} is out</span> Download it, unzip it over the old folder (replace the files) and click <b>Reload</b> on the extension in <code>${BROWSER.page}</code>.`
                 : `<span class="admin-pill ok"><i></i>Installed, version ${esc(have)}</span>`
         }
         browser_state()
 
         const BROWSER_ERRORS = {
-            incognito_off: 'Switch on "Allow in Incognito" for the tf2deal extension (chrome://extensions → Details), then try again.',
-            window_failed: 'Chrome did not open the private window. Try again.',
+            incognito_off: `Switch on "${BROWSER.allow}" for the tf2deal extension (${BROWSER.page} → Details), then try again.`,
+            window_failed: `${BROWSER.name} opened the ${BROWSER.private} window but did not let the extension use it. Close that window and try again.`,
+            window_hidden: `${BROWSER.name} did not show the extension the ${BROWSER.private} window. Close any ${BROWSER.private} window and try again; if it stays like this, click Reload on the extension in ${BROWSER.page}.`,
             bad_request: 'The extension refused the login it got. Reload the page and try again.',
-            no_answer: 'The extension did not answer. Reload the page; if it stays like this, reload the extension in chrome://extensions.'
+            no_answer: `The extension did not answer. Reload the page; if it stays like this, click Reload on the extension in ${BROWSER.page}.`
         }
         const ask_extension = (bot, targets) => new Promise((resolve) => {
             const id = Math.random().toString(36).slice(2)
@@ -828,15 +839,15 @@
             if(chrome_btn){
                 if(!document.documentElement.dataset.tdBotBrowser){
                     box.querySelector('#bm-browser')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                    return iziToast.info({ title: 'Install the extension first', message: 'The steps are in "Chrome window as a bot" at the bottom of this tab.' })
+                    return iziToast.info({ title: 'Install the extension first', message: `The steps are in "${BROWSER.name} window as a bot" at the bottom of this tab.` })
                 }
                 const res = await busy(chrome_btn, () => kit.api('/api/admin/bot_browser/login', { bot: chrome_btn.dataset.openBrowser }))
                 if(res.status != 'ok'){ return toast(res) }
                 const opened = await busy(chrome_btn, () => ask_extension({ steamid: res.steamid, name: res.name, cookies: res.cookies, expires: res.expires }, ['profile', 'backpack']))
                 if(opened.ok){
-                    iziToast.success({ title: 'Chrome', message: `A private window is open as ${esc(res.name)}: Steam profile and backpack.tf.` })
+                    iziToast.success({ title: BROWSER.name, message: `An ${BROWSER.private} window is open as ${esc(res.name)}: Steam profile and backpack.tf.` })
                 } else {
-                    iziToast.error({ title: 'Chrome window', message: esc(BROWSER_ERRORS[opened.error] || opened.error || 'Something went wrong.') })
+                    iziToast.error({ title: `${BROWSER.name} window`, message: esc(BROWSER_ERRORS[opened.error] || opened.error || 'Something went wrong.') })
                 }
                 return
             }

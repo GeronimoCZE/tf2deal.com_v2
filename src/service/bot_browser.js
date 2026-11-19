@@ -1,4 +1,4 @@
-// Chrome window as a bot, for the admin (Bot manager → Bots → "Open in Chrome", docs/BOT_BROWSER.md).
+// Chrome / Edge window as a bot, for the admin (Bot manager → Bots → "Open in Chrome" / "Open in Edge", docs/BOT_BROWSER.md).
 //
 // Nikolas 2026-11-18: "open new browser where the selected steam account would login on steam and open the bot's steam
 // profile, also allow login on backpack.tf". A website can't log a browser into Steam, so the admin installs the small
@@ -91,12 +91,15 @@ const list = (dir, prefix = '') => fs.readdirSync(dir, { withFileTypes: true }).
   return entry.isDirectory() ? list(full, rel + '/') : [{ name: rel, full }]
 })
 
-/** the extension folder as a zip, in a folder of its own → { file (name), data } */
+/** the extension folder as a zip → { file (name), data }
+ * The files sit at the top of the zip, and the zip's name has no version: Windows' "Extract All" makes a folder named
+ * after the zip, so this gives one tf2deal-bot-browser folder with manifest.json right in it (a folder inside the zip
+ * gave tf2deal-bot-browser-1.0.0\tf2deal-bot-browser-1.0.0\manifest.json, and "Load unpacked" on the outer folder fails
+ * with "Manifest file is missing"), and a newer version unzips over the same folder. */
 export const extension_zip = () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(EXTENSION_DIR, 'manifest.json'), 'utf8'))
-  const folder = `tf2deal-bot-browser-${manifest.version}`
-  const files = list(EXTENSION_DIR).map((f) => ({ name: `${folder}/${f.name}`, data: fs.readFileSync(f.full) }))
-  return { file: `${folder}.zip`, version: manifest.version, data: zip(files) }
+  const files = list(EXTENSION_DIR).map((f) => ({ name: f.name, data: fs.readFileSync(f.full) }))
+  return { file: 'tf2deal-bot-browser.zip', version: manifest.version, data: zip(files) }
 }
 
 /** the version in extension/manifest.json (the admin page tells when the installed one is older) */

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "tf2deal admin: bot browser",
-  "version": "1.0.0",
-  "description": "From the tf2deal.com admin panel, opens a private Chrome window logged in as a bot on Steam and backpack.tf.",
+  "version": "1.1.0",
+  "description": "From the tf2deal.com admin panel, opens a private window (Chrome incognito, Edge InPrivate) logged in as a bot on Steam and backpack.tf.",
   "minimum_chrome_version": "116",
   "incognito": "spanning",
   "permissions": ["cookies", "declarativeNetRequest", "storage"],
