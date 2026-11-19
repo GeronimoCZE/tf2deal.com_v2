@@ -1009,6 +1009,10 @@
         "text": "TF2Deal is warmer now: a winter night in plum, cream text and the amber light of a lit cabin window, with a new logo, new fonts and a new app icon. Everything works as before. If you like another look better, Midnight black, White and Nebula are still in the theme menu.",
         "button": "Pick a look"
       },
+      "quality_glow": {
+        "title": "Item quality at a glance",
+        "text": "Item cards no longer have a coloured bar. An item's quality now glows softly behind its picture and colours its name, the way TF2 shows it: orange for Strange, purple for Unusual, teal for Haunted. Unique items glow the least, so the rarer ones stand out."
+      },
       "nebula": {
         "title": "New look: Nebula",
         "text": "A deep-space sky of violet, blue and teal gas, with stardust that slowly drifts and twinkles behind the page. Texts and boxes stay easy to read on it, on phones too. Pick it in the theme menu and the site remembers it.",

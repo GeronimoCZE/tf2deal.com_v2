@@ -1009,6 +1009,10 @@
         "text": "TF2Deal es ahora más cálido: una noche de invierno en tono ciruela, texto color crema y la luz ámbar de la ventana de una cabaña, con un logotipo nuevo, tipografías nuevas y un icono de aplicación nuevo. Todo funciona como antes. Si prefieres otro aspecto, Negro medianoche, Blanco y Nebulosa siguen en el menú de temas.",
         "button": "Elegir un aspecto"
       },
+      "quality_glow": {
+        "title": "La calidad de un objeto, de un vistazo",
+        "text": "Las tarjetas de objetos ya no tienen una barra de color. La calidad de un objeto ahora brilla suavemente detrás de su imagen y colorea su nombre, como lo muestra TF2: naranja para Strange, morado para Unusual, turquesa para Haunted. Los objetos Unique son los que menos brillan, para que destaquen los más raros."
+      },
       "nebula": {
         "title": "Nuevo estilo: Nebulosa",
         "text": "Un cielo del espacio profundo con gas violeta, azul y turquesa, y polvo de estrellas que se desplaza y centellea despacio detrás de la página. Los textos y los recuadros se leen bien sobre él, también en el móvil. Elígelo en el menú de temas y la web lo recordará.",

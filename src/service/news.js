@@ -28,6 +28,7 @@
 
 export const NEWS = [
   { key: 'lamplight', date: '2026-11-19', action: 'themes', image: 'lamplight', window: true },
+  { key: 'quality_glow', date: '2026-11-19', href: '/items' },
   { key: 'nebula', date: '2026-11-18', action: 'themes', image: 'nebula', window: true },
   { key: 'updates_page', date: '2026-11-15', href: '/news' },
   { key: 'themes', date: '2026-11-03 21:20', action: 'themes', image: 'themes', window: true },

@@ -1009,6 +1009,10 @@
         "text": "TF2Deal je teď útulnější: zimní noc ve švestkových barvách, krémový text a jantarové světlo z okna chaty, k tomu nové logo, nová písma a nová ikona aplikace. Všechno funguje jako dřív. Pokud se vám víc líbí jiný vzhled, Půlnoční černá, Bílá a Mlhovina jsou dál v nabídce motivů.",
         "button": "Vybrat vzhled"
       },
+      "quality_glow": {
+        "title": "Kvalita předmětu na první pohled",
+        "text": "Karty předmětů už nemají barevný proužek. Kvalita předmětu teď jemně září za jeho obrázkem a barví jeho název, stejně jako v TF2: oranžová pro Strange, fialová pro Unusual, tyrkysová pro Haunted. Unique předměty září nejméně, takže ty vzácnější vyniknou."
+      },
       "nebula": {
         "title": "Nový vzhled: Mlhovina",
         "text": "Obloha z hlubokého vesmíru s fialovým, modrým a tyrkysovým plynem a hvězdným prachem, který za stránkou pomalu pluje a třpytí se. Texty a boxy na ní zůstávají dobře čitelné, i na telefonu. Vyberte si ji v nabídce motivů a web si ji zapamatuje.",

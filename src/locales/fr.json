@@ -1009,6 +1009,10 @@
         "text": "TF2Deal est plus chaleureux : une nuit d'hiver couleur prune, un texte crème et la lumière ambrée d'une fenêtre de chalet, avec un nouveau logo, de nouvelles polices et une nouvelle icône d'application. Tout fonctionne comme avant. Si vous préférez un autre look, Noir minuit, Blanc et Nébuleuse sont toujours dans le menu des thèmes.",
         "button": "Choisir un look"
       },
+      "quality_glow": {
+        "title": "La qualité d'un objet en un coup d'œil",
+        "text": "Les cartes d'objets n'ont plus de barre de couleur. La qualité d'un objet brille maintenant doucement derrière son image et colore son nom, comme dans TF2 : orange pour Strange, violet pour Unusual, turquoise pour Haunted. Les objets Unique brillent le moins, pour que les plus rares ressortent."
+      },
       "nebula": {
         "title": "Nouveau thème : Nébuleuse",
         "text": "Un ciel de l'espace lointain fait de gaz violet, bleu et turquoise, avec de la poussière d'étoiles qui dérive et scintille doucement derrière la page. Les textes et les encadrés restent faciles à lire, sur mobile aussi. Choisissez-le dans le menu des thèmes, le site le retient.",

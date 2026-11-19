@@ -386,13 +386,9 @@ $highlight-color: rgba(var(--tint-rgb), 0.16);
             position: relative;
             background: var(--surface-2);
             border: 1px solid transparent;
-            border-bottom-width: 3px;
             border-radius: var(--r-md);
             transition: 200ms;
             &:hover{ background: var(--surface-3); }
-            @each $id, $color in (0: #B2B2B2, 1: #4D7455, 3: #476291, 5: #8650AC, 6: #FFD700, 7: #70B04A, 8: #A50F79, 9: #70B04A, 11: #CF6A32, 13: #38F3AB, 14: #AA0000, 15: #FAFAFA) {
-                &.q-#{$id}{ border-bottom-color: $color; }
-            }
             .wish-link{
                 display: block;
                 padding: .6rem .5rem .5rem .5rem;
@@ -450,14 +446,13 @@ $highlight-color: rgba(var(--tint-rgb), 0.16);
         }
         a.name:hover{ color: var(--violet); }
 
-        // item pictures keep the quality-coloured bottom edge of the item tiles
+        // item pictures: the quality shows as a glow behind the picture (partials/_quality.scss)
         .gw-thumb{
             flex: none;
             width: 4rem;
             height: 4rem;
             padding: .2rem;
             border-radius: var(--r-sm);
-            border-bottom: 2px solid var(--edge, var(--line));
             background-color: var(--surface-3);
             background-size: cover;
             background-position: center;
