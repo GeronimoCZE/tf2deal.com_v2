@@ -16,7 +16,7 @@
         const itemVariants = <%- JSON.stringify(info.variants || []).replace(/</g, '\\u003c') %>;
     </script>
     <%- include('./partials/head.ejs') %>
-    <body class="<%= season_class %>">
+    <body class="<%= season_class %> <%= locals.look_class || "" %>">
         <%- include('./partials/nav.ejs') %>
         
         <div class="main-wrapper">

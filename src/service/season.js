@@ -20,7 +20,7 @@ export const SEASONS = {
   halloween: { name: 'Scream Fortress', match: /scream\s*fortress|halloween/i },
   smissmas: { name: 'Smissmas', match: /smissmas|christmas/i }
 }
-// the visitor's own everyday looks next to the normal night sky: they stay the same all year (TF2 events don't change them)
+// the visitor's own everyday looks next to the normal look (Lamplight, scss/partials/_lamplight.scss): they stay the same all year (TF2 events don't change them)
 export const THEMES = {
   midnight: { name: 'Midnight black' },
   white: { name: 'White' },

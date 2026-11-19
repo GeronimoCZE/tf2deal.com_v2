@@ -20,7 +20,7 @@
     "theme": "Tema",
     "theme_auto": "Automático",
     "theme_auto_hint": "sigue los eventos de TF2",
-    "theme_night": "Cielo nocturno",
+    "theme_night": "Luz de farol",
     "theme_midnight": "Negro medianoche",
     "theme_white": "Blanco",
     "theme_nebula": "Nebulosa",
@@ -235,7 +235,9 @@
     "hero_kicker": "Bots de trade de TF2 automáticos",
     "popular_title": "Objetos populares en stock",
     "popular_all": "Todos los objetos",
-    "categories_label": "Categorías de objetos"
+    "categories_label": "Categorías de objetos",
+    "kicker_trades": "En directo",
+    "kicker_popular": "En stock ahora"
   },
   "filters": {
     "none": "Ninguno",
@@ -1002,6 +1004,11 @@
       "empty": "Aún no hay nada aquí. Las funciones nuevas aparecerán en cuanto lleguen."
     },
     "items": {
+      "lamplight": {
+        "title": "Un nuevo aspecto: Luz de farol",
+        "text": "TF2Deal es ahora más cálido: una noche de invierno en tono ciruela, texto color crema y la luz ámbar de la ventana de una cabaña, con un logotipo nuevo, tipografías nuevas y un icono de aplicación nuevo. Todo funciona como antes. Si prefieres otro aspecto, Negro medianoche, Blanco y Nebulosa siguen en el menú de temas.",
+        "button": "Elegir un aspecto"
+      },
       "quality_glow": {
         "title": "La calidad de un objeto, de un vistazo",
         "text": "Las tarjetas de objetos ya no tienen una barra de color. La calidad de un objeto ahora brilla suavemente detrás de su imagen y colorea su nombre, como lo muestra TF2: naranja para Strange, morado para Unusual, turquesa para Haunted. Los objetos Unique son los que menos brillan, para que destaquen los más raros."

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="<%= html_lang %>">
     <%- include('../partials/head.ejs') %>
-    <body class="<%= season_class %>">
+    <body class="<%= season_class %> <%= locals.look_class || "" %>">
         <%- include('../partials/nav.ejs') %>
         <main>
             <%# Admin password step after the Steam sign-in (app.js GET/POST /login). Styles: .admin-login in views/_admin.scss %>

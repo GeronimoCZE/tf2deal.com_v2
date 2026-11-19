@@ -20,7 +20,7 @@
     "theme": "Design",
     "theme_auto": "Automatisch",
     "theme_auto_hint": "folgt den TF2-Events",
-    "theme_night": "Nachthimmel",
+    "theme_night": "Lampenlicht",
     "theme_midnight": "Mitternachtsschwarz",
     "theme_white": "Weiß",
     "theme_nebula": "Sternennebel",
@@ -235,7 +235,9 @@
     "hero_kicker": "Automatische TF2-Trade-Bots",
     "popular_title": "Beliebte Items auf Lager",
     "popular_all": "Alle Items",
-    "categories_label": "Item-Kategorien"
+    "categories_label": "Item-Kategorien",
+    "kicker_trades": "Live",
+    "kicker_popular": "Jetzt auf Lager"
   },
   "filters": {
     "none": "Keine",
@@ -1002,6 +1004,11 @@
       "empty": "Noch nichts hier. Neue Funktionen erscheinen hier, sobald sie online sind."
     },
     "items": {
+      "lamplight": {
+        "title": "Ein neues Design: Lampenlicht",
+        "text": "TF2Deal ist jetzt wärmer: eine Winternacht in Pflaumenviolett, cremefarbene Schrift und das bernsteinfarbene Licht eines Hüttenfensters, dazu ein neues Logo, neue Schriften und ein neues App-Symbol. Alles funktioniert wie bisher. Wenn dir ein anderes Design besser gefällt: Mitternachtsschwarz, Weiß und Sternennebel sind weiterhin im Design-Menü.",
+        "button": "Design wählen"
+      },
       "quality_glow": {
         "title": "Item-Qualität auf einen Blick",
         "text": "Item-Karten haben keinen farbigen Balken mehr. Die Qualität eines Items leuchtet jetzt sanft hinter seinem Bild und färbt seinen Namen, so wie TF2 sie zeigt: Orange für Strange, Lila für Unusual, Türkis für Haunted. Unique-Items leuchten am schwächsten, damit die selteneren hervorstechen."

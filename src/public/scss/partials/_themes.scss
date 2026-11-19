@@ -248,25 +248,27 @@ canvas.stardust{
 // ---------- White: the parts that have their own light-on-dark colours ----------
 // (most of the site follows the tokens above; these were written for the dark page and get dark ink here)
 body.theme-white{
-    // the home picture stays a night scene: its section is a dark window with the normal look's colours inside
+    // the home picture stays a night scene: its section is a dark window with the normal look's (Lamplight's) colours
+    // inside (partials/_lamplight.scss)
     .home-ps-1{
         color-scheme: dark;
-        --ink: #ececf6;
-        --ink-2: rgba(226, 226, 244, 0.78);
-        --ink-3: rgba(226, 226, 244, 0.55);
-        --tint-rgb: 124, 108, 255;
-        --surface: rgb(4, 11, 40);
-        --surface-2: rgba(124, 108, 255, 0.07);
-        --surface-3: rgba(124, 108, 255, 0.13);
-        --line: rgba(255, 255, 255, 0.07);
-        --line-strong: rgba(255, 255, 255, 0.18);
-        --violet: #b88ef7;
-        --brand-muted: rgb(41, 31, 90);
-        --brand-muted-hover: rgb(58, 39, 112);
-        a.view-items-btn{ --surface-2: rgb(18, 22, 64); --surface-3: rgb(25, 28, 77); }
-        .trade-status.online{ background: rgb(15, 37, 48) !important; }
-        .trade-status.offline{ background: rgb(34, 23, 50) !important; }
-        background: linear-gradient(-30deg, rgb(14, 22, 64), rgb(4, 14, 40), rgb(22, 12, 58));
+        --ink: #f6efe6;
+        --ink-2: #d8cdc4;
+        --ink-3: #a99cae;
+        --tint-rgb: 190, 160, 255;
+        --surface: #211a2b;
+        --surface-2: #2c2238;
+        --surface-3: #3a2d49;
+        --line: rgba(246, 236, 255, 0.07);
+        --line-strong: rgba(246, 236, 255, 0.18);
+        --violet: #c3b0ff;
+        --amber: #ffb547;
+        --brand-muted: #3b2f5c;
+        --brand-muted-hover: #4a3a72;
+        a.view-items-btn{ --surface-2: #261e31; --surface-3: #31263e; }
+        .trade-status.online{ background: #1d2a26 !important; }
+        .trade-status.offline{ background: #2e1a24 !important; }
+        background: #140e1b;
         color: var(--ink);
         border-radius: var(--r-lg);
         overflow: hidden;

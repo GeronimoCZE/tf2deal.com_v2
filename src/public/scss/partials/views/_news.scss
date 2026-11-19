@@ -15,7 +15,7 @@
             font-weight: 600;
             letter-spacing: .06em;
             text-transform: uppercase;
-            color: var(--violet);
+            color: var(--amber, var(--violet)); // the lamplight in the normal look
         }
         h1{
             @include page-title;
