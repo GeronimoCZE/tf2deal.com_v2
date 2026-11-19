@@ -20,7 +20,7 @@
     "theme": "主题",
     "theme_auto": "自动",
     "theme_auto_hint": "跟随 TF2 活动",
-    "theme_night": "夜空",
+    "theme_night": "灯光",
     "theme_midnight": "午夜黑",
     "theme_white": "白色",
     "theme_nebula": "星云",
@@ -235,7 +235,9 @@
     "hero_kicker": "自动化 TF2 交易机器人",
     "popular_title": "热门在售物品",
     "popular_all": "全部物品",
-    "categories_label": "物品分类"
+    "categories_label": "物品分类",
+    "kicker_trades": "实时",
+    "kicker_popular": "现有库存"
   },
   "filters": {
     "none": "无",
@@ -1002,6 +1004,11 @@
       "empty": "这里还没有内容。新功能一上线就会出现在这里。"
     },
     "items": {
+      "lamplight": {
+        "title": "全新外观：灯光",
+        "text": "TF2Deal 现在更温暖了：梅紫色的冬夜、奶油色的文字和小木屋窗口透出的琥珀色灯光，还有新的标志、新的字体和新的应用图标。所有功能照常使用。如果你更喜欢其他外观，午夜黑、白色和星云仍在主题菜单中。",
+        "button": "选择外观"
+      },
       "nebula": {
         "title": "新外观：星云",
         "text": "由紫色、蓝色和青色气体组成的深空星空，页面背后还有缓缓飘动、闪烁的星尘。上面的文字和方框依然清晰易读，手机上也一样。在主题菜单中选择它，网站会记住你的选择。",

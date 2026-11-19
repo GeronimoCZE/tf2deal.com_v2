@@ -20,7 +20,7 @@
     "theme": "Motiv",
     "theme_auto": "Automaticky",
     "theme_auto_hint": "podle akcí v TF2",
-    "theme_night": "Noční obloha",
+    "theme_night": "Světlo lampy",
     "theme_midnight": "Půlnoční černá",
     "theme_white": "Bílá",
     "theme_nebula": "Mlhovina",
@@ -235,7 +235,9 @@
     "hero_kicker": "Automatické TF2 trade boty",
     "popular_title": "Oblíbené předměty skladem",
     "popular_all": "Všechny předměty",
-    "categories_label": "Kategorie předmětů"
+    "categories_label": "Kategorie předmětů",
+    "kicker_trades": "Živě",
+    "kicker_popular": "Právě skladem"
   },
   "filters": {
     "none": "Žádné",
@@ -1002,6 +1004,11 @@
       "empty": "Zatím tu nic není. Nové funkce se tu objeví hned, jak budou spuštěny."
     },
     "items": {
+      "lamplight": {
+        "title": "Nový vzhled: Světlo lampy",
+        "text": "TF2Deal je teď útulnější: zimní noc ve švestkových barvách, krémový text a jantarové světlo z okna chaty, k tomu nové logo, nová písma a nová ikona aplikace. Všechno funguje jako dřív. Pokud se vám víc líbí jiný vzhled, Půlnoční černá, Bílá a Mlhovina jsou dál v nabídce motivů.",
+        "button": "Vybrat vzhled"
+      },
       "nebula": {
         "title": "Nový vzhled: Mlhovina",
         "text": "Obloha z hlubokého vesmíru s fialovým, modrým a tyrkysovým plynem a hvězdným prachem, který za stránkou pomalu pluje a třpytí se. Texty a boxy na ní zůstávají dobře čitelné, i na telefonu. Vyberte si ji v nabídce motivů a web si ji zapamatuje.",

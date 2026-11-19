@@ -3,7 +3,7 @@
     <%- include('../partials/head.ejs') %>
     <%# The admin panel is its own app: the admin bar on top (View site goes back to the shop), a rail of sections on
         the left and the open section beside it. No shop menu, banner or footer here. Styles: views/_admin.scss %>
-    <body class="<%= season_class %> admin-app">
+    <body class="<%= season_class %> <%= locals.look_class || "" %> admin-app">
         <%- include('../partials/admin_bar.ejs') %>
         <main class="admin">
             <div class="admin-shell">

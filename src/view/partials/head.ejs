@@ -74,7 +74,9 @@
     <meta name="description" content="<%= seo_description %>">
     <meta name="keywords" content="TF2 Trade Site, TF2 Item Trading, Team Fortress 2 Bots">
     <meta name="author" content="Nikolas Malik"> 
-   <link rel="icon" href="/img/icon96x96.png">
+    <link rel="icon" href="/img/icon32x32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/img/icon96x96.png" sizes="96x96" type="image/png">
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
     <title><%= seo_title %></title>
 <%# a canonical address only on pages meant for search results: a noindex page with one sends mixed signals, and an
     error page has no address of its own %>
@@ -105,7 +107,7 @@
     <meta name="twitter:title" content="<%= seo_title %>">
     <meta name="twitter:description" content="<%= seo_description %>">
     <meta name="twitter:image" content="<%= seo_image %>">
-    <meta name="theme-color" content="<%= ({ 'theme-midnight': '#000000', 'theme-white': '#ffffff', 'theme-nebula': '#0b0824' })[locals.season_class] || '#3f2a77' %>">
+    <meta name="theme-color" content="<%= ({ 'theme-midnight': '#000000', 'theme-white': '#ffffff', 'theme-nebula': '#0b0824' })[locals.season_class] || '#140e1b' %>">
     <meta name="trustpilot-one-time-domain-verification-id" content="52e55ef4-45c6-4737-9d51-05ac93a6f222"/>
     <meta name="msvalidate.01" content="9195A6F398D088FC940A29A7FBEC7B6C" />
 
@@ -162,7 +164,8 @@
     <% if (season_class == 'theme-nebula') { %><link rel="preload" href="/img/themes/nebula-sky.webp" as="image" type="image/webp" media="(min-aspect-ratio: 4/5)">
     <link rel="preload" href="/img/themes/nebula-sky-tall.webp" as="image" type="image/webp" media="(max-aspect-ratio: 4/5)">
     <script src="<%= asset('/js/stardust.js') %>" defer></script><% } %>
-    <link rel="preload" href="/font/rubik-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/font/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/font/rubik-800-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/font/icomoon.woff2?k1nzd2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="<%= asset('/css/style.css') %>">
 

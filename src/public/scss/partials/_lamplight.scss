@@ -1,0 +1,140 @@
+/* ---------- Lamplight: the site's own look ---------- */
+// A winter night in plum, cream text instead of white, and the warm amber of a lit cabin window as the accent; the
+// logo violet stays for Steam and the main purple buttons, green for trading. app.js puts .lamplight on <body> for the
+// normal look and for Smissmas (which adds its blizzard, red and green on top). Summer, Scream Fortress and the
+// visitor's own looks (Midnight, White, Nebula) keep their colours: this file only touches body.lamplight.
+// Like the themes, it swaps the colours of _design.scss and leaves the layout alone; the spots below are the ones
+// that have a colour of their own instead of a token.
+
+body.lamplight{
+    // text
+    --ink: #f6efe6;                         // cream: headings, values
+    --ink-2: #d8cdc4;                       // body text
+    --ink-3: #a99cae;                       // labels, dates, hints (4.5:1 on every box below)
+    // surfaces: solid plum boxes on the night (boxes apart by their background, no outline)
+    --tint-rgb: 190, 160, 255;              // the lilac that hover and selected states are tinted with
+    --surface: #211a2b;
+    --surface-2: #2c2238;                   // rows / wells inside a panel, quiet buttons
+    --surface-3: #3a2d49;                   // hover
+    --line: rgba(246, 236, 255, 0.07);
+    --line-strong: rgba(246, 236, 255, 0.18);
+    --tile: #2a2135;                        // item tiles: a step lighter than a box, so they read inside one too
+    --tile-hover: #342940;
+    --well: #17111e;                        // inputs
+    --dialog: #221a2d;
+    --scrim: rgba(10, 6, 14, 0.82);
+    // actions
+    --brand: #6f52ee;                       // the logo violet (5.1:1 with white text)
+    --brand-hover: #7c61f3;
+    --brand-muted: #3b2f5c;                 // chips, picked filters, secondary violet buttons
+    --brand-muted-hover: #4a3a72;
+    --violet: #c3b0ff;                      // links
+    --violet-2: #ffb547;                    // small accents (FAQ chevrons, footer headings): the lamplight
+    --amber: #ffb547;                       // kickers, the small lines under numbers, step numbers
+    --link: #c3b0ff;
+    --green: rgb(60, 176, 88);
+    --green-muted: #2a7d3e;
+    --go: #2a7d3e;
+    --go-hover: #33904a;
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 16px;
+    // bars
+    --season-bar: #140e1b;                  // the menu bar: the night itself, so it reads as part of the page
+    --nav-card: #211a2b;                    // menu dropdowns
+    --foo-band: #1a1322;                    // the footer's item categories band
+
+    background: #140e1b;
+    background-size: auto;
+    animation: none !important;
+    color: var(--ink) !important;
+
+    // tinted boxes that sit right on the page (not in a panel): the same tints, solid
+    .item__btn, .total-value, a.view-items-btn{
+        --surface-2: #261e31;
+        --surface-3: #31263e;
+    }
+    .item__btn.active:hover{ background: rgb(44, 140, 66) !important; }
+    .btn.trade-btn:not(.ready){ background: #1d2a26 !important; }
+    .trade-status.online{ background: #1d2a26 !important; }
+    .trade-status.offline{ background: #2e1a24 !important; }
+    .about-ps .info-div{ background: #2e1d2c; }
+
+    // menu bar
+    header .nav-wrapper, #site-nav .nav-wrapper{ background: var(--season-bar) !important; color: var(--ink) !important; }
+    @media screen and (max-width: 1370px){
+        #site-nav .nav-wrapper{ background: rgba(20, 14, 27, 0.94) !important; }
+    }
+    .nav-signin, .login-request a[href="/auth/steam"]{
+        background: var(--brand) !important;
+        color: #fff !important;
+        &:hover{ background: var(--brand-hover) !important; }
+        span{ color: #fff !important; }
+    }
+    footer{ background-color: #0f0a15 !important; }
+    footer .copyrights{ color: var(--ink-2); &::after{ background: #0a0610; } }
+    footer .copyrights span.text-block span a{ color: var(--violet) !important; &:hover{ color: var(--ink) !important; } }
+
+    // windows: the plum card over the dimmed night (the page-wide dialog rule in _partials.scss paints them near black)
+    dialog{
+        background: var(--dialog) !important;
+        color: var(--ink);
+        &::backdrop{ background: var(--scrim); }
+        button[data-close-modal]{ background: var(--dialog) !important; color: var(--ink-2); }
+    }
+    // the item page's filter menus, the notification panel, the item tooltip and dropdown options: plum cards
+    .item-page .item-filters .if-chip .if-menu{ background: var(--dialog); }
+    .notif-panel{ background: var(--dialog); }
+    .item-tooltip{ background: #241b30 !important; }
+    select option{ background: var(--well); color: var(--ink); }
+
+    .cookie-table .row.head{ background: var(--brand-muted); }
+    .e404-text .e404-heading{ color: var(--amber) !important; }
+
+    // the admin panel and the admin bar over the shop: the night, a shade darker for the frame
+    &.admin-app{ --admin-page: #160f1d; --admin-rail: #0d0912; }
+    .admin-bar{ background: #0d0912; .ab-sub{ background: var(--dialog); } }
+
+    .site-announcement{
+        background: rgba(var(--tint-rgb), 0.14);
+        .site-announcement-dot{ background: var(--violet); }
+        &.level-warning{ background: rgba(255, 181, 71, 0.14); .site-announcement-dot{ background: var(--amber); } }
+        &.level-danger{ background: rgba(224, 96, 79, 0.16); }
+    }
+
+    // the end of the home page: the snowy tree and the snow under the FAQ, in moonlight instead of daylight white
+    .home-ps-3 .images{
+        img{ filter: brightness(.78) saturate(.8); }
+        .snow-bottom{ background: #c4b9d2; }
+    }
+}
+
+// the night: a faint warm glow where the cabin's light falls, and a lilac haze up high (still, no motion)
+body.lamplight:not(.season-smissmas):not(.admin-app)::before{
+    height: 70vh;
+    opacity: 1;
+    background:
+        radial-gradient(ellipse 50% 70% at 72% 0%, rgba(140, 100, 230, 0.10), transparent 70%),
+        radial-gradient(ellipse 36% 46% at 18% 8%, rgba(255, 181, 71, 0.045), transparent 70%);
+    background-size: 100% 100%;
+    -webkit-mask-image: none;
+    mask-image: none;
+    animation: none;
+}
+
+// Smissmas on the Lamplight night: a snowy plum storm, the blizzard (js/blizzard.js), Smissmas red and green
+body.lamplight.season-smissmas{
+    background: linear-gradient(-30deg, #2a2038, #140e1b, #241b33);
+    background-size: 400% 400%;
+    animation: gradientMove 240s ease infinite !important;
+    --brand: #b0302f;
+    --brand-hover: #c23b39;
+    --brand-muted: #4a2433;
+    --brand-muted-hover: #5c2b3f;
+    --violet: #9fdc9a;
+    --link: #9fdc9a;
+    --violet-2: #ffb547;
+}
+@media (prefers-reduced-motion: reduce){
+    body.lamplight.season-smissmas{ animation: none !important; }
+}

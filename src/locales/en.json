@@ -20,7 +20,7 @@
     "theme": "Theme",
     "theme_auto": "Automatic",
     "theme_auto_hint": "follows TF2 events",
-    "theme_night": "Night sky",
+    "theme_night": "Lamplight",
     "theme_midnight": "Midnight black",
     "theme_white": "White",
     "theme_nebula": "Nebula",
@@ -235,7 +235,9 @@
     "hero_kicker": "Automated TF2 trade bots",
     "popular_title": "Popular items in stock",
     "popular_all": "All items",
-    "categories_label": "Item categories"
+    "categories_label": "Item categories",
+    "kicker_trades": "Live",
+    "kicker_popular": "In stock now"
   },
   "filters": {
     "none": "None",
@@ -1002,6 +1004,11 @@
       "empty": "Nothing here yet. New features will show up here as soon as they go live."
     },
     "items": {
+      "lamplight": {
+        "title": "A new look: Lamplight",
+        "text": "TF2Deal is warmer now: a winter night in plum, cream text and the amber light of a lit cabin window, with a new logo, new fonts and a new app icon. Everything works as before. If you like another look better, Midnight black, White and Nebula are still in the theme menu.",
+        "button": "Pick a look"
+      },
       "nebula": {
         "title": "New look: Nebula",
         "text": "A deep-space sky of violet, blue and teal gas, with stardust that slowly drifts and twinkles behind the page. Texts and boxes stay easy to read on it, on phones too. Pick it in the theme menu and the site remembers it.",

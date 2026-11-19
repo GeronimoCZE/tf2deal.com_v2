@@ -20,7 +20,7 @@
     "theme": "Thème",
     "theme_auto": "Automatique",
     "theme_auto_hint": "suit les événements TF2",
-    "theme_night": "Ciel nocturne",
+    "theme_night": "Lueur de lampe",
     "theme_midnight": "Noir minuit",
     "theme_white": "Blanc",
     "theme_nebula": "Nébuleuse",
@@ -235,7 +235,9 @@
     "hero_kicker": "Bots de trade TF2 automatiques",
     "popular_title": "Objets populaires en stock",
     "popular_all": "Tous les objets",
-    "categories_label": "Catégories d'objets"
+    "categories_label": "Catégories d'objets",
+    "kicker_trades": "En direct",
+    "kicker_popular": "En stock maintenant"
   },
   "filters": {
     "none": "Aucun",
@@ -1002,6 +1004,11 @@
       "empty": "Rien pour l'instant. Les nouvelles fonctions apparaîtront ici dès leur mise en ligne."
     },
     "items": {
+      "lamplight": {
+        "title": "Un nouveau look : Lueur de lampe",
+        "text": "TF2Deal est plus chaleureux : une nuit d'hiver couleur prune, un texte crème et la lumière ambrée d'une fenêtre de chalet, avec un nouveau logo, de nouvelles polices et une nouvelle icône d'application. Tout fonctionne comme avant. Si vous préférez un autre look, Noir minuit, Blanc et Nébuleuse sont toujours dans le menu des thèmes.",
+        "button": "Choisir un look"
+      },
       "nebula": {
         "title": "Nouveau thème : Nébuleuse",
         "text": "Un ciel de l'espace lointain fait de gaz violet, bleu et turquoise, avec de la poussière d'étoiles qui dérive et scintille doucement derrière la page. Les textes et les encadrés restent faciles à lire, sur mobile aussi. Choisissez-le dans le menu des thèmes, le site le retient.",

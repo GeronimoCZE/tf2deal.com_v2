@@ -52,8 +52,7 @@ body{
     display: block;
     padding: 0;
     margin: 0;
-    font-family: Roboto, sans-serif !important;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+    font-family: var(--font-body) !important;
     /* background: rgb(83, 35, 131); */
     background: rgb(72, 72, 72);
     font-size: 22px;
@@ -63,7 +62,7 @@ body{
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
     line-height: unset !important;
-    font-weight: 500 !important;
+    font-weight: 450 !important;
     &.no-scroll{
         overflow: hidden !important;
         @include sm{
@@ -110,31 +109,8 @@ body::before{
 @media (prefers-reduced-motion: reduce){
     body::before{ animation: none; }
 }
-// Boxes are solid in the normal look: the aurora showed through the see-through ones and made their text hard to
-// read. These are the colours of _design.scss as they looked over the night sky (rgb(10, 16, 50)).
-// Midnight, White and Nebula have solid boxes of their own (partials/_themes.scss).
-body:not(.season-summer):not(.season-halloween):not(.season-smissmas):not(.theme-midnight):not(.theme-white):not(.theme-nebula){
-    --surface: rgb(4, 11, 40);
-    --tile: rgb(24, 30, 78);
-    --tile-hover: rgb(37, 43, 104);
-    --well: rgb(3, 9, 34);
-    --brand-muted: rgb(41, 31, 90);
-    --brand-muted-hover: rgb(58, 39, 112);
-    --green-muted: rgb(30, 100, 43);
-    // tinted boxes that sit right on the page (not in a panel): the same tints, solid
-    .item__btn, .total-value, a.view-items-btn{
-        --surface-2: rgb(18, 22, 64);
-        --surface-3: rgb(25, 28, 77);
-    }
-    .item__btn.active:hover{ background: rgb(41, 145, 40) !important; }
-    .btn.trade-btn:not(.ready){ background: rgb(15, 37, 48) !important; }
-    .trade-status.online{ background: rgb(15, 37, 48) !important; }
-    .trade-status.offline{ background: rgb(34, 23, 50) !important; }
-    .about-ps .info-div{ background: rgb(53, 28, 50); }
-    @media screen and (max-width: 1370px){
-        #site-nav .nav-wrapper{ background: rgb(4, 11, 41); }
-    }
-}
+// The normal look's own colours (solid plum boxes, cream text, the lamplight accent): partials/_lamplight.scss.
+// Midnight, White and Nebula have theirs in partials/_themes.scss, the TF2 events in partials/_seasons.scss.
 
 body::-webkit-scrollbar { /* WebKit */
     width: 0;
@@ -149,8 +125,7 @@ body {
     display: block;
     padding: 0 !important;
     margin: 0 !important;
-    font-family: Roboto, sans-serif !important;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+    font-family: var(--font-body) !important;
     background: rgba(1,31,77,1);
     font-size: 22px;
     color: white !important;
@@ -159,7 +134,7 @@ body {
     scrollbar-width: none;
     -ms-overflow-style: none;
     line-height: unset !important;
-    font-weight: 500 !important;
+    font-weight: 450 !important;
     /* &.halloween{
         background: #33166a !important;
         header{
@@ -844,6 +819,7 @@ span.lang{
 @import './partials/seasons';
 @import './partials/welcome';
 @import './partials/themes';
+@import './partials/lamplight';
 
 #openChat {
     position: fixed;

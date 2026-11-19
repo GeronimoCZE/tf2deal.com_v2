@@ -123,7 +123,7 @@
                 font-weight: 700;
                 letter-spacing: .08em;
                 text-transform: uppercase;
-                color: var(--violet);
+                color: var(--amber, var(--violet)); // the lamplight in the normal look, the link colour in the others
                 -webkit-text-fill-color: currentColor;
                 @include lt-sm{
                     font-size: .8rem;
@@ -242,7 +242,8 @@
                     .stat-sub{
                         display: block;
                         font-size: .8rem;
-                        font-weight: 400;
+                        font-weight: 500;
+                        color: var(--amber, inherit);
                     }
                 }
                 .stat-data{
@@ -433,10 +434,41 @@
         h2{
             @include section-title;
         }
+        .section-kicker{ @include section-kicker; }
         .trades{
             @extend %trade-records;
             .trade{ background: var(--surface); width: auto; }
             .trade[hidden]{ display: none; }
+            // wide screens: a strip of trade cards, five across, each with the trader's side above the bot's
+            @media screen and (min-width: 1001px){
+                display: grid;
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+                gap: .75rem;
+                .trade{
+                    display: flex;
+                    flex-direction: column;
+                    margin: 0;
+                    padding: .75rem .75rem .85rem .75rem;
+                    &.skeleton{ grid-column: 1 / -1; min-height: 12rem; .trade-icon{ display: none; } }
+                }
+                .info{ grid-column: 1 / -1; width: auto; }
+                .trade .content{
+                    display: flex;
+                    flex-direction: column;
+                    flex: 1;
+                    gap: .35rem;
+                    .user-side, .bot-side{ display: block; width: auto; }
+                    .bot-side{ flex: 1; }
+                    .trade-icon{
+                        display: flex;
+                        justify-content: center;
+                        width: auto;
+                        padding: 0;
+                        margin: 0;
+                        span{ font-size: 1.1rem !important; transform: rotate(90deg); color: var(--ink-3); }
+                    }
+                }
+            }
             // a trade that just happened fades in on top of the list
             .trade.trade-new{ animation: tradeArrive 700ms ease both; }
         }
@@ -466,6 +498,7 @@
             gap: .5rem 1rem;
             margin-bottom: .75rem;
             h2{ @include section-title; margin: 0; }
+            .section-kicker{ @include section-kicker; flex-basis: 100%; margin-bottom: -.4rem; }
         }
         .home-popular-all{
             color: var(--violet);
