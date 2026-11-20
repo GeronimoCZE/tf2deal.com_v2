@@ -15,6 +15,7 @@ import * as categories from '../service/categories.js'
 import * as buy from '../service/buy_link.js'
 import * as item_lists from '../service/item_lists.js'
 import * as kit_pictures from '../service/kit_pictures.js'
+import { has_admin_session } from '../mw.js'
 import * as variants from '../service/variants.js'
 import * as blog_render from '../service/blog_render.js'
 import * as news_times from '../service/news_times.js'
@@ -630,7 +631,7 @@ const blog = async (req, res, next) => {
 
 const blog_page = async (req, res, next) => {
   const user_cookie = req.user ? req.cookies[`td_${req.user.steamid}`] : undefined
-  const is_admin = req.user?.steamid === process.env.ADMIN_STEAMID
+  const is_admin = has_admin_session(req) // the unlocked admin panel (admin password), not only the admin's Steam account
 
   try {
     // the admin can open unpublished posts to check them before publishing

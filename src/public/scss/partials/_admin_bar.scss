@@ -74,6 +74,7 @@ $ab-h-phone: 40px;
     }
     .ab-session{ color: var(--ink-3) !important; }
     .ab-unlock{ color: #f3c969 !important; }
+    .ab-lock{ display: flex; margin: 0; }
 
     // Admin and New: a list that opens under the item (hover or keyboard focus; tap on touch screens)
     .ab-menu{

@@ -1,4 +1,5 @@
 import { safe_equal } from '../service/settings.js'
+import { has_admin_session } from '../mw.js'
 
 const isLogged = (req, res, next) => {
     if(req.user){
@@ -16,12 +17,10 @@ const isServer = (req, res, next) => {
     }
 };
 
+// the admin's Steam account with the panel unlocked (admin password, mw.js has_admin_session)
 const isAdmin = (req, res, next) => {
-    if(req.user){
-        if (req.user.steamid === process.env.ADMIN_STEAMID) {
-            return next();
-        }
-        return res.status(511).json('You are not allowed to GET/POST data in here!')
+    if(has_admin_session(req)){
+        return next();
     }
     res.status(511).json('You are not allowed to GET/POST data in here!')
 };

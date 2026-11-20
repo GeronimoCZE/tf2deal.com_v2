@@ -67,7 +67,8 @@ const ERRORS = {
   move_send_failed: 'Steam did not take the offer between the bots.',
   move_confirmation_failed: 'The offer between the bots could not be confirmed.',
   move_failed: 'Moving the items failed.',
-  listing_takedown_failed: 'backpack.tf did not take the listings down first, so nothing was moved.'
+  listing_takedown_failed: 'backpack.tf did not take the listings down first, so nothing was moved.',
+  trade_url_of_another_account: 'That trade URL belongs to another Steam account, not this bot.'
 }
 
 const readable = (code) => {
@@ -75,6 +76,8 @@ const readable = (code) => {
   if(ERRORS[text]){ return ERRORS[text] }
   if(/^max_bots_running/.test(text)){ return `As many bots as allowed are running already (${text.replace(/\D+/g, '') || 'max'}). Raise Max bots or disable one first.` }
   if(/^max_bots_enabled/.test(text)){ return 'All 12 bot slots are enabled already.' }
+  if(/^missing_bptf\b/.test(text)){ return 'A trade bot lists on backpack.tf: enter its backpack.tf API key and access token too.' }
+  if(/^invalid_tradeURL\b/.test(text)){ return 'That is not a Steam trade URL (https://steamcommunity.com/tradeoffer/new/?partner=…&token=…).' }
   if(/^cannot_decrypt_/.test(text)){ return `bot_manager can't decrypt the saved ${text.slice(16)}: PASSWORD in its .env changed since the bot was saved. Enter it again.` }
   if(/^(missing|invalid)_/.test(text)){ return `${text.startsWith('missing') ? 'Missing' : 'Not valid'}: ${text.replace(/^(missing|invalid)_/, '')}.` }
   return text

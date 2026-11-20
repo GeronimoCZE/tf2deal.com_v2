@@ -615,6 +615,43 @@
     const bptf_state = (a) => a.hasBptfKey && a.hasBptfToken ? 'key and token saved'
         : `<span class="admin-error">${!a.hasBptfKey && !a.hasBptfToken ? 'no key, no token' : a.hasBptfToken ? 'no API key' : 'no token'}</span>`
 
+    // a bot's trade URL as a short link (the whole address in its title)
+    const trade_url = (url) => url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" title="${esc(url)}">trade link</a>` : '<span class="admin-error">not set</span>'
+    // the Steam name a kind gives a bot (bot_manager's defaults; BOT_NAME_TEMPLATE / WAREHOUSE_NAME_TEMPLATE change them)
+    const kind_name = (a, type) => type == 'warehouse' ? `TF2deal.com Bank #${a.id}` : `TF2deal.com #${a.id}`
+    // what a new kind does, asked before it's saved; false = not saved
+    const confirm_kind = (a, type, name, entered_bptf) => {
+        if(type == 'warehouse'){
+            return confirm(`Make ${name} a warehouse?\n\n- On Steam it's renamed to "${kind_name(a, 'warehouse')}" and its profile says it doesn't trade with users.\n- Every listing on its backpack.tf account comes down now and it stops listing.\n- It stops trading with users; its priced items go to the trade bots on the next balance run.`)
+        }
+        if(!(a.hasBptfKey && a.hasBptfToken) && !entered_bptf){
+            iziToast.error({ title: 'backpack.tf key and token', message: 'A trade bot lists on backpack.tf: enter its backpack.tf API key and access token too (from backpack.tf → Settings → API access, logged in as this bot).' })
+            return false
+        }
+        return confirm(`Make ${name} a trade bot?\n\n- On Steam it's renamed to "${kind_name(a, 'trade')}" and its profile links its backpack.tf listings and trade link.\n- backpack.tf loads its inventory again and it starts listing there.\n- It trades with users on the site.`)
+    }
+    // what bot_manager did with a saved change, for the toast
+    const saved_text = (res, live) => {
+        if(res.saved_only){ return 'Saved in the database. bot_manager uses it when it starts (a new kind renames the bot and writes its Steam profile then).' }
+        const parts = []
+        const t = res.type
+        if(t){
+            if(t.nextLogin){ parts.push(`Now a ${t.to == 'warehouse' ? 'warehouse' : 'trade bot'}. It's renamed to ${esc(t.name)} and its Steam profile is written when it logs in next.`) }
+            else {
+                parts.push(`Now a ${t.to == 'warehouse' ? 'warehouse' : 'trade bot'}, renamed to ${esc(t.name)} on Steam. Its Steam profile is being written.`)
+                if(t.to == 'warehouse'){ parts.push(t.listings?.removing ? 'Its backpack.tf listings are coming down.' : t.listings?.ok === false ? `<b>Its backpack.tf listings could not be removed${t.listings.error ? ` (${esc(t.listings.error)})` : ''}</b>; the listing cleanup tries again.` : `${num(t.listings?.removed || 0)} backpack.tf listings removed.`) }
+                else { parts.push('backpack.tf loads its inventory again; listing starts within a minute or two.') }
+            }
+        }
+        const u = res.tradeURL
+        if(u){ parts.push(u.url ? (u.read ? 'Trade URL read from Steam and put on its profile.' : 'Trade URL saved and put on its profile.') : `The trade URL could not be read from Steam now (${esc(u.error || 'no answer')}); it's read when the bot logs in next.`) }
+        const now = (Array.isArray(res.appliedNow) ? res.appliedNow : []).filter((k) => k == 'bptf_key' || k == 'bptf_token')
+        if(now.length){ parts.push(`backpack.tf ${now.map((k) => k == 'bptf_key' ? 'API key' : 'token').join(' and ')} used now.`) }
+        const next = (Array.isArray(res.nextLogin) ? res.nextLogin : []).filter((k) => !['type', 'accountTradeURL'].includes(k))
+        if(next.length){ parts.push(`At its next login: ${esc(next.join(', '))}.`) }
+        return parts.join(' ') || 'Saved.'
+    }
+
     const bot_card = (a, b, live) => {
         const [cls, label] = bot_state(a, live)
         const steamid = a.steamid || b?.steamid
@@ -633,6 +670,7 @@
             ${a.stopping ? `<p class="admin-note">Logs off ${a.stopping.until ? later(a.stopping.until) : 'soon'}${a.stopping.openOffers ? `, once its ${num(a.stopping.openOffers)} open offer${a.stopping.openOffers == 1 ? ' is' : 's are'} done` : ''}.</p>` : ''}
             ${!live ? facts([
                 ['Steam ID', steamid ? esc(steamid) : 'not logged in yet'],
+                ['Trade URL', trade_url(a.tradeURL)],
                 a.type != 'warehouse' && ['backpack.tf', bptf_state(a)],
                 ['Saved', ago(a.updated)],
                 disabled && a.disabledBy && ['Disabled by', /^\d{17}$/.test(a.disabledBy) ? profile(a.disabledBy, `…${a.disabledBy.slice(-5)}`) : esc(a.disabledBy)]
@@ -644,6 +682,7 @@
                 b && ['Sent offers', `${num(b.offers?.sent)} / ${num(b.offers?.limit)}${b.offers?.limitOverride != null ? ' <span class="admin-tag">set by hand</span>' : ''}`],
                 b && ['Web session', b.webSession ? 'OK' : '<span class="admin-error">missing</span>'],
                 a.type != 'warehouse' && ['backpack.tf', bptf_state(a)],
+                ['Trade URL', trade_url(a.tradeURL)],
                 b?.inventory?.resync?.lastError && ['Inventory reload', `<span class="admin-error">${esc(b.inventory.resync.lastError)}</span>`]
             ])}
             <div class="admin-bm-actions">
@@ -659,15 +698,19 @@
                     : disabled || (!running && !a.stopping) || a.stopping ? act('admin:bots:enable', { bot: a.accountName }, a.stopping ? 'Keep it running' : 'Enable and log in', { cls: 'primary', ok: `${name} is logging in.` }) : ''}
                 ${disabled && !running && !a.stopping ? `<button type="button" data-remove-bot="${esc(a.accountName)}">Remove</button>` : ''}
             </div>
-            <details class="admin-bm-settings"><summary>Kind and backpack.tf…</summary>
+            <details class="admin-bm-settings"><summary>Kind, trade URL and backpack.tf…</summary>
                 <form class="admin-bm-settings-form" data-bot-settings="${esc(a.accountName)}" autocomplete="off">
                     <div class="admin-bm-kind" role="radiogroup" aria-label="Kind of bot">
-                        <label class="check"><input type="radio" name="type" value="trade" ${a.type != 'warehouse' ? 'checked' : ''}> Trade bot <span class="admin-help">lists on backpack.tf and trades with users</span></label>
-                        <label class="check"><input type="radio" name="type" value="warehouse" ${a.type == 'warehouse' ? 'checked' : ''}> Warehouse <span class="admin-help">holds stock and pure for the trade bots, never lists</span></label>
+                        <label class="check"><input type="radio" name="type" value="trade" ${a.type != 'warehouse' ? 'checked' : ''}> Trade bot <span class="admin-help">lists on backpack.tf and trades with users; Steam name ${esc(kind_name(a, 'trade'))}</span></label>
+                        <label class="check"><input type="radio" name="type" value="warehouse" ${a.type == 'warehouse' ? 'checked' : ''}> Warehouse <span class="admin-help">holds stock and pure for the trade bots, never lists; Steam name ${esc(kind_name(a, 'warehouse'))}</span></label>
                     </div>
+                    <p class="admin-help">${live ? 'A new kind applies right away: the bot is renamed on Steam, its Steam profile is rewritten, and its backpack.tf listings start or all come down.' : 'A new kind is used when bot_manager starts: the bot is renamed and its profile written then.'}</p>
+                    <label class="admin-field">Trade URL
+                        <span class="admin-input-row"><input type="url" name="tradeURL" value="${esc(a.tradeURL || '')}" spellcheck="false" inputmode="url" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=…&amp;token=…">${live && running ? `<button type="button" data-read-trade-url="${esc(a.accountName)}" title="Read the bot's current trade URL from Steam">Read from Steam</button>` : ''}</span>
+                        <span class="admin-help">Steam → Inventory → Trade Offers → Who can send me trade offers?, logged in as this bot. Used for offers between our bots and as the Trade Link on its Steam profile.</span></label>
                     <label class="admin-field">backpack.tf API key <input type="password" name="bptf_key" autocomplete="new-password" spellcheck="false" placeholder="${a.hasBptfKey ? 'saved, leave empty to keep it' : 'not set'}"></label>
                     <label class="admin-field">backpack.tf access token <input type="password" name="bptf_token" autocomplete="new-password" spellcheck="false" placeholder="${a.hasBptfToken ? 'saved, leave empty to keep it' : 'not set'}"></label>
-                    <p class="admin-help">From backpack.tf → Settings → API access, logged in as this bot. ${live ? 'The key and token apply right away, a new kind too.' : 'Used when bot_manager starts.'}</p>
+                    <p class="admin-help">From backpack.tf → Settings → API access, logged in as this bot. ${live ? 'The key and token apply right away.' : 'Used when bot_manager starts.'}</p>
                     <div class="admin-card-foot"><button type="submit" class="primary">Save</button></div>
                 </form>
             </details>
@@ -726,7 +769,7 @@
                         <li>Click <b>Details</b> on "tf2deal admin: bot browser" and switch on <b>${BROWSER.allow}</b>.</li>
                         <li>Reload this page.</li>
                     </ol>
-                    <p class="admin-help">One bot at a time: opening another bot closes the first one's window. While it is open, Steam's log out and deauthorize pages are blocked in every window, because they would log the bot itself out. Closing the window deletes its Steam and backpack.tf cookies. The login lasts about a day; open it again after that.</p>
+                    <p class="admin-help">One bot at a time: opening another bot closes the first one's window. While it is open, Steam's log out and deauthorize pages are blocked in every window, because they would log the bot itself out. Closing the window deletes its Steam and backpack.tf cookies. It also closes by itself when you log out of tf2deal.com or lock the admin panel. The login lasts about a day; open it again after that.</p>
                     <div class="admin-card-foot"><a class="admin-button" href="/api/admin/bot_browser/extension.zip" download>Download the extension</a></div>
                 </section>
             </div>`
@@ -783,26 +826,28 @@
             }
             if(form.dataset.botSettings){
                 const bot = form.dataset.botSettings
-                const account = (shown_accounts || []).find((x) => x.accountName == bot)
+                const account = (shown_accounts || []).find((x) => x.accountName == bot) || { accountName: bot }
+                const name = account.name || bot
                 const payload = { bot }
                 const type = form.querySelector('[name="type"]:checked')?.value
-                if(type && type != (account?.type == 'warehouse' ? 'warehouse' : 'trade')){ payload.type = type }
+                if(type && type != (account.type == 'warehouse' ? 'warehouse' : 'trade')){ payload.type = type }
+                const url = form.tradeURL.value.trim()
+                if(url && url != (account.tradeURL || '')){ payload.tradeURL = url }
                 for (const name of ['bptf_key', 'bptf_token']) { if(form[name].value.trim()){ payload[name] = form[name].value.trim() } }
-                if(Object.keys(payload).length == 1){ return iziToast.info({ title: 'Nothing to save', message: 'Pick another kind or enter a new key or token.' }) }
-                if(payload.type == 'warehouse' && !confirm(`Make ${bot} a warehouse? It stops listing and trading with users; its priced items go to the trade bots on the next balance run.`)){ return }
+                if(Object.keys(payload).length == 1){ return iziToast.info({ title: 'Nothing to save', message: 'Pick another kind, change the trade URL or enter a new key or token.' }) }
+                if(payload.type && !confirm_kind(account, payload.type, name, Boolean(payload.bptf_key && payload.bptf_token))){ return }
                 const res = await busy(btn, () => kit.api('/api/admin/bot_accounts/update', payload))
-                const now = Array.isArray(res.appliedNow) ? res.appliedNow : []
-                if(toast(res, res.saved_only ? 'Saved. bot_manager uses it when it starts.' : `Saved.${now.length ? ` Used now: ${esc(now.map((k) => ({ bptf_key: 'API key', bptf_token: 'token', type: 'kind' }[k] || k)).join(', '))}.` : ''}`)){ form.reset(); form.closest('details').open = false; draw(true) }
+                if(toast(res, saved_text(res))){ form.reset(); form.closest('details').open = false; draw(true) }
             }
             if(form.id == 'bm-login'){
                 const payload = { bot: form.bot.value }
+                const account = (shown_accounts || []).find((x) => x.accountName == payload.bot) || { accountName: payload.bot }
                 for (const [name] of SECRET_FIELDS) { if(form[name].value.trim()){ payload[name] = form[name].value.trim() } }
-                if(form.type.value){ payload.type = form.type.value }
+                if(form.type.value && form.type.value != (account.type == 'warehouse' ? 'warehouse' : 'trade')){ payload.type = form.type.value }
                 if(Object.keys(payload).length == 1){ return iziToast.info({ title: 'Nothing to save', message: 'Fill in what changes.' }) }
+                if(payload.type && !confirm_kind(account, payload.type, account.name || payload.bot, Boolean(payload.bptf_key && payload.bptf_token))){ return }
                 const res = await busy(btn, () => kit.api('/api/admin/bot_accounts/update', payload))
-                const now = Array.isArray(res.appliedNow) ? res.appliedNow : []
-                const next = Array.isArray(res.nextLogin) ? res.nextLogin : []
-                if(toast(res, res.saved_only ? 'Saved in the database. bot_manager uses it at the bot\'s next login.' : `Saved.${now.length ? ` Used now: ${esc(now.join(', '))}.` : ''}${next.length ? ` At its next login: ${esc(next.join(', '))}.` : ''}`)){ form.reset(); draw(true) }
+                if(toast(res, saved_text(res))){ form.reset(); draw(true) }
             }
         })
         // the extension (extension/bridge.js) marks the page with its version; tell whether it is there and current
@@ -835,15 +880,32 @@
         })
 
         box.addEventListener('click', async (e) => {
+            const read_url = e.target.closest('[data-read-trade-url]')
+            if(read_url){
+                const res = await busy(read_url, () => kit.api('/api/admin/bot_accounts/update', { bot: read_url.dataset.readTradeUrl, tradeURL: '' }))
+                if(res.status == 'ok' && res.tradeURL?.url){
+                    const input = read_url.closest('form')?.querySelector('[name="tradeURL"]')
+                    if(input){ input.value = res.tradeURL.url }
+                }
+                if(toast(res, saved_text(res))){ draw(true) }
+                return
+            }
             const chrome_btn = e.target.closest('[data-open-browser]')
             if(chrome_btn){
                 if(!document.documentElement.dataset.tdBotBrowser){
                     box.querySelector('#bm-browser')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
                     return iziToast.info({ title: 'Install the extension first', message: `The steps are in "${BROWSER.name} window as a bot" at the bottom of this tab.` })
                 }
+                // an extension older than the one that closes its window when you log out or lock the panel gets no login
+                const have = document.documentElement.dataset.tdBotBrowser
+                const need = (await kit.api('/api/admin/bot_browser/version').catch(() => null))?.min
+                if(need && have.localeCompare(need, undefined, { numeric: true }) < 0){
+                    box.querySelector('#bm-browser')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                    return iziToast.warning({ title: 'Update the extension first', message: `Version ${esc(have)} is installed; ${esc(need)} or newer closes the bot's window when you log out or lock the panel. Download it at the bottom of this tab, unzip it over the old folder and click Reload on it in ${BROWSER.page}.` })
+                }
                 const res = await busy(chrome_btn, () => kit.api('/api/admin/bot_browser/login', { bot: chrome_btn.dataset.openBrowser }))
                 if(res.status != 'ok'){ return toast(res) }
-                const opened = await busy(chrome_btn, () => ask_extension({ steamid: res.steamid, name: res.name, cookies: res.cookies, expires: res.expires }, ['profile', 'backpack']))
+                const opened = await busy(chrome_btn, () => ask_extension({ steamid: res.steamid, name: res.name, cookies: res.cookies, expires: res.expires, lease: res.lease }, ['profile', 'backpack']))
                 if(opened.ok){
                     iziToast.success({ title: BROWSER.name, message: `An ${BROWSER.private} window is open as ${esc(res.name)}: Steam profile and backpack.tf.` })
                 } else {

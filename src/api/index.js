@@ -7,6 +7,7 @@ import fetch from 'node-fetch'
 
 import * as app from '../app.js'
 import * as mw from './api_mw.js'
+import * as bot_browser from '../service/bot_browser.js'
 import * as item_lists from '../service/item_lists.js'
 
 import {effect_model} from '../model/Effect.js'
@@ -179,8 +180,13 @@ router.post('/notifications/seen', mw.isLogged, notif_limiter, async (req, res) 
   }
 });
 
-router.post('/new_bot', mw.isLogged, mw.isAdmin, async(req, res) => {
-  
+// the admin extension's check for a bot window it opened (service/bot_browser.js): 200 while the admin panel that
+// opened it is still unlocked and signed in, 410 once the admin logged out or locked it (the window closes then). Asked
+// from the extension without cookies; the lease itself is the secret.
+router.get('/bot_browser/lease/:lease', (req, res) => {
+  res.set({ 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' })
+  const alive = /^[A-Za-z0-9_-]{32}$/.test(req.params.lease) && bot_browser.lease_alive(req.params.lease)
+  res.status(alive ? 200 : 410).json({ alive })
 });
 
 router.post('/bots/inventory', inv_limiter, (req, res) => {

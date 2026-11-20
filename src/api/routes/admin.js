@@ -32,7 +32,8 @@ import { notification_model } from '../../model/Notification.js';
 import { clients as settings_clients } from '../../service/settings_socket.js';
 import { bot_socket, item_socket } from '../../service/socket.js';
 import * as app from '../../app.js';
-import { has_admin_session } from '../../mw.js';
+import { has_admin_session, same_origin } from '../../mw.js';
+import * as admin_sessions from '../../service/admin_sessions.js';
 import * as inventory_value from '../../service/inventory_value.js';
 import * as flips from '../../service/flips.js';
 import * as stats from '../../service/stats.js';
@@ -47,12 +48,17 @@ for (const method of ['get', 'post']) {
   router[method] = (path, ...handlers) => register(path, ...handlers.map((handler) => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next)));
 }
 
-// Same access as the /admin pages: the admin steam account + the admin password entered on /login (mw.js)
+// Same access as the /admin pages: the admin steam account + the admin password entered on /login (mw.js). A change
+// must come from the panel itself, not from another site the admin has open (mw.same_origin).
 router.use('/', (req, res, next) => {
-  if(has_admin_session(req)){
-    return next();
+  if(!has_admin_session(req)){
+    return res.status(511).json({ status: 'error', message: 'You are not allowed to GET/POST data in here!' })
   }
-  res.status(511).json({ status: 'error', message: 'You are not allowed to GET/POST data in here!' })
+  if(!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && !same_origin(req)){
+    console.log(`admin: ${req.method} ${req.path} refused, it came from another site (${req.get('origin') || req.get('sec-fetch-site') || '?'})`)
+    return res.status(403).json({ status: 'error', message: 'Not from the admin panel.' })
+  }
+  next()
 });
 
 const valid_id = (req, res, next) => {
@@ -466,7 +472,8 @@ router.get('/settings', (req, res) => {
     loaded: settings.is_loaded(),
     settings: settings.get(),
     public: settings.public_view(),
-    socket: { namespace: '/settings', token: settings.admin_token(req.user.steamid) },
+    // the panel's live socket: until the unlock ends, and closed at once when the admin logs out or locks the panel
+    socket: { namespace: '/settings', token: settings.admin_token(req.user.steamid, Number(req.session.admin_until) - Date.now(), admin_sessions.key_of(req)) },
     clients: settings_clients(),
     season: season.status()
   });
@@ -568,7 +575,7 @@ for (const [path, action] of [['add', bot_accounts.add], ['update', bot_accounts
 // bot's own web session; the login never leaves bot_manager)
 
 router.post('/steam_browser/open', async (req, res) => {
-  const result = await steam_browser.open(req.body || {}, req.user?.steamid, req.ip);
+  const result = await steam_browser.open(req.body || {}, req.user?.steamid, req.ip, admin_sessions.key_of(req));
   res.status(result.status == 'ok' ? 200 : (result.offline ? 503 : 400)).json(result);
 });
 
@@ -576,7 +583,7 @@ router.post('/steam_browser/open', async (req, res) => {
 // { bot } → the bot's web login for the admin's tf2deal extension, which opens a private Chrome window with it
 
 router.post('/bot_browser/login', async (req, res) => {
-  const result = await bot_browser.login(req.body || {}, req.user?.steamid);
+  const result = await bot_browser.login(req.body || {}, req.user?.steamid, admin_sessions.key_of(req));
   res.set('Cache-Control', 'no-store');
   res.status(result.status == 'ok' ? 200 : (result.offline ? 503 : 400)).json(result);
 });
@@ -589,7 +596,7 @@ router.get('/bot_browser/extension.zip', (req, res) => {
 });
 
 router.get('/bot_browser/version', (req, res) => {
-  res.json({ status: 'ok', version: bot_browser.extension_version() });
+  res.json({ status: 'ok', version: bot_browser.extension_version(), min: bot_browser.MIN_EXTENSION });
 });
 
 /* ========================= PRICES SET BY HAND (service/manual_prices.js) ========================= */

@@ -32,6 +32,9 @@ folder (replace the files), and click **Reload** on the extension in the extensi
 Version 1.0.0 came in a zip with a folder inside (`tf2deal-bot-browser-1.0.0`). For 1.1.0, remove the old
 extension in the extensions page, then load the new `tf2deal-bot-browser` folder as in step 2 and do step 3 again.
 
+Version 1.2.0 (2026-11-20) closes the bot's window when you log out of tf2deal.com or lock the admin panel. The site
+only hands a bot's login to 1.2.0 or newer: with an older one, "Open in Edge" asks you to update it first.
+
 ## How it works
 
 1. "Open in Chrome" / "Open in Edge" asks the site for the bot's web login (`POST /api/admin/bot_browser/login`, admin session only).
@@ -39,8 +42,8 @@ extension in the extensions page, then load the new `tf2deal-bot-browser` folder
    - `steamLoginSecure` and `sessionid` for steamcommunity.com, store.steampowered.com and help.steampowered.com;
    - `steamLoginSecure` is an access token that ends within a day;
    - never the password, the shared or identity secret, or the refresh token.
-2. The page hands the login to the extension (`extension/bridge.js`). This only runs on `https://tf2deal.com/admin…`
-   and on localhost.
+2. The page hands the login and the window's lease to the extension (`extension/bridge.js`). Only admin pages on
+   `https://tf2deal.com/admin…` and localhost can do that.
 3. The extension (`extension/background.js`) does this:
    - opens a private (incognito / InPrivate) window. A browser may hand the extension no window back for a private
      one even though it opens it, so the extension also watches for the new private window and looks up its tab and
@@ -65,6 +68,12 @@ extension in the extensions page, then load the new `tf2deal-bot-browser` folder
   every window while the bot's window is open. Close it to log yourself out of Steam.
 - **Closing the window cleans up.** The Steam and backpack.tf cookies of the private jar are deleted and the block
   ends. The browser also forgets everything private when the last private window closes.
+- **Logging out closes it.** Every window gets a lease from the site, tied to the admin panel's unlock
+  (`src/service/admin_sessions.js`). The extension asks `GET /api/bot_browser/lease/<lease>` every 30 seconds and
+  whenever a tf2deal.com page loads (`bridge.js` runs on every tf2deal page for that). Once you log out of the site,
+  press **Lock** in the admin bar or the panel, or your sign-in ends (12 hours, a server restart), the answer is 410
+  and the extension closes the window and deletes its cookies. If the site can't be reached for 10 minutes, the window
+  closes too. The panel's 1-hour unlock running out doesn't close it: entering the password again keeps the same lease.
 - The login handed out ends with its access token, within a day. After that, open the bot again from Admin (if Steam
   shows the bot logged out, click "New web session" on the bot first).
 - The site and bot_manager log every hand-out: site console `bot browser: <bot> opened in the browser of <admin>`,
@@ -72,6 +81,6 @@ extension in the extensions page, then load the new `tf2deal-bot-browser` folder
 
 ## Other domains
 
-The extension talks only to admin pages on `tf2deal.com`, `www.tf2deal.com`, `localhost` and `127.0.0.1`. To use it
-with another domain, add it to `content_scripts[0].matches` in `extension/manifest.json`, add it to `ADMIN_PAGE` in
-`extension/background.js`, and reload the extension.
+The extension takes logins only from admin pages on `tf2deal.com`, `www.tf2deal.com`, `localhost` and `127.0.0.1`,
+and checks leases on the same site. To use it with another domain, add it to `content_scripts[0].matches` in
+`extension/manifest.json`, add it to `SITE` and `ADMIN_PAGE` in `extension/background.js`, and reload the extension.
