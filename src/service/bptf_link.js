@@ -9,8 +9,9 @@
 //   Unusualifiers                      the taunt it is for       /Unusual/Unusualifier/Tradable/Non-Craftable/1109
 //   Killstreak Kits                    "<tier>-<weapon>"         /Unique/Professional Killstreak Kit/Tradable/Non-Craftable/3-205
 //   Collector's Chemistry Sets         "<output>-14"            /Unique/Chemistry Set/Tradable/Non-Craftable/205-14
-//   Kit Fabricators                    "<kit>-6-<weapon>"       /Unique/Professional Killstreak Fabricator/Tradable/Non-Craftable/6526-6-205
-//                                      (kit 6526 Professional, 6523 Specialized)
+//   Kit Fabricators                    "<kit>-6-<weapon>"       /Unique/Professional Killstreak Fabricator/Tradable/Craftable/6526-6-317
+//                                      (kit 6526 Professional, 6523 Specialized; Craftable unless the name says
+//                                      Non-Craftable, like Chemistry Sets: item_manager names them as backpack.tf prices them)
 // War paints and skins: "<paint> | <weapon> (<wear>)", Decorated Weapon quality (Strange ones: Strange).
 // item_manager keeps the item a Strangifier, Unusualifier, Kit or Kit Fabricator is for, a Chemistry Set's output and a
 // crate's series in item.priceindex, and a Chemistry Set's or Fabricator's backpack.tf name in item.name.
@@ -54,11 +55,12 @@ const bptf_link = (item, { ks = 0, festivized = false } = {}) => {
     const tier = [3, 2, 1].find((t) => name.includes(KS_NAMES[t] + ' ')) || 1
     return url(quality, `${KS_NAMES[tier]} Kit`, false, index ? `${tier}-${index}` : 0)
   }
-  if (type == 'tool chemistry set') return url(quality, name, false, index ? `${index}-14` : 0)
-  if (type == 'tool kit fabricator') {
-    // "Specialized Killstreak Rocket Launcher Kit Fabricator": kit 6523
-    const kit = sku.includes('Specialized Killstreak ') ? 6523 : 6526
-    return url(quality, name, false, index ? `${kit}-6-${index}` : 0)
+  if (type == 'tool chemistry set') return url(quality, name, craftable, index ? `${index}-14` : 0)
+  if (type == 'tool kit fabricator' || / Kit Fabricator$/.test(sku)) {
+    // "Specialized Killstreak Rocket Launcher Kit Fabricator": kit 6523, backpack.tf's "Specialized Killstreak Fabricator"
+    // (from the name, as item.name may be another spelling of it)
+    const specialized = sku.includes('Specialized Killstreak ')
+    return url('Unique', `${specialized ? 'Specialized' : 'Professional'} Killstreak Fabricator`, craftable, index ? `${specialized ? 6523 : 6526}-6-${index}` : 0)
   }
   if (type.includes('skin') || type.includes('warpaint')) {
     // "Warhawk Rocket Launcher (Field-Tested)" -> "Warhawk | Rocket Launcher (Field-Tested)"
@@ -73,4 +75,18 @@ const bptf_link = (item, { ks = 0, festivized = false } = {}) => {
   return url(quality, full(name), craftable, effect || index)
 }
 
-export { bptf_link, FIELDS }
+// The item's TF2 Wiki page. Kits, Kit Fabricators and Chemistry Sets share one page each (the wiki has no page per
+// weapon or output); every other item has the page of its name, as before.
+const WIKI = 'https://wiki.teamfortress.com/wiki/'
+const wiki_link = (item) => {
+  const sku = String(item?.bp_sku || '')
+  const type = String(item?.type || '').toLowerCase()
+  if (type == 'tool kit fabricator' || / Kit Fabricator$/.test(sku)) return WIKI + 'Killstreak_Kit_Fabricator'
+  if (type == 'tool chemistry set' || / Chemistry Set$/.test(sku)) return WIKI + 'Chemistry_Set'
+  if (type == 'tool kit') return WIKI + 'Killstreak_Kit'
+  return WIKI + encodeURIComponent(String(item?.name || ''))
+}
+// item types whose backpack.tf and wiki pages exist even without a backpack.tf community price (views/item_page.ejs)
+const RECIPE_TYPES = ['tool kit fabricator', 'tool chemistry set']
+
+export { bptf_link, wiki_link, RECIPE_TYPES, FIELDS }

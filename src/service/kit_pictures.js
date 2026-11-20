@@ -12,6 +12,7 @@ import { item_model } from '../model/Item.js'
 const EVERY = 30 * 60 * 1000
 const RETRY = 60 * 1000
 const STEAM_ICONS = 'https://media.steampowered.com/apps/440/icons/'
+const STEAM_ECONOMY = 'https://community.cloudflare.steamstatic.com/economy/image/'
 
 let pictures = new Map() // kit name without "Non-Craftable " -> its small picture
 const state = { kits: 0, last: 0, error: null }
@@ -20,15 +21,17 @@ const base = (name) => String(name ?? '').replace(/^Non-Craftable /, '').replace
 const first = (value) => Array.isArray(value) ? value.find((v) => typeof v == 'string' && v.trim()) || '' : (typeof value == 'string' ? value : '')
 
 // a small, low resolution version of a kit's picture: Steam's economy pictures come in any size
-// (".../economy/image/<id>/165x165" -> ".../96fx96f"); the item schema's ".png" pictures are small already
+// (".../economy/image/<id>/165x165" -> ".../96fx96f"); the item schema's ".png" pictures are small already. Every
+// Steam picture server has the same pictures, so they all come from one: some kits were saved with the old
+// steamcommunity-a.akamaihd.net address (2026-11-20).
 const small = (url) => {
   let src = first(url).trim()
   if (!src) return null
   if (src.startsWith('ms/')) src = STEAM_ICONS + src.slice(3)
   src = src.replace(/^http:\/\//i, 'https://')
   if (!/^https:\/\//.test(src)) return null
-  const steam = src.match(/^(https:\/\/[^/]+\/economy\/image\/[^/?#]+)(\/[^/?#]*)?$/)
-  return steam ? `${steam[1]}/96fx96f` : src
+  const steam = src.match(/^https:\/\/[^/]+\/economy\/image\/([^/?#]+)(\/[^/?#]*)?$/)
+  return steam ? `${STEAM_ECONOMY}${steam[1]}/96fx96f` : src
 }
 
 const is_fabricator = (item) => String(item?.type || '').toLowerCase() === 'tool kit fabricator' || / Kit Fabricator$/.test(String(item?.bp_sku || item?.name || ''))

@@ -9,7 +9,7 @@ import { blog_model } from '../model/Blog.js'
 import { giveaway_model } from '../model/Giveaway.js'
 import { recent_view } from '../service/giveaway.js'
 import * as translate from '../service/translate.js'
-import { bptf_link } from '../service/bptf_link.js'
+import { bptf_link, wiki_link, RECIPE_TYPES } from '../service/bptf_link.js'
 import * as stats from '../service/stats.js'
 import * as categories from '../service/categories.js'
 import * as buy from '../service/buy_link.js'
@@ -436,6 +436,8 @@ const item_page = async (req, res) => {
         collection, // { name, items } or null (view/item_page.ejs)
         faq, // [{ q, a }] (fn.item_faq)
         bptf_url: bptf_link(main, { ks }), // the backpack.tf button: that version's price page (a crate's series, a kit's weapon, ...)
+        wiki_url: wiki_link(main), // the TF2 Wiki button (Kit Fabricators, Chemistry Sets and Kits share a page each)
+        recipe_item: RECIPE_TYPES.includes(String(main.type || '').toLowerCase()), // a Kit Fabricator or Chemistry Set: its links show without a community price
         // SEO
         description,
         path: page_path,

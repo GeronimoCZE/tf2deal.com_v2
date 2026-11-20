@@ -40,6 +40,17 @@ const bptf_href = (info, name) => '/api/backpack_tf?' + new URLSearchParams({
     sku: info.bp_sku, ks: String(info.ks || 0), f: info.festivized ? '1' : '0', name, q: info.qualityID, e: String(info.effectID || 0)
 })
 
+// the item's TF2 Wiki page: Kits, Kit Fabricators and Chemistry Sets share one page each (as service/bptf_link.js
+// wiki_link), every other item has the page of its name
+const wiki_page = (info, name) => {
+    const sku = String(info.bp_sku || '')
+    const type = String(info.type || '').toLowerCase()
+    if(type == 'tool kit fabricator' || / Kit Fabricator$/.test(sku)){ return 'Killstreak Kit Fabricator' }
+    if(type == 'tool chemistry set' || / Chemistry Set$/.test(sku)){ return 'Chemistry Set' }
+    if(type == 'tool kit' || /Killstreak .*Kit$/.test(sku)){ return 'Killstreak Kit' }
+    return name
+}
+
 const links = (info) => {
     const name = base_name(info)
     const market_name = info.steam_sku || info.name
@@ -51,7 +62,8 @@ const links = (info) => {
     }
     list.push({ href: bptf_href(info, name), text: __('item_info.bptf_prices') })
     list.push({ href: `https://backpack.tf/item/${encodeURIComponent(info.assetid)}`, text: __('item_info.bptf_history') })
-    if(name){ list.push({ href: `https://wiki.teamfortress.com/wiki/${encodeURIComponent(name.replace(/^The /, '').replace(/ /g, '_'))}`, text: __('item_info.wiki') }) }
+    const wiki = wiki_page(info, name)
+    if(wiki){ list.push({ href: `https://wiki.teamfortress.com/wiki/${encodeURIComponent(wiki.replace(/^The /, '').replace(/ /g, '_'))}`, text: __('item_info.wiki') }) }
     list.push({ href: `https://steamcommunity.com/market/search?appid=440&q=${encodeURIComponent(market_name)}`, text: __('item_info.market') })
     if(/^\d{17}$/.test(info.owner)){
         list.push({ href: `https://steamcommunity.com/profiles/${info.owner}/inventory/#440_2_${encodeURIComponent(info.assetid)}`, text: __('item_info.inventory') })
