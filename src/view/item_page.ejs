@@ -93,13 +93,14 @@
                                         <% } %> -->
                                     </div>
                                     <%# outside sites, apart from the item's data so they don't read as one of its properties (proximity) %>
-                                    <% const show_bptf = info.item?.bptf_data?.price > 0 || info.item?.type === "tool kit" || info.item?.type == "warpaint" || String(info.item?.type || '').includes('skin') %>
+                                    <%# Kit Fabricators and Chemistry Sets have both pages without a backpack.tf community price too (info.recipe_item) %>
+                                    <% const show_bptf = info.item?.bptf_data?.price > 0 || info.recipe_item || info.item?.type === "tool kit" || info.item?.type == "warpaint" || String(info.item?.type || '').includes('skin') %>
                                     <% if (show_bptf) { %>
                                     <div class="item-links" role="group" aria-label="<%= __('item.links') %>">
                                         <%# backpack.tf price page of this version of the item (service/bptf_link.js) %>
                                         <a class="item-link bptf" rel="nofollow noopener" target="_blank" href="<%= info.bptf_url %>">backpack.tf <span aria-hidden="true">↗</span></a>
-                                    <% if (info.item?.bptf_data?.price > 0) { %>
-                                        <a class="item-link tf2wiki" rel="noopener" target="_blank" href="https://wiki.teamfortress.com/wiki/<%= encodeURIComponent(info.item?.name || '') %>">TF2 Wiki <span aria-hidden="true">↗</span></a>
+                                    <% if (info.item?.bptf_data?.price > 0 || info.recipe_item) { %>
+                                        <a class="item-link tf2wiki" rel="noopener" target="_blank" href="<%= info.wiki_url %>">TF2 Wiki <span aria-hidden="true">↗</span></a>
                                     <% } %>
                                     </div>
                                     <% } %>
