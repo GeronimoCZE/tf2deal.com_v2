@@ -57,6 +57,13 @@
         </button>
         <% if (ab.unlocked) { %>
             <span class="ab-item ab-session ab-wide" data-until="<%= ab.until %>" title="The admin password is needed again after this">Unlocked</span>
+            <%# locks the panel now and closes every Steam / Chrome window opened from it as a bot (service/admin_sessions.js) %>
+            <form class="ab-lock" method="post" action="/admin/lock">
+                <button type="submit" class="ab-item" title="Lock the admin panel now: it asks for the password again, and the Steam and browser windows opened as bots close">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8h-1V6A5 5 0 0 0 7 6v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zM9 6a3 3 0 0 1 6 0v2H9z"/></svg>
+                    <span class="ab-label">Lock</span>
+                </button>
+            </form>
         <% } else { %>
             <a class="ab-item ab-unlock" href="/login" title="Enter the admin password">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8h-1V6A5 5 0 0 0 7 6v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zM9 6a3 3 0 0 1 6 0v2H9zm4 9.7V18h-2v-2.3a2 2 0 1 1 2 0z"/></svg>

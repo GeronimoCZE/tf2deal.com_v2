@@ -154,8 +154,25 @@ export const add = async (p = {}, admin) => {
   }
 }
 
-// change a saved login (only the parts sent) or the kind. bot_manager applies the backpack.tf key and token at once
-// when it's connected (admin:bots:update); the rest is used at the bot's next login.
+// a bot's trade URL as Steam writes it (the same check as bot_manager's bot/index.js normalizeTradeURL): pasted ones
+// may have http, www or the parameters the other way round. null when it isn't one, or (with a steamid) when it
+// belongs to another account.
+const STEAMID64_BASE = 76561197960265728n
+export const normalize_trade_url = (value, steamid = null) => {
+  let url
+  try { url = new URL(String(value ?? '').trim()) } catch (e) { return null }
+  if(!/^https?:$/.test(url.protocol) || !/^(www\.)?steamcommunity\.com$/i.test(url.hostname)){ return null }
+  if(!/^\/tradeoffer\/new\/?$/i.test(url.pathname)){ return null }
+  const partner = url.searchParams.get('partner'), token = url.searchParams.get('token')
+  if(!/^\d{1,10}$/.test(partner || '') || !/^[A-Za-z0-9_-]{6,16}$/.test(token || '')){ return null }
+  if(steamid && /^\d{17}$/.test(String(steamid)) && BigInt(String(steamid)) - STEAMID64_BASE !== BigInt(partner)){ return null }
+  return `https://steamcommunity.com/tradeoffer/new/?partner=${partner}&token=${token}`
+}
+
+// change a saved login (only the parts sent), the kind or the trade URL (tradeURL: its trade link; '' = read it from
+// Steam again). With bot_manager connected it does it (admin:bots:update): the backpack.tf key and token, the kind
+// (Steam name, Steam profile, backpack.tf listings) and the trade URL apply at once, the login at the bot's next
+// login. Without it, it's saved in the database and bot_manager uses it when it starts.
 export const update = async (p = {}, admin) => {
   try {
     const doc = await find_doc(p.bot)
@@ -164,14 +181,25 @@ export const update = async (p = {}, admin) => {
       if(p[f] !== undefined && p[f] !== null && p[f] !== ''){ plain[f] = check_field(f, p[f]) }
     }
     if(p.type && !TYPES.includes(String(p.type))){ throw 'Kind is trade or warehouse.' }
-    if(!Object.keys(plain).length && !p.type){ throw 'Fill in what changes.' }
+    const trade_url = p.tradeURL === undefined ? undefined : String(p.tradeURL ?? '').trim()
+    if(trade_url){
+      if(!normalize_trade_url(trade_url)){ throw 'That is not a Steam trade URL (https://steamcommunity.com/tradeoffer/new/?partner=…&token=…).' }
+      if(!normalize_trade_url(trade_url, doc.accountSteamid)){ throw 'That trade URL belongs to another Steam account, not this bot.' }
+    }
+    const kind_now = doc.type == 'warehouse' ? 'warehouse' : 'trade'
+    if(p.type == 'trade' && kind_now != 'trade' && !((plain.bptf_key || doc.bptf_key) && (plain.bptf_token || doc.bptf_token))){
+      throw 'A trade bot lists on backpack.tf: enter its backpack.tf API key and access token too.'
+    }
+    if(!Object.keys(plain).length && !p.type && trade_url === undefined){ throw 'Fill in what changes.' }
     if(bot_manager.online()){
-      const res = await bot_manager.ask('admin:bots:update', { bot: doc.accountName, ...plain, ...(p.type ? { type: String(p.type) } : {}) }, admin)
+      const res = await bot_manager.ask('admin:bots:update', { bot: doc.accountName, ...plain, ...(p.type ? { type: String(p.type) } : {}), ...(trade_url !== undefined ? { tradeURL: trade_url } : {}) }, admin)
       return res.status == 'ok' ? { status: 'ok', ...res.data } : res
     }
     const key = password()
     const set = Object.fromEntries(Object.entries(plain).map(([k, v]) => [k, encrypt(v, key)]))
     if(p.type){ set.type = String(p.type) }
+    // '' = bot_manager reads it from Steam when the bot logs in next
+    if(trade_url !== undefined){ set.accountTradeURL = trade_url ? normalize_trade_url(trade_url, doc.accountSteamid) : '' }
     await bot_account_model.updateOne({ _id: doc._id }, { $set: { ...set, updated: Date.now() } })
     console.log(`bot accounts: ${doc.accountName} updated by ${admin || 'admin'}: ${Object.keys(set).join(', ')}`)
     return { status: 'ok', changed: Object.keys(set), saved_only: true }

@@ -10,7 +10,10 @@
         try {
             const res = await fetch(url, options)
             const data = await res.json().catch(() => ({}))
-            if(!res.ok){ data.status = 'error'; data.message = data.message || `Request failed (${res.status})` }
+            // the panel's unlock is over (its hour passed, it was locked, or this browser isn't the one that unlocked
+            // it): the password page, once
+            if(res.status == 511 && !api.locked){ api.locked = true; location.assign('/login') }
+            if(!res.ok){ data.status = 'error'; data.message = res.status == 511 ? 'The admin panel is locked. Enter the admin password again.' : (data.message || `Request failed (${res.status})`) }
             return data
         } catch (error) {
             return { status: 'error', message: "Couldn't reach the server." }
@@ -396,7 +399,14 @@
         live.socket = socket
 
         socket.on('connect', () => { set_live_state('online', 'Live'); refresh_clients() })
-        socket.on('disconnect', () => set_live_state('offline', 'Reconnecting…'))
+        socket.on('disconnect', async (reason) => {
+            set_live_state('offline', 'Reconnecting…')
+            // the server closed it: the unlock ended, or its token did. With the panel still unlocked, a new token
+            if(reason == 'io server disconnect'){
+                const r = await api('/api/admin/settings')
+                if(r.status == 'ok'){ socket.auth.admin_token = r.socket.token; socket.connect() }
+            }
+        })
         socket.on('connect_error', async (err) => {
             set_live_state('offline', 'Offline')
             if(err?.message == 'unauthorized'){ // token expired: get a new one, socket.io retries by itself

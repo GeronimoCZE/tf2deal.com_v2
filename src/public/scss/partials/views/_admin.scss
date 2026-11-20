@@ -171,14 +171,21 @@ body.admin-app{
         flex-direction: column;
         gap: .15rem;
         margin-top: auto;
-        a{
+        a, .admin-rail-lock button{
+            margin: 0;
             padding: .4rem .6rem;
+            border: none;
             border-radius: var(--r-sm);
+            background: none;
             color: var(--ink-3);
+            font: inherit;
             font-size: 13.5px;
+            text-align: left;
             text-decoration: none;
+            cursor: pointer;
             &:hover{ background: rgba(var(--tint-rgb), .08); color: var(--ink); }
         }
+        .admin-rail-lock{ display: flex; flex-direction: column; margin: 0; }
         @media (max-width: $admin-one-column){ display: none; }
     }
 

@@ -11,6 +11,7 @@
 
 import crypto from 'crypto'
 import localEmitter from '../emitter.js'
+import * as admin_sessions from './admin_sessions.js'
 import { setting_model } from '../model/SiteSetting.js'
 
 const INDEX = () => String(process.env.STEAM_GROUP_ID || '0')
@@ -382,8 +383,11 @@ export const update = (patch, by = { kind: 'app', name: 'unknown' }) => {
 const token_secret = () => process.env.SESSION_SECRET || 'thisisasecret'
 const sign = (payload) => crypto.createHmac('sha256', token_secret()).update(payload).digest('base64url')
 
-export const admin_token = (steamid, ttl_ms = 12 * 60 * 60 * 1000) => {
-  const payload = `${steamid}.${Date.now() + ttl_ms}`
+// the admin panel's live settings socket: valid while the panel's unlock lasts (ttl) and its admin key is alive
+// (service/admin_sessions.js: it ends when the admin logs out or locks the panel)
+export const admin_token = (steamid, ttl_ms, key) => {
+  const ttl = Math.max(0, Math.min(Number(ttl_ms) || 0, 12 * 60 * 60 * 1000))
+  const payload = `${steamid}.${Date.now() + ttl}.${key || ''}`
   return `${Buffer.from(payload).toString('base64url')}.${sign(payload)}`
 }
 
@@ -393,9 +397,9 @@ export const verify_admin_token = (token) => {
   if(!encoded || !signature){ return null }
   const payload = Buffer.from(encoded, 'base64url').toString()
   if(!safe_equal(signature, sign(payload))){ return null }
-  const [steamid, expires] = payload.split('.')
-  if(!(Number(expires) > Date.now()) || steamid !== process.env.ADMIN_STEAMID){ return null }
-  return { steamid }
+  const [steamid, expires, key] = payload.split('.')
+  if(!(Number(expires) > Date.now()) || steamid !== process.env.ADMIN_STEAMID || !admin_sessions.active(key)){ return null }
+  return { steamid, key, expires: Number(expires) }
 }
 
 // constant-time compare (both sides must be non-empty)

@@ -19,6 +19,7 @@
 
 import localEmitter from '../emitter.js'
 import * as settings from './settings.js'
+import * as admin_sessions from './admin_sessions.js'
 
 const MAX_UPDATES = 30          // per client ...
 const UPDATE_WINDOW = 10 * 1000 // ... per 10 seconds
@@ -34,7 +35,7 @@ const authenticate = (socket) => {
   }
   if(auth.admin_token){
     const admin = settings.verify_admin_token(auth.admin_token)
-    if(admin){ return { kind: 'admin', name: 'admin panel', can_write: true } }
+    if(admin){ return { kind: 'admin', name: 'admin panel', can_write: true, key: admin.key, expires: admin.expires } }
   }
   if(settings.safe_equal(auth.read_token, process.env.SETTINGS_READ_TOKEN)){
     return { kind: 'app', name: name || 'read-only app', can_write: false }
@@ -53,6 +54,17 @@ export const clients = () => nsp ? Array.from(nsp.sockets.values()).map((s) => (
 
 export const createSettingsSocket = (io) => {
   nsp = io.of('/settings')
+
+  // the admin panel's sockets close when its unlock ends: the admin logged out or locked the panel
+  // (service/admin_sessions.js), or the hour of the unlock is over
+  const close_admins = (test) => {
+    for (const socket of nsp.sockets.values()) {
+      const client = socket.data.client
+      if(client?.kind == 'admin' && test(client)){ socket.disconnect(true) }
+    }
+  }
+  localEmitter.on('admin:ended', ({ key }) => close_admins((c) => c.key === key))
+  setInterval(() => close_admins((c) => !(c.expires > Date.now()) || !admin_sessions.active(c.key)), 60 * 1000).unref()
 
   nsp.use((socket, next) => {
     const client = authenticate(socket)

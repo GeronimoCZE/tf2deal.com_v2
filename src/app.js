@@ -43,6 +43,7 @@ import * as crawlers from './service/crawlers.js'
 import * as categories from './service/categories.js'
 import { site_version } from './service/site_version.js'
 import * as steam_browser from './service/steam_browser.js'
+import * as admin_sessions from './service/admin_sessions.js'
 
 const DOMAIN = 'localhost' 
 const PORT = 8080; // change to 8080
@@ -162,6 +163,12 @@ app.use((req, res, next) => {
   if (String(process.env.SITE_URL || '').startsWith('https://')) {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
   }
+  // the admin panel and its API: never kept in a cache (the browser's or Cloudflare's), never shown inside a frame
+  if (/^\/(admin|login)(\/|$)|^\/api\/admin(\/|$)/.test(req.path)) {
+    res.setHeader('Cache-Control', 'no-store')
+    res.setHeader('X-Frame-Options', 'DENY')
+    res.setHeader('Content-Security-Policy', "frame-ancestors 'none'")
+  }
   next()
 })
 
@@ -278,6 +285,7 @@ app.use(cookieParser());
 // nobody comes back to are cleared every hour (all() drops every expired one).
 const session_store = new session.MemoryStore()
 setInterval(() => session_store.all(() => {}), 60 * 60 * 1000).unref()
+admin_sessions.init(session_store) // the admin's unlocked panel ends with its sign-in
 const sessionMiddleware = session({
   key: 'session_id',
   store: session_store,
@@ -669,6 +677,8 @@ const same_secret = (given, expected) => {
 }
 const login_limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false,
   handler: (req, res) => res.redirect('/login?error=wait') }) // the login page says to wait instead of a bare 429
+if (!process.env.ADMIN_PASSWORD) console.warn('ADMIN_PASSWORD is missing in .env: the admin panel can\'t be unlocked.')
+else if (process.env.ADMIN_PASSWORD.length < 12) console.warn('ADMIN_PASSWORD in .env is shorter than 12 characters: use a longer one, it guards the admin panel.')
 const LOGIN_ERRORS = {
   wrong: "That password isn't right. Try again.",
   wait: 'Too many tries. Wait 15 minutes, then try again.',
@@ -689,15 +699,26 @@ app.get('/login', mw.isLogged, mw.isAdmin, (req, res) => {
 
 // Handle login form submission
 app.post('/login', login_limiter, mw.isLogged, mw.isAdmin, (req, res) => {
+  if (!mw.same_origin(req)) { return res.status(403).send('Forbidden') } // only the login page itself posts here
   const { password } = req.body;
 
   if (same_secret(password, process.env.ADMIN_PASSWORD)) {
-    req.session.admin_until = Date.now() + mw.ADMIN_SESSION_MS;
+    admin_sessions.unlock(req, Date.now() + mw.ADMIN_SESSION_MS);
+    console.log(`admin: panel unlocked from ${req.ip} (${String(req.get('user-agent') || '').slice(0, 120)})`);
     res.clearCookie('authenticated'); // the old admin cookie isn't used any more
     res.redirect('/admin');
   } else {
+    console.log(`admin: wrong admin password from ${req.ip}`);
     res.redirect('/login?error=wrong');
   }
+});
+
+// the admin bar's Lock: the panel asks for the password again, and every Steam / Chrome window opened from it as a
+// bot closes (service/admin_sessions.js). The Steam sign-in on the site stays.
+app.post('/admin/lock', mw.isLogged, (req, res) => {
+  if (!mw.same_origin(req)) { return res.status(403).send('Forbidden') }
+  admin_sessions.end_request(req, 'locked');
+  res.redirect('/');
 });
 
 app.get('/', mw.curPath, router.home);
@@ -783,6 +804,7 @@ app.get(/^\/auth\/steam(\/return)?$/, passport.authenticate('steam', {
 });
 
 app.get('/logout', (req, res, next) => {
+  admin_sessions.end_request(req, 'logout'); // the admin panel and every window opened from it as a bot end too
   req.logout(function(err) {
     if (err) { return next(err); }
     let login_error = (req.query['login_error'] == 'true') ? '?login_error=true':'' 

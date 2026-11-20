@@ -200,6 +200,15 @@
         form{ margin: 0; display: grid; gap: .6rem; }
         .admin-card-foot{ margin-top: 0; }
     }
+    // an input with its button beside it (a bot's trade URL + Read from Steam)
+    .admin-input-row{
+        display: flex;
+        gap: .5rem;
+        align-items: stretch;
+        input{ flex: 1 1 auto; min-width: 0; }
+        button{ flex: none; white-space: nowrap; }
+        @include lt-sm{ flex-wrap: wrap; button{ flex: 1 1 auto; } }
+    }
     .admin-bm-kind{
         display: grid;
         gap: .35rem;

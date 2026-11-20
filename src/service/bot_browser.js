@@ -8,20 +8,48 @@
 //
 // Unlike "Open Steam" (service/steam_browser.js, where the login never leaves bot_manager), this login reaches the
 // admin's browser on purpose. Only the admin API calls this (admin Steam account + admin password, api/routes/admin.js).
+//
+// Each window gets a lease, tied to the admin panel's unlock (service/admin_sessions.js). The extension asks
+// GET /api/bot_browser/lease/<lease> every 30 seconds and whenever a tf2deal.com page loads; once the admin logs out of
+// the site or locks the panel the answer is 410 and the extension closes the window and deletes its cookies (Nikolas
+// 2026-11-20: "disable proxies windows with logged bots once admin is logged out").
 import fs from 'fs'
 import path from 'path'
 import zlib from 'zlib'
+import crypto from 'crypto'
 import { fileURLToPath } from 'url'
 import * as bot_manager from './bot_manager.js'
+import * as admin_sessions from './admin_sessions.js'
+import localEmitter from '../emitter.js'
+
+// the extension that checks its lease (older ones can't close their window when the admin logs out)
+export const MIN_EXTENSION = '1.2.0'
+const LEASE_MS = 24 * 60 * 60 * 1000 // a bot's web login lasts about a day
+const leases = new Map() // lease -> { key, steamid, name, admin, opened }
+setInterval(() => { for (const [l, x] of leases) { if (Date.now() - x.opened > LEASE_MS || !admin_sessions.active(x.key)) { leases.delete(l) } } }, 60 * 1000).unref()
+localEmitter.on('admin:ended', ({ key }) => {
+  for (const [l, x] of leases) {
+    if (x.key === key) { leases.delete(l); console.log(`bot browser: the window of ${x.name} closes (admin panel ended)`) }
+  }
+})
+
+/** the extension's check: is this window's lease still good? */
+export const lease_alive = (lease) => {
+  const x = typeof lease == 'string' ? leases.get(lease) : null
+  if (!x) return false
+  if (Date.now() - x.opened > LEASE_MS || !admin_sessions.active(x.key)) { leases.delete(lease); return false }
+  return true
+}
 
 const EXTENSION_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../extension')
 const HOSTS = new Set(['steamcommunity.com', 'store.steampowered.com', 'help.steampowered.com'])
 const NAMES = new Set(['steamLoginSecure', 'sessionid'])
 
 /** admin: the bot's web login for the extension → { steamid, name, cookies: [{ host, name, value }], expires } */
-export const login = async (p = {}, admin) => {
+export const login = async (p = {}, admin, key) => {
   const bot = String(p.bot || '').trim().slice(0, 64)
   if(!bot){ return { status: 'error', message: 'Pick a bot.' } }
+  if(!admin_sessions.active(key)){ return { status: 'error', message: 'Unlock the admin panel again first.' } }
   const res = await bot_manager.ask('admin:steam:cookies', { bot }, admin)
   if(res.status != 'ok'){
     const why = {
@@ -39,8 +67,11 @@ export const login = async (p = {}, admin) => {
   if(!/^\d{17}$/.test(String(d.steamid || '')) || !cookies.some((c) => c.name == 'steamLoginSecure')){
     return { status: 'error', message: 'bot_manager sent no Steam login for that bot. Try "New web session" first.' }
   }
-  console.log(`bot browser: ${d.name || d.steamid} opened in the browser of ${admin || 'admin'}`)
-  return { status: 'ok', steamid: String(d.steamid), name: String(d.name || d.accountName || d.steamid), cookies, expires: Number(d.expires) || null }
+  const name = String(d.name || d.accountName || d.steamid)
+  const lease = crypto.randomBytes(24).toString('base64url')
+  leases.set(lease, { key, steamid: String(d.steamid), name, admin: String(admin || ''), opened: Date.now() })
+  console.log(`bot browser: ${name} opened in the browser of ${admin || 'admin'}`)
+  return { status: 'ok', steamid: String(d.steamid), name, cookies, expires: Number(d.expires) || null, lease, min_extension: MIN_EXTENSION }
 }
 
 // ---------------------------------------------------------------- the extension as a zip

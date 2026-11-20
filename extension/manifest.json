@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
   "name": "tf2deal admin: bot browser",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "From the tf2deal.com admin panel, opens a private window (Chrome incognito, Edge InPrivate) logged in as a bot on Steam and backpack.tf.",
   "minimum_chrome_version": "116",
   "incognito": "spanning",
-  "permissions": ["cookies", "declarativeNetRequest", "storage"],
+  "permissions": ["alarms", "cookies", "declarativeNetRequest", "storage"],
   "host_permissions": [
     "https://steamcommunity.com/*",
     "https://store.steampowered.com/*",
@@ -17,7 +17,7 @@
   "background": { "service_worker": "background.js" },
   "content_scripts": [
     {
-      "matches": ["https://tf2deal.com/admin*", "https://www.tf2deal.com/admin*", "http://localhost/admin*", "http://127.0.0.1/admin*"],
+      "matches": ["https://tf2deal.com/*", "https://www.tf2deal.com/*", "http://localhost/*", "http://127.0.0.1/*"],
       "js": ["bridge.js"],
       "run_at": "document_start"
     },

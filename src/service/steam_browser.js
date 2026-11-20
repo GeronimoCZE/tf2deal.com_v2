@@ -15,13 +15,18 @@
 //   sends their requests through the window's address.
 // - Set-Cookie from Steam is never passed to the browser.
 // - Referrer-Policy same-origin: Steam's pictures (its CDN) never see the token.
+// - The window ends when the admin logs out of the site or locks the panel (service/admin_sessions.js, Nikolas
+//   2026-11-20: "disable proxies windows with logged bots once admin is logged out"): its next request shows "ended",
+//   and an open page notices within 20 seconds (shim: /alive) and shows it too.
 import crypto from 'crypto'
 import * as bot_manager from './bot_manager.js'
+import * as admin_sessions from './admin_sessions.js'
+import localEmitter from '../emitter.js'
 
 export const BASE = '/steam-view'
 const HOSTS = { c: 'steamcommunity.com', s: 'store.steampowered.com', h: 'help.steampowered.com', l: 'login.steampowered.com', a: 'api.steampowered.com', cp: 'checkout.steampowered.com' }
 const KEY_OF = Object.fromEntries(Object.entries(HOSTS).map(([k, h]) => [h, k]))
-export const ROUTE = new RegExp(`^${BASE}/([A-Za-z0-9_-]{32})(?:/(${Object.keys(HOSTS).join('|')})(/.*)?|/(end))?$`)
+export const ROUTE = new RegExp(`^${BASE}/([A-Za-z0-9_-]{32})(?:/(${Object.keys(HOSTS).join('|')})(/.*)?|/(end|alive))?$`)
 
 const IDLE_MS = 30 * 60 * 1000
 const MAX_MS = 4 * 60 * 60 * 1000
@@ -29,20 +34,25 @@ const PASS_HEADERS = ['accept', 'accept-language', 'content-type', 'user-agent',
 const TEXT = /^(text\/|application\/(json|javascript|x-javascript|xml|xhtml\+xml|rss\+xml)|image\/svg)/i
 const SANDBOX = 'sandbox allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads'
 
-const sessions = new Map() // token -> { view, steamid, name, accountName, admin, ip, opened, used, last (Steam page shown last) }
+const sessions = new Map() // token -> { view, steamid, name, accountName, admin, key (admin panel's), ip, opened, used, last (Steam page shown last) }
 
 const bind_ip = () => /^\d+$/.test(String(process.env.TRUST_PROXY || '').trim())
-const expired = (s, now = Date.now()) => now - s.used > IDLE_MS || now - s.opened > MAX_MS
-setInterval(() => { for (const [t, s] of sessions) { if (expired(s)) { sessions.delete(t) } } }, 60 * 1000).unref()
+const expired = (s, now = Date.now()) => now - s.used > IDLE_MS || now - s.opened > MAX_MS || !admin_sessions.active(s.key)
+setInterval(() => { for (const [t, s] of sessions) { if (expired(s)) { end(t).catch(() => {}) } } }, 60 * 1000).unref()
+// the admin logged out or locked the panel: every window opened from it ends now, also on bot_manager's side
+localEmitter.on('admin:ended', ({ key }) => {
+  for (const [t, s] of sessions) { if (s.key === key) { end(t).catch(() => {}) } }
+})
 
 const esc_re = (text) => String(text).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 const js_value = (value) => JSON.stringify(value ?? null).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029')
 const esc_html = (text) => String(text ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
 
 /** admin: open a window as this bot → { url, name } */
-export const open = async (p = {}, admin, ip) => {
+export const open = async (p = {}, admin, ip, key) => {
   const bot = String(p.bot || '').trim()
   if(!bot){ return { status: 'error', message: 'Pick a bot.' } }
+  if(!admin_sessions.active(key)){ return { status: 'error', message: 'Unlock the admin panel again first.' } }
   const res = await bot_manager.ask('admin:steam:open', { bot }, admin)
   if(res.status != 'ok'){
     const why = { not_logged_in: 'That bot is not logged in yet.', no_web_session: 'That bot has no Steam web session right now. Try "New web session" first.' }[res.code]
@@ -50,7 +60,7 @@ export const open = async (p = {}, admin, ip) => {
   }
   const token = crypto.randomBytes(24).toString('base64url') // 32 characters
   const now = Date.now()
-  sessions.set(token, { view: res.data.view, steamid: res.data.steamid, name: res.data.name, accountName: res.data.accountName, admin: String(admin || ''), ip: bind_ip() ? ip : null, opened: now, used: now })
+  sessions.set(token, { view: res.data.view, steamid: res.data.steamid, name: res.data.name, accountName: res.data.accountName, admin: String(admin || ''), key, ip: bind_ip() ? ip : null, opened: now, used: now })
   console.log(`steam view: ${res.data.name} opened by ${admin || 'admin'}`)
   return { status: 'ok', url: `${BASE}/${token}/c/profiles/${res.data.steamid}/`, name: res.data.name, idleMin: IDLE_MS / 60000, maxMin: MAX_MS / 60000 }
 }
@@ -59,8 +69,8 @@ const end = async (token) => {
   const s = sessions.get(token)
   if(!s){ return }
   sessions.delete(token)
-  await bot_manager.ask('admin:steam:close', { view: s.view }, s.admin)
   console.log(`steam view: ${s.name} closed`)
+  await bot_manager.ask('admin:steam:close', { view: s.view }, s.admin)
 }
 
 // ---------------------------------------------------------------- rewriting
@@ -107,7 +117,7 @@ const rewrite = (text, prefix, key, type) => {
 
 // runs first on every page: what the sandbox takes away, and Steam's own requests through this window
 const shim = (prefix, key, name, cookies) => `<script>(function(){
-var P=${js_value(prefix)},K=${js_value(key)},H=${js_value(KEY_OF)},N=${js_value(esc_html(name))};
+var P=${js_value(prefix)},K=${js_value(key)},H=${js_value(KEY_OF)},N=${js_value(esc_html(name))},fo0=window.fetch&&window.fetch.bind(window);
 function map(u){try{if(typeof u!=='string'){return u}if(u.indexOf(P)===0){return u}if(/^\\/(?!\\/)/.test(u)){return P+'/'+K+u}var m=u.match(/^(?:https?:)?\\/\\/([^\\/?#]+)(.*)$/i);if(m&&H[m[1].toLowerCase()]){return P+'/'+H[m[1].toLowerCase()]+(m[2]||'/')}}catch(e){}return u}
 var xo=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){var a=[].slice.call(arguments);a[1]=map(String(u));return xo.apply(this,a)};
 if(window.fetch){var fo=window.fetch;window.fetch=function(i,o){if(typeof i==='string'||i instanceof URL){i=map(String(i))}else if(i&&i.url){var n=map(i.url);if(n!==i.url){i=new Request(n,i)}}return fo.call(this,i,o)}}
@@ -117,6 +127,7 @@ try{document.cookie}catch(e){try{Object.defineProperty(document,'cookie',{config
 ['localStorage','sessionStorage'].forEach(function(n){try{window[n].length}catch(e){var d={},s={getItem:function(k){return Object.prototype.hasOwnProperty.call(d,k)?d[k]:null},setItem:function(k,v){d[k]=String(v)},removeItem:function(k){delete d[k]},clear:function(){d={}},key:function(i){return Object.keys(d)[i]||null}};Object.defineProperty(s,'length',{get:function(){return Object.keys(d).length}});try{Object.defineProperty(window,n,{configurable:true,value:s})}catch(e2){}}});
 document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(a){var h=a.getAttribute('href'),m=map(h);if(m!==h){a.setAttribute('href',m)}}},true);
 document.addEventListener('submit',function(e){var f=e.target,a=f&&f.getAttribute&&f.getAttribute('action');if(a){var m=map(a);if(m!==a){f.setAttribute('action',m)}}},true);
+if(fo0){var al=setInterval(function(){fo0(P+'/alive',{credentials:'include',cache:'no-store'}).then(function(r){if(r.status===410){clearInterval(al);location.replace(P+'/c/')}}).catch(function(){})},20000)}
 document.addEventListener('DOMContentLoaded',function(){var b=document.createElement('div');b.setAttribute('style','position:fixed;left:12px;bottom:12px;z-index:2147483647;background:#1b1530;color:#fff;font:600 12px/1.2 system-ui,sans-serif;padding:8px 10px;border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,.5);display:flex;gap:10px;align-items:center');b.innerHTML='<span>Steam as '+N+'</span><a href="'+P+'/end" style="color:#c9b6ff;text-decoration:underline">End</a>';document.body.appendChild(b)});
 })();</script>`
 
@@ -135,9 +146,16 @@ export const handler = async (req, res) => {
   if(!m){ return page(res, 404, 'Not found', 'This is not a Steam window address.') }
   const [, token, key, path_part, end_word] = m
   const s = sessions.get(token)
+  if(end_word == 'alive'){
+    // the page's own check (shim): its sandboxed origin is "null"
+    res.set({ 'Access-Control-Allow-Origin': 'null', 'Access-Control-Allow-Credentials': 'true', 'Vary': 'Origin', 'Cache-Control': 'no-store' })
+    const alive = Boolean(s && !expired(s) && !(s.ip && s.ip != req.ip))
+    if(s && !alive){ end(token).catch(() => {}) }
+    return res.status(alive ? 200 : 410).json({ alive })
+  }
   if(!s || expired(s)){
-    sessions.delete(token)
-    return page(res, 410, 'This Steam window has ended', 'Open it again from the admin panel (Bot manager → Bots → Open Steam).')
+    if(s){ end(token).catch(() => {}) }
+    return page(res, 410, 'This Steam window has ended', 'It ends when you log out of tf2deal.com or lock the admin panel, and after 30 minutes without use. Open it again from the admin panel (Bot manager → Bots → Open Steam).')
   }
   if(s.ip && s.ip != req.ip){ return page(res, 403, 'Not from here', 'This Steam window was opened from another address. Open it again from the admin panel.') }
   if(end_word){
