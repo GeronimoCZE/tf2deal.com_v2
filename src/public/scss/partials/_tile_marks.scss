@@ -28,3 +28,61 @@
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23e2803f' fill-rule='evenodd' d='M13.2 6.2L15.42 6.37L15.42 9.63L13.2 9.8L12.95 10.4L14.4 12.1L12.1 14.4L10.4 12.95L9.8 13.2L9.63 15.42L6.37 15.42L6.2 13.2L5.6 12.95L3.9 14.4L1.6 12.1L3.05 10.4L2.8 9.8L.58 9.63L.58 6.37L2.8 6.2L3.05 5.6L1.6 3.9L3.9 1.6L5.6 3.05L6.2 2.8L6.37 .58L9.63 .58L9.8 2.8L10.4 3.05L12.1 1.6L14.4 3.9L12.95 5.6ZM8 5.6a2.4 2.4 0 1 0 0 4.8a2.4 2.4 0 1 0 0-4.8Z'/%3E%3C/svg%3E");
     }
 }
+
+// A Kit Fabricator's picture with the Kit it makes, small in its bottom left corner (Nikolas 2026-11-20; the site adds
+// kit_image, service/kit_pictures.js; js/plugins/trade.js kit_pic). The tiles' own picture rules reach every <img> in
+// them, hence the !important on size and place.
+.item img.kit-pic, .ii-thumb img.kit-pic{
+    position: absolute !important;
+    left: 3px !important;
+    bottom: 3px !important;
+    width: 38% !important;
+    height: 38% !important;
+    margin: 0 !important;
+    padding: 2px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+}
+// item cards: the Kit sits on the bottom left corner of the card's picture (--pic wide, centred) and takes no room
+a.item_card img.kit-pic{
+    --kit: 2.4rem;
+    --kit-box: calc(var(--kit) + 4px);
+    --pic: 6.2rem;
+    display: block !important;
+    position: relative !important;
+    z-index: 1;
+    width: var(--kit) !important;
+    height: var(--kit) !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: calc(var(--kit-box) * -1) auto 0 !important;
+    padding: 2px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.45);
+    transform: translateX(calc(var(--kit-box) / 2 - var(--pic) / 2));
+    pointer-events: none;
+}
+// the home page's popular items: a 5.5rem picture, then a .35rem gap before the next line
+.home-popular a.item_card img.kit-pic{
+    --kit: 2.1rem;
+    --pic: 5.5rem;
+    margin-top: calc(var(--kit-box) * -1 - .35rem) !important;
+}
+// the item page's big picture (14rem, inside the box's padding)
+.image-box img.kit-pic{
+    position: absolute;
+    left: 3.3rem;
+    top: calc(3.2rem + 14rem - 4.5rem);
+    width: 4.5rem;
+    height: 4.5rem;
+    padding: 3px;
+    object-fit: contain;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+    @include lt-md{ left: 2rem; top: calc(2rem + 14rem - 4.5rem); }
+    @include lt-sm{ left: .5rem; top: auto; bottom: calc(.5rem + 6px); width: 3.5rem; height: 3.5rem; }
+}

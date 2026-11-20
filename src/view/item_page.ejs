@@ -51,6 +51,8 @@
                                 </div> -->
                                 <div class="image-box q-<%= info.item?.qualityID %>">
                                     <img src="<%= info.item?.image_large?.replace(/^http:\/\//i, 'https://') %>" alt="<%= item_alt(info.item) %>" class="image" fetchpriority="high" effect-id="<%= info.item?.effectID %>">
+                                    <%# a Kit Fabricator: the Kit it makes, in the picture's bottom left corner (service/kit_pictures.js) %>
+                                    <% if (info.item?.kit_image) { %><img class="kit-pic" src="<%= info.item.kit_image %>" alt="" decoding="async"><% } %>
                                     <div class="btns">
                                         <button id="wishlist-btn"><%= __('item.wishlist') %></button>
                                     </div>
@@ -246,7 +248,7 @@
                                         <% info.result.sameName.forEach((item) => { %>
                                             <a href="<%= lurl('/items/' + encodeURIComponent(item.bp_sku)) %>" class="item_card q-<%= item.qualityID %>">
                                                 <div class="item-name" translate="no"><%= item.bp_sku %></div>
-                                                <img src="<%= item.image %>" alt="<%= item_alt(item) %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
+                                                <img src="<%= item.image %>" alt="<%= item_alt(item) %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);"><% if (item.kit_image) { %><img class="kit-pic" src="<%= item.kit_image %>" alt="" loading="lazy" decoding="async"><% } %>
                                                 <div class="item-data">
                                                     <div class="stock"><%= __('item.in_stock', { count: item.stock?.cur || 0 }) %></div>
                                                     <div class="price"><%= item.price %></div>
@@ -268,7 +270,7 @@
                                         <% info.result.sameEffect.forEach((item) => { %>
                                             <a href="<%= lurl('/items/' + encodeURIComponent(item.bp_sku)) %>" class="item_card q-<%= item.qualityID %>">
                                                 <div class="item-name" translate="no"><%= item.bp_sku %></div>
-                                                <img src="<%= item.image %>" alt="<%= item_alt(item) %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
+                                                <img src="<%= item.image %>" alt="<%= item_alt(item) %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);"><% if (item.kit_image) { %><img class="kit-pic" src="<%= item.kit_image %>" alt="" loading="lazy" decoding="async"><% } %>
                                                 <div class="item-data">
                                                     <div class="stock"><%= __('item.in_stock', { count: item.stock?.cur || 0 }) %></div>
                                                     <div class="price"><%= item.price %></div>
@@ -290,7 +292,7 @@
                                         <% info.result.sameTypeQuality.forEach((item) => { %>
                                             <a href="<%= lurl('/items/' + encodeURIComponent(item.bp_sku)) %>" class="item_card q-<%= item.qualityID %>">
                                                 <div class="item-name" translate="no"><%= item.bp_sku %></div>
-                                                <img src="<%= item.image %>" alt="<%= item_alt(item) %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);">
+                                                <img src="<%= item.image %>" alt="<%= item_alt(item) %>" loading="lazy" class="item-image" style="background-image: url(https://api.backpack.tf/images/440/particles/<%= item.effectID %>_94x94.png);"><% if (item.kit_image) { %><img class="kit-pic" src="<%= item.kit_image %>" alt="" loading="lazy" decoding="async"><% } %>
                                                 <div class="item-data">
                                                     <div class="stock"><%= __('item.in_stock', { count: item.stock?.cur || 0 }) %></div>
                                                     <div class="price"><%= item.price %></div>

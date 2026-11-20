@@ -3,6 +3,7 @@ import { item_model } from '../model/Item.js'
 import { effect_model } from '../model/Effect.js'
 import { pure_model } from '../model/Pure.js'
 import { details_for, details_of } from './copy_details.js'
+import * as kit_pictures from './kit_pictures.js'
 
 // Trade records are written to the `trades` collection by the bot server (bot_manager), whose code the site can't see.
 // site_shape() reads every layout it is likely to save and turns each record into the one the site draws:
@@ -330,6 +331,8 @@ const site_shape = async (records) => {
         }
     })
     await add_details(shaped)
+    // Kit Fabricators show the Kit they make on their tile (service/kit_pictures.js)
+    for (const trade of shaped) { kit_pictures.mark(trade.toGive.items); kit_pictures.mark(trade.toReceive.items) }
     return shaped
 }
 

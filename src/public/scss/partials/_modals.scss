@@ -612,6 +612,42 @@
         dt{ flex: none; color: var(--ink-3); }
         dd{ margin: 0; color: var(--ink); text-align: right; overflow-wrap: anywhere; }
     }
+    // a Kit Fabricator's inputs: count column, then the item's name
+    .ii-inputs{
+        padding: 10px 12px;
+        border-radius: var(--r-md);
+        background: var(--surface-2);
+        font-size: .9rem;
+        ul{
+            display: grid;
+            gap: 4px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        li{
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin: 0;
+        }
+    }
+    .ii-sub{
+        margin: 0 0 7px;
+        color: var(--ink-3);
+        font-size: .9rem;
+        font-weight: 500;
+        line-height: 1.3;
+    }
+    .ii-count{
+        flex: none;
+        min-width: 2.4em;
+        color: var(--ink-2);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+    }
+    .ii-input{ color: var(--ink); overflow-wrap: anywhere; }
     // the window's one main action
     .ii-inspect{
         display: block;

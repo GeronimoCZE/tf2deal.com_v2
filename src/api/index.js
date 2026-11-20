@@ -28,6 +28,7 @@ import * as site_news from '../service/news.js'
 import * as news_times from '../service/news_times.js'
 import { bptf_link, FIELDS as BPTF_FIELDS } from '../service/bptf_link.js'
 import UserModel from '../model/User.js'
+import * as kit_pictures from '../service/kit_pictures.js'
 import { log } from 'console';
 
 export const router = express.Router();
@@ -225,6 +226,7 @@ router.post('/bots/inventory', inv_limiter, (req, res) => {
         return res.json()
       })
       .then((data) => {
+          kit_pictures.mark(data?.inventory?.items) // Kit Fabricators show the Kit they make on their tile
           res.json(data)
       })
       .catch((e) => {

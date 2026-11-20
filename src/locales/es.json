@@ -627,12 +627,14 @@
       "type": "Tipo",
       "classes": "Clases",
       "all_classes": "Todas las clases",
+      "makes": "Produce",
       "killstreak": "Killstreak",
       "killstreaker": "Killstreaker",
       "sheen": "Brillo",
       "paint": "Pintura",
       "spells": "Hechizos",
       "parts": "Piezas Strange",
+      "inputs": "Entradas necesarias",
       "festivized": "Festivized",
       "craftable": "Fabricable",
       "yes": "Sí",
@@ -1004,6 +1006,10 @@
       "empty": "Aún no hay nada aquí. Las funciones nuevas aparecerán en cuanto lleguen."
     },
     "items": {
+      "fabricators": {
+        "title": "Mira qué fabrica un Kit Fabricator",
+        "text": "La imagen de un Kit Fabricator ahora muestra en su esquina inferior izquierda el Kit que fabrica. En la ventana de detalles del objeto (clic derecho en un objeto o toca su descripción) también ves los objetos que necesita ese fabricador y cuántos de cada uno. Cada fabricador necesita otros distintos, así que los que piden objetos diferentes ya no se apilan en la ventana de intercambio."
+      },
       "lamplight": {
         "title": "Un nuevo aspecto: Luz de farol",
         "text": "TF2Deal es ahora más cálido: una noche de invierno en tono ciruela, texto color crema y la luz ámbar de la ventana de una cabaña, con un logotipo nuevo, tipografías nuevas y un icono de aplicación nuevo. Todo funciona como antes. Si prefieres otro aspecto, Negro medianoche, Blanco y Nebulosa siguen en el menú de temas.",

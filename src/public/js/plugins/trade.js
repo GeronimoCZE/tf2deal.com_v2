@@ -1329,6 +1329,10 @@ export const marks_html = (spell, part) => (spell || part)
     : ''
 const has_words = (value) => Array.isArray(value) ? value.some((v) => typeof v == 'string' && v.trim()) : (typeof value == 'string' && !!value.trim())
 export const copy_marks = (copy) => marks_html(has_words(copy?.at?.spells), has_words(copy?.at?.strangeParts))
+// A Kit Fabricator's tile also shows the Kit it makes, small in its bottom left corner (the site adds kit_image:
+// service/kit_pictures.js; none when that Kit isn't in the database). Styles: scss/partials/_tile_marks.scss.
+const kit_src = (url) => (typeof url == 'string' && /^https:\/\/[^\s"'<>]+$/.test(url)) ? url : ''
+export const kit_pic = (url) => kit_src(url) ? `<img class="kit-pic" src="${kit_src(url)}" alt="" loading="lazy" decoding="async">` : ''
 
 export const create_sku = (bp_sku, qualityID, f, ks) => {
     if(f === 0 && ks === 0){ return bp_sku; }
@@ -1886,7 +1890,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                 let item_image = copy_image(asset, item_desc.image);
 
                 const ks_class = (asset?.ks > 0) ? `ks${asset?.ks}`:"";
-                grid.append($(`<div class="item q-${item_desc?.qualityID} ${craftable} ${ks_class}" data-assetid="${asset.a}" data-quality="${item_desc?.qualityID}" data-effect="${item_desc?.effectID}" data-name="${item_desc.bp_sku}" data-bp_sku="${create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks)}" data-type="${item_desc?.type}" data-price="${single_price(asset, true)}" data-classes="${classes}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks), item_desc?.qualityID)}">${copy_marks(asset)}</div>`)   )
+                grid.append($(`<div class="item q-${item_desc?.qualityID} ${craftable} ${ks_class}" data-assetid="${asset.a}" data-quality="${item_desc?.qualityID}" data-effect="${item_desc?.effectID}" data-name="${item_desc.bp_sku}" data-bp_sku="${create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks)}" data-type="${item_desc?.type}" data-price="${single_price(asset, true)}" data-classes="${classes}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks), item_desc?.qualityID)}">${copy_marks(asset)}${kit_pic(item_desc?.kit_image)}</div>`)   )
             }         
         }
 
@@ -1910,7 +1914,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
 
             const ks_class = (asset?.ks > 0) ? `ks${asset?.ks}`:"";
             if(item_desc){
-                grid.append($(`<div class="item q-${item_desc?.qualityID} ${craftable} ${ks_class}" data-assetid="${asset.a}" data-bot="${asset.ownerId}" data-quality="${item_desc?.qualityID}" data-effect="${item_desc?.effectID}" data-name="${item_desc.bp_sku}" data-bp_sku="${create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks)}" data-type="${item_desc?.type}" data-price="${single_price(asset, false)}" data-classes="${classes}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks), item_desc?.qualityID)}">${copy_marks(asset)}</div>`)   )
+                grid.append($(`<div class="item q-${item_desc?.qualityID} ${craftable} ${ks_class}" data-assetid="${asset.a}" data-bot="${asset.ownerId}" data-quality="${item_desc?.qualityID}" data-effect="${item_desc?.effectID}" data-name="${item_desc.bp_sku}" data-bp_sku="${create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks)}" data-type="${item_desc?.type}" data-price="${single_price(asset, false)}" data-classes="${classes}" data-tradable="1" style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item_desc?.bp_sku, item_desc.qualityID, asset?.f, asset?.ks), item_desc?.qualityID)}">${copy_marks(asset)}${kit_pic(item_desc?.kit_image)}</div>`)   )
             }
         }
 
@@ -2030,7 +2034,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     const bg_style = (item.effectID > 0) ? `style="background-image: url('https://api.backpack.tf/images/440/particles/${item?.effectID}_94x94.png')"` : "";
                     const sig = stack_sig(rep, item.bp_sku);
 
-                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-bot="${rep?.ownerId || ''}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'sell')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${copy_marks(rep)}${badge}</div>`)
+                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-classid="${item?.classid}" data-bot="${rep?.ownerId || ''}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'sell')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${copy_marks(rep)}${kit_pic(item?.kit_image)}${badge}</div>`)
 
                     if(page < 1){
                         grid.append(item_el)
@@ -2068,7 +2072,7 @@ const render_items = async (party, items, page, change, fetched_all_pages) => {
                     const held = copy_stock(item, rep?.ks);
                     const overstocked = (held.cur + in_trade_against(item, held.key).length >= held.limit) ? 'over-stocked':''
 
-                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class} ${overstocked}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-ks="${Number(rep?.ks) || 0}" data-classid="${item?.classid}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'buy')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${copy_marks(rep)}${badge}</div>`)
+                    const item_el = $(`<div class="item q-${item?.qualityID} ${craftable} ${(remaining === 0) ? 'in-trade':''} ${ks_class} ${stacked_class} ${overstocked}" data-assetids="${all_ids.join(',')}" data-stock="${all_ids.length}" data-stack-sig="${sig}" data-ks="${Number(rep?.ks) || 0}" data-classid="${item?.classid}" data-quality="${item?.qualityID}" data-effect="${item.effectID > 0 ? item?.effectID : 'null'}" data-name="${item.bp_sku}" data-bp_sku="${create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks)}" data-type="${item?.type}" data-price="${trade_price(item, rep, 'buy')}" data-classes="${classes}" data-tradable="1" ${bg_style}><img class="item-img lazy-fade" onload="this.classList.add('loaded')" src="${item_image}" loading="lazy" alt="${item_alt(create_sku(item?.bp_sku, item.qualityID, rep?.f, rep?.ks), item?.qualityID)}">${copy_marks(rep)}${kit_pic(item?.kit_image)}${badge}</div>`)
 
                     if(page < 1){
                         grid.append(item_el)
@@ -3667,6 +3671,12 @@ const item_details = (item_el, party) => {
         paint: list(at.paint)[0] || '',
         spells: list(at.spells),
         parts: list(at.strangeParts),
+        // a Kit Fabricator's inputs (each copy has its own: bot_manager reads them from Steam, at.inputs) and the Kit it
+        // makes, as its tile shows it
+        inputs: (Array.isArray(at.inputs) ? at.inputs : [])
+            .filter((i) => i && typeof i.name == 'string' && i.name.trim() && Number(i.count) > 0).slice(0, 20)
+            .map((i) => ({ name: i.name.trim().slice(0, 120), count: Math.min(999, Math.floor(Number(i.count))) })),
+        kit_image: item_el.querySelector('img.kit-pic')?.getAttribute('src') || '',
         custom_name: custom_text(at.customName) || custom_text(desc.custom_name),
         custom_desc: custom_text(at.customDesc),
         inspect: inspect_link(at.inspect, owner, assetid),

@@ -150,7 +150,7 @@
                         <ul class="home-popular-list">
                             <% info.popular.forEach((card) => { %>
                             <li><a class="item_card q-<%= card.qualityID %>" href="<%= lurl('/items/' + encodeURIComponent(card.bp_sku)) %>">
-                                <img src="<%= card.image %>" alt="<%= item_alt(card) %>" loading="lazy" width="96" height="96"<% if (card.effectID > 0) { %> style="background-image: url(https://api.backpack.tf/images/440/particles/<%= card.effectID %>_94x94.png);"<% } %>>
+                                <img src="<%= card.image %>" alt="<%= item_alt(card) %>" loading="lazy" width="96" height="96"<% if (card.effectID > 0) { %> style="background-image: url(https://api.backpack.tf/images/440/particles/<%= card.effectID %>_94x94.png);"<% } %>><% if (card.kit_image) { %><img class="kit-pic" src="<%= card.kit_image %>" alt="" loading="lazy" decoding="async"><% } %>
                                 <span class="name" translate="no"><%= card.name %></span>
                                 <span class="price"><%= card.price %></span>
                             </a></li>

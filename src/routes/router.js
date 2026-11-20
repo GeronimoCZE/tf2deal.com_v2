@@ -14,6 +14,7 @@ import * as stats from '../service/stats.js'
 import * as categories from '../service/categories.js'
 import * as buy from '../service/buy_link.js'
 import * as item_lists from '../service/item_lists.js'
+import * as kit_pictures from '../service/kit_pictures.js'
 import * as variants from '../service/variants.js'
 import * as blog_render from '../service/blog_render.js'
 import * as news_times from '../service/news_times.js'
@@ -35,6 +36,7 @@ const home_popular = async () => {
     bp_sku: item.bp_sku,
     name: item.name,
     image: item.image,
+    kit_image: item.kit_image || null,
     qualityID: item.qualityID,
     effectID: Number(item.effectID) || 0,
     price: fn.list_price_text(item.sell, item.bptf_data.update_key_price)
@@ -197,6 +199,7 @@ const items = async (req, res, next) => {
         bp_sku: item.bp_sku,
         name: item.name,
         image: item.image,
+        kit_image: item.kit_image || null,
         qualityID: item.qualityID,
         effectID: Number(item.effectID) || 0,
         stock: item.stock.items_length,
@@ -328,7 +331,7 @@ const item_page = async (req, res) => {
       Boolean(await item_model.exists({ _id: main._id, 'stock.items.0': { $exists: true } }))
     // similar items, with their price as text
     const result = Object.fromEntries(Object.entries(await item_lists.similar(main)).map(([group, list]) =>
-      [group, list.map((item) => ({ ...item, price: fn.list_price_text(item.sell, item.bptf_data?.update_key_price) }))]))
+      [group, list.map((item) => ({ ...item, kit_image: kit_pictures.of(item), price: fn.list_price_text(item.sell, item.bptf_data?.update_key_price) }))]))
     const item_path = `/items/${encodeURIComponent(main.bp_sku)}`
     const item_url = fn.site_url + req.lurl(item_path)
     // a skin's killstreak tier page is the skin's page with that tier picked, so search engines are pointed to the skin's
@@ -419,7 +422,8 @@ const item_page = async (req, res) => {
       fn.res_data(!!req.user, req.user, user_cookie, fn.item_title(page_name, req.__), {
         view: 'item_page',
         promtLogin: true,
-        item: main,
+        // a Kit Fabricator's page also shows the Kit it makes, on its picture and its trade tiles (service/kit_pictures.js)
+        item: { ...main, kit_image: kit_pictures.of(main) },
         ks_tier: ks,
         // the killstreak select opens each tier's own page (public/js/main.js)
         tier_pages: item_lists.ks_items(main) ? Object.fromEntries([...item_lists.tiers_of(main).keys()].map((t) => [t, buy.display_name(main.bp_sku, { ks: t })])) : null,
