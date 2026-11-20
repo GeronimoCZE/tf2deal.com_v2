@@ -627,12 +627,14 @@
       "type": "Typ",
       "classes": "Klassen",
       "all_classes": "Alle Klassen",
+      "makes": "Ergibt",
       "killstreak": "Killstreak",
       "killstreaker": "Killstreaker",
       "sheen": "Sheen",
       "paint": "Farbe",
       "spells": "Zauber",
       "parts": "Strange-Teile",
+      "inputs": "Benötigte Eingaben",
       "festivized": "Festivized",
       "craftable": "Herstellbar",
       "yes": "Ja",
@@ -1004,6 +1006,10 @@
       "empty": "Noch nichts hier. Neue Funktionen erscheinen hier, sobald sie online sind."
     },
     "items": {
+      "fabricators": {
+        "title": "Sieh, was ein Kit Fabricator herstellt",
+        "text": "Das Bild eines Kit Fabricators zeigt jetzt unten links das Kit, das er herstellt. Im Fenster mit den Gegenstandsdetails (Rechtsklick auf einen Gegenstand oder Tippen auf seinen Tooltip) siehst du außerdem, welche Gegenstände der Fabricator braucht und wie viele davon. Jeder Fabricator braucht andere, deshalb werden Fabricators mit unterschiedlichen Eingaben im Handelsfenster nicht mehr gestapelt."
+      },
       "lamplight": {
         "title": "Ein neues Design: Lampenlicht",
         "text": "TF2Deal ist jetzt wärmer: eine Winternacht in Pflaumenviolett, cremefarbene Schrift und das bernsteinfarbene Licht eines Hüttenfensters, dazu ein neues Logo, neue Schriften und ein neues App-Symbol. Alles funktioniert wie bisher. Wenn dir ein anderes Design besser gefällt: Mitternachtsschwarz, Weiß und Sternennebel sind weiterhin im Design-Menü.",

@@ -627,12 +627,14 @@
       "type": "Type",
       "classes": "Classes",
       "all_classes": "All classes",
+      "makes": "Makes",
       "killstreak": "Killstreak",
       "killstreaker": "Killstreaker",
       "sheen": "Sheen",
       "paint": "Paint",
       "spells": "Spells",
       "parts": "Strange parts",
+      "inputs": "Inputs needed",
       "festivized": "Festivized",
       "craftable": "Craftable",
       "yes": "Yes",
@@ -1004,6 +1006,10 @@
       "empty": "Nothing here yet. New features will show up here as soon as they go live."
     },
     "items": {
+      "fabricators": {
+        "title": "See what a Kit Fabricator makes",
+        "text": "A Kit Fabricator's picture now shows the Kit it makes in its bottom left corner. In the item details window (right-click an item, or tap its tooltip) you also see the items that fabricator needs and how many of each. Every fabricator needs its own, so fabricators that need different items no longer stack in the trade window."
+      },
       "lamplight": {
         "title": "A new look: Lamplight",
         "text": "TF2Deal is warmer now: a winter night in plum, cream text and the amber light of a lit cabin window, with a new logo, new fonts and a new app icon. Everything works as before. If you like another look better, Midnight black, White and Nebula are still in the theme menu.",

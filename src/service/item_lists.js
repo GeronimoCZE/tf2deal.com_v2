@@ -29,6 +29,7 @@ import crypto from 'crypto'
 import { item_model } from '../model/Item.js'
 import { display_name, to_ref } from './buy_link.js'
 import * as fn from '../fn.js'
+import * as kit_pictures from './kit_pictures.js'
 
 const TTL = 60 * 1000
 const MAX_WAIT = 15 * 60 * 1000 // a slow database is read again at most this long after the last read
@@ -605,9 +606,15 @@ const public_card = (card) => ({
   name: shown_name(card.bp_sku, card.type),
   ...(card.ks > 0 && { base: card.base, ks: card.ks }),
   type: card.type, buy: card.buy, sell: card.sell, qualityID: card.qualityID, effectID: card.effectID, image: card.image,
+  ...kit_field(card),
   bptf_data: { update_key_price: card.key_price },
   stock: { items_length: card.count, limit: card.limit }
 })
+// a Kit Fabricator's card also shows the Kit it makes (service/kit_pictures.js)
+const kit_field = (card) => {
+  const kit_image = kit_pictures.of(card)
+  return kit_image ? { kit_image } : {}
+}
 
 const names = async () => {
   const all = await index()

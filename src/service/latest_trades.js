@@ -65,6 +65,7 @@ const public_side = (side) => {
         keys: num(side?.keys), ref: num(side?.ref), rec: num(side?.rec), scrap: num(side?.scrap),
         items: (side?.items || []).map((item) => ({
             bp_sku: item?.bp_sku, qualityID: item?.qualityID, effectID: item?.effectID, type: item?.type, image: item?.image,
+            kit_image: item?.kit_image || undefined,
             buy: item?.buy, sell: item?.sell,
             user_stock: (Array.isArray(item?.user_stock) ? item.user_stock : []).map((copy) => ({
                 a: String(n++), ks: copy?.ks, f: copy?.f, buy: copy?.buy, sell: copy?.sell,

@@ -627,12 +627,14 @@
       "type": "类型",
       "classes": "兵种",
       "all_classes": "全兵种",
+      "makes": "产出",
       "killstreak": "Killstreak",
       "killstreaker": "Killstreaker",
       "sheen": "光泽",
       "paint": "油漆",
       "spells": "法术",
       "parts": "奇异部件",
+      "inputs": "所需材料",
       "festivized": "Festivized",
       "craftable": "可合成",
       "yes": "是",
@@ -1004,6 +1006,10 @@
       "empty": "这里还没有内容。新功能一上线就会出现在这里。"
     },
     "items": {
+      "fabricators": {
+        "title": "看看 Kit Fabricator 能做出什么",
+        "text": "Kit Fabricator 的图片左下角现在会显示它能制作的 Kit。在物品详情窗口（右键点击物品，或轻点它的提示框）里，你还能看到这个制作器需要哪些物品以及各需要几个。每个制作器需要的都不一样，所以需要不同物品的制作器在交易窗口里不再堆叠在一起。"
+      },
       "lamplight": {
         "title": "全新外观：灯光",
         "text": "TF2Deal 现在更温暖了：梅紫色的冬夜、奶油色的文字和小木屋窗口透出的琥珀色灯光，还有新的标志、新的字体和新的应用图标。所有功能照常使用。如果你更喜欢其他外观，午夜黑、白色和星云仍在主题菜单中。",

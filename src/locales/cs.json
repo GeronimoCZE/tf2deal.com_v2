@@ -627,12 +627,14 @@
       "type": "Typ",
       "classes": "Třídy",
       "all_classes": "Všechny třídy",
+      "makes": "Vyrobí",
       "killstreak": "Killstreak",
       "killstreaker": "Killstreaker",
       "sheen": "Sheen",
       "paint": "Barva",
       "spells": "Kouzla",
       "parts": "Strange části",
+      "inputs": "Potřebné vstupy",
       "festivized": "Festivized",
       "craftable": "Lze craftit",
       "yes": "Ano",
@@ -1004,6 +1006,10 @@
       "empty": "Zatím tu nic není. Nové funkce se tu objeví hned, jak budou spuštěny."
     },
     "items": {
+      "fabricators": {
+        "title": "Co vyrobí Kit Fabricator",
+        "text": "Obrázek Kit Fabricatoru teď v levém dolním rohu ukazuje Kit, který vyrobí. V okně s detaily předmětu (pravé tlačítko na předmětu nebo klepnutí na jeho popisek) uvidíte i předměty, které fabricator potřebuje, a kolik kusů od každého. Každý fabricator potřebuje jiné, takže se fabricatory s jinými vstupy v okně obchodu už neslučují."
+      },
       "lamplight": {
         "title": "Nový vzhled: Světlo lampy",
         "text": "TF2Deal je teď útulnější: zimní noc ve švestkových barvách, krémový text a jantarové světlo z okna chaty, k tomu nové logo, nová písma a nová ikona aplikace. Všechno funguje jako dřív. Pokud se vám víc líbí jiný vzhled, Půlnoční černá, Bílá a Mlhovina jsou dál v nabídce motivů.",

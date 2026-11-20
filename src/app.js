@@ -37,6 +37,7 @@ import * as inventory_value from './service/inventory_value.js'
 import * as flips from './service/flips.js'
 import * as item_lists from './service/item_lists.js'
 import * as copy_details from './service/copy_details.js'
+import * as kit_pictures from './service/kit_pictures.js'
 import * as memory from './service/memory.js'
 import * as crawlers from './service/crawlers.js'
 import * as categories from './service/categories.js'
@@ -858,6 +859,7 @@ seasons.start(); // reads this year's TF2 event dates from teamfortress.com
 inventory_value.start(); // Admin -> Inventory value: what the bots hold, measured every 15 minutes
 flips.start(); // Admin -> Flips: each copy the bots sold against what they paid for it, every 2 minutes
 copy_details.start(); // remembers the details (paint, spells, parts, killstreaker) of the bots' copies for finished trades
+kit_pictures.start(); // the Kit each Kit Fabricator makes, as a small picture on the fabricator's (service/kit_pictures.js)
 memory.start(); // gives memory the site no longer uses back to the server (service/memory.js)
 item_lists.start(); // stock counts on /items between full reads of the item list (service/item_lists.js stock pass)
 crawlers.start(); // reads the crawlers' published address lists, then once a day (service/crawlers.js)

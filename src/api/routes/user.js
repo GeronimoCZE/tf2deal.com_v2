@@ -24,6 +24,7 @@ import { check_requirements, in_steam_group, group_url, add_entry, recent_view }
 import { winner_saved_tradelink } from '../../service/giveaway_prize.js';
 import { public_bot, read_accounts } from '../../service/bot_names.js';
 import * as trade_url from '../../service/trade_url.js';
+import * as kit_pictures from '../../service/kit_pictures.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -273,6 +274,7 @@ router.post('/inventory', isLogged, inv_limiter, has_trade_url, async (req, res)
           if(app.users.has(steamid)){
             app.users.set(steamid, { ...app.users.get(steamid), trade: true }) // keep the user's open tabs
           }
+          kit_pictures.mark(response?.inventory?.items) // Kit Fabricators show the Kit they make on their tile
           res.status(200).json(response)
         } else {
           res.status(200).json(response);

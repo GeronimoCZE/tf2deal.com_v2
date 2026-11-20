@@ -61,6 +61,17 @@ const links = (info) => {
 
 const fact = (title, value) => value ? `<div class="ii-fact"><dt>${esc(title)}</dt><dd translate="no">${esc(value)}</dd></div>` : ''
 
+// "Professional Killstreak Rocket Launcher Kit Fabricator" makes the "Professional Killstreak Rocket Launcher Kit"
+const kit_made = (bp_sku) => / Kit Fabricator$/.test(String(bp_sku || '')) ? String(bp_sku).replace(/^Non-Craftable /, '').replace(/ Fabricator$/, '') : ''
+
+// what a Kit Fabricator copy needs before it makes its Kit (Nikolas 2026-11-20: "input items needed and their count";
+// every fabricator has its own, so copies with other inputs don't stack in the trade window either)
+const inputs_list = (inputs) => inputs.length ? `
+            <div class="ii-inputs">
+                <h3 class="ii-sub">${esc(__('item_info.inputs'))}</h3>
+                <ul>${inputs.map((i) => `<li><span class="ii-count">${Number(i.count)}×</span><span class="ii-input" translate="no">${esc(i.name)}</span></li>`).join('')}</ul>
+            </div>` : ''
+
 const open = (item_el, party) => {
     const info = trade.item_details(item_el, party)
     const modal = document.querySelector('.modal_overlay .modal')
@@ -83,7 +94,7 @@ const open = (item_el, party) => {
     modal.querySelector('.modal_content').innerHTML = `
         <div class="item-info">
             <div class="ii-head">
-                <span class="ii-thumb q-${esc(info.qualityID)}"${thumb_bg}><img src="${esc(info.image)}" alt="${esc(info.name)}">${trade.marks_html(info.spells.length > 0, info.parts.length > 0)}</span>
+                <span class="ii-thumb q-${esc(info.qualityID)}"${thumb_bg}><img src="${esc(info.image)}" alt="${esc(info.name)}">${trade.marks_html(info.spells.length > 0, info.parts.length > 0)}${trade.kit_pic(info.kit_image)}</span>
                 <div class="ii-name">
                     <strong class="ii-title" translate="no">${esc(info.name)}</strong>
                     ${info.custom_name ? `<span class="ii-custom" translate="no">"${esc(info.custom_name)}"</span>` : ''}
@@ -96,6 +107,7 @@ const open = (item_el, party) => {
                 ${fact(__('item_info.quality'), quality)}
                 ${fact(__('item_info.type'), type)}
                 ${fact(__('item_info.classes'), classes)}
+                ${fact(__('item_info.makes'), kit_made(info.bp_sku))}
                 ${fact(__('item_info.killstreak'), KS_NAMES[info.ks] || '')}
                 ${fact(__('item_info.killstreaker'), info.killstreaker)}
                 ${fact(__('item_info.sheen'), info.sheen)}
@@ -106,6 +118,7 @@ const open = (item_el, party) => {
                 ${fact(__('item_info.craftable'), info.craftable ? '' : __('item_info.no'))}
                 ${fact(__('item_info.bot'), bot)}
             </dl>
+            ${inputs_list(info.inputs || [])}
             ${inspect}
             <div class="ii-links" role="group" aria-label="${esc(__('item_info.links'))}">
                 ${links(info).map((l) => `<a class="ii-link" href="${esc(l.href)}" ${l.local ? '' : 'target="_blank" rel="nofollow noopener"'}>${esc(l.text)}${l.local ? '' : ' <span aria-hidden="true">↗</span>'}</a>`).join('')}
