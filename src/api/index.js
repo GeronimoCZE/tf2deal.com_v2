@@ -24,6 +24,7 @@ import * as settings from '../service/settings.js'
 import * as notifications from '../service/notifications.js'
 import * as buy_link from '../service/buy_link.js'
 import * as latest_trades from '../service/latest_trades.js'
+import * as key_bank from '../service/key_bank.js'
 import * as welcome from '../service/welcome.js'
 import * as site_news from '../service/news.js'
 import * as news_times from '../service/news_times.js'
@@ -385,6 +386,59 @@ router.post('/create_trade', mw.isLogged, trade_limiter, async (req, res) => {
     return;
   }
 });
+
+// The key banking page (/keys, service/key_bank.js): the key bank's prices and each bank bot's room, and a swap of
+// 1 to 5 keys for metal with the bot the visitor picked. The offer then arrives like any site trade.
+router.get('/keys', (req, res) => {
+  res.set('Cache-Control', 'no-store')
+  res.json({ status: 'ok', keybank: key_bank.current() })
+})
+
+const key_limiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 6,
+  keyGenerator: (req) => req.user?.steamid ? `u:${req.user.steamid}` : req.ip,
+  message: (req) => ({ success: 0, status: "error", message: req.__ ? req.__('api.too_many_requests') : "Too many requests! Try again later..." })
+});
+router.post('/keys/trade', mw.isLogged, key_limiter, async (req, res) => {
+  const { bot, side, keys, price, hash } = req.body || {}
+
+  if(!settings.trading_enabled()){
+    return res.status(503).json({ success: 0, status: "error", reason: 'trading_paused', message: req.__('api.trading_paused') })
+  }
+  // the page's one-time hash, as on /trade (router.js keys)
+  if(!req.user?.steamid || !req.user?.hash?.hex || hash !== req.user.hash.hex){
+    return res.status(403).json({ success: 0, status: "error", reason: 'unauthorized', message: req.__('api.key_bank_reload') })
+  }
+  const status = key_bank.current()
+  const max = status?.max_keys || 5
+  const n = Number(keys)
+  if(!/^7656\d{13}$/.test(String(bot || '')) || (side !== 'buy' && side !== 'sell') || !Number.isInteger(n) || n < 1 || n > max){
+    return res.status(400).json({ success: 0, status: "error", reason: 'invalid', message: req.__('api.key_bank_invalid', { max }) })
+  }
+
+  // banned in the admin panel (Users -> role 0); the trade URL saved on the account (the cookie copy can be edited)
+  const account = process.db_status?.connected ? await UserModel.findOne({ steamid: String(req.user.steamid) }, { role: 1, tradelink: 1 }).lean().catch(() => null) : null
+  if(account?.role === 0){
+    return res.status(403).json({ success: 0, status: "error", reason: 'blocked', message: req.__('api.account_blocked') })
+  }
+  const tradeURL = account ? (account.tradelink || null) : (req.cookies[`td_${req.user.steamid}`]?.user?.tradelink || null)
+  if(!tradeURL || tradeURL == 'null'){
+    return res.status(400).json({ success: 0, status: "error", reason: 'invalid_trade_url', message: req.__('api.missing_trade_url') })
+  }
+
+  let out
+  try {
+    out = await key_bank.request({ steamid: req.user.steamid, tradeurl: tradeURL, bot, side, keys: n, price: Number(price) || null })
+  } catch (e) {
+    return res.status(502).json({ success: 0, status: "error", reason: 'unreachable', message: req.__('api.bot_server_unreachable') })
+  }
+  if(out?.success == 1){
+    return res.json({ success: 1, status: 'creating', keys: out.keys, price: out.price, total: out.total })
+  }
+  res.json({ success: 0, status: "error", reason: out?.reason || 'failed', message: out?.error || req.__('api.trade_failed'),
+    ...(out?.price !== undefined ? { price: out.price } : {}), keybank: key_bank.current() })
+})
 
 router.get('/key', async (req, res) => {
   res.send( 'ok' )

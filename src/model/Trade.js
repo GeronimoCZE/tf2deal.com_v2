@@ -9,7 +9,10 @@ const Trade = mongoose.Schema({
     itemsToGive: { type: Array, default: [] },
     trade_value: { type: Object, default: { key: 0, metal: 0 }},
     bot: { type: String, required: true },
-    timestamp: { type: Number, required: true }
+    timestamp: { type: Number, required: true },
+    // a key bank swap (bot_manager bot/keyBank.js: keys for metal with a bank bot, /keys): in the trader's own trade
+    // history, never in "Latest trades"
+    keyBank: { type: Boolean }
 })
 
 Trade.index({ partnerSteamID: 1, timestamp: -1 });

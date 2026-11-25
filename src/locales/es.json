@@ -28,7 +28,8 @@
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
     "search_short": "Buscar objetos",
-    "lang_theme": "Idioma y tema"
+    "lang_theme": "Idioma y tema",
+    "keys": "Llaves"
   },
   "common": {
     "sign_in_steam": "Iniciar sesión con Steam",
@@ -104,7 +105,8 @@
     "cookies": "Política de cookies – Cómo usa TF2Deal.com las cookies",
     "category": "Compra y vende TF2 {category} por llaves | TF2Deal.com",
     "category_page": "TF2 {category} (página {page}) | TF2Deal.com",
-    "category_short": "TF2 {category} | TF2Deal.com"
+    "category_short": "TF2 {category} | TF2Deal.com",
+    "keys": "Banco de llaves de TF2 – Cambia llaves y Refined Metal | TF2Deal.com"
   },
   "desc": {
     "default": "Compra, vende e intercambia objetos de TF2 con bots automáticos de Steam. Sombreros, unusuals, armas y llaves por llaves y ref, oferta en segundos.",
@@ -126,7 +128,8 @@
     "item_stock": "En stock: {count}. Trading de TF2 automático al instante.",
     "item_no_stock": "Trading de TF2 automático al instante con nuestros bots.",
     "category": "Compra y vende TF2 {category} por llaves y ref: {count} objetos con precios y stock en directo, y ofertas de intercambio de nuestros bots en segundos.",
-    "category_page": "Página {page} de TF2 {category} en TF2Deal.com con precios y stock en directo. Compra y vende por llaves y ref con ofertas de intercambio al instante."
+    "category_page": "Página {page} de TF2 {category} en TF2Deal.com con precios y stock en directo. Compra y vende por llaves y ref con ofertas de intercambio al instante.",
+    "keys": "Cambia Mann Co. Supply Crate Keys por Refined Metal y al revés con los bots banco de TF2Deal.com: precios de llaves en vivo de backpack.tf, hasta 5 llaves por intercambio y una oferta de Steam en segundos."
   },
   "item_types": {
     "cosmetic": "Cosmético",
@@ -385,7 +388,9 @@
       "show_more": "Mostrar 5 más",
       "side_user": "Usuario",
       "side_you": "Tú",
-      "side_bot": "Bot del sitio"
+      "side_bot": "Bot del sitio",
+      "effect": "Efecto inusual",
+      "more_lines": "+{n} más"
     },
     "new_user": {
       "toast_title": "Envía tu URL de intercambio",
@@ -693,6 +698,48 @@
       "failed": "No se pudo guardar. Inténtalo de nuevo en un momento.",
       "inventory_locked": "Añade tu URL de intercambio de Steam para cargar tu inventario.",
       "add": "Añadir URL"
+    },
+    "keys": {
+      "unavailable": "No se puede contactar con el banco de llaves ahora mismo. Inténtalo de nuevo en unos minutos.",
+      "paused": "El banco de llaves está en pausa ahora mismo. Los precios volverán aquí en cuanto funcione de nuevo.",
+      "stale_notice": "El banco de llaves lleva unos minutos sin actualizar sus precios. Los intercambios esperan hasta que lo haga.",
+      "live": "En vivo",
+      "stale": "Puede que los precios no estén al día",
+      "off": "En pausa",
+      "updated_ago": "Actualizado hace {s}",
+      "no_bots": "Ahora mismo no hay ningún bot banco en línea.",
+      "online": "En línea",
+      "offline": "Desconectado",
+      "sells": "Vende",
+      "buys": "Compra",
+      "pick_bot": "Elige un bot banco.",
+      "cap_sell": "{name} puede vender hasta {n} ahora mismo.",
+      "cap_buy": "{name} puede comprar hasta {n} ahora mismo.",
+      "cap_none_sell": "{name} no tiene llaves para vender ahora mismo. Elige otro bot.",
+      "cap_none_buy": "{name} no puede comprar llaves ahora mismo. Elige otro bot.",
+      "each": "{price} ref cada una",
+      "requesting": "Pidiendo…",
+      "request_buy": "Comprar {what} por {total} ref",
+      "request_sell": "Vender {what} por {total} ref",
+      "requested_title": "La oferta va en camino",
+      "requested": "{what} por {total} ref. La oferta llega en unos segundos.",
+      "price_changed_title": "El precio ha cambiado",
+      "chart_label": "Precio de la llave en los últimos 7 días: de {lo} a {hi} ref, ahora {now} ref.",
+      "word": {
+        "one": "llave",
+        "other": "llaves"
+      },
+      "err": {
+        "price_changed": "El precio de la llave acaba de cambiar a {price} ref. Revisa el nuevo total e inténtalo de nuevo.",
+        "not_enough_stock": "Ese bot no puede con tantas llaves ahora mismo. Elige menos llaves u otro bot.",
+        "bot_unavailable": "Ese bot banco acaba de desconectarse. Elige otro.",
+        "key_bank_off": "El banco de llaves está en pausa ahora mismo. Inténtalo más tarde.",
+        "offer_open": "Ya tienes una oferta abierta de nuestros bots. Acéptala o recházala primero.",
+        "user_not_enough_keys": "No tienes tantas llaves intercambiables.",
+        "user_not_enough_metal": "No tienes suficiente metal intercambiable (o el cambio justo) para esto.",
+        "bank_no_change": "El bot no tiene el cambio justo para esto ahora mismo. Prueba otra cantidad u otro bot.",
+        "no_price": "Los precios de las llaves se están actualizando. Inténtalo de nuevo en un minuto."
+      }
     }
   },
   "items": {
@@ -853,6 +900,55 @@
     "col_items": "objetos",
     "bots_error": "No se pudieron cargar los datos de los bots. Prueba a recargar la página."
   },
+  "keys": {
+    "kicker": "Banco de llaves",
+    "h1": "Cambia llaves y metal",
+    "lede": "Nuestros bots banco cambian Mann Co. Supply Crate Keys por Refined Metal y al revés, hasta {max} llaves por intercambio. Elige un bot y cuántas llaves, y acepta la oferta de Steam que te envía.",
+    "prices_label": "Precios de las llaves",
+    "we_sell": "Vendemos una llave por",
+    "we_sell_hint": "Lo que pagas por llave al comprar",
+    "we_buy": "Compramos una llave por",
+    "we_buy_hint": "Lo que recibes por llave al vender",
+    "spread": "Diferencia",
+    "market": "Bots de backpack.tf",
+    "status": "Estado",
+    "live": "En vivo",
+    "stale": "Puede que los precios no estén al día",
+    "off": "En pausa",
+    "paused": "El banco de llaves está en pausa ahora mismo. Los precios volverán aquí en cuanto funcione de nuevo.",
+    "unavailable": "No se puede contactar con el banco de llaves ahora mismo. Inténtalo de nuevo en unos minutos.",
+    "swap_title": "Intercambio",
+    "side_label": "Comprar o vender llaves",
+    "buy_keys": "Comprar llaves",
+    "sell_keys": "Vender llaves",
+    "how_many": "Cuántas llaves",
+    "n_keys": "Llaves: {n}",
+    "you_pay": "Pagas",
+    "you_get": "Recibes",
+    "word_one": "llave",
+    "each": "{price} ref cada una",
+    "request": "Pedir oferta",
+    "sign_in": "Inicia sesión con Steam para cambiar",
+    "fine": "El bot te envía una oferta de intercambio de Steam que se cancela a los {minutes} minutos si no la aceptas. El cambio en metal puede venir de cualquiera de los dos lados. Solo cuentan llaves y metal intercambiables.",
+    "bots_title": "Bots banco",
+    "no_bots": "Ahora mismo no hay ningún bot banco en línea.",
+    "online": "En línea",
+    "offline": "Desconectado",
+    "sells": "Vende",
+    "buys": "Compra",
+    "bots_hint": "Vende: llaves que el bot puede venderte ahora. Compra: llaves que puede comprarte ahora. Ambos siguen su inventario en vivo.",
+    "chart_title": "Precio de la llave, últimos 7 días",
+    "legend_band": "backpack.tf: mejor orden de compra de bot a vendedor más barato",
+    "legend_mid": "Punto medio",
+    "chart_empty": "El historial de precios se irá completando en las próximas horas.",
+    "how_title": "Cómo funciona",
+    "how_1_title": "Elige un bot y una cantidad",
+    "how_1": "Compra o vende de 1 a {max} llaves. Los precios de arriba son lo que obtienes, sin nada añadido.",
+    "how_2_title": "Acepta la oferta en Steam",
+    "how_2": "El bot envía la oferta en segundos. Comprueba que tiene las llaves y el metal que esperas y acéptala. Se cancela a los {minutes} minutos.",
+    "how_3_title": "O envía tú una oferta",
+    "how_3": "Los bots banco aceptan al momento ofertas de solo llaves por metal a estos precios, hasta {max} llaves por intercambio. Cualquier otra cosa se rechaza."
+  },
   "profile": {
     "tickets": "Tickets",
     "my_giveaways": "Mis sorteos",
@@ -926,7 +1022,9 @@
     "buy_link_half_scrap": "Este objeto vale 0.055 ref (medio scrap), que no se puede pagar solo con llaves y metal. Elige dos en la página del objeto.",
     "buy_link_pick": "Primero elige qué objeto quieres.",
     "trade_url_required": "Añade tu URL de intercambio de Steam para cargar tu inventario.",
-    "trade_url_other_account": "Esta URL de intercambio es de otra cuenta de Steam. Copia la de la cuenta con la que has iniciado sesión."
+    "trade_url_other_account": "Esta URL de intercambio es de otra cuenta de Steam. Copia la de la cuenta con la que has iniciado sesión.",
+    "key_bank_invalid": "Elige un bot banco, comprar o vender, y de 1 a {max} llaves.",
+    "key_bank_reload": "Esta página está desactualizada. Recárgala e inténtalo de nuevo."
   },
   "cookies": {
     "banner_title": "Cookies en TF2Deal.com",
@@ -1006,6 +1104,14 @@
       "empty": "Aún no hay nada aquí. Las funciones nuevas aparecerán en cuanto lleguen."
     },
     "items": {
+      "key_bank": {
+        "title": "Cambia llaves y metal con nuestros bots banco",
+        "text": "La nueva página Llaves cambia Mann Co. Supply Crate Keys por Refined Metal y al revés, hasta 5 llaves por intercambio, a precios en vivo que siguen a backpack.tf. Elige un bot banco, mira cuántas llaves puede comprar y vender ahora y recibe la oferta de Steam en segundos."
+      },
+      "trade_details": {
+        "title": "Los últimos intercambios muestran los detalles",
+        "text": "Los últimos intercambios y tu historial ahora escriben cada objeto en el color de su calidad, como lo hace TF2, con su efecto inusual, brillo, killstreaker, pintura, hechizos y piezas Strange justo debajo de las imágenes."
+      },
       "fabricators": {
         "title": "Mira qué fabrica un Kit Fabricator",
         "text": "La imagen de un Kit Fabricator ahora muestra en su esquina inferior izquierda el Kit que fabrica. En la ventana de detalles del objeto (clic derecho en un objeto o toca su descripción) también ves los objetos que necesita ese fabricador y cuántos de cada uno. Cada fabricador necesita otros distintos, así que los que piden objetos diferentes ya no se apilan en la ventana de intercambio."

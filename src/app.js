@@ -99,7 +99,7 @@ app.use((req, res, next) => {
 // One address per page, by redirect (Bing's webmaster guidelines: redirects, not canonical tags, for the same page at
 // two addresses). Express answers /about/, /About and /ABOUT/ like /about; they now move (301) to /about. Only the
 // language and the site's own page names are lowercased: item names and blog addresses keep their capitals.
-const PAGE_ADDRESS = new RegExp(`^(/(?:${i18n.LANGS.join('|')}))?(/(?:items|trade|about|news|blog|giveaway|terms-of-service|cookies|support|profile))(?=/|$)(.*)$`, 'i')
+const PAGE_ADDRESS = new RegExp(`^(/(?:${i18n.LANGS.join('|')}))?(/(?:items|trade|keys|about|news|blog|giveaway|terms-of-service|cookies|support|profile))(?=/|$)(.*)$`, 'i')
 app.use((req, res, next) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') return next()
   const at = req.originalUrl.indexOf('?')
@@ -731,6 +731,7 @@ app.get('/giveaway', mw.curPath, router.giveaway);
 app.get('/blog', mw.curPath, router.blog);
 app.get('/blog/:slug', mw.curPath, router.blog_page);
 app.get('/about', mw.curPath, router.about);
+app.get('/keys', mw.curPath, router.keys); // key banking: keys for metal with a bank bot (service/key_bank.js)
 app.get('/news', mw.curPath, router.news); // the updates page: every feature of service/news.js
 app.get('/terms-of-service', router.terms_of_service);
 app.get('/cookies', router.cookies);

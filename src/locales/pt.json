@@ -28,7 +28,8 @@
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
     "search_short": "Pesquisar itens",
-    "lang_theme": "Idioma e tema"
+    "lang_theme": "Idioma e tema",
+    "keys": "Chaves"
   },
   "common": {
     "sign_in_steam": "Entrar com a Steam",
@@ -104,7 +105,8 @@
     "cookies": "Política de cookies – Como o TF2Deal.com usa cookies",
     "category": "Compre e venda TF2 {category} por chaves | TF2Deal.com",
     "category_page": "TF2 {category} (página {page}) | TF2Deal.com",
-    "category_short": "TF2 {category} | TF2Deal.com"
+    "category_short": "TF2 {category} | TF2Deal.com",
+    "keys": "Banco de chaves de TF2 – Troque chaves e Refined Metal | TF2Deal.com"
   },
   "desc": {
     "default": "Compre, venda e troque itens de TF2 com bots automáticos da Steam. Chapéus, unusuals, armas e chaves por chaves e ref, oferta em segundos.",
@@ -126,7 +128,8 @@
     "item_stock": "Em estoque: {count}. Trading de TF2 automático e instantâneo.",
     "item_no_stock": "Trading de TF2 automático e instantâneo com nossos bots.",
     "category": "Compre e venda TF2 {category} por chaves e ref: {count} itens com preços e estoque ao vivo, e ofertas de troca dos nossos bots em segundos.",
-    "category_page": "Página {page} de TF2 {category} no TF2Deal.com com preços e estoque ao vivo. Compre e venda por chaves e ref com ofertas de troca na hora."
+    "category_page": "Página {page} de TF2 {category} no TF2Deal.com com preços e estoque ao vivo. Compre e venda por chaves e ref com ofertas de troca na hora.",
+    "keys": "Troque Mann Co. Supply Crate Keys por Refined Metal e vice-versa com os bots banco do TF2Deal.com: preços de chaves ao vivo do backpack.tf, até 5 chaves por troca e uma oferta na Steam em segundos."
   },
   "item_types": {
     "cosmetic": "Cosmético",
@@ -385,7 +388,9 @@
       "show_more": "Mostrar mais 5",
       "side_user": "Usuário",
       "side_you": "Você",
-      "side_bot": "Bot do site"
+      "side_bot": "Bot do site",
+      "effect": "Efeito incomum",
+      "more_lines": "+{n} a mais"
     },
     "new_user": {
       "toast_title": "Envie sua URL de troca",
@@ -693,6 +698,49 @@
       "failed": "Não foi possível salvar. Tente de novo em instantes.",
       "inventory_locked": "Adicione sua URL de troca da Steam para carregar seu inventário.",
       "add": "Adicionar URL"
+    },
+    "keys": {
+      "unavailable": "Não foi possível falar com o banco de chaves agora. Tente de novo em alguns minutos.",
+      "paused": "O banco de chaves está pausado agora. Os preços voltam aqui assim que ele funcionar de novo.",
+      "stale_notice": "O banco de chaves não atualiza os preços há alguns minutos. As trocas esperam até que ele atualize.",
+      "live": "Ao vivo",
+      "stale": "Os preços podem estar desatualizados",
+      "off": "Pausado",
+      "updated_ago": "Atualizado há {s}",
+      "no_bots": "Nenhum bot banco está online agora.",
+      "online": "Online",
+      "offline": "Offline",
+      "sells": "Vende",
+      "buys": "Compra",
+      "pick_bot": "Escolha um bot banco.",
+      "cap_sell": "{name} pode vender até {n} agora.",
+      "cap_buy": "{name} pode comprar até {n} agora.",
+      "cap_none_sell": "{name} não tem chaves para vender agora. Escolha outro bot.",
+      "cap_none_buy": "{name} não pode comprar chaves agora. Escolha outro bot.",
+      "each": "{price} ref cada",
+      "requesting": "Pedindo…",
+      "request_buy": "Comprar {what} por {total} ref",
+      "request_sell": "Vender {what} por {total} ref",
+      "requested_title": "A oferta está a caminho",
+      "requested": "{what} por {total} ref. A oferta chega em alguns segundos.",
+      "price_changed_title": "O preço mudou",
+      "chart_label": "Preço da chave nos últimos 7 dias: de {lo} a {hi} ref, agora {now} ref.",
+      "word": {
+        "one": "chave",
+        "many": "chaves",
+        "other": "chaves"
+      },
+      "err": {
+        "price_changed": "O preço da chave acabou de mudar para {price} ref. Confira o novo total e tente de novo.",
+        "not_enough_stock": "Esse bot não consegue tantas chaves agora. Escolha menos chaves ou outro bot.",
+        "bot_unavailable": "Esse bot banco acabou de ficar offline. Escolha outro.",
+        "key_bank_off": "O banco de chaves está pausado agora. Tente de novo mais tarde.",
+        "offer_open": "Você já tem uma oferta aberta dos nossos bots. Aceite ou recuse primeiro.",
+        "user_not_enough_keys": "Você não tem tantas chaves trocáveis.",
+        "user_not_enough_metal": "Você não tem metal trocável suficiente (ou o troco certo) para isso.",
+        "bank_no_change": "O bot não tem o troco certo para isso agora. Tente outra quantidade ou outro bot.",
+        "no_price": "Os preços das chaves estão sendo atualizados. Tente de novo em um minuto."
+      }
     }
   },
   "items": {
@@ -853,6 +901,55 @@
     "col_items": "itens",
     "bots_error": "Falha ao carregar os dados dos bots. Tente atualizar a página."
   },
+  "keys": {
+    "kicker": "Banco de chaves",
+    "h1": "Troque chaves e metal",
+    "lede": "Nossos bots banco trocam Mann Co. Supply Crate Keys por Refined Metal e vice-versa, até {max} chaves por troca. Escolha um bot e quantas chaves, depois aceite a oferta da Steam que ele te enviar.",
+    "prices_label": "Preços das chaves",
+    "we_sell": "Vendemos uma chave por",
+    "we_sell_hint": "O que você paga por chave ao comprar",
+    "we_buy": "Compramos uma chave por",
+    "we_buy_hint": "O que você recebe por chave ao vender",
+    "spread": "Diferença",
+    "market": "Bots do backpack.tf",
+    "status": "Status",
+    "live": "Ao vivo",
+    "stale": "Os preços podem estar desatualizados",
+    "off": "Pausado",
+    "paused": "O banco de chaves está pausado agora. Os preços voltam aqui assim que ele funcionar de novo.",
+    "unavailable": "Não foi possível falar com o banco de chaves agora. Tente de novo em alguns minutos.",
+    "swap_title": "Troca",
+    "side_label": "Comprar ou vender chaves",
+    "buy_keys": "Comprar chaves",
+    "sell_keys": "Vender chaves",
+    "how_many": "Quantas chaves",
+    "n_keys": "Chaves: {n}",
+    "you_pay": "Você paga",
+    "you_get": "Você recebe",
+    "word_one": "chave",
+    "each": "{price} ref cada",
+    "request": "Pedir oferta",
+    "sign_in": "Entre com a Steam para trocar",
+    "fine": "O bot te envia uma oferta de troca da Steam, cancelada após {minutes} minutos se não for aceita. O troco em metal pode vir de qualquer um dos lados. Só contam chaves e metal trocáveis.",
+    "bots_title": "Bots banco",
+    "no_bots": "Nenhum bot banco está online agora.",
+    "online": "Online",
+    "offline": "Offline",
+    "sells": "Vende",
+    "buys": "Compra",
+    "bots_hint": "Vende: chaves que o bot pode te vender agora. Compra: chaves que ele pode comprar de você agora. Os dois acompanham o estoque dele ao vivo.",
+    "chart_title": "Preço da chave, últimos 7 dias",
+    "legend_band": "backpack.tf: melhor ordem de compra de bot até o vendedor mais barato",
+    "legend_mid": "Meio",
+    "chart_empty": "O histórico de preços vai se completar nas próximas horas.",
+    "how_title": "Como funciona",
+    "how_1_title": "Escolha um bot e uma quantidade",
+    "how_1": "Compre ou venda de 1 a {max} chaves. Os preços acima são o que você recebe, nada é somado.",
+    "how_2_title": "Aceite a oferta na Steam",
+    "how_2": "O bot envia a oferta em segundos. Confira se ela tem as chaves e o metal esperados e aceite. Ela é cancelada após {minutes} minutos.",
+    "how_3_title": "Ou envie você mesmo uma oferta",
+    "how_3": "Os bots banco aceitam na hora ofertas só de chaves por metal a esses preços, até {max} chaves por troca. Qualquer outra coisa é recusada."
+  },
   "profile": {
     "tickets": "Tickets",
     "my_giveaways": "Meus sorteios",
@@ -926,7 +1023,9 @@
     "buy_link_half_scrap": "Este item vale 0.055 ref (meio scrap), o que não dá para pagar sozinho com chaves e metal. Escolha dois na página do item.",
     "buy_link_pick": "Primeiro escolha qual item você quer.",
     "trade_url_required": "Adicione sua URL de troca da Steam para carregar seu inventário.",
-    "trade_url_other_account": "Esta URL de troca é de outra conta da Steam. Copie a da conta com que você entrou."
+    "trade_url_other_account": "Esta URL de troca é de outra conta da Steam. Copie a da conta com que você entrou.",
+    "key_bank_invalid": "Escolha um bot banco, comprar ou vender, e de 1 a {max} chaves.",
+    "key_bank_reload": "Esta página está desatualizada. Recarregue e tente de novo."
   },
   "cookies": {
     "banner_title": "Cookies no TF2Deal.com",
@@ -1006,6 +1105,14 @@
       "empty": "Nada por aqui ainda. Novos recursos aparecem aqui assim que entram no ar."
     },
     "items": {
+      "key_bank": {
+        "title": "Troque chaves e metal com nossos bots banco",
+        "text": "A nova página Chaves troca Mann Co. Supply Crate Keys por Refined Metal e vice-versa, até 5 chaves por troca, a preços ao vivo que acompanham o backpack.tf. Escolha um bot banco, veja quantas chaves ele pode comprar e vender agora e receba a oferta da Steam em segundos."
+      },
+      "trade_details": {
+        "title": "As últimas trocas mostram os detalhes",
+        "text": "As últimas trocas e o seu histórico agora escrevem cada item na cor da sua qualidade, como o TF2, com efeito incomum, brilho, killstreaker, tinta, feitiços e peças Strange logo abaixo das imagens."
+      },
       "fabricators": {
         "title": "Veja o que um Kit Fabricator produz",
         "text": "A imagem de um Kit Fabricator agora mostra, no canto inferior esquerdo, o Kit que ele produz. Na janela de detalhes do item (clique com o botão direito num item ou toque na dica dele) você também vê os itens de que esse fabricator precisa e quantos de cada. Cada fabricator pede os seus, então os que pedem itens diferentes não se empilham mais na janela de troca."

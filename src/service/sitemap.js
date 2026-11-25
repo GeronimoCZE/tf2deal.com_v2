@@ -45,6 +45,7 @@ const PAGES = [
   { path: '/', changefreq: 'always', priority: '1.0' },
   { path: '/trade', changefreq: 'always', priority: '0.9' },
   { path: '/items', changefreq: 'always', priority: '0.8' },
+  { path: '/keys', changefreq: 'always', priority: '0.7' },
   { path: '/giveaway', changefreq: 'daily', priority: '0.6' },
   { path: '/blog', changefreq: 'daily', priority: '0.6' },
   { path: '/news', changefreq: 'weekly', priority: '0.5' },

@@ -4,7 +4,9 @@ import { public_bot, read_accounts } from './bot_names.js'
 
 // "Latest trades" on the home page: /api/latest_trades gives 5 at a time (15 at most) and the site socket new ones.
 // The bot server writes the trade records, in any of the layouts service/trade_records.js reads. Only trades with
-// something on both sides are shown, never ones between our own bots, and each trade only once. A cleanup every 6 hours
+// something on both sides are shown, never ones between our own bots, and each trade only once. Swaps of keys for
+// metal (the key bank's /keys page, or any trade with only keys and metal: Nikolas 2026-11-25 "Dont include these key
+// for metal or vice verca trades in latest trades feed") stay out; the trader still sees them in Profile -> Trades. A cleanup every 6 hours
 // deletes records that are exact copies (same trade ID, partner and contents). Admin -> Trade records (check()) shows
 // the newest records and why any of them isn't shown.
 
@@ -19,9 +21,9 @@ const CLEANUP_MS = 6 * 60 * 60 * 1000
 const ROOM = 'latest_trades'
 const FIELDS = {
     toGive: 1, toReceive: 1, itemsToGive: 1, itemsToReceive: 1, internalTrade: 1, timestamp: 1, time: 1, created: 1, createdAt: 1, date: 1,
-    key_value: 1, key_price: 1, tradeID: 1, offerID: 1, offer_id: 1, partnerSteamID: 1, partner: 1, bot: 1
+    key_value: 1, key_price: 1, tradeID: 1, offerID: 1, offer_id: 1, partnerSteamID: 1, partner: 1, bot: 1, keyBank: 1
 }
-const NOT_INTERNAL = { internalTrade: { $ne: true } }
+const NOT_INTERNAL = { internalTrade: { $ne: true }, keyBank: { $ne: true } }
 
 const num = (n) => Number.isFinite(Number(n)) ? Number(n) : 0
 const db_ready = () => process.db_status?.connected == true
@@ -29,8 +31,13 @@ const db_ready = () => process.db_status?.connected == true
 // a side counts when it has at least one item copy or some keys or metal
 const side_has = (side) => (side?.items || []).some((item) => Array.isArray(item?.user_stock) && item.user_stock.length > 0)
     || num(side?.keys) > 0 || num(side?.ref) > 0 || num(side?.rec) > 0 || num(side?.scrap) > 0
+// only keys and metal on both sides: a key swap
+const item_count = (side) => (side?.items || []).reduce((n, item) => n + (Array.isArray(item?.user_stock) ? item.user_stock.length : 0), 0)
+const pure_only = (trade) => item_count(trade?.toGive) == 0 && item_count(trade?.toReceive) == 0
 // why a record from site_shape isn't a trade to show, or '' when it is
 const skip_reason = (trade) => trade?.internalTrade ? 'a trade between our own bots'
+    : trade?.keyBank ? 'a key bank swap (keys for metal, /keys)'
+    : pure_only(trade) && (num(trade?.toGive?.keys) > 0 || num(trade?.toReceive?.keys) > 0) ? 'only keys and metal (a key swap)'
     : trade?.incomplete ? "some items couldn't be read (no name, and Steam didn't describe them)"
     : !side_has(trade?.toGive) ? 'nothing on our side'
     : !side_has(trade?.toReceive) ? "nothing on the user's side"

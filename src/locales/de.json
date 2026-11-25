@@ -28,7 +28,8 @@
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
     "search_short": "Items suchen",
-    "lang_theme": "Sprache und Design"
+    "lang_theme": "Sprache und Design",
+    "keys": "Schlüssel"
   },
   "common": {
     "sign_in_steam": "Mit Steam anmelden",
@@ -104,7 +105,8 @@
     "cookies": "Cookie-Richtlinie – Cookies auf TF2Deal.com",
     "category": "TF2 {category} kaufen & verkaufen | TF2Deal.com",
     "category_page": "TF2 {category} (Seite {page}) | TF2Deal.com",
-    "category_short": "TF2 {category} | TF2Deal.com"
+    "category_short": "TF2 {category} | TF2Deal.com",
+    "keys": "TF2-Schlüsselbank – Schlüssel und Refined Metal tauschen | TF2Deal.com"
   },
   "desc": {
     "default": "Kaufe, verkaufe und tausche TF2-Items mit automatischen Steam-Trade-Bots. Hüte, Unusuals, Waffen und Keys für Keys und Ref, Angebot in Sekunden.",
@@ -126,7 +128,8 @@
     "item_stock": "Auf Lager: {count}. Sofortiges automatisches TF2-Trading.",
     "item_no_stock": "Sofortiges automatisches TF2-Trading mit unseren Trade-Bots.",
     "category": "Kaufe und verkaufe TF2 {category} gegen Schlüssel und Ref: {count} Items, aktuelle Preise und Bestand, Tauschangebote unserer Bots in Sekunden.",
-    "category_page": "Seite {page} der TF2 {category} auf TF2Deal.com mit aktuellen Preisen und Bestand. Kaufe und verkaufe gegen Schlüssel und Ref mit sofortigem Tauschangebot."
+    "category_page": "Seite {page} der TF2 {category} auf TF2Deal.com mit aktuellen Preisen und Bestand. Kaufe und verkaufe gegen Schlüssel und Ref mit sofortigem Tauschangebot.",
+    "keys": "Tausche Mann Co. Supply Crate Keys gegen Refined Metal und zurück mit den Bank-Bots von TF2Deal.com: Live-Schlüsselpreise von backpack.tf, bis zu 5 Schlüssel pro Tausch, ein Steam-Angebot in Sekunden."
   },
   "item_types": {
     "cosmetic": "Kosmetik",
@@ -385,7 +388,9 @@
       "show_more": "5 weitere anzeigen",
       "side_user": "Nutzer",
       "side_you": "Du",
-      "side_bot": "Seiten-Bot"
+      "side_bot": "Seiten-Bot",
+      "effect": "Unusual-Effekt",
+      "more_lines": "+{n} weitere"
     },
     "new_user": {
       "toast_title": "Gib deine Tausch-URL an",
@@ -693,6 +698,48 @@
       "failed": "Konnte nicht gespeichert werden. Versuch es gleich noch einmal.",
       "inventory_locked": "Füge deine Steam-Tausch-URL hinzu, um dein Inventar zu laden.",
       "add": "Tausch-URL hinzufügen"
+    },
+    "keys": {
+      "unavailable": "Die Schlüsselbank ist gerade nicht erreichbar. Bitte versuche es in ein paar Minuten noch einmal.",
+      "paused": "Die Schlüsselbank ist gerade pausiert. Die Preise erscheinen hier wieder, sobald sie läuft.",
+      "stale_notice": "Die Schlüsselbank hat ihre Preise seit ein paar Minuten nicht aktualisiert. Tausche warten, bis sie es tut.",
+      "live": "Live",
+      "stale": "Preise sind evtl. nicht aktuell",
+      "off": "Pausiert",
+      "updated_ago": "Vor {s} aktualisiert",
+      "no_bots": "Gerade ist kein Bank-Bot online.",
+      "online": "Online",
+      "offline": "Offline",
+      "sells": "Verkauft",
+      "buys": "Kauft",
+      "pick_bot": "Wähle einen Bank-Bot.",
+      "cap_sell": "{name} kann gerade bis zu {n} verkaufen.",
+      "cap_buy": "{name} kann gerade bis zu {n} kaufen.",
+      "cap_none_sell": "{name} hat gerade keine Schlüssel zu verkaufen. Wähle einen anderen Bot.",
+      "cap_none_buy": "{name} kann gerade keine Schlüssel kaufen. Wähle einen anderen Bot.",
+      "each": "je {price} ref",
+      "requesting": "Wird angefordert…",
+      "request_buy": "{what} für {total} ref kaufen",
+      "request_sell": "{what} für {total} ref verkaufen",
+      "requested_title": "Angebot ist unterwegs",
+      "requested": "{what} für {total} ref. Das Angebot kommt in wenigen Sekunden.",
+      "price_changed_title": "Preis geändert",
+      "chart_label": "Schlüsselpreis der letzten 7 Tage: von {lo} bis {hi} ref, jetzt {now} ref.",
+      "word": {
+        "one": "Schlüssel",
+        "other": "Schlüssel"
+      },
+      "err": {
+        "price_changed": "Der Schlüsselpreis hat sich gerade auf {price} ref geändert. Prüfe den neuen Betrag und versuche es noch einmal.",
+        "not_enough_stock": "Dieser Bot schafft gerade nicht so viele Schlüssel. Wähle weniger Schlüssel oder einen anderen Bot.",
+        "bot_unavailable": "Dieser Bank-Bot ist gerade offline gegangen. Wähle einen anderen.",
+        "key_bank_off": "Die Schlüsselbank ist gerade pausiert. Bitte versuche es später noch einmal.",
+        "offer_open": "Du hast schon ein offenes Angebot von unseren Bots. Nimm es zuerst an oder lehne es ab.",
+        "user_not_enough_keys": "Du hast nicht so viele handelbare Schlüssel.",
+        "user_not_enough_metal": "Du hast nicht genug handelbares Metal (oder nicht das passende Wechselgeld).",
+        "bank_no_change": "Der Bot hat gerade nicht das passende Wechselgeld. Versuche eine andere Anzahl oder einen anderen Bot.",
+        "no_price": "Die Schlüsselpreise werden aktualisiert. Bitte versuche es in einer Minute noch einmal."
+      }
     }
   },
   "items": {
@@ -853,6 +900,55 @@
     "col_items": "Items",
     "bots_error": "Bot-Daten konnten nicht geladen werden. Versuch, die Seite neu zu laden."
   },
+  "keys": {
+    "kicker": "Schlüsselbank",
+    "h1": "Schlüssel und Metal tauschen",
+    "lede": "Unsere Bank-Bots tauschen Mann Co. Supply Crate Keys gegen Refined Metal und zurück, bis zu {max} Schlüssel pro Tausch. Wähle einen Bot und die Anzahl und nimm dann das Steam-Angebot an, das er dir schickt.",
+    "prices_label": "Schlüsselpreise",
+    "we_sell": "Wir verkaufen einen Schlüssel für",
+    "we_sell_hint": "Das zahlst du pro Schlüssel beim Kauf",
+    "we_buy": "Wir kaufen einen Schlüssel für",
+    "we_buy_hint": "Das bekommst du pro Schlüssel beim Verkauf",
+    "spread": "Spanne",
+    "market": "Bots auf backpack.tf",
+    "status": "Status",
+    "live": "Live",
+    "stale": "Preise sind evtl. nicht aktuell",
+    "off": "Pausiert",
+    "paused": "Die Schlüsselbank ist gerade pausiert. Die Preise erscheinen hier wieder, sobald sie läuft.",
+    "unavailable": "Die Schlüsselbank ist gerade nicht erreichbar. Bitte versuche es in ein paar Minuten noch einmal.",
+    "swap_title": "Tausch",
+    "side_label": "Schlüssel kaufen oder verkaufen",
+    "buy_keys": "Schlüssel kaufen",
+    "sell_keys": "Schlüssel verkaufen",
+    "how_many": "Wie viele Schlüssel",
+    "n_keys": "Schlüssel: {n}",
+    "you_pay": "Du zahlst",
+    "you_get": "Du bekommst",
+    "word_one": "Schlüssel",
+    "each": "je {price} ref",
+    "request": "Angebot anfordern",
+    "sign_in": "Zum Tauschen über Steam anmelden",
+    "fine": "Der Bot schickt dir ein Steam-Tauschangebot, das nach {minutes} Minuten abgebrochen wird, wenn du es nicht annimmst. Wechselgeld in Metal kann von beiden Seiten kommen. Es zählen nur handelbare Schlüssel und Metal.",
+    "bots_title": "Bank-Bots",
+    "no_bots": "Gerade ist kein Bank-Bot online.",
+    "online": "Online",
+    "offline": "Offline",
+    "sells": "Verkauft",
+    "buys": "Kauft",
+    "bots_hint": "Verkauft: so viele Schlüssel kann dir der Bot jetzt verkaufen. Kauft: so viele kann er dir jetzt abkaufen. Beides folgt live seinem Bestand.",
+    "chart_title": "Schlüsselpreis der letzten 7 Tage",
+    "legend_band": "backpack.tf: bestes Bot-Kaufgebot bis günstigster Verkäufer",
+    "legend_mid": "Mitte",
+    "chart_empty": "Der Preisverlauf füllt sich in den nächsten Stunden.",
+    "how_title": "So funktioniert's",
+    "how_1_title": "Bot und Anzahl wählen",
+    "how_1": "Kaufe oder verkaufe 1 bis {max} Schlüssel. Die Preise oben sind genau das, was du bekommst, es kommt nichts dazu.",
+    "how_2_title": "Angebot in Steam annehmen",
+    "how_2": "Der Bot schickt das Angebot innerhalb von Sekunden. Prüfe, ob es die erwarteten Schlüssel und das Metal enthält, und nimm es an. Nach {minutes} Minuten wird es abgebrochen.",
+    "how_3_title": "Oder selbst ein Angebot schicken",
+    "how_3": "Bank-Bots nehmen Angebote mit nur Schlüsseln gegen Metal zu diesen Preisen sofort an, bis zu {max} Schlüssel pro Tausch. Alles andere lehnen sie ab."
+  },
   "profile": {
     "tickets": "Tickets",
     "my_giveaways": "Meine Gewinnspiele",
@@ -926,7 +1022,9 @@
     "buy_link_half_scrap": "Dieser Gegenstand ist 0.055 Ref wert (ein halber Scrap), das lässt sich allein nicht mit Schlüsseln und Metall bezahlen. Wähle auf der Gegenstandsseite zwei davon.",
     "buy_link_pick": "Wähle zuerst, welchen Gegenstand du möchtest.",
     "trade_url_required": "Füge deine Steam-Tausch-URL hinzu, um dein Inventar zu laden.",
-    "trade_url_other_account": "Diese Tausch-URL gehört zu einem anderen Steam-Konto. Kopiere die von dem Konto, mit dem du angemeldet bist."
+    "trade_url_other_account": "Diese Tausch-URL gehört zu einem anderen Steam-Konto. Kopiere die von dem Konto, mit dem du angemeldet bist.",
+    "key_bank_invalid": "Wähle einen Bank-Bot, Kauf oder Verkauf und 1 bis {max} Schlüssel.",
+    "key_bank_reload": "Diese Seite ist veraltet. Lade sie neu und versuche es noch einmal."
   },
   "cookies": {
     "banner_title": "Cookies auf TF2Deal.com",
@@ -1006,6 +1104,14 @@
       "empty": "Noch nichts hier. Neue Funktionen erscheinen hier, sobald sie online sind."
     },
     "items": {
+      "key_bank": {
+        "title": "Schlüssel und Metal mit unseren Bank-Bots tauschen",
+        "text": "Die neue Seite Schlüssel tauscht Mann Co. Supply Crate Keys gegen Refined Metal und zurück, bis zu 5 Schlüssel pro Tausch, zu Live-Preisen, die backpack.tf folgen. Wähle einen Bank-Bot, sieh, wie viele Schlüssel er gerade kaufen und verkaufen kann, und bekomme das Steam-Angebot in Sekunden."
+      },
+      "trade_details": {
+        "title": "Letzte Trades zeigen Item-Details",
+        "text": "Die letzten Trades und dein Trade-Verlauf nennen jetzt jedes Item in seiner Qualitätsfarbe, wie TF2 es schreibt, mit Unusual-Effekt, Sheen, Killstreaker, Farbe, Zaubern und Strange-Teilen direkt unter den Bildern."
+      },
       "fabricators": {
         "title": "Sieh, was ein Kit Fabricator herstellt",
         "text": "Das Bild eines Kit Fabricators zeigt jetzt unten links das Kit, das er herstellt. Im Fenster mit den Gegenstandsdetails (Rechtsklick auf einen Gegenstand oder Tippen auf seinen Tooltip) siehst du außerdem, welche Gegenstände der Fabricator braucht und wie viele davon. Jeder Fabricator braucht andere, deshalb werden Fabricators mit unterschiedlichen Eingaben im Handelsfenster nicht mehr gestapelt."

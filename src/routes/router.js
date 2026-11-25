@@ -19,6 +19,7 @@ import { has_admin_session } from '../mw.js'
 import * as variants from '../service/variants.js'
 import * as blog_render from '../service/blog_render.js'
 import * as news_times from '../service/news_times.js'
+import * as key_bank from '../service/key_bank.js'
 import { localize_path, LANG_TAGS } from '../i18n.js'
 import { isNumberObject } from 'util/types'
 
@@ -745,6 +746,24 @@ const about = (req, res) => {
   )
 }
 
+// The key banking page: swap 1 to 5 keys for metal (or metal for keys) with a bank bot of your choice. The prices and
+// the bots come with the page (service/key_bank.js) and stay live over the socket (public/js/plugins/keys.js).
+const keys = (req, res) => {
+  const user_cookie = req.user ? req.cookies[`td_${req.user.steamid}`] : undefined
+  // the one-time hash a trade request carries, as on /trade (an open page keeps the one it has)
+  if (req.user && !req.user.hash?.hex) {
+    req.user.hash = { hex: crypto.randomBytes(32).toString('hex'), exp: Date.now() + 12000 }
+  }
+  res.render(
+    'keys',
+    fn.res_data(!!req.user, req.user, user_cookie, req.__('title.keys'), {
+      view: 'keys',
+      description: req.__('desc.keys'),
+      keybank: key_bank.current()
+    })
+  )
+}
+
 const terms_of_service = (req, res) => {
   const user_cookie = req.user ? req.cookies[`td_${req.user.steamid}`] : undefined
   res.render(
@@ -812,6 +831,7 @@ export {
   blog,
   blog_page,
   about,
+  keys,
   news,
   updates,
   posts,

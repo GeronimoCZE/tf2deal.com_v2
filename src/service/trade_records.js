@@ -299,8 +299,8 @@ const read_side = (side, found) => {
     return out
 }
 
-// Records of any layout -> [{ _id, tradeID, partnerSteamID, bot, timestamp (ms), key_value, internalTrade, toGive,
-// toReceive, incomplete }]. incomplete: some item couldn't be read (no name, and Steam didn't describe it), so the trade
+// Records of any layout -> [{ _id, tradeID, partnerSteamID, bot, timestamp (ms), key_value, internalTrade, keyBank,
+// toGive, toReceive, incomplete }]. incomplete: some item couldn't be read (no name, and Steam didn't describe it), so the trade
 // can't be drawn whole.
 const site_shape = async (records) => {
     const all_items = records.flatMap((r) => { const s = raw_sides(r); return [...side_list(s.give), ...side_list(s.receive)] })
@@ -327,6 +327,7 @@ const site_shape = async (records) => {
             timestamp: record_time(record),
             key_value: num(record.key_value) || num(record.key_price) || key_now || undefined,
             internalTrade: record.internalTrade === true,
+            keyBank: record.keyBank === true,
             toGive, toReceive, incomplete
         }
     })

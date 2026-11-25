@@ -1,10 +1,14 @@
 import { round_ref, create_sku, group_assets, item_alt, copy_image, copy_marks, kit_pic } from './trade.js'
+import { PAINT_COLORS, SHEEN_COLORS } from './item_colors.js'
 
 // Renders finished trades (home page "Latest trades" and Profile -> Trades).
 // Identical assets are stacked into one tile with a count, the same way the /trade page does it.
 // Each side says whose it is (the trader's, or our bot's), and each tile carries its copy's details (data-copy: killstreak,
 // festivized, and `at` with paint, spells, strange parts, killstreaker, sheen, custom name) for the tooltip
 // (trade.js item_tooltip, parties 'show-user' / 'show-site'). The server adds those details (service/trade_records.js).
+// Under the pictures each side also lists its items in words (item_lines): the name in its quality colour, as TF2 writes
+// it, and what makes that copy special (unusual effect, sheen, killstreaker, paint, spells, strange parts), so a trade
+// reads without hovering every tile.
 
 const key_image = 'fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEAaR4uURrwvz0N252yVaDVWrRTno9m4ccG2GNqxlQoZrC2aG9hcVGUWflbX_drrVu5UGki5sAij6tOtQ/330x192';
 const ref_image = 'fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEbZQsUYhTkhzJWhsO1Mv6NGucF1Ygzt8ZQijJukFMiMrbhYDEwI1yRVKNfD6xorQ3qW3Jr6546DNPuou9IOVK4p4kWJaA/330x192';
@@ -106,6 +110,84 @@ const item_tiles = (side, price_field, key_value, factor = 1, paid = 0) => {
     return tiles
 }
 
+// ---- the items of one side in words ----
+const MAX_LINES = 2   // item lines shown at once; the rest sit behind "+N more"
+const MAX_CHIPS = 4   // details shown on a line; the rest are counted in a "+N" chip (its title names them)
+
+const words = (value) => (Array.isArray(value) ? value : [value])
+    .filter((v) => typeof v == 'string' && v.trim())
+    .map((v) => v.trim().slice(0, 80))
+
+// the unusual effect's name, from the list every page keeps (views/partials/head.ejs)
+let effects = null
+const effect_name = (id) => {
+    if(!(Number(id) > 0)) return ''
+    if(effects === null){
+        try { effects = JSON.parse(localStorage.getItem('unusual_effects')) || [] } catch (e) { effects = [] }
+        if(!effects.length){ setTimeout(() => { effects = null }, 5000) } // not loaded yet: try again later
+    }
+    return (Array.isArray(effects) ? effects : []).find((e) => e?.ID == id)?.name || ''
+}
+
+// a colour dot: one colour, or a team colour's RED and BLU halves. The colours come from item_colors.js, never from a record.
+const color_dot = (colors) => {
+    if(!colors) return ''
+    const [red, blu] = Array.isArray(colors) ? colors : [colors, colors]
+    return `<i class="tl-dot" style="--c1:${red};--c2:${blu}" aria-hidden="true"></i>`
+}
+
+// what makes one copy special: [kind, text, label, colours?]
+const copy_details = (copy, item, name) => {
+    const at = (copy?.at && typeof copy.at == 'object') ? copy.at : {}
+    const out = []
+    const effect = effect_name(item?.effectID)
+    // an unusual's name usually holds its effect already ("Burning Flames Team Captain")
+    if(effect && !name.toLowerCase().includes(effect.toLowerCase())){ out.push(['effect', `★ ${effect}`, __('home.effect')]) }
+    const sheen = words(at.sheen)[0]
+    if(sheen){ out.push(['sheen', sheen, __('item_info.sheen'), SHEEN_COLORS[sheen.toLowerCase()]]) }
+    const killstreaker = words(at.killstreaker)[0]
+    if(killstreaker){ out.push(['killstreaker', killstreaker, __('item_info.killstreaker')]) }
+    const paint = words(at.paint)[0]?.replace(/^Paint Color:\s*/i, '')
+    if(paint){ out.push(['paint', paint, __('item_info.paint'), PAINT_COLORS[paint.toLowerCase()]]) }
+    for (const spell of words(at.spells)) {
+        out.push(['spell', spell.replace(/^Halloween:\s*/i, '').replace(/\s*\(spell only active during event\)$/i, ''), __('item_info.spells')])
+    }
+    for (const part of words(at.strangeParts)) { out.push(['part', part, __('item_info.parts')]) }
+    return out
+}
+
+// one line per stack of identical copies, in the same order as the tiles
+const item_lines = (side) => {
+    const lines = []
+    for (const item of (side?.items || [])) {
+        for (const group of group_assets(item?.user_stock).values()) {
+            const rep = group[0]
+            const name = String(create_sku(item?.bp_sku || '', item?.qualityID, rep?.f, rep?.ks) || '').trim()
+            if(!name){ continue }
+            lines.push({ name, quality: item?.qualityID, count: group.length, details: copy_details(rep, item, name) })
+        }
+    }
+    return lines
+}
+
+const line_html = ({ name, quality, count, details }) => {
+    const chip = ([kind, text, label, colors]) => `<span class="tl-d ${kind}" title="${esc(label)}: ${esc(text)}"><span class="sr-only">${esc(label)}: </span>${color_dot(colors)}<span class="tl-t">${esc(text)}</span></span>`
+    const rest = details.slice(MAX_CHIPS)
+    const more = rest.length
+        ? `<span class="tl-d tl-rest" title="${esc(rest.map(([, text, label]) => `${label}: ${text}`).join('\n'))}"><span aria-hidden="true">+${rest.length}</span><span class="sr-only">${rest.map(([, text, label]) => esc(`${label}: ${text}`)).join(', ')}</span></span>`
+        : ''
+    const meta = details.length ? `<span class="tl-meta">${details.slice(0, MAX_CHIPS).map(chip).join('')}${more}</span>` : ''
+    return `<li class="tl q-${esc(quality)}"><span class="tl-head"><span class="tl-name" title="${esc(name)}">${esc(name)}</span>${count > 1 ? `<span class="tl-count">×${count}</span>` : ''}</span>${meta}</li>`
+}
+
+const lines_html = (lines) => {
+    if(!lines.length) return ''
+    const first = `<ul class="trade-lines">${lines.slice(0, MAX_LINES).map(line_html).join('')}</ul>`
+    const rest = lines.slice(MAX_LINES)
+    if(!rest.length) return first
+    return first + `<details class="trade-lines-more"><summary>${esc(__('home.more_lines', { n: rest.length }))}</summary><ul class="trade-lines">${rest.map(line_html).join('')}</ul></details>`
+}
+
 // the label on top of one side: whose it is, after the same person icon on both sides. The bot's side shows that bot's
 // Steam name linked to its Steam profile (bot: { steamid, name } from the server), or "Site bot" when the trade doesn't
 // say which bot it was.
@@ -141,9 +223,9 @@ const render_trade = (trade_o, options) => {
             ${time}
         </div>
         <div class="content">
-            <div class="user-side">${side_label('user', viewer)}<div class="grid" id="show-user-grid">${userItems.join(' ')}</div></div>
+            <div class="user-side">${side_label('user', viewer)}<div class="grid" id="show-user-grid">${userItems.join(' ')}</div>${lines_html(item_lines(trade_o.toReceive))}</div>
             <div class="trade-icon" aria-hidden="true"><span class="icon icon-trade1"></span></div>
-            <div class="bot-side">${side_label('bot', viewer, trade_o?.bot)}<div class="grid" id="show-site-grid">${siteItems.join(' ')}</div></div>
+            <div class="bot-side">${side_label('bot', viewer, trade_o?.bot)}<div class="grid" id="show-site-grid">${siteItems.join(' ')}</div>${lines_html(item_lines(trade_o.toGive))}</div>
         </div>
     </div>`
 }

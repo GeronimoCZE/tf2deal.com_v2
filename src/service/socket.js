@@ -6,6 +6,7 @@ import { createSettingsSocket } from "./settings_socket.js";
 import * as latest_trades from "./latest_trades.js";
 import { site_version } from "./site_version.js";
 import * as item_lists from "./item_lists.js";
+import * as key_bank from "./key_bank.js";
 
 
 const bot_socket = { timestamp: 0, socket: null}
@@ -48,6 +49,7 @@ const createSocket = (io) => {
     sio = io;
     createSettingsSocket(io); // namespace /settings: other apps change site settings live (see SETTINGS.md)
     latest_trades.start(io); // home page "Latest trades": new trades live, duplicate records cleaned up
+    key_bank.start(io); // /keys: the key bank's prices and bank bots, live
     
     io.on('connection', async socket => {
         // the version the server runs: a tab opened before an update sees it differs and offers a reload (js/connection.js)
@@ -137,7 +139,11 @@ setTimeout(() => {
         bot_socket.socket = bots_io;
         console.log('Successfully connected! (bots socket)');
         localEmitter.emit('bots:connected', bots_io); // service/listings.js sends the listings made by hand
+        key_bank.ask(bots_io); // /keys: the key bank's status at once
     });
+
+    // the key bank's prices and bank bots changed (service/key_bank.js passes them to open /keys pages)
+    bots_io.on('keybank:status', (status) => key_bank.update(status));
 
     bots_io.on('fp_data', (data) => {
       app.fp_data.bots = data?.bots || [];
