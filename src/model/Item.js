@@ -73,6 +73,12 @@ const Instance = mongoose.Schema({
         type: Array,
         default: []
     },
+    // a Professional Killstreak Kit / Kit Fabricator's bad sheen + killstreaker combos and their lower price, written by
+    // item_manager: { low_end_sell, low_end_buy, bad_combos: ["VV+CD", ...] } (a weapon's Professional Killstreak tier
+    // carries the same fields in its killstreak entry; public/js/plugins/ks_combos.js)
+    combo_price: {
+        type: Object
+    },
     // what the bots sold, one entry per day: [{ date: "YYYY-MM-DD", volume, sell, key_price }], written by item_manager
     // (services/tradeHistory.js) after each UTC day; each killstreak tier has its own. The item page draws it (sales_chart.js).
     trade_history: {

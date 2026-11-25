@@ -438,6 +438,7 @@
       "creating_toast": "Vytváříme výměnu!",
       "price_not_found": "Cena nenalezena.",
       "over_stocked": "Sklad tohoto předmětu je plný!",
+      "bad_combo": "špatná kombinace, nižší cena",
       "description_not_found": "Popis nenalezen",
       "inventory_error": "Při načítání vašeho inventáře došlo k chybě.",
       "active_offer": "Od našich botů už máte aktivní nabídku!",
@@ -483,7 +484,15 @@
       "sales_none": "V tomto období žádné prodeje.",
       "sales_sold": "Prodáno: {count}",
       "sales_price": "Nejčastější cena",
-      "sales_total": "Prodáno za toto období: {count}"
+      "sales_total": "Prodáno za toto období: {count}",
+      "combo_all": "Všechny kombinace",
+      "combo_good_group": "Dobré kombinace ({count})",
+      "combo_bad_group": "Špatné kombinace ({count}), nižší cena",
+      "combo_bad_prices": "{count} špatných kombinací stojí méně: koupíte za {buy}, prodáte za {sell}.",
+      "combo_bad_not_bought": "{count} špatných kombinací stojí méně: koupíte za {buy}. Nevykupujeme je.",
+      "combo_is_good": "Dobrá kombinace: plná cena.",
+      "combo_is_bad": "Špatná kombinace: nižší cena při nákupu i prodeji.",
+      "combo_not_bought": "Nevykupujeme"
     },
     "items": {
       "invalid_input": "Neplatná hodnota filtru.",
@@ -759,6 +768,7 @@
     "classes": "Třídy",
     "killstreak_tier": "Úroveň killstreaku:",
     "paint": "Barva:",
+    "combo": "Kombinace:",
     "sell": "Prodat",
     "buy": "Koupit",
     "can_buy_html": "Lze koupit: {count}",
@@ -1109,6 +1119,10 @@
       "empty": "Zatím tu nic není. Nové funkce se tu objeví hned, jak budou spuštěny."
     },
     "items": {
+      "ks_combos": {
+        "title": "Přesné ceny pro každou kombinaci Professional Killstreak",
+        "text": "Zbraně, Kity a Kit Fabricatory Professional Killstreak mají teď na své stránce výběr Kombinace. Vyberte sheen a killstreaker a uvidíte, kolik stojí přesně tato kombinace. Kombinace, které hledá málokdo, třeba Hypno-Beam, koupíte levněji a popisek předmětu vám řekne, když kus patří mezi ně."
+      },
       "key_bank": {
         "title": "Vyměňte klíče a metal s našimi bankovními boty",
         "text": "Nová stránka Klíče mění Mann Co. Supply Crate Keys za refined metal a zpět, až 5 klíčů na výměnu, za živé ceny podle backpack.tf. Vyberte bankovního bota, uvidíte, kolik klíčů teď koupí a prodá, a nabídku na Steamu dostanete během pár sekund."
