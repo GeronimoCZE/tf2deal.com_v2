@@ -1025,7 +1025,10 @@
     "trade_url_required": "Adicione sua URL de troca da Steam para carregar seu inventário.",
     "trade_url_other_account": "Esta URL de troca é de outra conta da Steam. Copie a da conta com que você entrou.",
     "key_bank_invalid": "Escolha um bot banco, comprar ou vender, e de 1 a {max} chaves.",
-    "key_bank_reload": "Esta página está desatualizada. Recarregue e tente de novo."
+    "key_bank_reload": "Esta página está desatualizada. Recarregue e tente de novo.",
+    "offer_cooldown": "Você não aceitou suas últimas {misses} ofertas solicitadas, então poderá pedir uma nova em {time}. Aceitar uma oferta zera isso.",
+    "cooldown_minutes": "{n} min",
+    "cooldown_hours": "{n} h"
   },
   "cookies": {
     "banner_title": "Cookies no TF2Deal.com",

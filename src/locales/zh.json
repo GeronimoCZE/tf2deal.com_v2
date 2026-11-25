@@ -1024,7 +1024,10 @@
     "trade_url_required": "请添加你的 Steam 交易链接以加载库存。",
     "trade_url_other_account": "此交易链接属于另一个 Steam 账号。请复制你当前登录账号的链接。",
     "key_bank_invalid": "请选择一个银行机器人、买入或卖出，以及 1 到 {max} 把钥匙。",
-    "key_bank_reload": "此页面已过期。请刷新后重试。"
+    "key_bank_reload": "此页面已过期。请刷新后重试。",
+    "offer_cooldown": "你最近请求的 {misses} 个报价都没有接受，{time}后才能请求新的报价。接受任意报价即可重置。",
+    "cooldown_minutes": "{n} 分钟",
+    "cooldown_hours": "{n} 小时"
   },
   "cookies": {
     "banner_title": "TF2Deal.com 上的 Cookie",

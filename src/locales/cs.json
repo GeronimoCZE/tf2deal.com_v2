@@ -1026,7 +1026,10 @@
     "trade_url_required": "Přidejte svůj Steam odkaz pro výměnu, aby se načetl váš inventář.",
     "trade_url_other_account": "Tento odkaz pro výměnu patří jinému Steam účtu. Zkopírujte ten z účtu, kterým jste se přihlásili.",
     "key_bank_invalid": "Vyberte bankovního bota, nákup nebo prodej a 1 až {max} klíčů.",
-    "key_bank_reload": "Tato stránka je zastaralá. Načtěte ji znovu a zkuste to ještě jednou."
+    "key_bank_reload": "Tato stránka je zastaralá. Načtěte ji znovu a zkuste to ještě jednou.",
+    "offer_cooldown": "Nepřijali jste své poslední vyžádané nabídky ({misses}), takže novou si můžete vyžádat za {time}. Přijetím nabídky se to vynuluje.",
+    "cooldown_minutes": "{n} min",
+    "cooldown_hours": "{n} h"
   },
   "cookies": {
     "banner_title": "Cookies na TF2Deal.com",

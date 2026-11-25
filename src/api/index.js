@@ -365,7 +365,9 @@ router.post('/create_trade', mw.isLogged, trade_limiter, async (req, res) => {
                     
                     res.status(200).json(response)
                   } else {
-                    res.status(200).json({ success: 0, message: response?.message || response?.error || req.__('api.trade_failed') })
+                    res.status(200).json({ success: 0,
+                      ...(response?.reason == 'cooldown' ? { reason: 'cooldown', until: response.until, message: cooldown_message(req, response) }
+                        : { message: response?.message || response?.error || req.__('api.trade_failed') }) })
                   }
               }
           })
@@ -386,6 +388,14 @@ router.post('/create_trade', mw.isLogged, trade_limiter, async (req, res) => {
     return;
   }
 });
+
+// bot_manager refused a request because the user left their last requested offers unaccepted (its utils/offerCooldown.js):
+// the reason in the visitor's language, with the time left
+const cooldown_message = (req, out) => {
+  const min = Math.max(1, Math.ceil((Number(out?.until) - Date.now()) / 60000) || 1)
+  const time = min < 120 ? req.__('api.cooldown_minutes', { n: min }) : req.__('api.cooldown_hours', { n: Math.ceil(min / 60) })
+  return req.__('api.offer_cooldown', { misses: Number(out?.misses) || 2, time })
+}
 
 // The key banking page (/keys, service/key_bank.js): the key bank's prices and each bank bot's room, and a swap of
 // 1 to 5 keys for metal with the bot the visitor picked. The offer then arrives like any site trade.
@@ -436,8 +446,9 @@ router.post('/keys/trade', mw.isLogged, key_limiter, async (req, res) => {
   if(out?.success == 1){
     return res.json({ success: 1, status: 'creating', keys: out.keys, price: out.price, total: out.total })
   }
-  res.json({ success: 0, status: "error", reason: out?.reason || 'failed', message: out?.error || req.__('api.trade_failed'),
-    ...(out?.price !== undefined ? { price: out.price } : {}), keybank: key_bank.current() })
+  res.json({ success: 0, status: "error", reason: out?.reason || 'failed',
+    message: out?.reason == 'cooldown' ? cooldown_message(req, out) : out?.error || req.__('api.trade_failed'),
+    ...(out?.price !== undefined ? { price: out.price } : {}), ...(out?.until ? { until: out.until } : {}), keybank: key_bank.current() })
 })
 
 router.get('/key', async (req, res) => {

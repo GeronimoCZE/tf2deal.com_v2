@@ -1024,7 +1024,10 @@
     "trade_url_required": "Añade tu URL de intercambio de Steam para cargar tu inventario.",
     "trade_url_other_account": "Esta URL de intercambio es de otra cuenta de Steam. Copia la de la cuenta con la que has iniciado sesión.",
     "key_bank_invalid": "Elige un bot banco, comprar o vender, y de 1 a {max} llaves.",
-    "key_bank_reload": "Esta página está desactualizada. Recárgala e inténtalo de nuevo."
+    "key_bank_reload": "Esta página está desactualizada. Recárgala e inténtalo de nuevo.",
+    "offer_cooldown": "No aceptaste tus últimas {misses} ofertas solicitadas, así que podrás pedir una nueva en {time}. Aceptar una oferta lo reinicia.",
+    "cooldown_minutes": "{n} min",
+    "cooldown_hours": "{n} h"
   },
   "cookies": {
     "banner_title": "Cookies en TF2Deal.com",

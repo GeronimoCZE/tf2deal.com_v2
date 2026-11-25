@@ -1024,7 +1024,10 @@
     "trade_url_required": "Add your Steam trade URL to load your inventory.",
     "trade_url_other_account": "This trade URL belongs to another Steam account. Copy the one from the account you signed in with.",
     "key_bank_invalid": "Pick a bank bot, buy or sell, and 1 to {max} keys.",
-    "key_bank_reload": "This page is out of date. Reload it and try again."
+    "key_bank_reload": "This page is out of date. Reload it and try again.",
+    "offer_cooldown": "You didn't accept your last {misses} requested offers, so you can request a new one in {time}. Accepting an offer resets this.",
+    "cooldown_minutes": "{n} min",
+    "cooldown_hours": "{n} h"
   },
   "cookies": {
     "banner_title": "Cookies on TF2Deal.com",

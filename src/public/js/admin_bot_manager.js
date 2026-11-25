@@ -256,6 +256,44 @@
             enabled: 'Off: copies are always listed at the market price, whatever we paid.',
             holdMargin: 'Share above what we paid while the copy is held.'
         },
+        keybank: {
+            enabled: 'The whole key bank: website swaps, offers to bank bots, quicksell keys, key listings.',
+            snapshotSec: 'Read backpack.tf\'s key listings this often (the live feed fills in between).',
+            pulseMaxMin: 'A lister counts as a bot when backpack.tf saw its bot this recently.',
+            sampleMin: 'Keep a price sample this often (for the forecast and the /keys chart).',
+            historyDays: 'Keep the price samples this long.',
+            horizonHours: 'The forecast looks this far ahead.',
+            shortHours: 'Trend of the last hours...',
+            longHours: '...and of the last days.',
+            minSpread: 'Our sell price stays at least this far over our buy price.',
+            minProfit: 'A swap that closes an earlier one beats it by at least this per key...',
+            lotHours: '...for this long; after that the market price is enough.',
+            trendWeight: 'Share of the expected move our prices follow (times how sure the forecast is).',
+            trendMaxShift: 'The forecast moves our prices this far at most.',
+            targetKeyShare: 'Share of the bank\'s value we aim to hold in keys (0.5 = half keys, half metal).',
+            trendShareShift: 'The forecast moves that share up to this much (more keys while they rise).',
+            skewMaxShift: 'A split away from the aim moves both prices this far at most...',
+            skewFullAt: '...reached when the key share is this far off.',
+            independent: 'The bank bots\' pure is the key bank\'s alone: not lent to trade bots, not stored there by the balance, not in the trade bots\' pure limits.',
+            reserveKeys: 'Every bank bot keeps at least this many keys\' worth; under it, it gets pure from another bank bot or a trade bot.',
+            reserveKeyShare: 'With own pure off: share of that reserve kept in keys.',
+            refill: 'Ask other bots for pure when a bank bot is under its minimum.',
+            refillToKeys: 'A refill brings the bank bot up to this many keys\' worth.',
+            refillEveryMin: 'Check the bank bots\' pure this often.',
+            maxKeysPerTrade: 'Keys in one swap at most.',
+            siteTrades: 'Swaps users ask for on tf2deal.com/keys.',
+            incomingOffers: 'Keys-for-metal offers users send to a bank bot (from its listings or by hand).',
+            offerMinutes: 'Our offers for website swaps are cancelled after this.',
+            checkEscrow: 'Decline swaps with users who would get a trade hold.',
+            listings: 'One buy and one sell key listing on each bank bot with a backpack.tf token.',
+            listingEveryMin: 'Look at the key listings this often (they change only with the price or stock).',
+            snipe: 'Buy keys listed under the price several bot buy orders pay.',
+            snipeMinBuyers: 'Bot buy orders that pay more than the listing, at least.',
+            snipeMaxPerDay: 'Quicksell keys bought per day at most.',
+            snipeMaxOpen: 'Quicksell key offers open at once.',
+            snipeOfferMinutes: 'A quicksell key offer is cancelled after this.',
+            sellerCooldownHours: 'A seller who declined gets no new offer this long.'
+        },
         buyorders: {
             websocket: 'Listen to backpack.tf\'s live listing feed (trade links, new buy orders right away).',
             scanMin: 'Check the buy orders of the items we sell this often.',
@@ -314,12 +352,16 @@
             scrapWeapons: 'One craftable Unique 0.05 / 0.055 ref weapon pays a half-scrap remainder (max one per trade).',
             retryAttempts: 'Offers we couldn\'t evaluate (reserved items, missing key price, errors) are retried.',
             overpayPct: 'Share of the trade value a user may overpay (see overpayMinRef).',
-            retryDelaySec: 'Wait between those retries.'
+            retryDelaySec: 'Wait between those retries.',
+            requestCooldown: 'Users who leave the offers they ask for unaccepted can\'t ask for new ones for a while (site, key bank, chat).',
+            cooldownAfterMisses: 'Unaccepted offers in a row before the cooldown starts. Any accepted trade resets the count.',
+            cooldownMinutes: 'The first cooldown; it doubles with every further miss in a row...',
+            cooldownMaxHours: '...up to this.'
         }
     }
     const MAPS = new Set(['botSlotLimits', 'slots.capacityByBot']) // name → number, a key goes away on null
     const UNITS = [[/Min$/, 'min'], [/Sec$/, 's'], [/Hours$/, 'h'], [/Days$/, 'days'], [/Keys$/, 'keys'], [/Ref$/, 'ref'], [/Pct$/, 'share']]
-    const REF_FIELDS = /(^|\.)(minPrice|minProfit)$/ // in ref, but the name doesn't say so
+    const REF_FIELDS = /(^|\.)(minPrice|minProfit|minSpread|trendMaxShift|skewMaxShift)$/ // in ref, but the name doesn't say so
     const GROUP_NAMES = {
         '': 'General', pure: 'Pure', group: 'Groups', sku: 'Single items', listings: 'Buy listings per group', flow: 'Buy / sell balance',
         emergency: 'Emergency pricing', text: 'Listing texts', sell: 'Sell listings', buy: 'Buy listings', slots: 'Backpack slots', offers: 'Offer rules'
@@ -996,6 +1038,7 @@
                 <div class="admin-card wide"><h3>Offers we sent</h3><p class="muted">Still open or being made.</p><div id="bm-offers">${loading}</div></div>
                 <div class="admin-card"><h3>Incoming offers waiting</h3><p class="muted">On a paused bot, with incoming offers off, or while the inventory loads.</p><div id="bm-pending">${loading}</div></div>
                 <div class="admin-card"><h3>Incoming offers ignored</h3><p class="muted">Wrong value, stock limit, unknown items and so on.</p><div id="bm-ignored">${loading}</div></div>
+                <div class="admin-card wide"><h3>Offer cooldowns</h3><p class="muted">Users who left offers they asked for unaccepted in a row. From the second one they wait before asking again; an accepted trade clears it.</p><div id="bm-cooldowns">${loading}</div></div>
                 <div class="admin-card wide"><h3>Recent trades</h3>
                     <form class="admin-inline-form" id="bm-recent-form"><input type="search" name="steamid" placeholder="Only trades with this SteamID64" inputmode="numeric" maxlength="17"><button type="submit">Show</button></form>
                     <div id="bm-recent">${loading}</div></div>
@@ -1030,7 +1073,7 @@
         }
 
         const draw_lists = async () => {
-            const [queue, approvals, offers, pending, ignored] = await Promise.all(['queue', 'approvals', 'offers', 'pending', 'ignored'].map((n) => bm(`admin:trading:${n}`)))
+            const [queue, approvals, offers, pending, ignored, cooldowns] = await Promise.all(['queue', 'approvals', 'offers', 'pending', 'ignored', 'cooldowns'].map((n) => bm(`admin:trading:${n}`)))
             if(!box.isConnected){ return }
             const cols = ['User', 'From', 'Items', 'Pure', 'Since', '']
             $('#bm-queue').innerHTML = queue.status != 'ok' ? error_line(queue) : table(cols, queue_rows(queue.data || [], (t) => act('admin:trading:queue:remove', { steamid: t.partner }, 'Drop', { confirm: 'Drop this trade? The user has to start it again.', ok: 'Trade dropped.' })), 'No trade is waiting.')
@@ -1044,6 +1087,11 @@
             $('#bm-pending').innerHTML = pending.status != 'ok' ? error_line(pending) : waiting.length ? waiting.map((b) => `<h4 class="admin-bm-sub">${esc(b.name || b.steamid)}</h4>
                 <div class="admin-chips">${b.offers.map((id) => `<span class="admin-chip">${esc(id)} ${act('admin:trading:offer:reprocess', { bot: b.steamid, offerID: String(id) }, '↻', { ok: 'Checked again.' }).replace('<button', '<button title="Check this offer again" aria-label="Check offer again"')}</span>`).join('')}</div>`).join('') : '<p class="admin-empty">None waiting.</p>'
             $('#bm-ignored').innerHTML = ignored.status != 'ok' ? error_line(ignored) : table(['Offer', 'User', 'Forgotten'], (ignored.data || []).map((o) => `<tr><td>${esc(o.offerID)}</td><td>${profile(o.steamid)}</td><td>${o.expires ? later(o.expires) : '–'}</td></tr>`), 'None ignored.')
+            $('#bm-cooldowns').innerHTML = cooldowns.status != 'ok' ? error_line(cooldowns) : table(['User', 'Unaccepted in a row', 'Last one', 'Can ask again', ''], (cooldowns.data || []).slice(0, 50).map((c) => `<tr>
+                <td>${profile(c.steamid)}</td><td>${num(c.misses)}</td>
+                <td>${c.last ? `${words(String(c.last.state || '').toLowerCase())} ${c.last.at ? `<span class="muted">${ago(c.last.at)}</span>` : ''}` : '–'}</td>
+                <td>${c.until ? `<span class="admin-tag tag-warn">${later(c.until)}</span>` : '<span class="muted">now</span>'}</td>
+                <td class="admin-bm-cell-actions">${act('admin:trading:cooldown:clear', { steamid: c.steamid }, c.until ? 'End cooldown' : 'Forget', { ok: 'Cleared.' })}</td></tr>`), 'Nobody left an offer unaccepted lately.')
         }
 
         let recent_filter = '', recent_rows = []
@@ -2078,10 +2126,305 @@
         ctx.every(60000, draw_list)
     }
 
+    /* ========================= KEY BANK ========================= */
+
+    // the bank bots swap keys for metal with users (bot_manager KEY_BANK.md): what they made, the split they keep, prices
+    const KB_KINDS = { site: 'tf2deal.com/keys', offer: 'offer to the bot', snipe: 'quicksell key' }
+    const KB_MEASURES = [['edge', 'Edge', 'ref better than backpack.tf\'s middle price, booked at each swap'],
+        ['profit', 'Profit', 'ref made on keys closed against what the bank paid or got for them'],
+        ['keys', 'Keys swapped', 'keys bought + sold']]
+    const KB_PERIODS = [['7', '7 days'], ['30', '30 days'], ['90', '90 days']]
+    const signed = (n, unit = 'ref') => n == null ? '–' : `${n > 0 ? '+' : n < 0 ? '−' : ''}${num(Math.abs(r2(n)))}${unit ? ` ${unit}` : ''}`
+    const kb_value = (d, m) => m == 'keys' ? (d.bought || 0) + (d.sold || 0) : (d[m] || 0)
+    const kb_date = (day, long) => new Date(`${day}T12:00:00Z`).toLocaleDateString(undefined, long ? { weekday: 'short', day: 'numeric', month: 'short' } : { day: 'numeric', month: 'short' })
+
+    // every day of the period, also the ones without a swap (bot_manager groups by UTC day)
+    const kb_days = (rows, n) => {
+        const by = new Map((rows || []).map((r) => [r.day, r]))
+        const now = new Date()
+        return Array.from({ length: n }, (_, i) => {
+            const day = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - (n - 1 - i))).toISOString().slice(0, 10)
+            return by.get(day) || { day, trades: 0, bought: 0, sold: 0, volume: 0, profit: 0, edge: 0, snipes: 0, site: 0, offers: 0 }
+        })
+    }
+
+    // one bar per day from zero (negative days go down), the same look as the inventory value chart (iv-*)
+    const kb_chart = (box, tip, days, measure) => {
+        const NS = 'http://www.w3.org/2000/svg'
+        const el = (name, attrs) => { const e = document.createElementNS(NS, name); for(const [k, v] of Object.entries(attrs)){ e.setAttribute(k, v) } return e }
+        box.textContent = ''
+        tip.hidden = true
+        const vals = days.map((d) => kb_value(d, measure))
+        if(!vals.some((v) => v)){ box.innerHTML = '<p class="admin-empty">No swaps in this period yet.</p>'; return }
+        const unit = measure == 'keys' ? 'keys' : 'ref'
+        const W = Math.max(300, box.clientWidth), H = 220, L = 58, R = 8, T = 12, B = 28
+        let lo = Math.min(0, ...vals), hi = Math.max(0, ...vals)
+        const raw = Math.max((hi - lo) / 4, 1e-6), mag = Math.pow(10, Math.floor(Math.log10(raw)))
+        const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw)
+        lo = Math.floor(lo / step) * step
+        hi = Math.max(lo + step, Math.ceil(hi / step) * step)
+        const y = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B)
+        const slot = (W - L - R) / days.length
+        const bw = Math.max(2, Math.min(24, slot - 2))   // 2px of surface between bars
+        const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: 'img', 'aria-label': `${KB_MEASURES.find(([m]) => m == measure)[1]} per day, ${kb_date(days[0].day)} to ${kb_date(days[days.length - 1].day)}` })
+        for(let v = lo; v <= hi + step / 2; v += step){
+            svg.append(el('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: Math.abs(v) < step / 1e3 ? 'akb-zero' : 'iv-grid' }))
+            const label = el('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'iv-axis' })
+            label.textContent = `${(Math.abs(v) < step / 1e3 ? 0 : v).toLocaleString(undefined, { maximumFractionDigits: step < 1 ? 2 : 0 })} ${unit}`
+            svg.append(label)
+        }
+        const marks = W < 520 ? [0, days.length - 1] : [0, Math.floor((days.length - 1) / 2), days.length - 1]
+        for (const i of marks) {
+            const label = el('text', { x: L + slot * i + slot / 2, y: H - 8, 'text-anchor': i == 0 ? 'start' : i == days.length - 1 ? 'end' : 'middle', class: 'iv-axis' })
+            label.textContent = kb_date(days[i].day)
+            svg.append(label)
+        }
+        const base = y(0)
+        const bars = days.map((d, i) => {
+            const v = vals[i]
+            const x = L + slot * i + (slot - bw) / 2
+            if(!v){ return null }
+            const end = y(v), h = Math.abs(base - end), r = Math.min(4, bw / 2, h)
+            const up = end < base
+            // 4px rounded data end, square at the baseline
+            const d_ = up
+                ? `M${x},${base} V${end + r} Q${x},${end} ${x + r},${end} H${x + bw - r} Q${x + bw},${end} ${x + bw},${end + r} V${base} Z`
+                : `M${x},${base} V${end - r} Q${x},${end} ${x + r},${end} H${x + bw - r} Q${x + bw},${end} ${x + bw},${end - r} V${base} Z`
+            const bar = el('path', { d: d_, class: `akb-bar${v < 0 ? ' is-neg' : ''}` })
+            svg.append(bar)
+            return bar
+        })
+        // hit targets: the whole day column, bigger than the bar
+        const hits = days.map((d, i) => {
+            const hit = el('rect', { x: L + slot * i, y: T, width: slot, height: H - T - B, class: 'akb-hit', tabindex: i == days.length - 1 ? 0 : -1 })
+            svg.append(hit)
+            return hit
+        })
+        box.append(svg)
+        const show = (i) => {
+            const d = days[i]
+            bars.forEach((b, j) => b?.classList.toggle('is-dim', j != i))
+            tip.innerHTML = ''
+            const strong = document.createElement('strong')
+            strong.textContent = measure == 'keys' ? `${num(vals[i])} keys` : signed(vals[i])
+            const rows = [kb_date(d.day, true),
+                d.trades ? `${num(d.trades)} swap${d.trades == 1 ? '' : 's'}: ${num(d.bought)} keys bought, ${num(d.sold)} sold` : 'No swaps',
+                d.trades ? `Edge ${signed(d.edge)}, profit ${signed(d.profit)}` : '',
+                d.volume ? `Volume ${ref(d.volume)}` : '',
+                d.snipes ? `${num(d.snipes)} quicksell key${d.snipes == 1 ? '' : 's'}` : ''].filter(Boolean)
+            tip.append(strong, ...rows.map((text) => { const s = document.createElement('span'); s.textContent = text; return s }))
+            tip.hidden = false
+            const cx = L + slot * i + slot / 2
+            tip.style.left = `${cx > W - tip.offsetWidth - 20 ? Math.max(0, cx - tip.offsetWidth - 12) : cx + 12}px`
+            tip.style.top = `${Math.max(0, Math.min(y(Math.max(0, vals[i])), base) - tip.offsetHeight - 8)}px`
+        }
+        const hide = () => { bars.forEach((b) => b?.classList.remove('is-dim')); tip.hidden = true }
+        hits.forEach((hit, i) => {
+            hit.addEventListener('pointerenter', () => show(i))
+            hit.addEventListener('focus', () => show(i))
+            hit.addEventListener('keydown', (e) => {
+                const next = e.key == 'ArrowRight' ? i + 1 : e.key == 'ArrowLeft' ? i - 1 : null
+                if(next == null || !hits[next]){ return }
+                e.preventDefault()
+                hit.setAttribute('tabindex', -1); hits[next].setAttribute('tabindex', 0); hits[next].focus()
+            })
+        })
+        svg.addEventListener('pointerleave', hide)
+        svg.addEventListener('focusout', (e) => { if(!svg.contains(e.relatedTarget)){ hide() } })
+    }
+
+    // the order book around our prices: real sellers above, automated buyers below, ours where they fall
+    const kb_ladder = (m, p) => {
+        if(!m){ return '' }
+        const rows = [
+            ...(m.topSells || []).slice(0, 4).map((v) => ({ v, kind: 'seller' })),
+            ...(m.topBuys || []).slice(0, 4).map((v) => ({ v, kind: 'buyer' })),
+            ...(p ? [{ v: p.sell, kind: 'our-sell' }, { v: p.buy, kind: 'our-buy' }] : [])
+        ].sort((a, b) => b.v - a.v || (a.kind.startsWith('our') ? -1 : 1))
+        const LABEL = { seller: 'seller', buyer: 'bot buy order', 'our-sell': 'we sell', 'our-buy': 'we buy' }
+        return `<ol class="akb-ladder" aria-label="backpack.tf key listings around our prices">${rows.map((r) => `<li class="is-${r.kind}"><span>${num(r2(r.v))}</span><em>${LABEL[r.kind]}</em></li>`).join('')}</ol>`
+    }
+
+    // keys against metal by value, with the share we aim for
+    const kb_split = (share, target, big) => share == null ? '<span class="muted">no pure</span>' : `<span class="akb-split${big ? ' is-big' : ''}" style="--keys:${Math.round(share * 1000) / 10}%;--aim:${Math.round((target ?? 0.5) * 1000) / 10}%" role="img" aria-label="${pct(share)} keys, aim ${pct(target)}">
+        <i class="akb-split-keys"></i><i class="akb-split-aim"></i></span>`
+
+    const kb_price = (r) => r.price ?? (r.s != null ? Math.floor(r.s / 9 * 100 + 1e-6) / 100 : null)
+    const kb_rows = (list, bots) => (list || []).map((r) => `<tr>
+        <td>${r.at ? ago(new Date(r.at).getTime()) : '–'}</td>
+        <td>${esc(KB_KINDS[r.kind] || r.kind || '–')}</td>
+        <td>${profile(r.steamid)}</td>
+        <td>${esc(bots.get(r.bot) || r.bot || '–')}</td>
+        <td>${r.side == 'buy' ? '<span class="admin-tag tag-buy">bought</span>' : '<span class="admin-tag tag-sell">sold</span>'}</td>
+        <td class="akb-num">${num(r.keys)}</td>
+        <td class="akb-num">${ref(kb_price(r))}</td>
+        <td class="akb-num">${r.edge == null ? '–' : signed(r.edge)}</td>
+        <td class="akb-num">${r.profit ? signed(r.profit) : '–'}</td>
+        <td>${r.state == 'accepted' ? '<span class="admin-tag tag-sell">done</span>' : words(r.state)}${r.reason ? ` <span class="muted">${words(r.reason)}</span>` : ''}${r.offerID ? ` <a href="https://steamcommunity.com/tradeoffer/${esc(r.offerID)}/" target="_blank" rel="noopener nofollow" class="muted">offer</a>` : ''}</td></tr>`)
+    const KB_COLS = ['When', 'Where', 'User', 'Bank bot', 'We', 'Keys', 'Price', 'Edge', 'Profit', 'State']
+
+    const tab_keybank = async (box, ctx) => {
+        let period = 30, measure = 'edge', days = [], filter = ''
+        box.innerHTML = `<div id="bm-kb-status">${loading}</div>
+            <div class="admin-card iv-chart-card akb-chart-card">
+                <div class="akb-chart-head">
+                    <h3>Per day <span class="muted" id="bm-kb-chart-note"></span></h3>
+                    <div class="akb-controls">
+                        <div class="admin-segment" role="radiogroup" aria-label="Show" id="bm-kb-measure">${KB_MEASURES.map(([m, label]) => `<button type="button" role="radio" data-measure="${m}" aria-checked="${m == measure}">${label}</button>`).join('')}</div>
+                        <div class="admin-segment" role="radiogroup" aria-label="Period" id="bm-kb-period">${KB_PERIODS.map(([v, label]) => `<button type="button" role="radio" data-period="${v}" aria-checked="${v == period}">${label}</button>`).join('')}</div>
+                    </div>
+                </div>
+                <div class="iv-chart-wrap"><div class="iv-chart" id="bm-kb-chart">${loading}</div><div class="iv-tip" id="bm-kb-tip" hidden></div></div>
+                <details class="iv-table"><summary>As a table</summary><div id="bm-kb-days"></div></details>
+            </div>
+            <div class="admin-settings admin-bm-stack">
+                <div class="admin-card"><h3>Prices</h3><div id="bm-kb-prices">${loading}</div></div>
+                <div class="admin-card"><h3>The bank's split</h3><p class="muted">Keys against metal by value. Prices lean toward the share we aim for.</p><div id="bm-kb-split">${loading}</div></div>
+                <div class="admin-card wide"><h3>Key swaps</h3>
+                    <form class="admin-inline-form" id="bm-kb-history"><input type="search" name="steamid" placeholder="Only swaps with this SteamID64" inputmode="numeric" maxlength="17"><button type="submit">Show saved swaps</button></form>
+                    <div id="bm-kb-swaps">${loading}</div></div>
+                <div class="admin-card wide"><h3>Pure from other bots</h3><p class="muted">The bank only asks for pure when a bank bot holds less than its minimum, another bank bot first.</p><div id="bm-kb-refills">${loading}</div></div>
+            </div>
+            <div class="admin-settings admin-bm-stack" id="bm-kb-settings"></div>`
+        const $ = (sel) => box.querySelector(sel)
+        const settings = settings_card($('#bm-kb-settings'), { title: 'Key bank settings', help: HELP.keybank, ...scope_settings('keybank') })
+        let bot_names = new Map(), last_status = null
+
+        const draw_chart = () => {
+            const [, label, note] = KB_MEASURES.find(([m]) => m == measure)
+            $('#bm-kb-chart-note').textContent = `${label.toLowerCase()}: ${note}`
+            kb_chart($('#bm-kb-chart'), $('#bm-kb-tip'), days, measure)
+            const shown = days.filter((d) => d.trades).reverse()
+            $('#bm-kb-days').innerHTML = table(['Day', 'Swaps', 'Bought', 'Sold', 'Volume', 'Edge', 'Profit', 'Quicksell keys'], shown.map((d) => `<tr>
+                <td>${esc(kb_date(d.day, true))}</td><td class="akb-num">${num(d.trades)}</td><td class="akb-num">${num(d.bought)}</td><td class="akb-num">${num(d.sold)}</td>
+                <td class="akb-num">${ref(d.volume)}</td><td class="akb-num">${signed(d.edge)}</td><td class="akb-num">${signed(d.profit)}</td><td class="akb-num">${num(d.snipes)}</td></tr>`), 'No swaps in this period.')
+        }
+
+        const draw = async () => {
+            const [res, st] = await Promise.all([bm('admin:keybank:status', { limit: 30 }), bm('admin:keybank:stats', { days: period })])
+            if(!box.isConnected){ return }
+            if(res.status != 'ok'){ return failed(box, res) }
+            const d = res.data || {}, s = st.status == 'ok' ? st.data || {} : {}
+            last_status = d
+            const L = s.ledger || d.ledger || {}, P = s.period || {}, bank = s.bank || d.bank || {}, plan = d.plan, m = d.market, fc = d.forecast
+            bot_names = new Map((d.bots || []).map((b) => [b.steamid, b.name || b.steamid]))
+            const fresh = d.book?.liveAt || d.book?.at
+            $('#bm-kb-status').innerHTML = `<div class="admin-bm-toolbar">
+                    <span>${pill(d.enabled && d.started, 'Key bank on', d.started ? 'Key bank off' : 'Not started')}
+                        ${d.independent ? '<span class="admin-tag" title="The bank bots\' pure is the key bank\'s alone: not lent to trade bots, not in their pure limits">own pure</span>' : '<span class="admin-tag tag-warn">pure shared with the trade bots</span>'}
+                        ${fresh ? `<span class="muted">market read ${ago(fresh)}</span>` : ''}</span>
+                    <span class="admin-bm-actions">
+                        ${act('admin:keybank:refresh', {}, 'Read the market now', { ok: 'Market read, prices planned again.' })}
+                        ${act('admin:keybank:listings:sync', {}, 'Update key listings', { ok: 'Key listings updated.' })}
+                    </span>
+                </div>
+                ${d.book?.error ? `<p class="admin-error">backpack.tf: ${esc(d.book.error)}</p>` : ''}
+                ${st.status != 'ok' ? error_line(st) : ''}
+                <div class="admin-stats">
+                    ${stat('Profit', signed(P.profit), `last ${num(period)} days · all time ${signed(L.realized)}`)}
+                    ${stat('Edge', signed(P.edge), `against the middle price · all time ${signed(L.edge)}`)}
+                    ${stat('Swaps', num(P.trades), `${num(P.bought)} keys bought, ${num(P.sold)} sold`)}
+                    ${stat('Volume', ref(P.volume), `last ${num(period)} days`)}
+                    ${stat('Bank', bank.valueKeys == null ? '–' : `${num(bank.valueKeys)}<small> keys</small>`, `${num(bank.keys)} keys + ${ref(bank.metal)}`)}
+                    ${stat('Open position', `${L.position > 0 ? '+' : ''}${num(L.position || 0)}<small> keys</small>`, L.position ? `at ${ref(L.average)}, ${signed(L.unrealized)} at today's price` : 'every swap closed')}
+                </div>`
+
+            days = kb_days(s.days, period)
+            draw_chart()
+
+            const why = (plan?.why || []).map((w) => `<span class="admin-tag">${esc(String(w).replace(/_/g, ' '))}</span>`).join(' ')
+            $('#bm-kb-prices').innerHTML = !plan ? `<p class="admin-empty">${m ? 'No plan yet.' : 'No key market read yet.'}</p>` : `
+                <div class="akb-prices">
+                    <div class="akb-quote is-buy"><span>We buy at</span><strong>${num(plan.buy)}<small> ref</small></strong><em>up to ${num(plan.canBuy)} keys</em></div>
+                    <div class="akb-quote is-sell"><span>We sell at</span><strong>${num(plan.sell)}<small> ref</small></strong><em>up to ${num(plan.canSell)} keys</em></div>
+                </div>
+                <div class="akb-book">
+                    ${kb_ladder(m, plan)}
+                    ${facts([
+                        ['Spread', ref(plan.spread)],
+                        m && ['Best bot buy order', ref(m.bestBuy)],
+                        m && ['Cheapest real seller', ref(m.bestSell)],
+                        m && ['Sellers under the buy orders', `${num(m.quicksells)} <span class="muted">(ignored, quicksell targets)</span>`],
+                        fc && ['Forecast', `${esc(fc.direction)} ${signed(fc.change)} in ${num(fc.horizonHours)} h <span class="muted">(${pct(fc.confidence)} sure)</span>`],
+                        ['Leaning', `${signed(plan.shift?.trend)} forecast, ${signed(plan.shift?.skew)} split`],
+                        why && ['Why', why]
+                    ])}
+                </div>`
+
+            const pools = new Map((d.bots || []).map((b) => [b.steamid, b]))
+            const target = bank.target ?? plan?.split?.target
+            $('#bm-kb-split').innerHTML = `
+                <div class="akb-split-total">
+                    ${kb_split(bank.share, target, true)}
+                    <div class="akb-split-legend"><span><i class="akb-swatch is-keys"></i>Keys ${pct(bank.share)}</span><span><i class="akb-swatch is-metal"></i>Metal ${bank.share == null ? '–' : pct(1 - bank.share)}</span><span><i class="akb-swatch is-aim"></i>Aim ${pct(target)}</span></div>
+                </div>
+                ${(bank.bots || []).length ? `<ul class="akb-bots">${bank.bots.map((b) => {
+                    const p = pools.get(b.steamid) || {}, l = p.listings || {}
+                    const listing = !l.token ? 'no backpack.tf token' : [l.buy && `buy ${ref(l.buy.price)}`, l.sell && `sell ${ref(l.sell.price)}`].filter(Boolean).join(', ') || 'no listings'
+                    return `<li>
+                        <div class="akb-bot-head"><strong>${esc(b.name || b.steamid)}</strong>${p.online ? '' : ' <span class="admin-tag">offline</span>'}<span class="akb-num">${b.valueKeys == null ? '–' : `${num(b.valueKeys)} keys`}</span></div>
+                        ${kb_split(b.share, target)}
+                        <div class="akb-bot-meta"><span>${num(b.keys)} ${b.keys == 1 ? 'key' : 'keys'} + ${ref(b.metal)}</span><span>buys ${num(p.canBuy || 0)}, sells ${num(p.canSell || 0)} now</span><span class="muted">${esc(listing)}</span>${l.error ? `<span class="admin-error">${esc(l.error)}</span>` : ''}</div>
+                    </li>`
+                }).join('')}</ul>` : '<p class="admin-empty">No bank bots.</p>'}`
+
+            if(!filter){
+                const list = [...(d.open || []), ...(d.recent || [])].filter((r, i, all) => all.findIndex((x) => (x.offerID && x.offerID == r.offerID) || x === r) == i)
+                $('#bm-kb-swaps').innerHTML = table(KB_COLS, kb_rows(list, bot_names), 'No key swaps yet.')
+            }
+            const refills = s.refills || d.refills || []
+            $('#bm-kb-refills').innerHTML = `${L.refills ? `<p class="admin-help">${num(L.refills)} from trade bots so far, worth ${ref(L.refillValue)}.</p>` : ''}` +
+                table(['When', 'Bank bot', 'From', 'Pieces', 'Worth', 'State'], refills.map((r) => `<tr>
+                    <td>${ago(r.at)}</td><td>${esc(bot_names.get(r.bot) || r.bot)}</td><td>${esc(bot_names.get(r.from) || r.from)}${r.fromBank ? ' <span class="admin-tag">bank bot</span>' : ''}</td>
+                    <td>${esc(Object.entries(r.counts || {}).filter(([, n]) => n).map(([k, n]) => `${n} ${k == 'keys' && n == 1 ? 'key' : k}`).join(', '))}</td><td class="akb-num">${ref(r.value)}</td>
+                    <td>${r.state == 'done' ? '<span class="admin-tag tag-sell">done</span>' : words(r.state)}${r.reason ? ` <span class="muted">${words(r.reason)}</span>` : ''}</td></tr>`), 'None needed yet.')
+        }
+
+        box.addEventListener('click', (e) => {
+            const mb = e.target.closest('[data-measure]')
+            if(mb){
+                measure = mb.dataset.measure
+                box.querySelectorAll('[data-measure]').forEach((b) => b.setAttribute('aria-checked', b == mb))
+                draw_chart()
+            }
+            const pb = e.target.closest('[data-period]')
+            if(pb && pb.closest('#bm-kb-period')){
+                period = Number(pb.dataset.period)
+                box.querySelectorAll('#bm-kb-period [data-period]').forEach((b) => b.setAttribute('aria-checked', b == pb))
+                busy(pb, draw)
+            }
+        })
+        box.addEventListener('submit', async (e) => {
+            if(e.target.id != 'bm-kb-history'){ return }
+            e.preventDefault()
+            const value = e.target.steamid.value.trim()
+            if(value && !/^\d{17}$/.test(value)){ return iziToast.error({ title: 'Error', message: 'That is not a SteamID64 (17 digits).' }) }
+            filter = value
+            const res = await busy(e.submitter || e.target.querySelector('button'), () => bm('admin:keybank:history', { limit: 100, ...(value ? { steamid: value } : {}) }))
+            $('#bm-kb-swaps').innerHTML = res.status != 'ok' ? error_line(res) : table(KB_COLS, kb_rows(res.data || [], bot_names), value ? 'No saved swaps with this user.' : 'No saved swaps yet.')
+        })
+        // a narrower / wider window draws the bars again (the observer goes away with the page)
+        let resize = null, width = 0
+        new ResizeObserver(([entry]) => {
+            const w = Math.round(entry.contentRect.width)
+            if(!w || Math.abs(w - width) < 8){ return }
+            const first = !width
+            width = w
+            if(first){ return }
+            clearTimeout(resize)
+            resize = setTimeout(() => { if(box.isConnected && days.length){ draw_chart() } }, 150)
+        }).observe($('#bm-kb-chart'))
+        actions(box, draw)
+
+        await Promise.all([draw(), settings.load()])
+        ctx.watch(['keybank'], () => { draw(); settings.changed() })
+        ctx.every(30000, draw)
+    }
+
     /* ========================= SECTION ========================= */
 
     const TABS = [['overview', 'Overview', tab_overview], ['bots', 'Bots', tab_bots], ['trading', 'Trading', tab_trading], ['stock', 'Stock', tab_stock],
-        ['listings', 'Listings', tab_listings], ['prices', 'Prices', tab_prices], ['buyorders', 'Buy orders', tab_buyorders], ['balance', 'Balance', tab_balance], ['blacklist', 'Blacklist', tab_blacklist]]
+        ['listings', 'Listings', tab_listings], ['prices', 'Prices', tab_prices], ['buyorders', 'Buy orders', tab_buyorders], ['keybank', 'Key bank', tab_keybank], ['balance', 'Balance', tab_balance], ['blacklist', 'Blacklist', tab_blacklist]]
 
     sections.bots = async (root, wanted) => {
         const [name, , draw] = TABS.find(([t]) => t == wanted) || TABS[0]
