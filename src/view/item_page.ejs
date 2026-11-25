@@ -123,6 +123,17 @@
                                                 </select>
                                             </label>
                                         <% } %>
+                                        <% if (info.combos) { %>
+                                            <%# Professional Killstreak combos (public/js/plugins/ks_combos.js): good ones at the price, bad ones
+                                                for less; the combos are filled in by public/js/main.js (fill_combos) %>
+                                            <label class="killstreak__select combo__select" for="combo-select" <%= info.combos.shown ? '' : 'hidden' %>>
+                                                <span><%= __('item.combo') %></span>
+                                                <select id="combo-select">
+                                                    <option value=""><%= __('js.item.combo_all') %></option>
+                                                </select>
+                                            </label>
+                                            <p class="combo__hint" id="combo-hint" aria-live="polite" <%= info.combos.shown ? '' : 'hidden' %>><%= info.combos.hint %></p>
+                                        <% } %>
                                         <%# Buy first: it is what most visitors came for (serial position) %>
                                         <div class="item__trade buy">
                                             <button class="item__btn <% if(info.item?.stock?.cur > 0){ %> active <% } %>" id="buy"><span class="icon icon-credit"></span> <%= __('item.buy') %></button>

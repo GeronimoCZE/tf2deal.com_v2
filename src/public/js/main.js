@@ -10,6 +10,7 @@ import * as buy_link from "./plugins/buy_link.js";
 import * as item_info from "./plugins/item_info.js";
 import {init_sales_chart} from "./plugins/sales_chart.js";
 import {init_keys} from "./plugins/keys.js";
+import * as ks_combos from "./plugins/ks_combos.js";
 
 const particles = JSON.parse(localStorage.getItem('unusual_effects'))
 
@@ -1203,6 +1204,58 @@ addEventListener('DOMContentLoaded', (event) => {
 
             // a weapon's killstreak tiers are items of their own, each with its own page (price history, sales, address)
             const tier_pages = (typeof itemTierPages == 'object' && itemTierPages) ? itemTierPages : null
+
+            // Combo select (Nikolas 2026-11-25): a Professional Killstreak weapon's, Kit's or Kit Fabricator's sheen +
+            // killstreaker combos, good ones at the item's price, bad ones for less (js/plugins/ks_combos.js). The picked
+            // combo's exact prices show in Buy / Sell (trade.js single_price), which then list only copies with it
+            // (trade.js combo_visible). Shown while the page's item has a bad combo price (trade.js page_combos).
+            const combo_label = document.querySelector('.combo__select')
+            const combo_select = document.getElementById('combo-select')
+            const combo_hint = document.getElementById('combo-hint')
+            let combos_for = null // the combos the select holds now
+            // fill the select for the picked tier (a Kit / Kit Fabricator: always), or hide it
+            const fill_combos = (tier) => {
+                const combos = combo_select ? trade.page_combos(tier) : null
+                if(combo_label){ combo_label.hidden = !combos }
+                if(combo_hint){ combo_hint.hidden = !combos }
+                if(!combos){ trade.ItemTrade.combo = ''; combos_for = null; return null }
+                if(combos_for !== combos.price.bad.join()){
+                    combos_for = combos.price.bad.join()
+                    combo_select.querySelectorAll('optgroup').forEach(group => group.remove())
+                    for (const [kind, list] of [['good', combos.good], ['bad', combos.bad]]) {
+                        if(list.length == 0){ continue }
+                        const group = document.createElement('optgroup')
+                        group.label = __(`item.combo_${kind}_group`, { count: list.length })
+                        for (const code of list) {
+                            const option = document.createElement('option')
+                            option.value = code
+                            // "Team Shine + Fire Horns (TS+FH)": item words stay English, like item names; the initials
+                            // are the ones the bots' backpack.tf listings use
+                            option.textContent = `${ks_combos.name(code)} (${code})`
+                            group.appendChild(option)
+                        }
+                        combo_select.appendChild(group)
+                    }
+                }
+                if(!combos.good.includes(trade.ItemTrade.combo) && !combos.bad.includes(trade.ItemTrade.combo)){ trade.ItemTrade.combo = '' }
+                combo_select.value = trade.ItemTrade.combo
+                return combos
+            }
+            // under the select: what bad combos cost (nothing picked), or whether the picked one is good or bad
+            const show_combo_hint = (combos) => {
+                if(!combo_hint || !combos){ return }
+                const code = trade.ItemTrade.combo
+                const bad = combos.price.bad.includes(code)
+                combo_hint.classList.toggle('bad', !!code && bad)
+                combo_hint.classList.toggle('good', !!code && !bad)
+                if(!code){
+                    const prices = { count: combos.bad.length, buy: trade.price_text(combos.price.sell), sell: trade.price_text(combos.price.buy) }
+                    combo_hint.textContent = __(combos.price.buy > 0 ? 'item.combo_bad_prices' : 'item.combo_bad_not_bought', prices)
+                } else {
+                    combo_hint.textContent = __(bad ? 'item.combo_is_bad' : 'item.combo_is_good')
+                }
+            }
+
             const show_tier = (tier) => {
                 const entry = ks_tiers.find(t => t.tier == tier)
                 const current_tier = entry ? entry.tier : 0
@@ -1210,6 +1263,7 @@ addEventListener('DOMContentLoaded', (event) => {
 
                 trade.ItemTrade.tier = current_tier
                 trade.ItemTrade.stock = (current_tier > 0 && entry?.stock) ? { cur: entry.stock.cur, limit: entry.stock.limit ?? itemStock?.limit } : null
+                fill_combos(current_tier)
                 show_version(current_item, current_tier, entry?.updated)
                 if(ks_select){ ks_select.value = String(current_tier) }
                 sales_chart?.show_tier(current_tier)
@@ -1218,13 +1272,16 @@ addEventListener('DOMContentLoaded', (event) => {
             // (trade.ItemTrade.tier / .paint / .stock say which)
             const show_version = (name, tier, updated) => {
                 const stock = { cur: Number((trade.ItemTrade.stock || itemStock)?.cur) || 0, limit: Number((trade.ItemTrade.stock || itemStock)?.limit) || 0 }
-                const can_sell_count = Math.max(stock.limit - stock.cur, 0)
+                const our_buy = trade.single_price(tier, true)
+                // a picked bad combo the bots don't buy (its price 0): nothing to sell to them
+                const not_bought = !!trade.ItemTrade.combo && !(our_buy > 0)
+                const can_sell_count = not_bought ? 0 : Math.max(stock.limit - stock.cur, 0)
 
                 $('#item-name, #trade-item-name').text(name)
                 $('.navigation .current-item a').first().text(name)
                 document.title = item_page_title.replace(item.bp_sku, name)
 
-                $('#sell-price').text(trade.price_text(trade.single_price(tier, true)))
+                $('#sell-price').text(not_bought ? __('item.combo_not_bought') : trade.price_text(our_buy))
                 $('#buy-price').text(trade.price_text(trade.single_price(tier, false)))
                 $('.item__trade.sell .stock span').text(can_sell_count)
                 $('.item__trade.sell .stock').toggleClass('yes', can_sell_count > 0).toggleClass('no', can_sell_count <= 0)
@@ -1234,6 +1291,7 @@ addEventListener('DOMContentLoaded', (event) => {
                 $('.item__btn#buy').toggleClass('active', stock.cur > 0)
 
                 $('#updated-ago').text(timeAgo(updated || item_update))
+                show_combo_hint(trade.page_combos(tier))
             }
 
             if(ks_select){
@@ -1279,6 +1337,23 @@ addEventListener('DOMContentLoaded', (event) => {
                 // ?paint=Australium Gold opens with that paint picked
                 const linked_paint = new URLSearchParams(location.search).get('paint')
                 if(linked_paint){ show_paint(linked_paint) }
+            }
+
+            // the combo select: picking a combo shows its prices and lists only its copies (as the paint select does)
+            const show_combo = (code) => {
+                trade.ItemTrade.combo = code || ''
+                const combos = fill_combos(trade.ItemTrade.tier)
+                show_version(current_item, trade.ItemTrade.tier, trade.ks_tiers().find(t => t.tier == trade.ItemTrade.tier)?.updated)
+                // Sell / Buy open: list them again with only that combo
+                if(combos && /^#(sell|buy)_item$/.test(location.hash)){ window.dispatchEvent(new HashChangeEvent('hashchange')) }
+            }
+            if(combo_select){
+                combo_select.addEventListener('change', () => show_combo(combo_select.value))
+                // ?combo=TS+FH (or TS%2BFH) opens with that combo picked
+                const linked_combo = String(new URLSearchParams(location.search.replace(/\+/g, '%2B')).get('combo') || '').trim().toUpperCase()
+                if(!ks_select){ fill_combos(0) } // a Kit / Kit Fabricator (a weapon's tier page filled it in show_tier)
+                if(linked_combo && combo_label && !combo_label.hidden){ show_combo(linked_combo) }
+                else { show_combo_hint(trade.page_combos(trade.ItemTrade.tier)) }
             }
             function formatUnixTimestamp(unixMs) {
                 const date = new Date(unixMs);

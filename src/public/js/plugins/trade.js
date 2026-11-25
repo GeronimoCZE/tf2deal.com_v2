@@ -1,6 +1,7 @@
 import * as main from '../main.js'
 import * as popUp from './window_form.js'
 import { build_item_filters, hide_item_filters } from './item_filters.js'
+import * as ks_combos from './ks_combos.js'
 
 const img_prefix = "https://community.fastly.steamstatic.com/economy/image/";
 
@@ -43,6 +44,7 @@ class Item_Trade_Object {
       this.tier = 0;      // item page: selected killstreak tier
       this.stock = null;  // item page: that tier's (or paint's) stock (null = the item's stock)
       this.paint = '';    // item page: selected paint (a cosmetic's paint with its own price)
+      this.combo = '';    // item page: selected Professional Killstreak combo ("TS+FH", js/plugins/ks_combos.js)
       this.bots = new Map();
 
       this.filters = {bot: null}
@@ -1018,7 +1020,7 @@ const load_site_inventory_single = async (bp_sku) => {
     .done(async function (response) {
         $(`.loading-items#trade-loading`).addClass('hidden')
 
-        if(Array.isArray(response?.items)){ response.items = response.items.filter(tier_visible).filter(paint_visible); }
+        if(Array.isArray(response?.items)){ response.items = response.items.filter(tier_visible).filter(paint_visible).filter(combo_visible); }
         ItemTrade.items = response?.items;
         ItemTrade.party = 'trade-site';
         ItemTrade.iit = new Item_Trade_Object().iit;
@@ -1078,7 +1080,7 @@ const load_user_inventory_single = async (bp_sku) => {
     .done(async function (response) {
         $(`.loading-items#trade-loading`).addClass('hidden')
 
-        if(Array.isArray(response?.items)){ response.items = response.items.filter(tier_visible).filter(paint_visible); }
+        if(Array.isArray(response?.items)){ response.items = response.items.filter(tier_visible).filter(paint_visible).filter(combo_visible); }
         ItemTrade.items = response?.items;
         ItemTrade.party = 'trade-user';
         ItemTrade.iit = new Item_Trade_Object().iit;
@@ -1477,6 +1479,28 @@ const paint_visible = (asset) => {
     return !entry;
 }
 
+// ---------------------------------------------------------------------------
+// Item page: Professional Killstreak combos (js/plugins/ks_combos.js, Nikolas 2026-11-25)
+//
+// A Professional Killstreak weapon's tier page and a Professional Killstreak Kit / Kit Fabricator's page have a combo
+// select when item_manager prices their bad sheen + killstreaker combos lower (main.js show_combo). The good combos
+// cost the price shown, the bad ones less.
+// ---------------------------------------------------------------------------
+
+// the item page's combos for tier `tier` (a Kit / Kit Fabricator: any): { good: [codes], bad: [codes], price: { bad,
+// sell, buy } } (prices in ref), null when the page's item has no bad combo price for it
+const page_combos = (tier = ItemTrade.tier) => {
+    const src = page_item();
+    if(!src || (!ks_combos.is_pro_kit(src.bp_sku) && Number(tier) != 3)) return null;
+    const price = ks_combos.price_of(src, typeof itemKey == 'number' ? itemKey : 0);
+    if(!price) return null;
+    return { good: ks_combos.ALL.filter(c => !price.bad.includes(c)), bad: ks_combos.ALL.filter(c => price.bad.includes(c)), price };
+}
+
+// The combo picked in the item page's combo select (main.js sets ItemTrade.combo): Sell / Buy then list only copies
+// with that sheen + killstreaker
+const combo_visible = (asset) => !ItemTrade.combo || ks_combos.of(asset) == ItemTrade.combo;
+
 // stock used for the "can buy" limit: the selected tier's (or paint's) own stock if it has one
 const single_stock = () => {
     const stock = ItemTrade.stock || itemStock || {};
@@ -1505,7 +1529,10 @@ const tiles_against = (item_obj, key) => Array.from(document.querySelectorAll(`#
 //   - the item's price.
 // A copy worth less than one scrap is a half-scrap item: the trade counts it as HALF_SCRAP whatever its own price,
 // so it shows the item's half-scrap price (0.05 ref) too, not a copy price like 0.08 the bot server sends with it.
-const copy_price = (own, tier, base) => {
+// A bad Professional Killstreak combo (bad: the bot server marks the copy bad_combo, js/plugins/ks_combos.js) costs its
+// own, lower price only: the tier's and the item's are the good combos' price. 0 = the bots don't buy it.
+const copy_price = (own, tier, base, bad = false) => {
+    if(bad){ return Number(own) > 0 ? Number(own) : 0; }
     const price = Math.max(Number(own) || 0, Number(tier) || 0, Number(base) || 0);
     if(!is_half_scrap(price)){ return price; }
     return is_half_scrap(base) ? Number(base) : 0.05;
@@ -1514,10 +1541,14 @@ const copy_price = (own, tier, base) => {
 // price in ref of one asset (or of a tier number) on the item page, the same way as trade_price:
 // the highest of the copy's own price (the bot server's price for that exact copy), its killstreak tier's
 // price (or its own version's: a painted cosmetic's paint, a festivized weapon) and the item's price. A copy with a spell
-// that has its own price never sells under it. Without an asset: the picked tier's, or the picked paint's price.
+// that has its own price never sells under it. Without an asset: the picked tier's, or the picked paint's price, and a
+// picked bad Professional Killstreak combo's lower price (combo select: ItemTrade.combo; 0 = the bots don't buy it).
 const single_price = (asset_or_tier, selling) => {
     const asset = (typeof asset_or_tier == 'object') ? asset_or_tier : null;
+    if(asset?.bad_combo === true){ return copy_price(asset[selling ? 'buy' : 'sell'], 0, 0, true); }
     const tier = asset ? (Number(asset?.ks) || 0) : (Number(asset_or_tier) || 0);
+    const combos = asset ? null : page_combos(tier);
+    if(combos && combos.price.bad.includes(ItemTrade.combo)){ return selling ? combos.price.buy : combos.price.sell; }
     const entry = (tier > 0) ? ks_tiers().find(t => t.tier == tier)
         : asset ? variant_entry(asset) : painted_entry(ItemTrade.paint);
     const version = selling ? entry?.buy : Math.max(Number(entry?.sell) || 0, asset ? spell_floor(asset) : 0);
@@ -1527,6 +1558,7 @@ const single_price = (asset_or_tier, selling) => {
 // /trade page: price in ref of one copy (asset) of a bot (field 'sell') or user (field 'buy') inventory item.
 // Used for the tile, the tooltip and the trade, so the total adds what the tooltip shows.
 const trade_price = (item_obj, asset, field) => {
+    if(asset?.bad_combo === true){ return copy_price(asset[field], 0, 0, true); } // a bad Professional Killstreak combo
     const tier = Number(asset?.ks) || 0;
     const entry = (tier > 0) ? ks_tiers(item_obj, item_obj?.bptf_data?.update_key_price).find(t => t.tier == tier) : null;
     return copy_price(asset?.[field], entry?.[field], item_obj?.[field]);
@@ -3456,7 +3488,8 @@ const item_tooltip = async (state, item, party) => {
                         }
                         if(sheen){
                             tooltip.querySelector('.item-desc .descs_ .desc_sheen').style.display = 'flex';
-                            tooltip.querySelector('.item-desc .descs_ .desc_sheen .value').textContent = sheen;
+                            // a bad Professional Killstreak combo (js/plugins/ks_combos.js) says why its price is lower
+                            tooltip.querySelector('.item-desc .descs_ .desc_sheen .value').textContent = (Item?.bad_combo === true) ? `${sheen} · ${__('trade.bad_combo')}` : sheen;
                         }
 
                         tooltip.querySelector('.item-desc .desc_festivized').style.display = 'none';
@@ -3846,7 +3879,7 @@ export {
     item_tooltip, render_items, tooltip_item, item_details,
     setBot, set_filter, pick_filter, apply_filters, reset_filters, search, item_to_trade, single_item_to_trade, clear_single_items, clear_items, round_ref,
     group_assets, stack_sig,
-    ks_tiers, ks_name, single_price, price_text, painted_entry, painted_list,
+    ks_tiers, ks_name, single_price, price_text, painted_entry, painted_list, page_combos,
     create_trade, check_trade,
     UserTrade, SiteTrade, ItemTrade,
     tradeoffer, tradeOfferConnection,

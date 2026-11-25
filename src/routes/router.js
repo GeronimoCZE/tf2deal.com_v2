@@ -20,6 +20,7 @@ import * as variants from '../service/variants.js'
 import * as blog_render from '../service/blog_render.js'
 import * as news_times from '../service/news_times.js'
 import * as key_bank from '../service/key_bank.js'
+import * as ks_combos from '../public/js/plugins/ks_combos.js'
 import { localize_path, LANG_TAGS } from '../i18n.js'
 import { isNumberObject } from 'util/types'
 
@@ -418,6 +419,17 @@ const item_page = async (req, res) => {
     // the item's versions with a price of their own (service/variants.js): paints (the paint select, like the killstreak
     // one), festivized, spells
     const variant_list = ks ? [] : await variants.for_page(main).catch(() => [])
+    // the combo select (public/js/plugins/ks_combos.js, Nikolas 2026-11-25): a weapon's Professional Killstreak tier, a
+    // Professional Killstreak Kit or Kit Fabricator whose bad sheen + killstreaker combos item_manager prices lower. It
+    // shows on such a page at once; on a skin's page when its Professional Killstreak tier is picked (public/js/main.js).
+    const combo_price = ks_combos.price_of(main, key_price)
+    const combos = combo_price ? {
+      shown: ks_combos.is_pro_kit(main.bp_sku) || ks == 3,
+      // what bad combos cost, as public/js/main.js show_combo_hint writes it
+      hint: req.__(combo_price.buy > 0 ? 'js.item.combo_bad_prices' : 'js.item.combo_bad_not_bought', {
+        count: combo_price.bad.length, buy: fn.list_price_text(combo_price.sell, key_price), sell: fn.list_price_text(combo_price.buy, key_price)
+      })
+    } : null
 
     res.render(
       'item_page',
@@ -430,6 +442,7 @@ const item_page = async (req, res) => {
         // the killstreak select opens each tier's own page (public/js/main.js)
         tier_pages: item_lists.ks_items(main) ? Object.fromEntries([...item_lists.tiers_of(main).keys()].map((t) => [t, buy.display_name(main.bp_sku, { ks: t })])) : null,
         variants: variant_list, // [{ kind, name, buy, sell, limit, held, updated }] (public/js/main.js show_paint, js/plugins/trade.js)
+        combos, // { shown, hint } or null: the combo select (view/item_page.ejs, public/js/main.js fill_combos)
         page_name,
         result: result,
         key_price: app.key_price,

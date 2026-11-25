@@ -7,6 +7,7 @@ import * as fn from '../fn.js'
 import * as app from '../app.js'
 import { item_model } from '../model/Item.js'
 import * as variants from './variants.js'
+import * as ks_combos from '../public/js/plugins/ks_combos.js'
 
 export const ASSETID = /^\d{1,20}$/
 
@@ -35,8 +36,13 @@ export const to_ref = (value, key_ref) => {
 
 // What the visitor pays: the highest of the copy's own price, its killstreak tier's price (or its own version's: a
 // painted cosmetic's paint, a festivized weapon, at least a spell's price: service/variants.js) and the item's price (same
-// as the trade page, js/plugins/trade.js -> copy_price).
+// as the trade page, js/plugins/trade.js -> copy_price). A bad Professional Killstreak combo: the bot's own, lower price
+// for it (bot_manager writes it on the copy), or the bad combo price (public/js/plugins/ks_combos.js).
 const sell_price = (doc, asset, key_ref, paints) => {
+  if (ks_combos.is_bad(doc, asset, key_ref)) {
+    const bad = ks_combos.price_of(doc, key_ref)
+    return Number(asset?.sell) > 0 ? Number(asset.sell) : (bad?.sell || 0)
+  }
   const tier = Number(asset?.ks) || 0
   let tier_price = 0
   if (tier > 0) {
@@ -80,7 +86,7 @@ export const find = async (assetid) => {
   if (Number.isSafeInteger(Number(id))) values.push(Number(id))
   const docs = await item_model.find(
     { 'stock.items.a': { $in: values } },
-    { bp_sku: 1, type: 1, qualityID: 1, effectID: 1, image: 1, image_large: 1, sell: 1, killstreak: 1, 'bptf_data.update_key_price': 1, 'stock.items': 1 }
+    { bp_sku: 1, type: 1, qualityID: 1, effectID: 1, image: 1, image_large: 1, sell: 1, killstreak: 1, combo_price: 1, 'bptf_data.update_key_price': 1, 'stock.items': 1 }
   ).limit(10).lean()
   const paints = await variants.prices_of(docs.map((d) => d.bp_sku))
 

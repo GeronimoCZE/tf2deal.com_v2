@@ -1499,6 +1499,39 @@
                         }
                     }
                 }
+                // "Combo: [All combos v]" on Professional Killstreak items (public/js/plugins/ks_combos.js) and the line
+                // under it: what bad combos cost, or whether the picked combo is good or bad (main.js show_combo_hint)
+                .combo__select{
+                    &[hidden]{ display: none; }
+                    select{ max-width: min(24rem, calc(100vw - 9rem)); text-overflow: ellipsis; }
+                }
+                .combo__hint{
+                    display: flex;
+                    align-items: baseline;
+                    gap: .45rem;
+                    margin: -.35rem 0 .9rem 0;
+                    max-width: 25rem;
+                    color: var(--ink-2);
+                    font-size: 13.5px !important;
+                    font-weight: 500;
+                    line-height: 1.45;
+                    &[hidden]{ display: none; }
+                    // a dot: grey with nothing picked, green for a good combo, red for a bad one
+                    &::before{
+                        content: '';
+                        flex: none;
+                        width: .5rem;
+                        height: .5rem;
+                        border-radius: 50%;
+                        background: var(--ink-3);
+                        transform: translateY(-1px);
+                    }
+                    &.good::before{ background: #70B04A; }
+                    &.bad::before{ background: #ef7383; }
+                    @include lt-sm{
+                        margin: -.35rem auto .9rem auto !important;
+                    }
+                }
                 .item__trade{
                     display: block;
                     position: relative;
