@@ -322,6 +322,135 @@
     .admin-bm-audit code{ overflow-wrap: anywhere; }
     .admin-bm-payload{ display: block; margin-top: .15rem; overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 
+    // ---------- key bank (#bots/keybank) ----------
+    // keys = the chart violet, metal = neutral; "we buy" / "we sell" wear the buy / sell tag colours
+    .akb-chart-head{
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: .4rem 1rem;
+        h3{ margin: .35rem 0 .8rem 0; }
+    }
+    .akb-controls{ display: flex; flex-wrap: wrap; gap: .5rem; .admin-segment{ margin-bottom: .6rem; } }
+    .akb-bar{ fill: #b88ef7; transition: opacity 120ms ease; &.is-neg{ fill-opacity: .5; } &.is-dim{ opacity: .35; } }
+    .akb-zero{ stroke: var(--line-strong); }
+    .akb-hit{ fill: transparent; outline: none; cursor: default; }
+    .akb-num{ text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    .akb-prices{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; border-radius: var(--r-md); overflow: hidden; margin-bottom: 1rem; }
+    .akb-quote{
+        display: flex;
+        flex-direction: column;
+        gap: .15rem;
+        padding: .8rem 1rem .85rem 1rem;
+        background: var(--surface-2, var(--well));
+        border-top: 3px solid var(--q);
+        span{ color: var(--ink-3); font-size: 13px; }
+        strong{ color: var(--ink); font-size: 1.6rem; line-height: 1.15; font-variant-numeric: tabular-nums; small{ font-size: .55em; color: var(--ink-3); font-weight: 600; } }
+        em{ font-style: normal; color: var(--ink-2); font-size: 13px; }
+        &.is-buy{ --q: #a98bf5; }
+        &.is-sell{ --q: #6fd17a; }
+    }
+    .akb-book{
+        display: grid;
+        grid-template-columns: minmax(9.5rem, auto) minmax(0, 1fr);
+        gap: 1rem;
+        align-items: start;
+        @include lt-sm{ grid-template-columns: minmax(0, 1fr); }
+        .admin-bm-facts{ margin: 0; }
+    }
+    // the order book around our prices, highest first
+    .akb-ladder{
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        font-variant-numeric: tabular-nums;
+        font-size: 13px;
+        li{
+            display: flex;
+            justify-content: space-between;
+            gap: .8rem;
+            padding: .22rem .55rem;
+            border-left: 3px solid transparent;
+            color: var(--ink-3);
+            span{ color: var(--ink-2); font-weight: 600; }
+            em{ font-style: normal; }
+        }
+        li.is-our-sell, li.is-our-buy{ background: var(--surface-3); border-radius: 0 var(--r-sm) var(--r-sm) 0; span, em{ color: var(--ink); } }
+        li.is-our-sell{ border-left-color: #6fd17a; }
+        li.is-our-buy{ border-left-color: #a98bf5; }
+        li.is-seller + li.is-buyer, li.is-seller + li.is-our-buy, li.is-our-sell + li.is-buyer{ margin-top: .35rem; }   // the gap between the two sides
+    }
+
+    // keys against metal by value: a track, the keys part violet, a tick where we aim
+    .akb-split{
+        position: relative;
+        display: block;
+        width: 6.5rem;
+        height: 6px;
+        border-radius: 6px;
+        background: rgba(226, 226, 244, .14);
+        &.is-big{ width: 100%; height: 12px; border-radius: 4px; }
+    }
+    .akb-split-keys{
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: var(--keys);
+        border-radius: inherit;
+        background: #b88ef7;
+        box-shadow: 2px 0 0 var(--surface);   // the 2px gap before the metal part
+    }
+    .akb-split-aim{
+        position: absolute;
+        top: -4px;
+        bottom: -4px;
+        left: var(--aim);
+        width: 2px;
+        margin-left: -1px;
+        border-radius: 1px;
+        background: var(--ink);
+    }
+    .akb-split-total{ margin: .4rem 0 1.1rem 0; }
+    .akb-bots{
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        li{ padding: .75rem 0; border-top: 1px solid var(--line); }
+        .akb-split{ width: 100%; margin: .5rem 0 .45rem 0; }
+    }
+    .akb-bot-head{
+        display: flex;
+        align-items: center;
+        gap: .45rem;
+        strong{ color: var(--ink); font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+        .akb-num{ margin-left: auto; color: var(--ink-2); }
+    }
+    .akb-bot-meta{
+        display: flex;
+        flex-wrap: wrap;
+        gap: .1rem 1rem;
+        font-size: 13px;
+        color: var(--ink-2);
+        font-variant-numeric: tabular-nums;
+    }
+    .akb-split-legend{
+        display: flex;
+        flex-wrap: wrap;
+        gap: .3rem 1.1rem;
+        margin-top: .6rem;
+        color: var(--ink-2);
+        font-size: 13px;
+        font-variant-numeric: tabular-nums;
+        span{ display: inline-flex; align-items: center; gap: .4rem; }
+    }
+    .akb-swatch{
+        width: 10px; height: 10px; border-radius: 3px;
+        &.is-keys{ background: #b88ef7; }
+        &.is-metal{ background: rgba(226, 226, 244, .14); box-shadow: inset 0 0 0 1px var(--line-strong); }
+        &.is-aim{ width: 2px; height: 12px; border-radius: 1px; background: var(--ink); }
+    }
+
     // phones: nothing in a tab may be wider than the screen
     .admin-bm-page{
         .admin-inline-form{ flex-wrap: wrap; input, select{ min-width: 0; } }

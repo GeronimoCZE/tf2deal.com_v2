@@ -28,7 +28,8 @@
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
     "search_short": "Search items",
-    "lang_theme": "Language and theme"
+    "lang_theme": "Language and theme",
+    "keys": "Keys"
   },
   "common": {
     "sign_in_steam": "Sign in with Steam",
@@ -104,7 +105,8 @@
     "cookies": "Cookie Policy – Cookies on TF2Deal.com",
     "category": "Buy & Sell TF2 {category} for Keys | TF2Deal.com",
     "category_page": "TF2 {category} (page {page}) | TF2Deal.com",
-    "category_short": "TF2 {category} | TF2Deal.com"
+    "category_short": "TF2 {category} | TF2Deal.com",
+    "keys": "TF2 Key Bank – Swap Keys and Refined Metal | TF2Deal.com"
   },
   "desc": {
     "default": "Buy, sell and trade TF2 items with automated Steam trade bots. Hats, unusuals, weapons and keys for keys and ref, trade offers in seconds.",
@@ -126,7 +128,8 @@
     "item_stock": "{count} in stock, instant automated TF2 trading.",
     "item_no_stock": "Instant automated TF2 trading with our trade bots.",
     "category": "Buy and sell TF2 {category} for keys and ref: {count} items with live prices and stock, and Steam trade offers from our bots in seconds.",
-    "category_page": "Page {page} of TF2 {category} on TF2Deal.com, with live prices and stock. Buy and sell for keys and ref with instant Steam trade offers."
+    "category_page": "Page {page} of TF2 {category} on TF2Deal.com, with live prices and stock. Buy and sell for keys and ref with instant Steam trade offers.",
+    "keys": "Swap Mann Co. Supply Crate Keys for refined metal and back with TF2Deal.com's bank bots: live key prices from backpack.tf, up to 5 keys a trade, a Steam offer in seconds."
   },
   "item_types": {
     "cosmetic": "Cosmetic",
@@ -385,7 +388,9 @@
       "show_more": "Show 5 more",
       "side_user": "User",
       "side_you": "You",
-      "side_bot": "Site bot"
+      "side_bot": "Site bot",
+      "effect": "Unusual effect",
+      "more_lines": "+{n} more"
     },
     "new_user": {
       "toast_title": "Submit your Trade URL",
@@ -693,6 +698,48 @@
       "failed": "Couldn't save it. Try again in a moment.",
       "inventory_locked": "Add your Steam trade URL to load your inventory.",
       "add": "Add trade URL"
+    },
+    "keys": {
+      "unavailable": "The key bank can't be reached right now. Please try again in a few minutes.",
+      "paused": "Key banking is paused right now. The prices come back here as soon as it runs again.",
+      "stale_notice": "The key bank hasn't updated its prices for a few minutes. Swaps wait until it does.",
+      "live": "Live",
+      "stale": "Prices may be out of date",
+      "off": "Paused",
+      "updated_ago": "Updated {s} ago",
+      "no_bots": "No bank bot is online right now.",
+      "online": "Online",
+      "offline": "Offline",
+      "sells": "Sells",
+      "buys": "Buys",
+      "pick_bot": "Pick a bank bot.",
+      "cap_sell": "{name} can sell up to {n} right now.",
+      "cap_buy": "{name} can buy up to {n} right now.",
+      "cap_none_sell": "{name} has no keys to sell right now. Pick another bot.",
+      "cap_none_buy": "{name} can't buy keys right now. Pick another bot.",
+      "each": "{price} ref each",
+      "requesting": "Requesting…",
+      "request_buy": "Buy {what} for {total} ref",
+      "request_sell": "Sell {what} for {total} ref",
+      "requested_title": "Offer on its way",
+      "requested": "{what} for {total} ref. The offer arrives in a few seconds.",
+      "price_changed_title": "Price changed",
+      "chart_label": "Key price over the last 7 days: from {lo} to {hi} ref, now {now} ref.",
+      "word": {
+        "one": "key",
+        "other": "keys"
+      },
+      "err": {
+        "price_changed": "The key price just changed to {price} ref. Check the new total and try again.",
+        "not_enough_stock": "That bot can't do that many keys right now. Pick fewer keys or another bot.",
+        "bot_unavailable": "That bank bot just went offline. Pick another one.",
+        "key_bank_off": "Key banking is paused right now. Please try again later.",
+        "offer_open": "You already have an open offer from our bots. Accept or decline it first.",
+        "user_not_enough_keys": "You don't have that many tradable keys.",
+        "user_not_enough_metal": "You don't have enough tradable metal (or the right change) for this.",
+        "bank_no_change": "The bot doesn't have the right change for this right now. Try another amount or bot.",
+        "no_price": "Key prices are updating. Please try again in a minute."
+      }
     }
   },
   "items": {
@@ -853,6 +900,55 @@
     "col_items": "items",
     "bots_error": "Failed to load bots data. Try refreshing the page."
   },
+  "keys": {
+    "kicker": "Key bank",
+    "h1": "Swap keys and metal",
+    "lede": "Our bank bots trade Mann Co. Supply Crate Keys for refined metal and back, up to {max} keys a trade. Pick a bot and how many keys, then accept the Steam offer it sends you.",
+    "prices_label": "Key prices",
+    "we_sell": "We sell a key for",
+    "we_sell_hint": "What you pay per key when you buy",
+    "we_buy": "We buy a key for",
+    "we_buy_hint": "What you get per key when you sell",
+    "spread": "Spread",
+    "market": "backpack.tf bots",
+    "status": "Status",
+    "live": "Live",
+    "stale": "Prices may be out of date",
+    "off": "Paused",
+    "paused": "Key banking is paused right now. The prices come back here as soon as it runs again.",
+    "unavailable": "The key bank can't be reached right now. Please try again in a few minutes.",
+    "swap_title": "Swap",
+    "side_label": "Buy or sell keys",
+    "buy_keys": "Buy keys",
+    "sell_keys": "Sell keys",
+    "how_many": "How many keys",
+    "n_keys": "Keys: {n}",
+    "you_pay": "You pay",
+    "you_get": "You get",
+    "word_one": "key",
+    "each": "{price} ref each",
+    "request": "Request offer",
+    "sign_in": "Sign in through Steam to swap",
+    "fine": "The bot sends you a Steam trade offer, cancelled after {minutes} minutes if it isn't accepted. Change in metal can come from either side. Only tradable keys and metal count.",
+    "bots_title": "Bank bots",
+    "no_bots": "No bank bot is online right now.",
+    "online": "Online",
+    "offline": "Offline",
+    "sells": "Sells",
+    "buys": "Buys",
+    "bots_hint": "Sells: keys the bot can sell you now. Buys: keys it can buy from you now. Both follow its stock live.",
+    "chart_title": "Key price, last 7 days",
+    "legend_band": "backpack.tf: best bot buy order to cheapest seller",
+    "legend_mid": "Middle",
+    "chart_empty": "The price history fills in over the next few hours.",
+    "how_title": "How it works",
+    "how_1_title": "Pick a bot and an amount",
+    "how_1": "Buy or sell 1 to {max} keys. The prices above are what you get, nothing is added on top.",
+    "how_2_title": "Accept the offer in Steam",
+    "how_2": "The bot sends the offer within seconds. Check it shows the keys and metal you expect, then accept it. It's cancelled after {minutes} minutes.",
+    "how_3_title": "Or send an offer yourself",
+    "how_3": "Bank bots accept offers of only keys for metal at these prices right away, up to {max} keys a trade. Anything else is declined."
+  },
   "profile": {
     "tickets": "Tickets",
     "my_giveaways": "My Giveaways",
@@ -926,7 +1022,12 @@
     "buy_link_half_scrap": "This item is worth 0.055 ref (half a scrap), which keys and metal can't pay on its own. Pick two of them on the item page.",
     "buy_link_pick": "Pick which item you want first.",
     "trade_url_required": "Add your Steam trade URL to load your inventory.",
-    "trade_url_other_account": "This trade URL belongs to another Steam account. Copy the one from the account you signed in with."
+    "trade_url_other_account": "This trade URL belongs to another Steam account. Copy the one from the account you signed in with.",
+    "key_bank_invalid": "Pick a bank bot, buy or sell, and 1 to {max} keys.",
+    "key_bank_reload": "This page is out of date. Reload it and try again.",
+    "offer_cooldown": "You didn't accept your last {misses} requested offers, so you can request a new one in {time}. Accepting an offer resets this.",
+    "cooldown_minutes": "{n} min",
+    "cooldown_hours": "{n} h"
   },
   "cookies": {
     "banner_title": "Cookies on TF2Deal.com",
@@ -1006,6 +1107,14 @@
       "empty": "Nothing here yet. New features will show up here as soon as they go live."
     },
     "items": {
+      "key_bank": {
+        "title": "Swap keys and metal with our bank bots",
+        "text": "The new Keys page swaps Mann Co. Supply Crate Keys for refined metal and back, up to 5 keys a trade, at live prices that follow backpack.tf. Pick a bank bot, see how many keys it can buy and sell right now, and get the Steam offer in seconds."
+      },
+      "trade_details": {
+        "title": "Latest trades show item details",
+        "text": "Latest trades and your trade history now name every item in its quality colour, the way TF2 writes it, with its unusual effect, sheen, killstreaker, paint, spells and strange parts right under the pictures."
+      },
       "fabricators": {
         "title": "See what a Kit Fabricator makes",
         "text": "A Kit Fabricator's picture now shows the Kit it makes in its bottom left corner. In the item details window (right-click an item, or tap its tooltip) you also see the items that fabricator needs and how many of each. Every fabricator needs its own, so fabricators that need different items no longer stack in the trade window."

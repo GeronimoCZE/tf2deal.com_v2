@@ -2,7 +2,14 @@
 
 "Latest trades" on the home page and Profile → Trades show each traded copy's details in its tooltip: paint,
 Halloween spells, strange parts, killstreaker, sheen and custom name (plus the spell / part corner marks and a painted
-copy's own picture). Each side of a trade is labelled: "User" (or "You" on the profile) and the bot's Steam name linked to its Steam profile ("Site bot" when the
+copy's own picture).
+
+Under the pictures each side also lists its items in words (public/js/plugins/trades_render.js `lines_html`, styles in
+scss/helpers/_trade_records.scss): the name in its quality colour (`--q-name`, the way TF2 writes item names), then
+small chips for the unusual effect (when the name doesn't hold it already), sheen (a glowing dot), killstreaker, paint
+(a flat swatch; team paints and Team Shine split RED / BLU, colours in public/js/plugins/item_colors.js), spells
+(sparkle) and strange parts (cog). Two lines a side and four chips a line; the rest sit behind "+N more" and a "+N"
+chip whose title names them. Swaps of only keys and metal (the key bank, docs/KEY_BANK.md) never show in Latest trades. Each side of a trade is labelled: "User" (or "You" on the profile) and the bot's Steam name linked to its Steam profile ("Site bot" when the
 record doesn't name a known bot).
 
 The trader stays anonymous in "Latest trades": /api/latest_trades and the live socket send no trade ID, partner

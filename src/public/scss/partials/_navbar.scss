@@ -906,9 +906,9 @@ header{
                         }
                         
                     }
-                    &.Items{
+                    &.Items, &.Keys{
                         // highlighted on the list and on item pages, but still a link: from an item page it is the way back to the list
-                        .link[href$="/items"]{
+                        &.Items .link[href$="/items"], &.Keys .link[href$="/keys"]{
                             color: #a970ff;
                             transition: 250ms;
                             &::before{

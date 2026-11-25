@@ -28,7 +28,8 @@
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
     "search_short": "Hledat předměty",
-    "lang_theme": "Jazyk a motiv"
+    "lang_theme": "Jazyk a motiv",
+    "keys": "Klíče"
   },
   "common": {
     "sign_in_steam": "Přihlásit se přes Steam",
@@ -104,7 +105,8 @@
     "cookies": "Zásady cookies – cookies na TF2Deal.com",
     "category": "Koupit a prodat TF2 {category} za klíče | TF2Deal.com",
     "category_page": "TF2 {category} (strana {page}) | TF2Deal.com",
-    "category_short": "TF2 {category} | TF2Deal.com"
+    "category_short": "TF2 {category} | TF2Deal.com",
+    "keys": "TF2 banka klíčů – výměna klíčů za refined metal | TF2Deal.com"
   },
   "desc": {
     "default": "Kupujte a prodávejte TF2 předměty s automatickými Steam trade boty. Klobouky, unusualy, zbraně i klíče za klíče a ref, nabídka do pár sekund.",
@@ -126,7 +128,8 @@
     "item_stock": "Skladem: {count}. Okamžitý automatický TF2 trading.",
     "item_no_stock": "Okamžitý automatický TF2 trading s našimi trade boty.",
     "category": "Kupujte a prodávejte TF2 {category} za klíče a ref. Předmětů: {count}, aktuální ceny a sklad, nabídky k výměně od našich botů během pár sekund.",
-    "category_page": "Strana {page}: TF2 {category} na TF2Deal.com s aktuálními cenami a skladem. Kupujte a prodávejte za klíče a ref s okamžitou nabídkou k výměně."
+    "category_page": "Strana {page}: TF2 {category} na TF2Deal.com s aktuálními cenami a skladem. Kupujte a prodávejte za klíče a ref s okamžitou nabídkou k výměně.",
+    "keys": "Vyměňte Mann Co. Supply Crate Keys za refined metal a zpět s bankovními boty TF2Deal.com: živé ceny klíčů z backpack.tf, až 5 klíčů na výměnu, nabídka na Steamu během pár sekund."
   },
   "item_types": {
     "cosmetic": "Kosmetika",
@@ -385,7 +388,9 @@
       "show_more": "Zobrazit dalších 5",
       "side_user": "Uživatel",
       "side_you": "Ty",
-      "side_bot": "Bot webu"
+      "side_bot": "Bot webu",
+      "effect": "Unusual efekt",
+      "more_lines": "+{n} další"
     },
     "new_user": {
       "toast_title": "Zadejte svůj odkaz pro výměnu",
@@ -693,6 +698,50 @@
       "failed": "Nepodařilo se uložit. Zkuste to za chvíli znovu.",
       "inventory_locked": "Přidejte svůj Steam odkaz pro výměnu, aby se načetl váš inventář.",
       "add": "Přidat odkaz"
+    },
+    "keys": {
+      "unavailable": "Banka klíčů teď není dostupná. Zkuste to prosím za pár minut.",
+      "paused": "Banka klíčů je teď pozastavená. Ceny se tu objeví, jakmile znovu poběží.",
+      "stale_notice": "Banka klíčů už pár minut neaktualizovala ceny. Výměny počkají, dokud to neudělá.",
+      "live": "Živě",
+      "stale": "Ceny možná nejsou aktuální",
+      "off": "Pozastaveno",
+      "updated_ago": "Aktualizováno před {s}",
+      "no_bots": "Žádný bankovní bot teď není online.",
+      "online": "Online",
+      "offline": "Offline",
+      "sells": "Prodá",
+      "buys": "Koupí",
+      "pick_bot": "Vyberte bankovního bota.",
+      "cap_sell": "{name} teď může prodat až {n}.",
+      "cap_buy": "{name} teď může koupit až {n}.",
+      "cap_none_sell": "{name} teď nemá klíče na prodej. Vyberte jiného bota.",
+      "cap_none_buy": "{name} teď nemůže kupovat klíče. Vyberte jiného bota.",
+      "each": "{price} ref za kus",
+      "requesting": "Odesílám…",
+      "request_buy": "Koupit {what} za {total} ref",
+      "request_sell": "Prodat {what} za {total} ref",
+      "requested_title": "Nabídka je na cestě",
+      "requested": "{what} za {total} ref. Nabídka dorazí za pár sekund.",
+      "price_changed_title": "Cena se změnila",
+      "chart_label": "Cena klíče za posledních 7 dní: od {lo} do {hi} ref, teď {now} ref.",
+      "word": {
+        "one": "klíč",
+        "few": "klíče",
+        "many": "klíče",
+        "other": "klíčů"
+      },
+      "err": {
+        "price_changed": "Cena klíče se právě změnila na {price} ref. Zkontrolujte novou částku a zkuste to znovu.",
+        "not_enough_stock": "Tento bot teď nezvládne tolik klíčů. Vyberte méně klíčů nebo jiného bota.",
+        "bot_unavailable": "Tento bankovní bot se právě odpojil. Vyberte jiného.",
+        "key_bank_off": "Banka klíčů je teď pozastavená. Zkuste to prosím později.",
+        "offer_open": "Od našich botů už máte otevřenou nabídku. Nejdřív ji přijměte nebo odmítněte.",
+        "user_not_enough_keys": "Nemáte tolik obchodovatelných klíčů.",
+        "user_not_enough_metal": "Nemáte dost obchodovatelného metalu (nebo správné drobné).",
+        "bank_no_change": "Bot teď nemá správné drobné. Zkuste jiný počet nebo jiného bota.",
+        "no_price": "Ceny klíčů se aktualizují. Zkuste to prosím za minutu."
+      }
     }
   },
   "items": {
@@ -853,6 +902,55 @@
     "col_items": "předměty",
     "bots_error": "Nepodařilo se načíst data botů. Zkuste obnovit stránku."
   },
+  "keys": {
+    "kicker": "Banka klíčů",
+    "h1": "Výměna klíčů a metalu",
+    "lede": "Naši bankovní boti mění Mann Co. Supply Crate Keys za refined metal a zpět, až {max} klíčů na jednu výměnu. Vyberte bota a počet klíčů a pak přijměte nabídku, kterou vám pošle na Steamu.",
+    "prices_label": "Ceny klíčů",
+    "we_sell": "Klíč prodáváme za",
+    "we_sell_hint": "Kolik zaplatíte za klíč při nákupu",
+    "we_buy": "Klíč kupujeme za",
+    "we_buy_hint": "Kolik dostanete za klíč při prodeji",
+    "spread": "Rozdíl",
+    "market": "Boti na backpack.tf",
+    "status": "Stav",
+    "live": "Živě",
+    "stale": "Ceny možná nejsou aktuální",
+    "off": "Pozastaveno",
+    "paused": "Banka klíčů je teď pozastavená. Ceny se tu objeví, jakmile znovu poběží.",
+    "unavailable": "Banka klíčů teď není dostupná. Zkuste to prosím za pár minut.",
+    "swap_title": "Výměna",
+    "side_label": "Koupit nebo prodat klíče",
+    "buy_keys": "Koupit klíče",
+    "sell_keys": "Prodat klíče",
+    "how_many": "Kolik klíčů",
+    "n_keys": "Klíče: {n}",
+    "you_pay": "Zaplatíte",
+    "you_get": "Dostanete",
+    "word_one": "klíč",
+    "each": "{price} ref za kus",
+    "request": "Požádat o nabídku",
+    "sign_in": "Pro výměnu se přihlaste přes Steam",
+    "fine": "Bot vám pošle nabídku na Steamu, která se zruší, pokud ji do {minutes} minut nepřijmete. Drobné v metalu může dát kterákoli strana. Počítají se jen obchodovatelné klíče a metal.",
+    "bots_title": "Bankovní boti",
+    "no_bots": "Žádný bankovní bot teď není online.",
+    "online": "Online",
+    "offline": "Offline",
+    "sells": "Prodá",
+    "buys": "Koupí",
+    "bots_hint": "Prodá: kolik klíčů vám bot teď může prodat. Koupí: kolik jich od vás teď může koupit. Obojí se mění živě podle jeho zásob.",
+    "chart_title": "Cena klíče za posledních 7 dní",
+    "legend_band": "backpack.tf: nejlepší nákupní nabídka bota až nejlevnější prodejce",
+    "legend_mid": "Střed",
+    "chart_empty": "Historie cen se doplní během několika příštích hodin.",
+    "how_title": "Jak to funguje",
+    "how_1_title": "Vyberte bota a počet",
+    "how_1": "Kupte nebo prodejte 1 až {max} klíčů. Ceny nahoře jsou přesně to, co dostanete, nic se nepřipočítává.",
+    "how_2_title": "Přijměte nabídku na Steamu",
+    "how_2": "Bot pošle nabídku během pár sekund. Zkontrolujte, že obsahuje klíče a metal, které čekáte, a přijměte ji. Po {minutes} minutách se zruší.",
+    "how_3_title": "Nebo pošlete nabídku sami",
+    "how_3": "Bankovní boti hned přijmou nabídky jen klíčů za metal za tyto ceny, až {max} klíčů na výměnu. Vše ostatní odmítnou."
+  },
   "profile": {
     "tickets": "Tikety",
     "my_giveaways": "Moje soutěže",
@@ -926,7 +1024,12 @@
     "buy_link_half_scrap": "Tento předmět má hodnotu 0.055 ref (půl scrapu), což samotné klíče a kovy nezaplatí. Vyber na stránce předmětu dva kusy.",
     "buy_link_pick": "Nejdřív vyberte, který předmět chcete.",
     "trade_url_required": "Přidejte svůj Steam odkaz pro výměnu, aby se načetl váš inventář.",
-    "trade_url_other_account": "Tento odkaz pro výměnu patří jinému Steam účtu. Zkopírujte ten z účtu, kterým jste se přihlásili."
+    "trade_url_other_account": "Tento odkaz pro výměnu patří jinému Steam účtu. Zkopírujte ten z účtu, kterým jste se přihlásili.",
+    "key_bank_invalid": "Vyberte bankovního bota, nákup nebo prodej a 1 až {max} klíčů.",
+    "key_bank_reload": "Tato stránka je zastaralá. Načtěte ji znovu a zkuste to ještě jednou.",
+    "offer_cooldown": "Nepřijali jste své poslední vyžádané nabídky ({misses}), takže novou si můžete vyžádat za {time}. Přijetím nabídky se to vynuluje.",
+    "cooldown_minutes": "{n} min",
+    "cooldown_hours": "{n} h"
   },
   "cookies": {
     "banner_title": "Cookies na TF2Deal.com",
@@ -1006,6 +1109,14 @@
       "empty": "Zatím tu nic není. Nové funkce se tu objeví hned, jak budou spuštěny."
     },
     "items": {
+      "key_bank": {
+        "title": "Vyměňte klíče a metal s našimi bankovními boty",
+        "text": "Nová stránka Klíče mění Mann Co. Supply Crate Keys za refined metal a zpět, až 5 klíčů na výměnu, za živé ceny podle backpack.tf. Vyberte bankovního bota, uvidíte, kolik klíčů teď koupí a prodá, a nabídku na Steamu dostanete během pár sekund."
+      },
+      "trade_details": {
+        "title": "Poslední výměny ukazují detaily předmětů",
+        "text": "Poslední výměny a vaše historie výměn teď píšou každý předmět v barvě jeho kvality, jako to dělá TF2, a hned pod obrázky ukazují unusual efekt, sheen, killstreaker, barvu, kouzla i strange části."
+      },
       "fabricators": {
         "title": "Co vyrobí Kit Fabricator",
         "text": "Obrázek Kit Fabricatoru teď v levém dolním rohu ukazuje Kit, který vyrobí. V okně s detaily předmětu (pravé tlačítko na předmětu nebo klepnutí na jeho popisek) uvidíte i předměty, které fabricator potřebuje, a kolik kusů od každého. Každý fabricator potřebuje jiné, takže se fabricatory s jinými vstupy v okně obchodu už neslučují."

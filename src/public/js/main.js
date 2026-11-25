@@ -9,6 +9,7 @@ import "./plugins/notifications.js";
 import * as buy_link from "./plugins/buy_link.js";
 import * as item_info from "./plugins/item_info.js";
 import {init_sales_chart} from "./plugins/sales_chart.js";
+import {init_keys} from "./plugins/keys.js";
 
 const particles = JSON.parse(localStorage.getItem('unusual_effects'))
 
@@ -708,6 +709,9 @@ addEventListener('DOMContentLoaded', (event) => {
         }
 
     })
+
+    // the key banking page: live prices and bank bots, the swap request (plugins/keys.js)
+    if(view == 'keys'){ init_keys(document.querySelector('[data-kb-root]')) }
 
     if(TD_PATH == '/trade'){
         // pass the variable with current trade view!

@@ -5,7 +5,7 @@
 <%
     const entries = info.entries || []
     // where on the site the feature is, as the menu names it
-    const AREAS = { items: 'nav.items', trade: 'nav.trade', giveaway: 'nav.giveaway', blog: 'nav.blog', about: 'nav.about', profile: 'nav.profile' }
+    const AREAS = { items: 'nav.items', trade: 'nav.trade', keys: 'nav.keys', giveaway: 'nav.giveaway', blog: 'nav.blog', about: 'nav.about', profile: 'nav.profile' }
     const ACTION_AREAS = { themes: 'nav.theme' }
     const area = (entry) => entry.action ? ACTION_AREAS[entry.action] : AREAS[String(entry.href || '').split(/[/?#]/)[1]]
     const format = (ms, options) => {

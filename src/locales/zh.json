@@ -28,7 +28,8 @@
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
     "search_short": "搜索物品",
-    "lang_theme": "语言和主题"
+    "lang_theme": "语言和主题",
+    "keys": "钥匙"
   },
   "common": {
     "sign_in_steam": "通过 Steam 登录",
@@ -104,7 +105,8 @@
     "cookies": "Cookie 政策 – TF2Deal.com 如何使用 Cookie",
     "category": "买卖 TF2 {category}（钥匙和金属）| TF2Deal.com",
     "category_page": "TF2 {category}（第 {page} 页）| TF2Deal.com",
-    "category_short": "TF2 {category} | TF2Deal.com"
+    "category_short": "TF2 {category} | TF2Deal.com",
+    "keys": "TF2 钥匙银行 – 钥匙与精炼金属互换 | TF2Deal.com"
   },
   "desc": {
     "default": "TF2 交易机器人网站：用自动化 Steam 机器人买卖 TF2 物品。帽子、Unusual、武器和钥匙，以钥匙和精炼金属计价，几秒内发出报价。",
@@ -126,7 +128,8 @@
     "item_stock": "库存：{count}，即时自动化 TF2 交易。",
     "item_no_stock": "与我们的交易机器人进行即时自动化 TF2 交易。",
     "category": "用钥匙和 ref 买卖 TF2 {category}：共 {count} 件物品，价格和库存实时更新，我们的机器人几秒内发送 Steam 交易报价。",
-    "category_page": "TF2Deal.com 上 TF2 {category} 的第 {page} 页，价格和库存实时更新。用钥匙和 ref 买卖，即时收到交易报价。"
+    "category_page": "TF2Deal.com 上 TF2 {category} 的第 {page} 页，价格和库存实时更新。用钥匙和 ref 买卖，即时收到交易报价。",
+    "keys": "通过 TF2Deal.com 的银行机器人把 Mann Co. Supply Crate Key 换成精炼金属或换回来：backpack.tf 实时钥匙价格，每次最多 5 把钥匙，几秒内收到 Steam 交易报价。"
   },
   "item_types": {
     "cosmetic": "饰品",
@@ -385,7 +388,9 @@
       "show_more": "再显示 5 条",
       "side_user": "用户",
       "side_you": "你",
-      "side_bot": "网站机器人"
+      "side_bot": "网站机器人",
+      "effect": "特殊效果",
+      "more_lines": "还有 {n} 件"
     },
     "new_user": {
       "toast_title": "提交你的交易链接",
@@ -693,6 +698,48 @@
       "failed": "保存失败，请稍后再试。",
       "inventory_locked": "请添加你的 Steam 交易链接以加载库存。",
       "add": "添加交易链接"
+    },
+    "keys": {
+      "unavailable": "暂时无法连接钥匙银行。请几分钟后再试。",
+      "paused": "钥匙银行目前已暂停。恢复运行后价格会重新显示在这里。",
+      "stale_notice": "钥匙银行已有几分钟没有更新价格。更新之前互换会暂停。",
+      "live": "实时",
+      "stale": "价格可能不是最新的",
+      "off": "已暂停",
+      "updated_ago": "{s}前更新",
+      "no_bots": "目前没有在线的银行机器人。",
+      "online": "在线",
+      "offline": "离线",
+      "sells": "可卖",
+      "buys": "可买",
+      "pick_bot": "请选择一个银行机器人。",
+      "cap_sell": "{name} 现在最多可卖 {n} 把。",
+      "cap_buy": "{name} 现在最多可买 {n} 把。",
+      "cap_none_sell": "{name} 现在没有可卖的钥匙。请选择其他机器人。",
+      "cap_none_buy": "{name} 现在无法买入钥匙。请选择其他机器人。",
+      "each": "每把 {price} ref",
+      "requesting": "正在请求…",
+      "request_buy": "以 {total} ref 买入 {what}",
+      "request_sell": "以 {total} ref 卖出 {what}",
+      "requested_title": "报价正在发送",
+      "requested": "{what}，共 {total} ref。报价几秒内送达。",
+      "price_changed_title": "价格已变动",
+      "chart_label": "近 7 天钥匙价格：从 {lo} 到 {hi} ref，当前 {now} ref。",
+      "word": {
+        "one": "把钥匙",
+        "other": "把钥匙"
+      },
+      "err": {
+        "price_changed": "钥匙价格刚刚变为 {price} ref。请确认新的总价后重试。",
+        "not_enough_stock": "这个机器人现在无法处理这么多钥匙。请减少数量或选择其他机器人。",
+        "bot_unavailable": "这个银行机器人刚刚离线。请选择其他机器人。",
+        "key_bank_off": "钥匙银行目前已暂停。请稍后再试。",
+        "offer_open": "你已经有一个来自我们机器人的未处理报价。请先接受或拒绝它。",
+        "user_not_enough_keys": "你没有这么多可交易的钥匙。",
+        "user_not_enough_metal": "你没有足够的可交易金属（或合适的找零）。",
+        "bank_no_change": "机器人现在没有合适的找零。请换个数量或换个机器人。",
+        "no_price": "钥匙价格正在更新。请一分钟后再试。"
+      }
     }
   },
   "items": {
@@ -853,6 +900,55 @@
     "col_items": "物品",
     "bots_error": "加载机器人数据失败，请尝试刷新页面。"
   },
+  "keys": {
+    "kicker": "钥匙银行",
+    "h1": "钥匙与金属互换",
+    "lede": "我们的银行机器人把 Mann Co. Supply Crate Key 换成精炼金属，也可以换回来，每次最多 {max} 把钥匙。选择一个机器人和钥匙数量，然后在 Steam 上接受它发来的报价。",
+    "prices_label": "钥匙价格",
+    "we_sell": "我们卖出一把钥匙",
+    "we_sell_hint": "买入时每把钥匙你需要支付",
+    "we_buy": "我们买入一把钥匙",
+    "we_buy_hint": "卖出时每把钥匙你能得到",
+    "spread": "差价",
+    "market": "backpack.tf 机器人",
+    "status": "状态",
+    "live": "实时",
+    "stale": "价格可能不是最新的",
+    "off": "已暂停",
+    "paused": "钥匙银行目前已暂停。恢复运行后价格会重新显示在这里。",
+    "unavailable": "暂时无法连接钥匙银行。请几分钟后再试。",
+    "swap_title": "互换",
+    "side_label": "买入或卖出钥匙",
+    "buy_keys": "买入钥匙",
+    "sell_keys": "卖出钥匙",
+    "how_many": "钥匙数量",
+    "n_keys": "钥匙：{n}",
+    "you_pay": "你支付",
+    "you_get": "你得到",
+    "word_one": "把钥匙",
+    "each": "每把 {price} ref",
+    "request": "请求报价",
+    "sign_in": "通过 Steam 登录后互换",
+    "fine": "机器人会给你发送 Steam 交易报价，若 {minutes} 分钟内未接受将被取消。金属找零可以由任意一方提供。只计算可交易的钥匙和金属。",
+    "bots_title": "银行机器人",
+    "no_bots": "目前没有在线的银行机器人。",
+    "online": "在线",
+    "offline": "离线",
+    "sells": "可卖",
+    "buys": "可买",
+    "bots_hint": "可卖：机器人现在能卖给你的钥匙数。可买：它现在能从你这里买的钥匙数。两者都会随库存实时变化。",
+    "chart_title": "近 7 天钥匙价格",
+    "legend_band": "backpack.tf：机器人最高收购价到最低卖价",
+    "legend_mid": "中间价",
+    "chart_empty": "价格历史会在接下来几个小时内逐步补全。",
+    "how_title": "如何使用",
+    "how_1_title": "选择机器人和数量",
+    "how_1": "买入或卖出 1 到 {max} 把钥匙。上方价格就是你得到的价格，不另加任何费用。",
+    "how_2_title": "在 Steam 上接受报价",
+    "how_2": "机器人会在几秒内发送报价。确认其中的钥匙和金属与你预期一致后再接受。{minutes} 分钟后报价会被取消。",
+    "how_3_title": "或者自己发送报价",
+    "how_3": "银行机器人会立即接受按这些价格、只包含钥匙换金属的报价，每次最多 {max} 把钥匙。其他报价都会被拒绝。"
+  },
   "profile": {
     "tickets": "工单",
     "my_giveaways": "我的抽奖",
@@ -926,7 +1022,12 @@
     "buy_link_half_scrap": "此物品价值 0.055 ref（半个 scrap），无法单独用钥匙和金属支付。请在物品页面选择两个。",
     "buy_link_pick": "请先选择你想要的物品。",
     "trade_url_required": "请添加你的 Steam 交易链接以加载库存。",
-    "trade_url_other_account": "此交易链接属于另一个 Steam 账号。请复制你当前登录账号的链接。"
+    "trade_url_other_account": "此交易链接属于另一个 Steam 账号。请复制你当前登录账号的链接。",
+    "key_bank_invalid": "请选择一个银行机器人、买入或卖出，以及 1 到 {max} 把钥匙。",
+    "key_bank_reload": "此页面已过期。请刷新后重试。",
+    "offer_cooldown": "你最近请求的 {misses} 个报价都没有接受，{time}后才能请求新的报价。接受任意报价即可重置。",
+    "cooldown_minutes": "{n} 分钟",
+    "cooldown_hours": "{n} 小时"
   },
   "cookies": {
     "banner_title": "TF2Deal.com 上的 Cookie",
@@ -1006,6 +1107,14 @@
       "empty": "这里还没有内容。新功能一上线就会出现在这里。"
     },
     "items": {
+      "key_bank": {
+        "title": "用银行机器人互换钥匙和金属",
+        "text": "新的“钥匙”页面可以把 Mann Co. Supply Crate Key 换成精炼金属，也可以换回来，每次最多 5 把钥匙，价格跟随 backpack.tf 实时变化。选择一个银行机器人，查看它现在能买入和卖出多少钥匙，几秒内即可收到 Steam 报价。"
+      },
+      "trade_details": {
+        "title": "最新交易显示物品详情",
+        "text": "最新交易和你的交易记录现在会像 TF2 一样用品质颜色写出每件物品，并在图片下方直接显示特殊效果、光泽、杀敌特效、油漆、法术和奇异部件。"
+      },
       "fabricators": {
         "title": "看看 Kit Fabricator 能做出什么",
         "text": "Kit Fabricator 的图片左下角现在会显示它能制作的 Kit。在物品详情窗口（右键点击物品，或轻点它的提示框）里，你还能看到这个制作器需要哪些物品以及各需要几个。每个制作器需要的都不一样，所以需要不同物品的制作器在交易窗口里不再堆叠在一起。"

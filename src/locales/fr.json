@@ -28,7 +28,8 @@
     "theme_halloween": "Scream Fortress",
     "theme_smissmas": "Smissmas",
     "search_short": "Rechercher des objets",
-    "lang_theme": "Langue et thème"
+    "lang_theme": "Langue et thème",
+    "keys": "Clés"
   },
   "common": {
     "sign_in_steam": "Se connecter via Steam",
@@ -104,7 +105,8 @@
     "cookies": "Politique de cookies – Les cookies de TF2Deal.com",
     "category": "Acheter et vendre des TF2 {category} | TF2Deal.com",
     "category_page": "TF2 {category} (page {page}) | TF2Deal.com",
-    "category_short": "TF2 {category} | TF2Deal.com"
+    "category_short": "TF2 {category} | TF2Deal.com",
+    "keys": "Banque de clés TF2 – Échangez clés et Refined Metal | TF2Deal.com"
   },
   "desc": {
     "default": "Achetez, vendez et échangez des objets TF2 avec des bots Steam automatiques. Chapeaux, unusuals, armes et clés contre clés et ref, offre en secondes.",
@@ -126,7 +128,8 @@
     "item_stock": "En stock : {count}. Trading TF2 automatisé et instantané.",
     "item_no_stock": "Trading TF2 automatisé et instantané avec nos bots.",
     "category": "Achetez et vendez des TF2 {category} contre clés et ref : {count} objets, prix et stock en direct, offres d'échange de nos bots en secondes.",
-    "category_page": "Page {page} des TF2 {category} sur TF2Deal.com, avec prix et stock en direct. Achetez et vendez contre des clés et du ref, offre d'échange immédiate."
+    "category_page": "Page {page} des TF2 {category} sur TF2Deal.com, avec prix et stock en direct. Achetez et vendez contre des clés et du ref, offre d'échange immédiate.",
+    "keys": "Échangez des Mann Co. Supply Crate Keys contre du Refined Metal et inversement avec les bots banque de TF2Deal.com : prix des clés en direct depuis backpack.tf, jusqu'à 5 clés par échange, une offre Steam en quelques secondes."
   },
   "item_types": {
     "cosmetic": "Cosmétique",
@@ -385,7 +388,9 @@
       "show_more": "Afficher 5 de plus",
       "side_user": "Utilisateur",
       "side_you": "Vous",
-      "side_bot": "Bot du site"
+      "side_bot": "Bot du site",
+      "effect": "Effet inhabituel",
+      "more_lines": "+{n} de plus"
     },
     "new_user": {
       "toast_title": "Renseignez votre URL d'échange",
@@ -693,6 +698,49 @@
       "failed": "Impossible d'enregistrer. Réessayez dans un instant.",
       "inventory_locked": "Ajoutez votre URL d'échange Steam pour charger votre inventaire.",
       "add": "Ajouter l'URL"
+    },
+    "keys": {
+      "unavailable": "La banque de clés est injoignable pour le moment. Réessayez dans quelques minutes.",
+      "paused": "La banque de clés est en pause pour le moment. Les prix reviendront ici dès qu'elle fonctionnera à nouveau.",
+      "stale_notice": "La banque de clés n'a pas mis à jour ses prix depuis quelques minutes. Les échanges attendent qu'elle le fasse.",
+      "live": "En direct",
+      "stale": "Les prix ne sont peut-être plus à jour",
+      "off": "En pause",
+      "updated_ago": "Mis à jour il y a {s}",
+      "no_bots": "Aucun bot banque n'est en ligne pour le moment.",
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "sells": "Vend",
+      "buys": "Achète",
+      "pick_bot": "Choisissez un bot banque.",
+      "cap_sell": "{name} peut vendre jusqu'à {n} en ce moment.",
+      "cap_buy": "{name} peut acheter jusqu'à {n} en ce moment.",
+      "cap_none_sell": "{name} n'a pas de clés à vendre en ce moment. Choisissez un autre bot.",
+      "cap_none_buy": "{name} ne peut pas acheter de clés en ce moment. Choisissez un autre bot.",
+      "each": "{price} ref l'unité",
+      "requesting": "Demande en cours…",
+      "request_buy": "Acheter {what} pour {total} ref",
+      "request_sell": "Vendre {what} pour {total} ref",
+      "requested_title": "L'offre arrive",
+      "requested": "{what} pour {total} ref. L'offre arrive dans quelques secondes.",
+      "price_changed_title": "Le prix a changé",
+      "chart_label": "Prix de la clé sur les 7 derniers jours : de {lo} à {hi} ref, actuellement {now} ref.",
+      "word": {
+        "one": "clé",
+        "many": "clés",
+        "other": "clés"
+      },
+      "err": {
+        "price_changed": "Le prix de la clé vient de passer à {price} ref. Vérifiez le nouveau total et réessayez.",
+        "not_enough_stock": "Ce bot ne peut pas gérer autant de clés pour le moment. Choisissez moins de clés ou un autre bot.",
+        "bot_unavailable": "Ce bot banque vient de se déconnecter. Choisissez-en un autre.",
+        "key_bank_off": "La banque de clés est en pause pour le moment. Réessayez plus tard.",
+        "offer_open": "Vous avez déjà une offre ouverte de nos bots. Acceptez-la ou refusez-la d'abord.",
+        "user_not_enough_keys": "Vous n'avez pas autant de clés échangeables.",
+        "user_not_enough_metal": "Vous n'avez pas assez de métal échangeable (ou pas la bonne monnaie) pour cela.",
+        "bank_no_change": "Le bot n'a pas la bonne monnaie pour cela en ce moment. Essayez une autre quantité ou un autre bot.",
+        "no_price": "Les prix des clés sont en cours de mise à jour. Réessayez dans une minute."
+      }
     }
   },
   "items": {
@@ -853,6 +901,55 @@
     "col_items": "objets",
     "bots_error": "Impossible de charger les données des bots. Essayez d'actualiser la page."
   },
+  "keys": {
+    "kicker": "Banque de clés",
+    "h1": "Échangez clés et métal",
+    "lede": "Nos bots banque échangent des Mann Co. Supply Crate Keys contre du Refined Metal et inversement, jusqu'à {max} clés par échange. Choisissez un bot et le nombre de clés, puis acceptez l'offre Steam qu'il vous envoie.",
+    "prices_label": "Prix des clés",
+    "we_sell": "Nous vendons une clé",
+    "we_sell_hint": "Ce que vous payez par clé à l'achat",
+    "we_buy": "Nous achetons une clé",
+    "we_buy_hint": "Ce que vous recevez par clé à la vente",
+    "spread": "Écart",
+    "market": "Bots de backpack.tf",
+    "status": "État",
+    "live": "En direct",
+    "stale": "Les prix ne sont peut-être plus à jour",
+    "off": "En pause",
+    "paused": "La banque de clés est en pause pour le moment. Les prix reviendront ici dès qu'elle fonctionnera à nouveau.",
+    "unavailable": "La banque de clés est injoignable pour le moment. Réessayez dans quelques minutes.",
+    "swap_title": "Échange",
+    "side_label": "Acheter ou vendre des clés",
+    "buy_keys": "Acheter des clés",
+    "sell_keys": "Vendre des clés",
+    "how_many": "Combien de clés",
+    "n_keys": "Clés : {n}",
+    "you_pay": "Vous payez",
+    "you_get": "Vous recevez",
+    "word_one": "clé",
+    "each": "{price} ref l'unité",
+    "request": "Demander l'offre",
+    "sign_in": "Connectez-vous avec Steam pour échanger",
+    "fine": "Le bot vous envoie une offre d'échange Steam, annulée après {minutes} minutes si elle n'est pas acceptée. La monnaie en métal peut venir de l'un ou l'autre côté. Seuls les clés et le métal échangeables comptent.",
+    "bots_title": "Bots banque",
+    "no_bots": "Aucun bot banque n'est en ligne pour le moment.",
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "sells": "Vend",
+    "buys": "Achète",
+    "bots_hint": "Vend : clés que le bot peut vous vendre maintenant. Achète : clés qu'il peut vous acheter maintenant. Les deux suivent son stock en direct.",
+    "chart_title": "Prix de la clé, 7 derniers jours",
+    "legend_band": "backpack.tf : meilleure offre d'achat de bot au vendeur le moins cher",
+    "legend_mid": "Milieu",
+    "chart_empty": "L'historique des prix se remplira au cours des prochaines heures.",
+    "how_title": "Comment ça marche",
+    "how_1_title": "Choisissez un bot et une quantité",
+    "how_1": "Achetez ou vendez de 1 à {max} clés. Les prix ci-dessus sont ce que vous obtenez, rien n'est ajouté.",
+    "how_2_title": "Acceptez l'offre sur Steam",
+    "how_2": "Le bot envoie l'offre en quelques secondes. Vérifiez qu'elle contient les clés et le métal attendus, puis acceptez-la. Elle est annulée après {minutes} minutes.",
+    "how_3_title": "Ou envoyez vous-même une offre",
+    "how_3": "Les bots banque acceptent tout de suite les offres de clés contre du métal uniquement à ces prix, jusqu'à {max} clés par échange. Tout le reste est refusé."
+  },
   "profile": {
     "tickets": "Tickets",
     "my_giveaways": "Mes concours",
@@ -926,7 +1023,12 @@
     "buy_link_half_scrap": "Cet objet vaut 0.055 ref (un demi-scrap), ce qui ne se paie pas seul en clés et en métal. Choisissez-en deux sur la page de l'objet.",
     "buy_link_pick": "Choisissez d'abord l'objet que vous voulez.",
     "trade_url_required": "Ajoutez votre URL d'échange Steam pour charger votre inventaire.",
-    "trade_url_other_account": "Cette URL d'échange appartient à un autre compte Steam. Copiez celle du compte avec lequel vous êtes connecté."
+    "trade_url_other_account": "Cette URL d'échange appartient à un autre compte Steam. Copiez celle du compte avec lequel vous êtes connecté.",
+    "key_bank_invalid": "Choisissez un bot banque, acheter ou vendre, et de 1 à {max} clés.",
+    "key_bank_reload": "Cette page n'est plus à jour. Rechargez-la et réessayez.",
+    "offer_cooldown": "Vous n'avez pas accepté vos {misses} dernières offres demandées, vous pourrez en demander une nouvelle dans {time}. Accepter une offre remet ce délai à zéro.",
+    "cooldown_minutes": "{n} min",
+    "cooldown_hours": "{n} h"
   },
   "cookies": {
     "banner_title": "Cookies sur TF2Deal.com",
@@ -1006,6 +1108,14 @@
       "empty": "Rien pour l'instant. Les nouvelles fonctions apparaîtront ici dès leur mise en ligne."
     },
     "items": {
+      "key_bank": {
+        "title": "Échangez clés et métal avec nos bots banque",
+        "text": "La nouvelle page Clés échange des Mann Co. Supply Crate Keys contre du Refined Metal et inversement, jusqu'à 5 clés par échange, à des prix en direct qui suivent backpack.tf. Choisissez un bot banque, voyez combien de clés il peut acheter et vendre maintenant, et recevez l'offre Steam en quelques secondes."
+      },
+      "trade_details": {
+        "title": "Les derniers échanges montrent les détails",
+        "text": "Les derniers échanges et votre historique écrivent maintenant chaque objet dans la couleur de sa qualité, comme TF2, avec son effet inhabituel, son reflet, son killstreaker, sa peinture, ses sorts et ses pièces étranges juste sous les images."
+      },
       "fabricators": {
         "title": "Voyez ce que fabrique un Kit Fabricator",
         "text": "L'image d'un Kit Fabricator montre maintenant, en bas à gauche, le Kit qu'il fabrique. Dans la fenêtre de détails de l'objet (clic droit sur un objet, ou appui sur son infobulle), vous voyez aussi les objets dont ce fabricator a besoin et combien de chacun. Chaque fabricator demande les siens, donc ceux qui demandent des objets différents ne s'empilent plus dans la fenêtre d'échange."
