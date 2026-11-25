@@ -438,6 +438,7 @@
       "creating_toast": "正在创建交易！",
       "price_not_found": "未找到价格。",
       "over_stocked": "该物品库存已满！",
+      "bad_combo": "差组合，价格更低",
       "description_not_found": "未找到描述",
       "inventory_error": "加载你的库存时出错。",
       "active_offer": "你已有一个来自我们机器人的进行中交易报价！",
@@ -483,7 +484,15 @@
       "sales_none": "此期间没有销售。",
       "sales_sold": "售出 {count} 件",
       "sales_price": "最常见价格",
-      "sales_total": "此期间售出 {count} 件"
+      "sales_total": "此期间售出 {count} 件",
+      "combo_all": "全部组合",
+      "combo_good_group": "好组合（{count}）",
+      "combo_bad_group": "差组合（{count}），价格更低",
+      "combo_bad_prices": "{count} 种差组合更便宜：买入 {buy}，卖出 {sell}。",
+      "combo_bad_not_bought": "{count} 种差组合更便宜：买入 {buy}。我们不收购它们。",
+      "combo_is_good": "好组合：全价。",
+      "combo_is_bad": "差组合：买入和卖出价格都更低。",
+      "combo_not_bought": "不收购"
     },
     "items": {
       "invalid_input": "筛选值无效。",
@@ -757,6 +766,7 @@
     "classes": "兵种",
     "killstreak_tier": "连杀等级：",
     "paint": "油漆：",
+    "combo": "组合：",
     "sell": "出售",
     "buy": "购买",
     "can_buy_html": "可购买：{count}",
@@ -1107,6 +1117,10 @@
       "empty": "这里还没有内容。新功能一上线就会出现在这里。"
     },
     "items": {
+      "ks_combos": {
+        "title": "每种 Professional Killstreak 组合的准确价格",
+        "text": "Professional Killstreak 武器、Kit 和 Kit Fabricator 的页面现在有“组合”选择。选择一种 sheen 和 killstreaker，即可看到这个组合的准确价格。很少有人找的组合（例如 Hypno-Beam）买起来更便宜，物品提示也会告诉你某件物品是否属于这类组合。"
+      },
       "key_bank": {
         "title": "用银行机器人互换钥匙和金属",
         "text": "新的“钥匙”页面可以把 Mann Co. Supply Crate Key 换成精炼金属，也可以换回来，每次最多 5 把钥匙，价格跟随 backpack.tf 实时变化。选择一个银行机器人，查看它现在能买入和卖出多少钥匙，几秒内即可收到 Steam 报价。"

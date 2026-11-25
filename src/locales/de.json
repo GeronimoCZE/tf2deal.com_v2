@@ -438,6 +438,7 @@
       "creating_toast": "Trade wird erstellt!",
       "price_not_found": "Preis nicht gefunden.",
       "over_stocked": "Bestand für dieses Item ist voll!",
+      "bad_combo": "schlechte Kombination, niedrigerer Preis",
       "description_not_found": "Beschreibung nicht gefunden",
       "inventory_error": "Beim Laden deines Inventars ist ein Fehler aufgetreten.",
       "active_offer": "Du hast bereits ein aktives Tauschangebot von unseren Bots!",
@@ -483,7 +484,15 @@
       "sales_none": "Keine Verkäufe in diesem Zeitraum.",
       "sales_sold": "{count} verkauft",
       "sales_price": "Häufigster Preis",
-      "sales_total": "{count} in diesem Zeitraum verkauft"
+      "sales_total": "{count} in diesem Zeitraum verkauft",
+      "combo_all": "Alle Kombinationen",
+      "combo_good_group": "Gute Kombinationen ({count})",
+      "combo_bad_group": "Schlechte Kombinationen ({count}), günstiger",
+      "combo_bad_prices": "{count} schlechte Kombinationen kosten weniger: kaufen für {buy}, verkaufen für {sell}.",
+      "combo_bad_not_bought": "{count} schlechte Kombinationen kosten weniger: kaufen für {buy}. Wir kaufen sie nicht an.",
+      "combo_is_good": "Gute Kombination: voller Preis.",
+      "combo_is_bad": "Schlechte Kombination: niedrigerer Preis beim Kaufen und Verkaufen.",
+      "combo_not_bought": "Kein Ankauf"
     },
     "items": {
       "invalid_input": "Ungültiger Filterwert.",
@@ -757,6 +766,7 @@
     "classes": "Klassen",
     "killstreak_tier": "Killstreak-Stufe:",
     "paint": "Farbe:",
+    "combo": "Kombination:",
     "sell": "Verkaufen",
     "buy": "Kaufen",
     "can_buy_html": "Kaufbar: {count}",
@@ -1107,6 +1117,10 @@
       "empty": "Noch nichts hier. Neue Funktionen erscheinen hier, sobald sie online sind."
     },
     "items": {
+      "ks_combos": {
+        "title": "Genaue Preise für jede Professional-Killstreak-Kombination",
+        "text": "Professional-Killstreak-Waffen, Kits und Kit Fabricators haben auf ihrer Seite jetzt eine Auswahl „Kombination“. Wähle Sheen und Killstreaker und sieh, was genau diese Kombination kostet. Kombinationen, die kaum jemand sucht, etwa Hypno-Beam, kaufst du günstiger, und der Tooltip des Gegenstands sagt dir, wenn ein Exemplar dazugehört."
+      },
       "key_bank": {
         "title": "Schlüssel und Metal mit unseren Bank-Bots tauschen",
         "text": "Die neue Seite Schlüssel tauscht Mann Co. Supply Crate Keys gegen Refined Metal und zurück, bis zu 5 Schlüssel pro Tausch, zu Live-Preisen, die backpack.tf folgen. Wähle einen Bank-Bot, sieh, wie viele Schlüssel er gerade kaufen und verkaufen kann, und bekomme das Steam-Angebot in Sekunden."

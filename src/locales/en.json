@@ -438,6 +438,7 @@
       "creating_toast": "Creating trade!",
       "price_not_found": "Price not found.",
       "over_stocked": "Item is over-stocked!",
+      "bad_combo": "bad combo, lower price",
       "description_not_found": "Description not found",
       "inventory_error": "There was an error loading your inventory.",
       "active_offer": "You already have an active offer from our bots!",
@@ -483,7 +484,15 @@
       "sales_none": "No sales in this period.",
       "sales_sold": "{count} sold",
       "sales_price": "Most common price",
-      "sales_total": "{count} sold in this period"
+      "sales_total": "{count} sold in this period",
+      "combo_all": "All combos",
+      "combo_good_group": "Good combos ({count})",
+      "combo_bad_group": "Bad combos ({count}), lower price",
+      "combo_bad_prices": "{count} bad combos cost less: buy for {buy}, sell for {sell}.",
+      "combo_bad_not_bought": "{count} bad combos cost less: buy for {buy}. We don't buy them.",
+      "combo_is_good": "Good combo: the full price.",
+      "combo_is_bad": "Bad combo: a lower price for buying and selling.",
+      "combo_not_bought": "Not buying"
     },
     "items": {
       "invalid_input": "Invalid filter value.",
@@ -757,6 +766,7 @@
     "classes": "Classes",
     "killstreak_tier": "Killstreak Tier:",
     "paint": "Paint:",
+    "combo": "Combo:",
     "sell": "Sell",
     "buy": "Buy",
     "can_buy_html": "Can buy {count}",
@@ -1107,6 +1117,10 @@
       "empty": "Nothing here yet. New features will show up here as soon as they go live."
     },
     "items": {
+      "ks_combos": {
+        "title": "Exact prices for every Professional Killstreak combo",
+        "text": "Professional Killstreak weapons, Kits and Kit Fabricators now have a Combo select on their page. Pick a sheen and killstreaker to see what that exact combo costs. Combos few traders look for, like Hypno-Beam, are cheaper to buy, and the item's tooltip tells you when a copy is one of them."
+      },
       "key_bank": {
         "title": "Swap keys and metal with our bank bots",
         "text": "The new Keys page swaps Mann Co. Supply Crate Keys for refined metal and back, up to 5 keys a trade, at live prices that follow backpack.tf. Pick a bank bot, see how many keys it can buy and sell right now, and get the Steam offer in seconds."

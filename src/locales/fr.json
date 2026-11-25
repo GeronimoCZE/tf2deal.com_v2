@@ -438,6 +438,7 @@
       "creating_toast": "Création de l'échange !",
       "price_not_found": "Prix introuvable.",
       "over_stocked": "Objet en surstock !",
+      "bad_combo": "mauvaise combinaison, prix plus bas",
       "description_not_found": "Description introuvable",
       "inventory_error": "Une erreur est survenue lors du chargement de votre inventaire.",
       "active_offer": "Vous avez déjà une offre active de nos bots !",
@@ -483,7 +484,15 @@
       "sales_none": "Aucune vente sur cette période.",
       "sales_sold": "{count} vendus",
       "sales_price": "Prix le plus courant",
-      "sales_total": "{count} vendus sur cette période"
+      "sales_total": "{count} vendus sur cette période",
+      "combo_all": "Toutes les combinaisons",
+      "combo_good_group": "Bonnes combinaisons ({count})",
+      "combo_bad_group": "Mauvaises combinaisons ({count}), prix plus bas",
+      "combo_bad_prices": "{count} mauvaises combinaisons coûtent moins cher : achat à {buy}, vente à {sell}.",
+      "combo_bad_not_bought": "{count} mauvaises combinaisons coûtent moins cher : achat à {buy}. Nous ne les rachetons pas.",
+      "combo_is_good": "Bonne combinaison : prix plein.",
+      "combo_is_bad": "Mauvaise combinaison : prix plus bas à l'achat comme à la vente.",
+      "combo_not_bought": "Pas de rachat"
     },
     "items": {
       "invalid_input": "Valeur de filtre invalide.",
@@ -758,6 +767,7 @@
     "classes": "Classes",
     "killstreak_tier": "Niveau de killstreak :",
     "paint": "Peinture :",
+    "combo": "Combinaison :",
     "sell": "Vendre",
     "buy": "Acheter",
     "can_buy_html": "Achat possible : {count}",
@@ -1108,6 +1118,10 @@
       "empty": "Rien pour l'instant. Les nouvelles fonctions apparaîtront ici dès leur mise en ligne."
     },
     "items": {
+      "ks_combos": {
+        "title": "Le prix exact de chaque combinaison Professional Killstreak",
+        "text": "Les armes, Kits et Kit Fabricators Professional Killstreak ont maintenant un choix de Combinaison sur leur page. Choisissez un sheen et un killstreaker pour voir le prix exact de cette combinaison. Les combinaisons que peu de joueurs recherchent, comme Hypno-Beam, coûtent moins cher, et l'infobulle de l'objet vous indique quand un exemplaire en fait partie."
+      },
       "key_bank": {
         "title": "Échangez clés et métal avec nos bots banque",
         "text": "La nouvelle page Clés échange des Mann Co. Supply Crate Keys contre du Refined Metal et inversement, jusqu'à 5 clés par échange, à des prix en direct qui suivent backpack.tf. Choisissez un bot banque, voyez combien de clés il peut acheter et vendre maintenant, et recevez l'offre Steam en quelques secondes."

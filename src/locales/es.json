@@ -438,6 +438,7 @@
       "creating_toast": "¡Creando el intercambio!",
       "price_not_found": "Precio no encontrado.",
       "over_stocked": "¡Hay exceso de stock de este objeto!",
+      "bad_combo": "combinación mala, precio más bajo",
       "description_not_found": "Descripción no encontrada",
       "inventory_error": "Hubo un error al cargar tu inventario.",
       "active_offer": "¡Ya tienes una oferta activa de nuestros bots!",
@@ -483,7 +484,15 @@
       "sales_none": "No hubo ventas en este periodo.",
       "sales_sold": "{count} vendidos",
       "sales_price": "Precio más común",
-      "sales_total": "{count} vendidos en este periodo"
+      "sales_total": "{count} vendidos en este periodo",
+      "combo_all": "Todas las combinaciones",
+      "combo_good_group": "Combinaciones buenas ({count})",
+      "combo_bad_group": "Combinaciones malas ({count}), precio más bajo",
+      "combo_bad_prices": "{count} combinaciones malas cuestan menos: compra por {buy}, vende por {sell}.",
+      "combo_bad_not_bought": "{count} combinaciones malas cuestan menos: compra por {buy}. No las compramos.",
+      "combo_is_good": "Combinación buena: precio completo.",
+      "combo_is_bad": "Combinación mala: precio más bajo al comprar y al vender.",
+      "combo_not_bought": "No compramos"
     },
     "items": {
       "invalid_input": "Valor de filtro no válido.",
@@ -757,6 +766,7 @@
     "classes": "Clases",
     "killstreak_tier": "Nivel de killstreak:",
     "paint": "Pintura:",
+    "combo": "Combinación:",
     "sell": "Vender",
     "buy": "Comprar",
     "can_buy_html": "Puedes comprar: {count}",
@@ -1107,6 +1117,10 @@
       "empty": "Aún no hay nada aquí. Las funciones nuevas aparecerán en cuanto lleguen."
     },
     "items": {
+      "ks_combos": {
+        "title": "Precios exactos para cada combinación Professional Killstreak",
+        "text": "Las armas, Kits y Kit Fabricators Professional Killstreak tienen ahora un selector de Combinación en su página. Elige un sheen y un killstreaker para ver cuánto cuesta exactamente esa combinación. Las combinaciones que pocos buscan, como Hypno-Beam, se compran más baratas, y el tooltip del objeto te avisa cuando una copia es una de ellas."
+      },
       "key_bank": {
         "title": "Cambia llaves y metal con nuestros bots banco",
         "text": "La nueva página Llaves cambia Mann Co. Supply Crate Keys por Refined Metal y al revés, hasta 5 llaves por intercambio, a precios en vivo que siguen a backpack.tf. Elige un bot banco, mira cuántas llaves puede comprar y vender ahora y recibe la oferta de Steam en segundos."
