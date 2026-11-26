@@ -3488,8 +3488,11 @@ const item_tooltip = async (state, item, party) => {
                         }
                         if(sheen){
                             tooltip.querySelector('.item-desc .descs_ .desc_sheen').style.display = 'flex';
-                            // a bad Professional Killstreak combo (js/plugins/ks_combos.js) says why its price is lower
-                            tooltip.querySelector('.item-desc .descs_ .desc_sheen .value').textContent = (Item?.bad_combo === true) ? `${sheen} · ${__('trade.bad_combo')}` : sheen;
+                            // a Professional Killstreak combo priced lower (js/plugins/ks_combos.js) says so without calling it bad
+                            // (Nikolas 2026-11-26: "dont say its bad combo ... just say we pay less"): the visitor's copy "we pay
+                            // less", our copy "costs less"
+                            const low_text = ['user', 'trade-user'].includes(party) ? __('trade.combo_pay_less') : __('trade.combo_costs_less')
+                            tooltip.querySelector('.item-desc .descs_ .desc_sheen .value').textContent = (Item?.bad_combo === true) ? `${sheen} · ${low_text}` : sheen;
                         }
 
                         tooltip.querySelector('.item-desc .desc_festivized').style.display = 'none';
