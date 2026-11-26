@@ -289,10 +289,18 @@
             listingEveryMin: 'Look at the key listings this often (they change only with the price or stock).',
             snipe: 'Buy keys listed under the price several bot buy orders pay.',
             snipeMinBuyers: 'Bot buy orders that pay more than the listing, at least.',
-            snipeMaxPerDay: 'Quicksell keys bought per day at most.',
+            snipeMaxPerDay: 'Quicksell keys bought per day at most (0 = no cap).',
             snipeMaxOpen: 'Quicksell key offers open at once.',
             snipeOfferMinutes: 'A quicksell key offer is cancelled after this.',
-            sellerCooldownHours: 'A seller who declined gets no new offer this long.'
+            sellerCooldownHours: 'A seller who declined gets no new offer this long.',
+            readyToBuyKeys: 'Every bank bot keeps metal for buying this many keys; one short of it gets metal from another bank bot.',
+            flowHours: 'Keys bought against keys sold over this long...',
+            flowFullAt: '...this many more on one side moves both prices the most...',
+            flowMaxShift: '...this far (bought more: both lower, sold more: both higher).',
+            flips: 'Sell keys over the bank\'s aim to bot buy orders while it bought more than it sold.',
+            flipMinProfit: 'A flip sells at least this much over what the bank paid for the key (at no loss when a bank bot can\'t buy otherwise).',
+            flipMaxOpen: 'Flip offers open at once.',
+            flipOfferMinutes: 'A flip offer is cancelled after this.'
         },
         buyorders: {
             websocket: 'Listen to backpack.tf\'s live listing feed (trade links, new buy orders right away).',
@@ -361,7 +369,7 @@
     }
     const MAPS = new Set(['botSlotLimits', 'slots.capacityByBot']) // name → number, a key goes away on null
     const UNITS = [[/Min$/, 'min'], [/Sec$/, 's'], [/Hours$/, 'h'], [/Days$/, 'days'], [/Keys$/, 'keys'], [/Ref$/, 'ref'], [/Pct$/, 'share']]
-    const REF_FIELDS = /(^|\.)(minPrice|minProfit|minSpread|trendMaxShift|skewMaxShift)$/ // in ref, but the name doesn't say so
+    const REF_FIELDS = /(^|\.)(minPrice|minProfit|minSpread|trendMaxShift|skewMaxShift|flowMaxShift|flipMinProfit)$/ // in ref, but the name doesn't say so
     const GROUP_NAMES = {
         '': 'General', pure: 'Pure', group: 'Groups', sku: 'Single items', listings: 'Buy listings per group', flow: 'Buy / sell balance',
         emergency: 'Emergency pricing', text: 'Listing texts', sell: 'Sell listings', buy: 'Buy listings', slots: 'Backpack slots', offers: 'Offer rules'
@@ -2129,7 +2137,9 @@
     /* ========================= KEY BANK ========================= */
 
     // the bank bots swap keys for metal with users (bot_manager KEY_BANK.md): what they made, the split they keep, prices
-    const KB_KINDS = { site: 'tf2deal.com/keys', offer: 'offer to the bot', snipe: 'quicksell key' }
+    const KB_KINDS = { site: 'tf2deal.com/keys', offer: 'offer to the bot', snipe: 'quicksell key', flip: 'flip to a bot buy order' }
+    const KB_FLIP_WHY = { no_plan: 'no prices yet', no_keys: 'no keys to flip', split_ok: 'keys within the aim', flow_ok: 'sold as many as bought',
+        no_buyer: 'no bot buy order pays enough', no_buyer_now: 'no bot buy order could take it' }
     const KB_MEASURES = [['edge', 'Edge', 'ref better than backpack.tf\'s middle price, booked at each swap'],
         ['profit', 'Profit', 'ref made on keys closed against what the bank paid or got for them'],
         ['keys', 'Keys swapped', 'keys bought + sold']]
@@ -2283,7 +2293,7 @@
                 <div class="admin-card wide"><h3>Key swaps</h3>
                     <form class="admin-inline-form" id="bm-kb-history"><input type="search" name="steamid" placeholder="Only swaps with this SteamID64" inputmode="numeric" maxlength="17"><button type="submit">Show saved swaps</button></form>
                     <div id="bm-kb-swaps">${loading}</div></div>
-                <div class="admin-card wide"><h3>Pure from other bots</h3><p class="muted">The bank only asks for pure when a bank bot holds less than its minimum, another bank bot first.</p><div id="bm-kb-refills">${loading}</div></div>
+                <div class="admin-card wide"><h3>Pure from other bots</h3><p class="muted">Bank bots move metal between them so each can always buy a couple of keys. Trade bots are only asked when a bank bot holds less than its minimum.</p><div id="bm-kb-refills">${loading}</div></div>
             </div>
             <div class="admin-settings admin-bm-stack" id="bm-kb-settings"></div>`
         const $ = (sel) => box.querySelector(sel)
@@ -2295,9 +2305,9 @@
             $('#bm-kb-chart-note').textContent = `${label.toLowerCase()}: ${note}`
             kb_chart($('#bm-kb-chart'), $('#bm-kb-tip'), days, measure)
             const shown = days.filter((d) => d.trades).reverse()
-            $('#bm-kb-days').innerHTML = table(['Day', 'Swaps', 'Bought', 'Sold', 'Volume', 'Edge', 'Profit', 'Quicksell keys'], shown.map((d) => `<tr>
+            $('#bm-kb-days').innerHTML = table(['Day', 'Swaps', 'Bought', 'Sold', 'Volume', 'Edge', 'Profit', 'Quicksell keys', 'Flips'], shown.map((d) => `<tr>
                 <td>${esc(kb_date(d.day, true))}</td><td class="akb-num">${num(d.trades)}</td><td class="akb-num">${num(d.bought)}</td><td class="akb-num">${num(d.sold)}</td>
-                <td class="akb-num">${ref(d.volume)}</td><td class="akb-num">${signed(d.edge)}</td><td class="akb-num">${signed(d.profit)}</td><td class="akb-num">${num(d.snipes)}</td></tr>`), 'No swaps in this period.')
+                <td class="akb-num">${ref(d.volume)}</td><td class="akb-num">${signed(d.edge)}</td><td class="akb-num">${signed(d.profit)}</td><td class="akb-num">${num(d.snipes)}</td><td class="akb-num">${num(d.flips || 0)}</td></tr>`), 'No swaps in this period.')
         }
 
         const draw = async () => {
@@ -2323,7 +2333,7 @@
                 <div class="admin-stats">
                     ${stat('Profit', signed(P.profit), `last ${num(period)} days · all time ${signed(L.realized)}`)}
                     ${stat('Edge', signed(P.edge), `against the middle price · all time ${signed(L.edge)}`)}
-                    ${stat('Swaps', num(P.trades), `${num(P.bought)} keys bought, ${num(P.sold)} sold`)}
+                    ${stat('Swaps', num(P.trades), `${num(P.bought)} keys bought, ${num(P.sold)} sold${P.flips ? ` · ${num(P.flips)} ${P.flips == 1 ? 'flip' : 'flips'}` : ''}`)}
                     ${stat('Volume', ref(P.volume), `last ${num(period)} days`)}
                     ${stat('Bank', bank.valueKeys == null ? '–' : `${num(bank.valueKeys)}<small> keys</small>`, `${num(bank.keys)} keys + ${ref(bank.metal)}`)}
                     ${stat('Open position', `${L.position > 0 ? '+' : ''}${num(L.position || 0)}<small> keys</small>`, L.position ? `at ${ref(L.average)}, ${signed(L.unrealized)} at today's price` : 'every swap closed')}
@@ -2333,6 +2343,10 @@
             draw_chart()
 
             const why = (plan?.why || []).map((w) => `<span class="admin-tag">${esc(String(w).replace(/_/g, ' '))}</span>`).join(' ')
+            const flow = d.flow || plan?.flow || {}, ready = d.ready || {}, flips = d.flips || {}
+            const unready = (d.bots || []).filter((b) => b.online && b.ready === false).length
+            const lean = plan?.shift?.flow || 0
+            const flip_state = !flips.enabled ? 'off' : flips.open ? `${num(flips.open)} offer open` : flips.last ? `waiting: ${esc(KB_FLIP_WHY[flips.last.why] || words(flips.last.why))}${flips.last.floor ? ` <span class="muted">(${ref(flips.last.floor)} or more)</span>` : ''}` : 'on'
             $('#bm-kb-prices').innerHTML = !plan ? `<p class="admin-empty">${m ? 'No plan yet.' : 'No key market read yet.'}</p>` : `
                 <div class="akb-prices">
                     <div class="akb-quote is-buy"><span>We buy at</span><strong>${num(plan.buy)}<small> ref</small></strong><em>up to ${num(plan.canBuy)} keys</em></div>
@@ -2346,7 +2360,10 @@
                         m && ['Cheapest real seller', ref(m.bestSell)],
                         m && ['Sellers under the buy orders', `${num(m.quicksells)} <span class="muted">(ignored, quicksell targets)</span>`],
                         fc && ['Forecast', `${esc(fc.direction)} ${signed(fc.change)} in ${num(fc.horizonHours)} h <span class="muted">(${pct(fc.confidence)} sure)</span>`],
-                        ['Leaning', `${signed(plan.shift?.trend)} forecast, ${signed(plan.shift?.skew)} split`],
+                        ['Leaning', `${signed(plan.shift?.trend)} forecast, ${signed(plan.shift?.skew)} split, ${signed(lean)} balance`],
+                        ['Last ' + num(flow.hours || 24) + ' h', `${num(flow.bought || 0)} bought, ${num(flow.sold || 0)} sold${lean ? ` <span class="muted">(prices ${lean < 0 ? 'lower: bought more' : 'higher: sold more'})</span>` : ''}`],
+                        ready.keys > 0 && ['Ready to buy', `${num(ready.keys)} ${ready.keys == 1 ? 'key' : 'keys'} on every bank bot <span class="muted">(${ref(ready.metal)} each)</span>${unready ? ` <span class="admin-tag tag-warn">${num(unready)} not ready</span>` : ''}`],
+                        ['Flips', flip_state],
                         why && ['Why', why]
                     ])}
                 </div>`
@@ -2362,7 +2379,7 @@
                     const p = pools.get(b.steamid) || {}, l = p.listings || {}
                     const listing = !l.token ? 'no backpack.tf token' : [l.buy && `buy ${ref(l.buy.price)}`, l.sell && `sell ${ref(l.sell.price)}`].filter(Boolean).join(', ') || 'no listings'
                     return `<li>
-                        <div class="akb-bot-head"><strong>${esc(b.name || b.steamid)}</strong>${p.online ? '' : ' <span class="admin-tag">offline</span>'}<span class="akb-num">${b.valueKeys == null ? '–' : `${num(b.valueKeys)} keys`}</span></div>
+                        <div class="akb-bot-head"><strong>${esc(b.name || b.steamid)}</strong>${p.online ? (p.ready === false ? ` <span class="admin-tag tag-warn">can't buy ${num(ready.keys)} ${ready.keys == 1 ? 'key' : 'keys'}</span>` : '') : ' <span class="admin-tag">offline</span>'}<span class="akb-num">${b.valueKeys == null ? '–' : `${num(b.valueKeys)} keys`}</span></div>
                         ${kb_split(b.share, target)}
                         <div class="akb-bot-meta"><span>${num(b.keys)} ${b.keys == 1 ? 'key' : 'keys'} + ${ref(b.metal)}</span><span>buys ${num(p.canBuy || 0)}, sells ${num(p.canSell || 0)} now</span><span class="muted">${esc(listing)}</span>${l.error ? `<span class="admin-error">${esc(l.error)}</span>` : ''}</div>
                     </li>`
@@ -2374,8 +2391,8 @@
             }
             const refills = s.refills || d.refills || []
             $('#bm-kb-refills').innerHTML = `${L.refills ? `<p class="admin-help">${num(L.refills)} from trade bots so far, worth ${ref(L.refillValue)}.</p>` : ''}` +
-                table(['When', 'Bank bot', 'From', 'Pieces', 'Worth', 'State'], refills.map((r) => `<tr>
-                    <td>${ago(r.at)}</td><td>${esc(bot_names.get(r.bot) || r.bot)}</td><td>${esc(bot_names.get(r.from) || r.from)}${r.fromBank ? ' <span class="admin-tag">bank bot</span>' : ''}</td>
+                table(['When', 'Bank bot', 'Why', 'From', 'Pieces', 'Worth', 'State'], refills.map((r) => `<tr>
+                    <td>${ago(r.at)}</td><td>${esc(bot_names.get(r.bot) || r.bot)}</td><td>${r.why == 'ready' ? 'metal to buy keys' : 'under its minimum'}</td><td>${esc(bot_names.get(r.from) || r.from)}${r.fromBank ? ' <span class="admin-tag">bank bot</span>' : ''}</td>
                     <td>${esc(Object.entries(r.counts || {}).filter(([, n]) => n).map(([k, n]) => `${n} ${k == 'keys' && n == 1 ? 'key' : k}`).join(', '))}</td><td class="akb-num">${ref(r.value)}</td>
                     <td>${r.state == 'done' ? '<span class="admin-tag tag-sell">done</span>' : words(r.state)}${r.reason ? ` <span class="muted">${words(r.reason)}</span>` : ''}</td></tr>`), 'None needed yet.')
         }
