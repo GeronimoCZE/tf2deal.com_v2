@@ -20,6 +20,7 @@
 import fetch from 'node-fetch'
 
 import { giveaway_model } from '../model/Giveaway.js'
+import { min_entries, share_path } from './giveaway.js'
 
 const GRAPH_API = 'https://graph.facebook.com/v26.0' // Facebook Graph API version used for every call
 const STEAM_GROUP_64_BASE = 103582791429521408n
@@ -30,7 +31,8 @@ const STUCK_AFTER = 15 * 60 * 1000 // a post or removal still running after this
 
 /* ========================= TEXT ========================= */
 
-const site_link = () => `${String(process.env.SITE_URL || '').replace(/\/+$/, '')}/giveaway`
+// the giveaway's own page (/giveaway/<number>): its link preview is the giveaway's share picture (service/giveaway_og.js)
+const site_link = (giveaway) => `${String(process.env.SITE_URL || '').replace(/\/+$/, '')}${share_path(giveaway)}`
 const end_date = (end) => `${new Date(end).toLocaleString('en-GB', { timeZone: 'UTC', dateStyle: 'long', timeStyle: 'short' })} UTC`
 
 // headline and paragraphs, in English (the description as you wrote it)
@@ -42,7 +44,7 @@ const post_text = (giveaway) => {
         paragraphs: [
             `We're giving away ${item}!`,
             giveaway.description,
-            `Ends ${end_date(giveaway.end)}.${needs.length ? ` To enter, ${needs.join(' and ')}.` : ''}`
+            `Ends ${end_date(giveaway.end)}${min_entries(giveaway) > 0 ? `, once at least ${min_entries(giveaway)} people have entered` : ''}.${needs.length ? ` To enter, ${needs.join(' and ')}.` : ''}`
         ].filter(Boolean)
     }
 }
@@ -114,7 +116,7 @@ const steam_find = async (community, headline, from, to) => {
 const steam_post = (giveaway) => with_steam(async (community) => {
     const { headline, paragraphs } = post_text(giveaway)
     const from = Date.now() - 5 * 60 * 1000
-    const body = [...paragraphs, `[url=${site_link()}]${site_link()}[/url]`].join('\n\n')
+    const body = [...paragraphs, `[url=${site_link(giveaway)}]${site_link(giveaway)}[/url]`].join('\n\n')
     await steam_call(community, 'postGroupAnnouncement', steam_group64(), headline, body, false)
 
     // the feed can take a moment to show it
@@ -152,8 +154,8 @@ const facebook = async (method, path, params) => {
 const facebook_post = async (giveaway) => {
     const { headline, paragraphs } = post_text(giveaway)
     const data = await facebook('POST', `${encodeURIComponent(process.env.FACEBOOK_PAGE_ID)}/feed`, {
-        message: [headline, ...paragraphs, site_link()].join('\n\n'),
-        link: site_link()
+        message: [headline, ...paragraphs, site_link(giveaway)].join('\n\n'),
+        link: site_link(giveaway)
     })
     if(!data.id){ throw new Error('Facebook didn\'t return the post id') }
     return { id: data.id }

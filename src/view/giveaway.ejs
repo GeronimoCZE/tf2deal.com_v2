@@ -9,69 +9,137 @@
                 button), the countdown and entries like its stats strip, and the previous giveaways like its cards. %>
             <div class="page-section giveaway-ps">
               <% const g = info?.giveaway; %>
+              <% const live = g && g.status == 'active'; %>
+              <% const p = live ? g.progress : null; %>
+              <% const share = info?.share; %>
               <% if (g) { %>
-                <section class="gw-hero">
+                <%# a running giveaway: before its end time, waiting for entries after it (the minimum), being drawn %>
+                <div class="gw-box <%= p?.waiting ? 'is-waiting' : '' %> <%= p?.due ? 'is-drawing' : '' %>" id="giveaway-box"
+                     <% if (live) { %>data-end="<%= g.end %>" data-min="<%= p.min %>" data-count="<%= p.count %>" data-page="<%= lurl('/giveaway/' + g.number) %>"<% } %>>
+                <section class="gw-hero <%= live ? '' : 'is-over' %>">
                   <div class="gw-showcase">
-                    <img class="item-image q-<%= g.item.qualityID %>" src="<%= g.item.image %>" style="background-image: <%= g.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${g.item.effectID}_94x94.png)` : 'none' %>;" alt="<%= item_alt(g.item) %>">
+                    <img class="item-image q-<%= g.item.qualityID %>" src="<%= g.item.image || '/img/group-icon.png' %>" style="background-image: <%= g.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${g.item.effectID}_94x94.png)` : 'none' %>;" alt="<%= item_alt(g.item) %>">
                   </div>
 
                   <div class="gw-info">
-                    <span class="gw-live"><i></i><%= __('giveaway.current') %></span>
+                    <% if (live) { %>
+                      <span class="gw-live when-running"><i></i><%= __('giveaway.current') %></span>
+                      <span class="gw-live is-waiting when-waiting"><i></i><%= __('giveaway.waiting_label') %></span>
+                    <% } else { %>
+                      <span class="gw-live is-over"><%= g.status == 'cancelled' ? __('giveaway.cancelled_label') : __('giveaway.ended_label') %></span>
+                    <% } %>
                     <h1 translate="no"><% if (g.prize?.priced === false) { %><%= g.item.bp_sku %><% } else { %><a href="<%= lurl('/items/' + encodeURIComponent(g.item.bp_sku)) %>"><%= g.item.bp_sku %></a><% } %></h1>
                     <% if (g.description) { %><p class="description" lang="<%= lang_tags[g.description_lang] %>"><%= g.description_shown %><% if (g.description_translated) { %> <span class="ai-note"><%= __('common.ai_translated') %></span><% } %></p><% } %>
 
-                    <h2 class="gw-subtitle"><%= __('giveaway.how_to_enter') %></h2>
-                    <%# each point gets a tick or a cross once the entry is checked %>
-                    <ul class="requirements">
-                      <li data-req="login" class="<%= locals.user?.steamid ? 'met' : '' %>"><span class="gw-check icon icon-user" aria-hidden="true"></span><span><%= __('giveaway.req_login') %></span></li>
-                      <% if (g.requirements?.steam_group) { %><li data-req="steam_group"><span class="gw-check icon icon-steam_circle" aria-hidden="true"></span><span><%- __('giveaway.req_group_html', { link: '<a href="https://steamcommunity.com/groups/tradetf2deal" target="_blank" rel="nofollow">' + __('giveaway.steam_group') + '</a>' }) %></span></li><% } %>
-                      <% if (g.requirements?.trade) { %><li data-req="trade"><span class="gw-check icon icon-trade1" aria-hidden="true"></span><span><%= __('giveaway.req_trade') %></span></li><% } %>
-                    </ul>
+                    <% if (live) { %>
+                      <%# past its end time with too few entries: why it's still open, and what helps %>
+                      <p class="gw-waiting-note when-waiting" id="giveaway-waiting-note" data-one="<%= __('giveaway.waiting_text_one', { min: p.min }) %>" data-many="<%= __('giveaway.waiting_text', { min: p.min, n: '{n}' }) %>"><%= p.needed == 1 ? __('giveaway.waiting_text_one', { min: p.min }) : __('giveaway.waiting_text', { min: p.min, n: p.needed }) %></p>
 
-                    <div class="buttons">
-                      <% if (!user) { %>
-                        <a class="enter-btn" rel="nofollow" href="/auth/steam"><%= __('giveaway.sign_in_to_enter') %></a>
-                      <% } else if (info.entered) { %>
-                        <button class="enter-btn entered" disabled><%= __('giveaway.entered') %> &#10003;</button>
-                      <% } else { %>
-                        <button class="enter-btn" id="giveaway-enter"><%= __('giveaway.enter') %></button>
-                      <% } %>
-                    </div>
-                    <div class="enter-result" id="giveaway-result" role="status"></div>
+                      <h2 class="gw-subtitle"><%= __('giveaway.how_to_enter') %></h2>
+                      <%# each point gets a tick or a cross once the entry is checked %>
+                      <ul class="requirements">
+                        <li data-req="login" class="<%= locals.user?.steamid ? 'met' : '' %>"><span class="gw-check icon icon-user" aria-hidden="true"></span><span><%= __('giveaway.req_login') %></span></li>
+                        <% if (g.requirements?.steam_group) { %><li data-req="steam_group"><span class="gw-check icon icon-steam_circle" aria-hidden="true"></span><span><%- __('giveaway.req_group_html', { link: '<a href="https://steamcommunity.com/groups/tradetf2deal" target="_blank" rel="nofollow">' + __('giveaway.steam_group') + '</a>' }) %></span></li><% } %>
+                        <% if (g.requirements?.trade) { %><li data-req="trade"><span class="gw-check icon icon-trade1" aria-hidden="true"></span><span><%= __('giveaway.req_trade') %></span></li><% } %>
+                      </ul>
+
+                      <div class="buttons">
+                        <% if (!user) { %>
+                          <a class="enter-btn" rel="nofollow" href="/auth/steam"><%= __('giveaway.sign_in_to_enter') %></a>
+                        <% } else if (info.entered) { %>
+                          <button class="enter-btn entered" disabled><%= __('giveaway.entered') %> &#10003;</button>
+                        <% } else { %>
+                          <button class="enter-btn" id="giveaway-enter"><%= __('giveaway.enter') %></button>
+                        <% } %>
+                        <%- include('./partials/giveaway_share.ejs', { share, part: 'button' }) %>
+                      </div>
+                      <div class="enter-result" id="giveaway-result" role="status"></div>
+                      <%- include('./partials/giveaway_share.ejs', { share, part: 'panel' }) %>
+                    <% } else { %>
+                      <%# the result: who won (or that nobody did) %>
+                      <div class="gw-result">
+                        <% if (g.status == 'ended' && g.winner?.steamid) { %>
+                          <img src="<%= g.winner.avatar || '/img/new_user-96.webp' %>" alt="<%= __('js.alt.avatar', { name: g.winner.name || __('giveaway.winner') }) %>" width="56" height="56">
+                          <span class="gw-result-text">
+                            <small><%= __('giveaway.winner') %></small>
+                            <a href="https://steamcommunity.com/profiles/<%= g.winner.steamid %>" target="_blank" rel="nofollow"><%= g.winner.name || __('giveaway.winner') %></a>
+                          </span>
+                        <% } else { %>
+                          <span class="gw-result-text"><strong><%= g.status == 'cancelled' ? __('giveaway.cancelled_text') : __('giveaway.no_winner_text') %></strong></span>
+                        <% } %>
+                      </div>
+                      <div class="buttons">
+                        <% if (info.running) { %>
+                          <a class="start_trading-btn" href="<%= lurl('/giveaway') %>"><%= __('giveaway.see_current') %></a>
+                        <% } %>
+                        <%- include('./partials/giveaway_share.ejs', { share, part: 'button' }) %>
+                      </div>
+                      <%- include('./partials/giveaway_share.ejs', { share, part: 'panel' }) %>
+                    <% } %>
                   </div>
                 </section>
 
                 <div class="gw-stats">
-                  <div class="stat-block gw-countdown" id="giveaway-countdown" data-end="<%= g.end %>">
-                    <span class="icon-clock stat-icon" aria-hidden="true"></span>
-                    <div class="stat-text">
-                      <div class="stat-name"><%= __('giveaway.ends_in') %></div>
-                      <div class="stat-data gw-units">
-                        <span><strong data-unit="d">–</strong><small><%= __('giveaway.days') %></small></span>
-                        <span><strong data-unit="h">–</strong><small><%= __('giveaway.hours') %></small></span>
-                        <span><strong data-unit="m">–</strong><small><%= __('giveaway.minutes') %></small></span>
-                        <span><strong data-unit="s">–</strong><small><%= __('giveaway.seconds') %></small></span>
+                  <% if (live) { %>
+                    <div class="stat-block gw-countdown" id="giveaway-countdown">
+                      <span class="icon-clock stat-icon" aria-hidden="true"></span>
+                      <div class="stat-text">
+                        <div class="stat-name when-running"><%= __('giveaway.ends_in') %></div>
+                        <div class="stat-name when-waiting"><%= __('giveaway.waiting_for') %></div>
+                        <div class="stat-data gw-units when-running">
+                          <span><strong data-unit="d">–</strong><small><%= __('giveaway.days') %></small></span>
+                          <span><strong data-unit="h">–</strong><small><%= __('giveaway.hours') %></small></span>
+                          <span><strong data-unit="m">–</strong><small><%= __('giveaway.minutes') %></small></span>
+                          <span><strong data-unit="s">–</strong><small><%= __('giveaway.seconds') %></small></span>
+                        </div>
+                        <div class="stat-data gw-units when-waiting">
+                          <span><strong id="giveaway-needed"><%= p.needed %></strong><small data-one="<%= __('giveaway.more_entry') %>" data-many="<%= __('giveaway.more_entries') %>"><%= p.needed == 1 ? __('giveaway.more_entry') : __('giveaway.more_entries') %></small></span>
+                        </div>
+                        <div class="gw-drawing"><%= __('giveaway.drawing') %></div>
+                        <noscript><%= new Date(g.end).toUTCString() %></noscript>
                       </div>
-                      <div class="gw-drawing" hidden><%= __('giveaway.drawing') %></div>
-                      <noscript><%= new Date(g.end).toUTCString() %></noscript>
                     </div>
-                  </div>
-                  <div class="stat-block">
-                    <span class="icon-group stat-icon" aria-hidden="true"></span>
-                    <div class="stat-text">
-                      <div class="stat-name"><%= __('giveaway.entries') %></div>
-                      <div class="stat-data" id="giveaway-entries"><%= g.entry_count %></div>
+                    <div class="stat-block">
+                      <span class="icon-group stat-icon" aria-hidden="true"></span>
+                      <div class="stat-text">
+                        <div class="stat-name"><%= __('giveaway.entries') %></div>
+                        <div class="stat-data"><span id="giveaway-entries"><%= g.entry_count %></span><% if (p.min > 0) { %><small class="gw-of"> / <%= p.min %></small><% } %></div>
+                      </div>
                     </div>
-                  </div>
-                  <%# the latest 45 entrants' Steam avatars, newest first, then "+ n" for everyone else %>
-                  <% const ent = g.entrants || { recent: [], more: 0 }; %>
-                  <div class="gw-entrants" id="giveaway-entrants" <% if (!ent.recent.length) { %>hidden<% } %>>
-                    <div class="stat-name"><%= __('giveaway.latest_entries') %></div>
-                    <ul class="gw-avatars">
-                      <% for (const e of ent.recent) { %><li><img src="<%= e.avatar || '/img/new_user-96.webp' %>" alt="<%= e.name %>" title="<%= e.name %>" width="28" height="28" loading="lazy" data-no-fade></li><% } %>
-                      <% if (ent.more > 0) { %><li class="gw-more" title="<%= __('giveaway.more_entries_label', { n: ent.more }) %>">+ <%= ent.more %></li><% } %>
-                    </ul>
-                  </div>
+                    <%# the minimum: how far along it is, until it has enough %>
+                    <div class="gw-goal" id="giveaway-goal" <% if (p.min == 0 || p.needed == 0) { %>hidden<% } %>>
+                      <div class="gw-goal-text">
+                        <strong id="giveaway-goal-needed" data-one="<%= __('giveaway.goal_needed_one') %>" data-many="<%= __('giveaway.goal_needed', { n: '{n}' }) %>"><%= p.needed == 1 ? __('giveaway.goal_needed_one') : __('giveaway.goal_needed', { n: p.needed }) %></strong>
+                        <span><%= __('giveaway.goal_rule', { min: p.min }) %></span>
+                      </div>
+                      <div class="gw-goal-bar" role="progressbar" aria-label="<%= __('giveaway.entries') %>" aria-valuemin="0" aria-valuemax="<%= p.min %>" aria-valuenow="<%= Math.min(p.count, p.min) %>"><i style="width: <%= p.min > 0 ? Math.min(100, Math.round(p.count / p.min * 100)) : 100 %>%"></i></div>
+                    </div>
+                    <%# the latest 45 entrants' Steam avatars, newest first, then "+ n" for everyone else %>
+                    <% const ent = g.entrants || { recent: [], more: 0 }; %>
+                    <div class="gw-entrants" id="giveaway-entrants" <% if (!ent.recent.length) { %>hidden<% } %>>
+                      <div class="stat-name"><%= __('giveaway.latest_entries') %></div>
+                      <ul class="gw-avatars">
+                        <% for (const e of ent.recent) { %><li><img src="<%= e.avatar || '/img/new_user-96.webp' %>" alt="<%= e.name %>" title="<%= e.name %>" width="28" height="28" loading="lazy" data-no-fade></li><% } %>
+                        <% if (ent.more > 0) { %><li class="gw-more" title="<%= __('giveaway.more_entries_label', { n: ent.more }) %>">+ <%= ent.more %></li><% } %>
+                      </ul>
+                    </div>
+                  <% } else { %>
+                    <div class="stat-block">
+                      <span class="icon-clock stat-icon" aria-hidden="true"></span>
+                      <div class="stat-text">
+                        <div class="stat-name"><%= g.status == 'cancelled' ? __('giveaway.cancelled_on') : __('giveaway.ended_on') %></div>
+                        <div class="stat-data gw-date"><time datetime="<%= new Date(g.end).toISOString() %>"><%= new Date(g.end).toLocaleDateString(html_lang, { day: 'numeric', month: 'long', year: 'numeric' }) %></time></div>
+                      </div>
+                    </div>
+                    <div class="stat-block">
+                      <span class="icon-group stat-icon" aria-hidden="true"></span>
+                      <div class="stat-text">
+                        <div class="stat-name"><%= __('giveaway.entries') %></div>
+                        <div class="stat-data"><%= g.entry_count %></div>
+                      </div>
+                    </div>
+                  <% } %>
+                </div>
                 </div>
               <% } else { %>
                 <%# nothing running: the home page's closing box, with its two buttons %>
@@ -93,9 +161,9 @@
                     <div class="none"><%= __('giveaway.no_history') %></div>
                   <% } %>
                   <% for (const old of (info?.history || [])) { %>
-                    <article class="old-giveaway">
-                      <img class="q-<%= old.item.qualityID %>" src="<%= old.item.image %>" style="background-image: <%= old.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${old.item.effectID}_94x94.png)` : 'none' %>;" loading="lazy" alt="<%= item_alt(old.item) %>">
-                      <h3 class="name" translate="no"><%= old.item.bp_sku %></h3>
+                    <article class="old-giveaway <%= g && String(old._id) == String(g._id) ? 'is-shown' : '' %>">
+                      <img class="q-<%= old.item.qualityID %>" src="<%= old.item.image || '/img/group-icon.png' %>" style="background-image: <%= old.item.effectID > 0 ? `url(https://api.backpack.tf/images/440/particles/${old.item.effectID}_94x94.png)` : 'none' %>;" loading="lazy" alt="<%= item_alt(old.item) %>">
+                      <h3 class="name" translate="no"><% if (old.number) { %><a href="<%= lurl('/giveaway/' + old.number) %>"><%= old.item.bp_sku %></a><% } else { %><%= old.item.bp_sku %><% } %></h3>
                       <div class="winner">
                         <% if (old.winner?.steamid) { %>
                           <img src="<%= old.winner.avatar || '/img/new_user-96.webp' %>" alt="<%= __('js.alt.avatar', { name: old.winner.name || __('giveaway.winner') }) %>" loading="lazy">
@@ -116,23 +184,68 @@
         </main>
 
         <script>
-            // countdown
+            // the running giveaway: countdown to its end time; past it with too few entries it waits for them (the
+            // minimum), with enough the winner is being drawn
+            const box = document.getElementById('giveaway-box')
+            const live = box && box.dataset.end ? {
+                end: Number(box.dataset.end),
+                min: Number(box.dataset.min) || 0,
+                count: Number(box.dataset.count) || 0,
+                page: box.dataset.page
+            } : null
+            const needed = () => live ? Math.max(0, live.min - live.count) : 0
+            const plural = (el, n) => {
+                if (!el) return
+                const text = n == 1 ? el.dataset.one : el.dataset.many
+                if (text != null) el.textContent = text.replace('{n}', n)
+            }
+            // the result is on the giveaway's own page once it's drawn
+            let leaving = null
+            const show_result = (wait) => {
+                if (leaving || !live?.page) return
+                leaving = setTimeout(() => location.assign(live.page), wait)
+            }
+            const set_state = () => {
+                if (!live) return
+                const over = Date.now() >= live.end
+                box.classList.toggle('is-waiting', over && needed() > 0)
+                box.classList.toggle('is-drawing', over && needed() == 0)
+                if (over && needed() == 0) show_result(8000)
+            }
+            const show_progress = () => {
+                if (!live) return
+                const n = needed()
+                document.getElementById('giveaway-entries').textContent = live.count
+                const goal = document.getElementById('giveaway-goal')
+                if (goal) {
+                    goal.hidden = live.min == 0 || n == 0
+                    plural(document.getElementById('giveaway-goal-needed'), n)
+                    const bar = goal.querySelector('.gw-goal-bar')
+                    bar.setAttribute('aria-valuenow', Math.min(live.count, live.min))
+                    bar.querySelector('i').style.width = (live.min > 0 ? Math.min(100, Math.round(live.count / live.min * 100)) : 100) + '%'
+                }
+                const left = document.getElementById('giveaway-needed')
+                if (left) { left.textContent = n; plural(left.nextElementSibling, n) }
+                plural(document.getElementById('giveaway-waiting-note'), n)
+                set_state()
+            }
+
             const countdown = document.getElementById('giveaway-countdown')
-            if (countdown) {
-                const end = Number(countdown.dataset.end)
+            if (countdown && live) {
                 const units = Object.fromEntries([...countdown.querySelectorAll('[data-unit]')].map((el) => [el.dataset.unit, el]))
                 const pad = (n) => String(n).padStart(2, '0')
                 let timer = null
                 const tick = () => {
-                    const left = Math.max(0, end - Date.now())
+                    const left = Math.max(0, live.end - Date.now())
                     units.d.textContent = Math.floor(left / 86400000)
                     units.h.textContent = pad(Math.floor(left / 3600000) % 24)
                     units.m.textContent = pad(Math.floor(left / 60000) % 60)
                     units.s.textContent = pad(Math.floor(left / 1000) % 60)
                     if (left == 0) {
-                        countdown.classList.add('is-done')
-                        countdown.querySelector('.gw-drawing').hidden = false
                         clearInterval(timer)
+                        set_state()
+                        // the server draws within a minute of the end time
+                        if (needed() == 0) show_result(70000)
                     }
                 }
                 tick()
@@ -191,16 +304,53 @@
                     if (res.entered) {
                         enterBtn.textContent = <%- JSON.stringify(__('giveaway.entered')) %> + " \u2713"
                         enterBtn.classList.add('entered')
-                        const entries = document.getElementById('giveaway-entries')
-                        if (res.entrants) entries.textContent = res.entrants.total
-                        else if (!res.already) entries.textContent = Number(entries.textContent) + 1
+                        if (live) {
+                            if (res.entrants) live.count = res.entrants.total
+                            else if (!res.already) live.count++
+                            show_progress()
+                        }
                         if (res.entrants) showEntrants(res.entrants)
+                        if (res.drawing) show_result(6000) // their entry was the last one it needed
                     } else {
                         enterBtn.disabled = false
                         enterBtn.textContent = <%- JSON.stringify(__('giveaway.try_again')) %>
                     }
                 })
             }
+
+            // share: the phone's share sheet when there is one, else the panel with the link
+            const shareBtn = document.getElementById('giveaway-share-btn')
+            const sharePanel = document.getElementById('giveaway-share')
+            if (shareBtn && sharePanel) {
+                const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches
+                shareBtn.addEventListener('click', async () => {
+                    const data = { title: shareBtn.dataset.title, text: shareBtn.dataset.text, url: shareBtn.dataset.url }
+                    if (touch && navigator.share) {
+                        try { await navigator.share(data); return } catch (e) { if (e && e.name == 'AbortError') return }
+                    }
+                    sharePanel.hidden = !sharePanel.hidden
+                    shareBtn.setAttribute('aria-expanded', String(!sharePanel.hidden))
+                    if (!sharePanel.hidden) document.getElementById('giveaway-share-url').select()
+                })
+                const copyBtn = document.getElementById('giveaway-copy')
+                const field = document.getElementById('giveaway-share-url')
+                let reset = null
+                copyBtn.addEventListener('click', async () => {
+                    let copied = false
+                    try { await navigator.clipboard.writeText(field.value); copied = true } catch (e) {
+                        field.select()
+                        try { copied = document.execCommand('copy') } catch (e2) {}
+                    }
+                    if (!copied) { field.select(); return }
+                    copyBtn.textContent = copyBtn.dataset.done
+                    copyBtn.classList.add('is-done')
+                    clearTimeout(reset)
+                    reset = setTimeout(() => { copyBtn.textContent = copyBtn.dataset.label; copyBtn.classList.remove('is-done') }, 2000)
+                })
+                field.addEventListener('focus', () => field.select())
+            }
+
+            if (box && box.classList.contains('is-drawing')) show_result(8000)
         </script>
         
         <%- include('./partials/footer.ejs') %>

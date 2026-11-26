@@ -728,6 +728,8 @@ app.get('/items/:item', mw.curPath, router.item_page);
 app.get('/buy/:itemid', mw.curPath, router.buy_link);
 
 app.get('/giveaway', mw.curPath, router.giveaway);
+app.get('/giveaway/:number(\\d+)', mw.curPath, router.giveaway); // one giveaway's own page: the link its Share button gives
+app.get(/^\/og\/giveaway-(\d{1,9})\.png$/, router.giveaway_card); // its share picture (service/giveaway_og.js)
 app.get('/blog', mw.curPath, router.blog);
 app.get('/blog/:slug', mw.curPath, router.blog_page);
 app.get('/about', mw.curPath, router.about);

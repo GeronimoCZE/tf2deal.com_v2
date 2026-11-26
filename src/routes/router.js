@@ -7,7 +7,8 @@ import * as app from '../app.js'
 import { item_model } from '../model/Item.js'
 import { blog_model } from '../model/Blog.js'
 import { giveaway_model } from '../model/Giveaway.js'
-import { recent_view } from '../service/giveaway.js'
+import { recent_view, progress as giveaway_progress, share_path as giveaway_path } from '../service/giveaway.js'
+import * as giveaway_og from '../service/giveaway_og.js'
 import * as translate from '../service/translate.js'
 import { bptf_link, wiki_link, RECIPE_TYPES } from '../service/bptf_link.js'
 import * as stats from '../service/stats.js'
@@ -516,43 +517,68 @@ const item_page = async (req, res) => {
   }
 }
 
+// The giveaway page. /giveaway shows the running giveaway; /giveaway/<number> is one giveaway's own page, the link its
+// Share button gives (with its own share picture, service/giveaway_og.js): the same page while it runs, its result once
+// it has ended. Only /giveaway is meant for search results; the numbered pages are noindex.
 const giveaway = async (req, res, next) => {
   const user_cookie = req.user ? req.cookies[`td_${req.user.steamid}`] : undefined
+  const number = req.params.number !== undefined ? Number(req.params.number) : null
+  if (number !== null && !(Number.isSafeInteger(number) && number > 0)) return next()
 
   try {
     // every entry is only steamid + time; the page needs their count and the latest entrants' avatars
-    const current = (await giveaway_model.aggregate([
-      { $match: { status: 'active' } },
+    const shown = (await giveaway_model.aggregate([
+      { $match: number !== null ? { number } : { status: 'active' } },
+      { $sort: { created: -1 } },
       { $limit: 1 },
       { $addFields: { entry_count: { $size: '$entries' } } },
       { $project: { entries: 0 } }
     ]))[0] || null
+    if (number !== null && !shown) return next() // no giveaway with that number: 404
+
+    const current = shown?.status == 'active' ? shown : null
+    // a giveaway that ended points to the one running now, if there is one
+    const running = current || (shown ? await giveaway_model.findOne({ status: 'active' }, { number: 1, item: 1 }).lean() : null)
     const history = await giveaway_model.find({ status: 'ended' }, { entries: 0, recent: 0 }).sort({ end: -1 }).limit(12).lean()
 
     let entered = false
-    if (current) {
-      entered = Boolean(req.user) && Boolean(await giveaway_model.exists({ _id: current._id, 'entries.steamid': String(req.user.steamid) }))
-      current.entrants = recent_view(current)
-      delete current.recent
+    if (shown) {
+      if (current) {
+        entered = Boolean(req.user) && Boolean(await giveaway_model.exists({ _id: current._id, 'entries.steamid': String(req.user.steamid) }))
+        current.entrants = recent_view(current)
+        // the minimum entries: how many more it needs, and whether its end time passed with too few (waiting)
+        current.progress = giveaway_progress(current)
+      }
+      delete shown.recent
 
       // AI-translated description (service/translate.js); the original until the translation is ready
-      const shown = translate.localized(current, req.lang, translate.GIVEAWAY_FIELDS)
-      if (!shown && current.description) translate.queue_giveaway(current._id)
-      current.description_shown = shown ? shown.description : current.description
-      current.description_lang = shown ? shown.lang : translate.source_lang(current)
-      current.description_translated = Boolean(shown?.translated)
+      const localized = translate.localized(shown, req.lang, translate.GIVEAWAY_FIELDS)
+      if (!localized && shown.description) translate.queue_giveaway(shown._id)
+      shown.description_shown = localized ? localized.description : shown.description
+      shown.description_lang = localized ? localized.lang : translate.source_lang(shown)
+      shown.description_translated = Boolean(localized?.translated)
+      delete shown.translations
     }
 
+    // the Share button: this giveaway's own page, in the visitor's language
+    const share = shown?.number ? {
+      url: fn.site_url + req.lurl(giveaway_path(shown)),
+      title: req.__('giveaway.share_title', { item: shown.item?.bp_sku || '' }),
+      text: req.__(current ? 'giveaway.share_text' : 'giveaway.share_text_ended', { item: shown.item?.bp_sku || '' })
+    } : null
+
     // SEO: a running giveaway names its prize in the title (when it fits search results, about 70 characters) and
-    // shows the prize's picture when the page is shared; the structured data says what the page is about and when it
+    // shows its share picture when the page is shared; the structured data says what the page is about and when it
     // was last changed (the sitemap's lastmod for /giveaway is the same moment, service/sitemap.js)
-    const prize_name = current?.item?.bp_sku || ''
-    const prize_title = prize_name ? req.__('title.giveaway_active', { item: prize_name }) : ''
+    const prize_name = shown?.item?.bp_sku || ''
+    const prize_title = !prize_name ? '' : req.__(current ? 'title.giveaway_active' : 'title.giveaway_ended', { item: prize_name })
     const page_title = prize_title && prize_title.length <= 70 ? prize_title : req.__('title.giveaway')
-    const prize_image = fn.absolute_url(current?.item?.image)
+    const prize_image = fn.absolute_url(shown?.item?.image)
+    const card = shown?.number && giveaway_og.available() ? giveaway_og.path_of(shown) : null
+    const share_image = card ? fn.site_url + card : prize_image
     const latest = current || history[0]
     const page_url = fn.site_url + req.lurl('/giveaway')
-    const json_ld = {
+    const json_ld = number !== null ? undefined : {
       '@context': 'https://schema.org',
       '@type': 'WebPage',
       '@id': page_url,
@@ -564,7 +590,7 @@ const giveaway = async (req, res, next) => {
       ...(latest && { dateModified: new Date(current ? current.start : latest.end).toISOString() }),
       ...(current && {
         about: { '@type': 'Thing', name: prize_name, ...(prize_image && { image: prize_image }) },
-        ...(prize_image && { primaryImageOfPage: { '@type': 'ImageObject', url: prize_image } })
+        ...(share_image && { primaryImageOfPage: { '@type': 'ImageObject', url: share_image } })
       })
     }
 
@@ -574,16 +600,37 @@ const giveaway = async (req, res, next) => {
         view: 'giveaway',
         promtLogin: true,
         description: current
-          ? req.__('desc.giveaway_active', { item: current.item?.bp_sku })
-          : req.__('desc.giveaway_none'),
-        path: '/giveaway',
-        image: prize_image,
+          ? req.__('desc.giveaway_active', { item: prize_name })
+          : shown ? req.__('desc.giveaway_ended', { item: prize_name }) : req.__('desc.giveaway_none'),
+        path: number !== null ? giveaway_path(shown) : '/giveaway',
+        noindex: number !== null, // one page in search results: /giveaway
+        image: share_image,
+        image_large: Boolean(card), // the share picture is 1200 x 630: the big link preview
         json_ld,
-        giveaway: current,
+        giveaway: shown,
+        running: running && (!shown || String(running._id) != String(shown._id)) ? { number: running.number, item: running.item } : null,
         entered,
+        share,
         history
       })
     )
+  } catch (err) {
+    next(err)
+  }
+}
+
+// /og/giveaway-<number>.png: the giveaway's share picture (service/giveaway_og.js), drawn the first time it's asked
+// for. The address with the current ?v= is cached for a year (a new picture gets a new version); without it, or with an
+// old one, for 10 minutes. When it can't be drawn: the prize's own picture.
+const giveaway_card = async (req, res, next) => {
+  try {
+    const giveaway = await giveaway_og.by_number(req.params[0])
+    if (!giveaway) return next()
+    const file = await giveaway_og.file(giveaway)
+    if (!file) return res.redirect(302, fn.absolute_url(giveaway.item?.image) || '/img/og-image.png')
+    const current = req.query.v === giveaway_og.version(giveaway)
+    res.set('Cache-Control', current ? 'public, max-age=31536000, immutable' : 'public, max-age=600')
+    res.type('png').sendFile(file)
   } catch (err) {
     next(err)
   }
@@ -841,6 +888,7 @@ export {
   items,
   item_page,
   giveaway,
+  giveaway_card,
   blog,
   blog_page,
   about,

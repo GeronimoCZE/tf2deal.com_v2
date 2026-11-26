@@ -60,7 +60,7 @@
     const tl = (v) => String(v ?? '').replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${').replace(/</g, '\\u003c')
 
     // SEO values for this page. A route can override them through `info`:
-    //   description, path (the page path without language), canonical (full URL), alternates ([{hreflang, href}]), no_hreflang, noindex, image, og_type, json_ld
+    //   description, path (the page path without language), canonical (full URL), alternates ([{hreflang, href}]), no_hreflang, noindex, image, image_large, og_type, json_ld
     const seo_site = locals.site_url || 'https://tf2deal.com'
     const seo_title = (title == 'Home') ? __('title.home') : title
     const seo_description = info?.description || __('desc.default')
@@ -102,8 +102,14 @@
     <meta property="og:description" content="<%= seo_description %>">
     <meta property="og:url" content="<%= seo_url %>">
     <meta property="og:image" content="<%= seo_image %>">
+<%# a picture made for sharing (1200 x 630, like the default one) gets the big preview; an item picture the small one %>
+<% if (info?.image_large) { %>
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+<% } %>
     <meta property="og:image:alt" content="<%= seo_title %>">
-    <meta name="twitter:card" content="<%= info?.image ? 'summary' : 'summary_large_image' %>">
+    <meta name="twitter:card" content="<%= info?.image && !info?.image_large ? 'summary' : 'summary_large_image' %>">
     <meta name="twitter:title" content="<%= seo_title %>">
     <meta name="twitter:description" content="<%= seo_description %>">
     <meta name="twitter:image" content="<%= seo_image %>">

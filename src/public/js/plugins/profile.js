@@ -187,7 +187,7 @@ const history_row = (g) => {
         ${gw_image(g.item, 'small')}
         <div class="gw-row-main">
             ${gw_name(g)}
-            <div class="meta">${date_text(g.start)} – ${date_text(g.end)} · ${__('profile.gw_entries', { n: g.entry_count })}</div>
+            <div class="meta">${g.url ? `<a href="${lurl(g.url)}">${date_text(g.start)} – ${date_text(g.end)}</a>` : `${date_text(g.start)} – ${date_text(g.end)}`} · ${__('profile.gw_entries', { n: g.entry_count })}</div>
         </div>
         <div class="gw-row-result">${result}</div>
     </div>`
@@ -210,11 +210,13 @@ export const load_giveaways = async () => {
         <div class="gw-now-main">
             <span class="gw-label"><i aria-hidden="true"></i>${__('profile.gw_current')}</span>
             ${gw_name(active)}
-            <div class="meta">${__('profile.gw_ends', { date: datetime_text(active.end) })} · ${__('profile.gw_entries', { n: active.entry_count })}</div>
+            <div class="meta">${active.waiting
+                ? (active.needed == 1 ? __('profile.gw_waiting_one') : __('profile.gw_waiting', { n: active.needed })) // past its end time: the minimum entries
+                : __('profile.gw_ends', { date: datetime_text(active.end) })} · ${__('profile.gw_entries', { n: active.entry_count })}</div>
         </div>
         <div class="gw-now-action">${active.entered
             ? `<span class="gw-in">${__('profile.gw_youre_in')} &#10003;</span><small>${__('profile.gw_chance', { n: Math.max(1, active.entry_count) })}</small>`
-            : `<a class="gw-action" href="${lurl('/giveaway')}">${__('profile.gw_enter_now')}</a>`}</div>
+            : `<a class="gw-action" href="${lurl(active.url || '/giveaway')}">${__('profile.gw_enter_now')}</a>`}</div>
     </section>` : ''
 
     if(res.giveaways.length == 0){

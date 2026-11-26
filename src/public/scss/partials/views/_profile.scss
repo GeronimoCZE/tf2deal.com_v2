@@ -590,6 +590,8 @@ $highlight-color: rgba(var(--tint-rgb), 0.16);
             .gw-row-main{ flex: 1; min-width: 0; }
             .name{ font-size: 15.5px; }
             .meta{ font-size: 13px; }
+            .meta a{ color: inherit; text-decoration: underline; text-decoration-color: var(--line, rgba(255, 255, 255, .25)); text-underline-offset: 3px; }
+            .meta a:hover{ color: var(--ink); }
             .gw-row-result{
                 flex: none;
                 font-size: 14px;

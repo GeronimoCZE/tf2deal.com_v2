@@ -106,7 +106,8 @@
     "category": "Buy & Sell TF2 {category} for Keys | TF2Deal.com",
     "category_page": "TF2 {category} (page {page}) | TF2Deal.com",
     "category_short": "TF2 {category} | TF2Deal.com",
-    "keys": "TF2 Key Bank – Swap Keys and Refined Metal | TF2Deal.com"
+    "keys": "TF2 Key Bank – Swap Keys and Refined Metal | TF2Deal.com",
+    "giveaway_ended": "{item} Giveaway – Ended | TF2Deal.com"
   },
   "desc": {
     "default": "Buy, sell and trade TF2 items with automated Steam trade bots. Hats, unusuals, weapons and keys for keys and ref, trade offers in seconds.",
@@ -129,7 +130,8 @@
     "item_no_stock": "Instant automated TF2 trading with our trade bots.",
     "category": "Buy and sell TF2 {category} for keys and ref: {count} items with live prices and stock, and Steam trade offers from our bots in seconds.",
     "category_page": "Page {page} of TF2 {category} on TF2Deal.com, with live prices and stock. Buy and sell for keys and ref with instant Steam trade offers.",
-    "keys": "Swap Mann Co. Supply Crate Keys for refined metal and back with TF2Deal.com's bank bots: live key prices from backpack.tf, up to 5 keys a trade, a Steam offer in seconds."
+    "keys": "Swap Mann Co. Supply Crate Keys for refined metal and back with TF2Deal.com's bank bots: live key prices from backpack.tf, up to 5 keys a trade, a Steam offer in seconds.",
+    "giveaway_ended": "The free {item} giveaway on TF2Deal.com has ended. See who won and enter the next free TF2 giveaway."
   },
   "item_types": {
     "cosmetic": "Cosmetic",
@@ -353,7 +355,9 @@
       "gw_prize_waiting": "Our bank bot will send you a trade offer shortly.",
       "gw_received_on": "Received {date}. Enjoy!",
       "gw_won_on": "Won {date}",
-      "gw_out_of": "out of {n} entries"
+      "gw_out_of": "out of {n} entries",
+      "gw_waiting": "Waiting for {n} more entries",
+      "gw_waiting_one": "Waiting for 1 more entry"
     },
     "tickets": {
       "status_open": "Waiting for support",
@@ -615,7 +619,9 @@
       "giveaway_tradelink_title": "Add your trade URL",
       "giveaway_tradelink": "We need your Steam trade URL to send you {item}. Add it in your profile.",
       "giveaway_admin_winner_title": "Giveaway winner",
-      "giveaway_admin_winner": "{winner} won {item}. Their details are in Admin → Giveaways."
+      "giveaway_admin_winner": "{winner} won {item}. Their details are in Admin → Giveaways.",
+      "giveaway_admin_waiting_title": "Giveaway waiting for entries",
+      "giveaway_admin_waiting": "{item} reached its end time with {count} of {min} entries. It stays open and is drawn as soon as {n} more people enter. You can change the minimum in Admin → Giveaways."
     },
     "buy_link": {
       "buy_title": "Buy this item",
@@ -833,7 +839,31 @@
     "seconds": "sec",
     "how_to_enter": "How to enter",
     "latest_entries": "Latest entries",
-    "more_entries_label": "{n} more entries"
+    "more_entries_label": "{n} more entries",
+    "waiting_label": "Waiting for entries",
+    "waiting_text": "The end time has passed, but this giveaway needs at least {min} entries. The winner is drawn as soon as {n} more people enter, so share it with your friends!",
+    "waiting_text_one": "The end time has passed, but this giveaway needs at least {min} entries. The winner is drawn as soon as 1 more person enters, so share it with your friends!",
+    "waiting_for": "Waiting for",
+    "more_entries": "more entries",
+    "more_entry": "more entry",
+    "goal_needed": "{n} more entries needed",
+    "goal_needed_one": "1 more entry needed",
+    "goal_rule": "The winner is drawn once {min} people have entered.",
+    "share": "Share",
+    "share_link": "Link to this giveaway",
+    "copy_link": "Copy link",
+    "link_copied": "Copied!",
+    "share_on": "Share on",
+    "share_title": "Free {item} giveaway on TF2Deal.com",
+    "share_text": "Win {item} for free in the TF2Deal.com giveaway!",
+    "share_text_ended": "The {item} giveaway on TF2Deal.com",
+    "ended_label": "Giveaway ended",
+    "cancelled_label": "Giveaway cancelled",
+    "cancelled_text": "This giveaway was cancelled.",
+    "no_winner_text": "It ended without entries.",
+    "see_current": "Enter the current giveaway",
+    "ended_on": "Ended",
+    "cancelled_on": "Cancelled"
   },
   "blog": {
     "h1": "Blog",
@@ -1037,7 +1067,9 @@
     "key_bank_reload": "This page is out of date. Reload it and try again.",
     "offer_cooldown": "You didn't accept your last {misses} requested offers, so you can request a new one in {time}. Accepting an offer resets this.",
     "cooldown_minutes": "{n} min",
-    "cooldown_hours": "{n} h"
+    "cooldown_hours": "{n} h",
+    "gw_drawing": "This giveaway has all the entries it needs and the winner is being drawn.",
+    "gw_entered_drawing": "You're in, and yours was the entry it needed: the winner is being drawn now!"
   },
   "cookies": {
     "banner_title": "Cookies on TF2Deal.com",
@@ -1167,6 +1199,10 @@
       "item_details": {
         "title": "Right-click for item details",
         "text": "Right-click an item on the trade page or an item page to see everything about that copy: paint, spells, strange parts, killstreak and links to backpack.tf, the TF2 Wiki and Steam. On a phone, tap the item's tooltip."
+      },
+      "giveaway_share": {
+        "title": "Share giveaways with your friends",
+        "text": "Every giveaway has its own link now, with a picture of the prize that shows up in Discord, Steam chat and on social sites. Press Share on the giveaway page. A giveaway also needs a minimum number of entries: until enough people are in, it stays open."
       }
     }
   }

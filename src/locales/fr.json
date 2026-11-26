@@ -106,7 +106,8 @@
     "category": "Acheter et vendre des TF2 {category} | TF2Deal.com",
     "category_page": "TF2 {category} (page {page}) | TF2Deal.com",
     "category_short": "TF2 {category} | TF2Deal.com",
-    "keys": "Banque de clés TF2 – Échangez clés et Refined Metal | TF2Deal.com"
+    "keys": "Banque de clés TF2 – Échangez clés et Refined Metal | TF2Deal.com",
+    "giveaway_ended": "Concours {item} – terminé | TF2Deal.com"
   },
   "desc": {
     "default": "Achetez, vendez et échangez des objets TF2 avec des bots Steam automatiques. Chapeaux, unusuals, armes et clés contre clés et ref, offre en secondes.",
@@ -129,7 +130,8 @@
     "item_no_stock": "Trading TF2 automatisé et instantané avec nos bots.",
     "category": "Achetez et vendez des TF2 {category} contre clés et ref : {count} objets, prix et stock en direct, offres d'échange de nos bots en secondes.",
     "category_page": "Page {page} des TF2 {category} sur TF2Deal.com, avec prix et stock en direct. Achetez et vendez contre des clés et du ref, offre d'échange immédiate.",
-    "keys": "Échangez des Mann Co. Supply Crate Keys contre du Refined Metal et inversement avec les bots banque de TF2Deal.com : prix des clés en direct depuis backpack.tf, jusqu'à 5 clés par échange, une offre Steam en quelques secondes."
+    "keys": "Échangez des Mann Co. Supply Crate Keys contre du Refined Metal et inversement avec les bots banque de TF2Deal.com : prix des clés en direct depuis backpack.tf, jusqu'à 5 clés par échange, une offre Steam en quelques secondes.",
+    "giveaway_ended": "Le concours gratuit {item} sur TF2Deal.com est terminé. Découvre qui a gagné et participe au prochain concours d’objets TF2."
   },
   "item_types": {
     "cosmetic": "Cosmétique",
@@ -353,7 +355,9 @@
       "gw_prize_waiting": "Notre bot banque va t'envoyer une offre d'échange sous peu.",
       "gw_received_on": "Reçu le {date}. Profite bien !",
       "gw_won_on": "Gagné le {date}",
-      "gw_out_of": "sur {n} participations"
+      "gw_out_of": "sur {n} participations",
+      "gw_waiting": "En attente de {n} participations",
+      "gw_waiting_one": "En attente d’une participation"
     },
     "tickets": {
       "status_open": "En attente de l'assistance",
@@ -615,7 +619,9 @@
       "giveaway_tradelink_title": "Ajoute ton URL d'échange",
       "giveaway_tradelink": "Il nous faut ton URL d'échange Steam pour t'envoyer {item}. Ajoute-la dans ton profil.",
       "giveaway_admin_winner_title": "Gagnant du giveaway",
-      "giveaway_admin_winner": "{winner} a gagné {item}. Ses infos sont dans Admin → Giveaways."
+      "giveaway_admin_winner": "{winner} a gagné {item}. Ses infos sont dans Admin → Giveaways.",
+      "giveaway_admin_waiting_title": "Concours en attente de participants",
+      "giveaway_admin_waiting": "{item} a atteint son heure de fin avec {count} participations sur {min}. Il reste ouvert et sera tiré au sort dès que {n} personnes de plus participeront. Tu peux changer le minimum dans Admin → Giveaways."
     },
     "buy_link": {
       "buy_title": "Acheter cet objet",
@@ -834,7 +840,31 @@
     "seconds": "s",
     "how_to_enter": "Comment participer",
     "latest_entries": "Dernières participations",
-    "more_entries_label": "{n} autres participations"
+    "more_entries_label": "{n} autres participations",
+    "waiting_label": "En attente de participants",
+    "waiting_text": "L’heure de fin est passée, mais ce concours a besoin d’au moins {min} participations. Le gagnant est tiré au sort dès que {n} personnes de plus participent, alors partage-le avec tes amis !",
+    "waiting_text_one": "L’heure de fin est passée, mais ce concours a besoin d’au moins {min} participations. Le gagnant est tiré au sort dès qu’une personne de plus participe, alors partage-le avec tes amis !",
+    "waiting_for": "Il manque",
+    "more_entries": "participations",
+    "more_entry": "participation",
+    "goal_needed": "Encore {n} participations nécessaires",
+    "goal_needed_one": "Encore 1 participation nécessaire",
+    "goal_rule": "Le gagnant est tiré au sort quand {min} personnes ont participé.",
+    "share": "Partager",
+    "share_link": "Lien vers ce concours",
+    "copy_link": "Copier le lien",
+    "link_copied": "Copié !",
+    "share_on": "Partager sur",
+    "share_title": "Concours gratuit : {item} sur TF2Deal.com",
+    "share_text": "Gagne {item} gratuitement au concours de TF2Deal.com !",
+    "share_text_ended": "Le concours {item} sur TF2Deal.com",
+    "ended_label": "Concours terminé",
+    "cancelled_label": "Concours annulé",
+    "cancelled_text": "Ce concours a été annulé.",
+    "no_winner_text": "Il s’est terminé sans participants.",
+    "see_current": "Participer au concours en cours",
+    "ended_on": "Terminé le",
+    "cancelled_on": "Annulé le"
   },
   "blog": {
     "h1": "Blog",
@@ -1038,7 +1068,9 @@
     "key_bank_reload": "Cette page n'est plus à jour. Rechargez-la et réessayez.",
     "offer_cooldown": "Vous n'avez pas accepté vos {misses} dernières offres demandées, vous pourrez en demander une nouvelle dans {time}. Accepter une offre remet ce délai à zéro.",
     "cooldown_minutes": "{n} min",
-    "cooldown_hours": "{n} h"
+    "cooldown_hours": "{n} h",
+    "gw_drawing": "Ce concours a toutes les participations nécessaires et le gagnant est en train d’être tiré au sort.",
+    "gw_entered_drawing": "Tu participes, et c’était la participation qui manquait : le gagnant est tiré au sort maintenant !"
   },
   "cookies": {
     "banner_title": "Cookies sur TF2Deal.com",
@@ -1168,6 +1200,10 @@
       "item_details": {
         "title": "Clic droit pour les détails",
         "text": "Faites un clic droit sur un objet sur la page d'échange ou sur la page d'un objet pour tout voir sur cet exemplaire : peinture, sorts, strange parts, killstreak et liens vers backpack.tf, le TF2 Wiki et Steam. Sur téléphone, touchez l'infobulle de l'objet."
+      },
+      "giveaway_share": {
+        "title": "Partage les concours avec tes amis",
+        "text": "Chaque concours a maintenant son propre lien, avec une image du lot qui s’affiche sur Discord, dans le chat Steam et sur les réseaux sociaux. Appuie sur Partager sur la page du concours. Un concours a aussi besoin d’un nombre minimum de participations : tant qu’il n’y a pas assez de monde, il reste ouvert."
       }
     }
   }

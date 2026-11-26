@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 // the bank bot's offer goes on. The giveaways collection keeps the giveaway itself for the site's pages.
 const GiveawayArchive = mongoose.Schema({
     giveaway: { type: mongoose.Schema.Types.ObjectId, required: true, unique: true },
+    number: { type: Number },                     // its address: /giveaway/<number>
     status: { type: String, default: 'ended' },  // ended | cancelled
     item: { type: mongoose.Schema.Types.Mixed, default: {} },
     description: { type: String, default: '' },
@@ -12,6 +13,8 @@ const GiveawayArchive = mongoose.Schema({
     start: { type: Number, default: 0 },
     end: { type: Number, default: 0 },
     entry_count: { type: Number, default: 0 },
+    min_entries: { type: Number, default: 0 },    // the entries it needed before the winner could be drawn
+    waiting_since: { type: Number, default: 0 },  // when its end time passed with fewer (0 = it never waited)
     entrants: { type: [String], default: [] }, // every entrant's steamid
     winner: { type: mongoose.Schema.Types.Mixed, default: null }, // { steamid, name, avatar, entered, drawn, tradelink }
     skipped: { type: Number, default: 0 },     // drawn entries that had left the Steam group

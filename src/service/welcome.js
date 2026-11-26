@@ -48,7 +48,9 @@ const newest_posts = async () => {
 export const news = async (lang, __) => {
   const list = []
   if (app.giveaway?.active && app.giveaway.item?.bp_sku) {
-    list.push({ kind: 'giveaway', date: null, end: Number(app.giveaway.end) || null, title: __('welcome.news_giveaway', { item: app.giveaway.item.bp_sku }), href: '/giveaway' })
+    // past its end time it waits for the entries it needs (service/giveaway.js): no end date to show then
+    const end = Number(app.giveaway.end) || null
+    list.push({ kind: 'giveaway', date: null, end: end && end > Date.now() ? end : null, title: __('welcome.news_giveaway', { item: app.giveaway.item.bp_sku }), href: '/giveaway' })
   }
   const dated = []
   for (const post of await newest_posts()) {

@@ -20,7 +20,7 @@ import { site_shape } from '../../service/trade_records.js';
 import { item_model } from '../../model/Item.js';
 import { ticket_model } from '../../model/Ticket.js';
 import { giveaway_model } from '../../model/Giveaway.js';
-import { check_requirements, in_steam_group, group_url, add_entry, recent_view } from '../../service/giveaway.js';
+import { check_requirements, in_steam_group, group_url, add_entry, recent_view, progress, after_entry, share_path } from '../../service/giveaway.js';
 import { winner_saved_tradelink } from '../../service/giveaway_prize.js';
 import { public_bot, read_accounts } from '../../service/bot_names.js';
 import * as trade_url from '../../service/trade_url.js';
@@ -415,7 +415,7 @@ router.get('/giveaways', isLogged, async (req, res) => {
         { $sort: { end: -1 } },
         { $limit: 50 },
         { $project: {
-          item: 1, start: 1, end: 1, status: 1, winner: 1, prize: 1, prize_sent: 1,
+          item: 1, start: 1, end: 1, status: 1, winner: 1, prize: 1, prize_sent: 1, number: 1,
           entry_count: { $size: '$entries' },
           mine: { $arrayElemAt: [{ $filter: { input: '$entries', as: 'e', cond: { $eq: ['$$e.steamid', steamid] } } }, 0] }
         } }
@@ -423,7 +423,7 @@ router.get('/giveaways', isLogged, async (req, res) => {
       giveaway_model.aggregate([
         { $match: { status: 'active' } },
         { $limit: 1 },
-        { $project: { item: 1, end: 1, prize: 1, entry_count: { $size: '$entries' }, entered: { $in: [steamid, '$entries.steamid'] } } }
+        { $project: { item: 1, end: 1, prize: 1, number: 1, min_entries: 1, entry_count: { $size: '$entries' }, entered: { $in: [steamid, '$entries.steamid'] } } }
       ]).then((list) => list[0] || null),
       User.findOne({ steamid }, { giveaways: 1 }).lean()
     ])
@@ -432,6 +432,7 @@ router.get('/giveaways', isLogged, async (req, res) => {
       const won = g.winner?.steamid == steamid
       return {
         id: g._id,
+        url: share_path(g), // its own page: /giveaway/<number>
         item: g.item,
         priced: g.prize?.priced !== false,
         start: g.start,
@@ -462,7 +463,11 @@ router.get('/giveaways', isLogged, async (req, res) => {
         priced: active.prize?.priced !== false,
         end: active.end,
         entry_count: active.entry_count,
-        entered: Boolean(active.entered)
+        entered: Boolean(active.entered),
+        // the minimum entries: past its end time with too few it waits (and shows how many more it needs)
+        needed: progress(active).needed,
+        waiting: progress(active).waiting,
+        url: share_path(active)
       } : null,
       totals: {
         entered: Math.max(Number(user?.giveaways?.entries) || 0, view.length),
@@ -484,9 +489,19 @@ const REQUIREMENT_MESSAGES = {
 router.post('/giveaway/enter', isLogged, per_user(60*60*1000, 20), async (req, res) => {
   const steamid = req.user.steamid
   try {
-    const giveaway = await giveaway_model.findOne({ status: 'active', end: { $gt: Date.now() } }, { entries: 0 }).lean()
+    // open until its end time, and after it while it waits for the entries it needs (the minimum, service/giveaway.js);
+    // once it has them past its end time, the winner is being drawn
+    const giveaway = (await giveaway_model.aggregate([
+      { $match: { status: 'active' } },
+      { $limit: 1 },
+      { $addFields: { entry_count: { $size: '$entries' } } },
+      { $project: { entries: 0, recent: 0 } }
+    ]))[0]
     if(!giveaway){
       return res.json({ status: 'error', message: req.__('api.gw_none') })
+    }
+    if(progress(giveaway).due){
+      return res.json({ status: 'error', message: req.__('api.gw_drawing') })
     }
 
     if(await giveaway_model.exists({ _id: giveaway._id, 'entries.steamid': steamid })){
@@ -502,16 +517,26 @@ router.post('/giveaway/enter', isLogged, per_user(60*60*1000, 20), async (req, r
       return res.json({ status: 'error', requirements, message })
     }
 
+    let drawing = false
     if(await add_entry(giveaway._id, req.user)){
       await User.updateOne({ steamid }, { $inc: { 'giveaways.entries': 1 } })
+      // a giveaway past its end time that waited for entries: this may have been the last one it needed
+      drawing = await after_entry(giveaway._id).catch(() => false)
     }
 
-    // the page shows the latest entrants' avatars (theirs first) and the new entry count
+    // the page shows the latest entrants' avatars (theirs first), the new entry count and how many more it needs
     const now = await giveaway_model.aggregate([
       { $match: { _id: giveaway._id } },
-      { $project: { recent: 1, entry_count: { $size: '$entries' } } }
+      { $project: { recent: 1, end: 1, min_entries: 1, entry_count: { $size: '$entries' } } }
     ])
-    res.json({ status: 'ok', entered: true, requirements, message: req.__('api.gw_entered'), entrants: now[0] ? recent_view(now[0]) : null })
+    const after = now[0] ? progress(now[0]) : null
+    res.json({
+      status: 'ok', entered: true, requirements,
+      message: req.__(drawing ? 'api.gw_entered_drawing' : 'api.gw_entered'),
+      entrants: now[0] ? recent_view(now[0]) : null,
+      needed: after ? after.needed : null,
+      drawing
+    })
   } catch (error) {
     console.log(error)
     res.status(500).json({ status: 'error', message: req.__('api.gw_failed') })

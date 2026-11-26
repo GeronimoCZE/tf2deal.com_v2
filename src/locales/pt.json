@@ -106,7 +106,8 @@
     "category": "Compre e venda TF2 {category} por chaves | TF2Deal.com",
     "category_page": "TF2 {category} (página {page}) | TF2Deal.com",
     "category_short": "TF2 {category} | TF2Deal.com",
-    "keys": "Banco de chaves de TF2 – Troque chaves e Refined Metal | TF2Deal.com"
+    "keys": "Banco de chaves de TF2 – Troque chaves e Refined Metal | TF2Deal.com",
+    "giveaway_ended": "Sorteio de {item} – encerrado | TF2Deal.com"
   },
   "desc": {
     "default": "Compre, venda e troque itens de TF2 com bots automáticos da Steam. Chapéus, unusuals, armas e chaves por chaves e ref, oferta em segundos.",
@@ -129,7 +130,8 @@
     "item_no_stock": "Trading de TF2 automático e instantâneo com nossos bots.",
     "category": "Compre e venda TF2 {category} por chaves e ref: {count} itens com preços e estoque ao vivo, e ofertas de troca dos nossos bots em segundos.",
     "category_page": "Página {page} de TF2 {category} no TF2Deal.com com preços e estoque ao vivo. Compre e venda por chaves e ref com ofertas de troca na hora.",
-    "keys": "Troque Mann Co. Supply Crate Keys por Refined Metal e vice-versa com os bots banco do TF2Deal.com: preços de chaves ao vivo do backpack.tf, até 5 chaves por troca e uma oferta na Steam em segundos."
+    "keys": "Troque Mann Co. Supply Crate Keys por Refined Metal e vice-versa com os bots banco do TF2Deal.com: preços de chaves ao vivo do backpack.tf, até 5 chaves por troca e uma oferta na Steam em segundos.",
+    "giveaway_ended": "O sorteio grátis de {item} no TF2Deal.com terminou. Veja quem ganhou e participe do próximo sorteio de itens de TF2."
   },
   "item_types": {
     "cosmetic": "Cosmético",
@@ -353,7 +355,9 @@
       "gw_prize_waiting": "Nosso bot banco vai te enviar uma oferta de troca em breve.",
       "gw_received_on": "Recebido em {date}. Aproveite!",
       "gw_won_on": "Ganho em {date}",
-      "gw_out_of": "entre {n} participações"
+      "gw_out_of": "entre {n} participações",
+      "gw_waiting": "Faltam {n} participações",
+      "gw_waiting_one": "Falta 1 participação"
     },
     "tickets": {
       "status_open": "Aguardando o suporte",
@@ -615,7 +619,9 @@
       "giveaway_tradelink_title": "Adicione sua URL de troca",
       "giveaway_tradelink": "Precisamos da sua URL de troca da Steam para te enviar {item}. Adicione-a no seu perfil.",
       "giveaway_admin_winner_title": "Vencedor do sorteio",
-      "giveaway_admin_winner": "{winner} ganhou {item}. Os dados estão em Admin → Giveaways."
+      "giveaway_admin_winner": "{winner} ganhou {item}. Os dados estão em Admin → Giveaways.",
+      "giveaway_admin_waiting_title": "Sorteio aguardando participantes",
+      "giveaway_admin_waiting": "{item} chegou ao horário de término com {count} de {min} participações. Ele continua aberto e é sorteado assim que mais {n} pessoas participarem. Você pode mudar o mínimo em Admin → Giveaways."
     },
     "buy_link": {
       "buy_title": "Comprar este item",
@@ -834,7 +840,31 @@
     "seconds": "s",
     "how_to_enter": "Como participar",
     "latest_entries": "Participações recentes",
-    "more_entries_label": "Mais {n} participações"
+    "more_entries_label": "Mais {n} participações",
+    "waiting_label": "Aguardando participantes",
+    "waiting_text": "O horário de término já passou, mas este sorteio precisa de pelo menos {min} participações. O vencedor é sorteado assim que mais {n} pessoas participarem, então compartilhe com seus amigos!",
+    "waiting_text_one": "O horário de término já passou, mas este sorteio precisa de pelo menos {min} participações. O vencedor é sorteado assim que mais 1 pessoa participar, então compartilhe com seus amigos!",
+    "waiting_for": "Faltam",
+    "more_entries": "participações",
+    "more_entry": "participação",
+    "goal_needed": "Faltam {n} participações",
+    "goal_needed_one": "Falta 1 participação",
+    "goal_rule": "O vencedor é sorteado quando {min} pessoas tiverem participado.",
+    "share": "Compartilhar",
+    "share_link": "Link para este sorteio",
+    "copy_link": "Copiar link",
+    "link_copied": "Copiado!",
+    "share_on": "Compartilhar no",
+    "share_title": "Sorteio grátis de {item} no TF2Deal.com",
+    "share_text": "Ganhe {item} de graça no sorteio do TF2Deal.com!",
+    "share_text_ended": "O sorteio de {item} no TF2Deal.com",
+    "ended_label": "Sorteio encerrado",
+    "cancelled_label": "Sorteio cancelado",
+    "cancelled_text": "Este sorteio foi cancelado.",
+    "no_winner_text": "Terminou sem participantes.",
+    "see_current": "Participar do sorteio atual",
+    "ended_on": "Encerrado",
+    "cancelled_on": "Cancelado"
   },
   "blog": {
     "h1": "Blog",
@@ -1038,7 +1068,9 @@
     "key_bank_reload": "Esta página está desatualizada. Recarregue e tente de novo.",
     "offer_cooldown": "Você não aceitou suas últimas {misses} ofertas solicitadas, então poderá pedir uma nova em {time}. Aceitar uma oferta zera isso.",
     "cooldown_minutes": "{n} min",
-    "cooldown_hours": "{n} h"
+    "cooldown_hours": "{n} h",
+    "gw_drawing": "Este sorteio já tem todas as participações de que precisa e o vencedor está sendo sorteado.",
+    "gw_entered_drawing": "Você está participando, e a sua era a participação que faltava: o vencedor está sendo sorteado agora!"
   },
   "cookies": {
     "banner_title": "Cookies no TF2Deal.com",
@@ -1168,6 +1200,10 @@
       "item_details": {
         "title": "Clique direito para ver detalhes",
         "text": "Clique com o botão direito em um item na página de troca ou na página de um item para ver tudo sobre aquela cópia: pintura, feitiços, strange parts, killstreak e links para backpack.tf, a TF2 Wiki e a Steam. No celular, toque na dica do item."
+      },
+      "giveaway_share": {
+        "title": "Compartilhe os sorteios com seus amigos",
+        "text": "Cada sorteio agora tem seu próprio link, com uma imagem do prêmio que aparece no Discord, no chat da Steam e nas redes sociais. Toque em Compartilhar na página do sorteio. Um sorteio também precisa de um número mínimo de participações: enquanto não houver gente suficiente, ele continua aberto."
       }
     }
   }

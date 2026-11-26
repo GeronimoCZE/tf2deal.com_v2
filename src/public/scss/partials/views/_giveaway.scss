@@ -55,6 +55,10 @@
             color: rgb(74, 222, 74);
             background: rgba(46, 168, 38, 0.14);
             i{ width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+            // past its end time, waiting for the entries it needs: the lamplight amber
+            &.is-waiting{ color: var(--amber, #ffb547); background: rgba(255, 181, 71, 0.14); }
+            // over: a quiet label, no dot
+            &.is-over{ color: var(--ink-2); background: var(--surface-2); }
         }
         // the home hero headline, a size smaller: an item name can be long
         h1{
@@ -78,6 +82,27 @@
             line-height: 1.6;
             .ai-note{ display: block; margin-top: .3rem; color: var(--ink-3); font-size: 13px; }
         }
+    }
+
+    // a running giveaway's parts for before its end time (.when-running) and for after it, while it waits for the
+    // entries it needs (.when-waiting); the page script switches .is-waiting when the countdown runs out
+    .gw-box{
+        .when-waiting{ display: none !important; }
+        &.is-waiting{
+            .when-running{ display: none !important; }
+            .when-waiting{ display: revert !important; }
+            .gw-live.when-waiting{ display: inline-flex !important; }
+            .gw-units.when-waiting{ display: flex !important; }
+        }
+    }
+    .gw-waiting-note{
+        margin: 0 0 1.5rem 0;
+        padding: .85rem 1rem;
+        border-radius: var(--r-md);
+        background: rgba(255, 181, 71, 0.1);
+        color: var(--ink);
+        font-size: 1.02rem;
+        line-height: 1.55;
     }
 
     .gw-subtitle{
@@ -149,11 +174,85 @@
             &:disabled{ cursor: default; }
             &.entered{ background: rgba(46, 168, 38, 0.14); color: rgb(74, 222, 74); }
         }
-        .view-items-btn{
+        .view-items-btn, .gw-share-btn{
             @include button(secondary);
             font-size: 1.15rem;
             padding: .8rem 1.4rem;
             @include lt-sm{ font-size: 1rem; padding: .7rem 1rem; }
+        }
+        .gw-share-btn{
+            svg{ flex: none; }
+            &[aria-expanded="true"]{ background: var(--surface-3); color: var(--ink); }
+        }
+    }
+
+    // the Share panel: the link with a Copy button, then three sites (on phones the system share sheet opens instead)
+    .gw-share{
+        margin-top: .9rem;
+        max-width: 34rem;
+        padding: 1rem;
+        border-radius: var(--r-md);
+        background: var(--surface);
+        animation: gw-fade 160ms ease;
+        &[hidden]{ display: none; }
+        .gw-share-label{ display: block; margin-bottom: .45rem; font-size: .9rem; font-weight: 600; color: var(--ink-3); }
+        .gw-share-row{
+            display: flex;
+            gap: .5rem;
+            input{
+                @include input;
+                flex: 1;
+                min-width: 0;
+                font-size: .95rem;
+                font-variant-numeric: tabular-nums;
+            }
+        }
+        .gw-copy{
+            @include button(primary);
+            flex: none;
+            &.is-done{ background: var(--green-muted); }
+        }
+        .gw-share-to{
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .35rem .9rem;
+            margin-top: .8rem;
+            font-size: .95rem;
+            span{ color: var(--ink-3); }
+            a{
+                color: var(--violet);
+                font-weight: 600;
+                text-decoration: underline;
+                text-decoration-color: transparent;
+                text-underline-offset: 3px;
+                transition: text-decoration-color 150ms ease;
+                &:hover{ text-decoration-color: currentColor; }
+            }
+        }
+    }
+
+    // a giveaway that is over (its own page): the winner, or why there is none
+    .gw-hero.is-over .gw-showcase{ background: radial-gradient(circle at 50% 50%, rgba(var(--tint-rgb), 0.12), rgba(var(--tint-rgb), 0) 68%); }
+    .gw-result{
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        width: fit-content;
+        max-width: 100%;
+        margin: 0 0 1.5rem 0;
+        padding: .75rem 1.25rem .75rem .75rem;
+        border-radius: var(--r-md);
+        background: var(--surface);
+        box-sizing: border-box !important;
+        img{ flex: none; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: var(--surface-3); }
+        .gw-result-text{
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            small{ font-size: .9rem; color: var(--ink-3); }
+            a{ font-size: 1.25rem; font-weight: 700; color: var(--violet); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; &:hover{ color: var(--ink); } }
+            strong{ font-size: 1.05rem; font-weight: 600; color: var(--ink-2); padding-left: .5rem; }
         }
     }
     .enter-result{
@@ -198,7 +297,9 @@
                 font-variant-numeric: tabular-nums;
                 &.gw-units{ @include lt-sm{ font-size: 1.45rem; } }
             }
-            .gw-drawing{ order: -1; font-size: 15px; color: var(--ink-2); &[hidden]{ display: none; } }
+            .gw-drawing{ display: none; order: -1; font-size: 15px; color: var(--ink-2); }
+            .gw-of{ font-size: 1.1rem; font-weight: 600; color: var(--ink-3); }
+            .gw-date{ font-size: 1.45rem; }
         }
         .gw-units{
             display: flex;
@@ -208,7 +309,43 @@
             span{ display: inline-flex; align-items: baseline; gap: .2rem; }
             small{ font-family: inherit; font-size: .95rem; font-weight: 500; color: var(--ink-3); }
         }
-        .gw-countdown.is-done .gw-units{ opacity: .45; }
+        // the end time passed with enough entries: the winner is being drawn
+        @at-root .giveaway-ps .gw-box.is-drawing .gw-countdown{
+            .gw-units{ opacity: .45; }
+            .gw-drawing{ display: block; }
+        }
+
+        // the minimum entries: how many more it needs, and how far along it is
+        .gw-goal{
+            grid-column: 1 / -1;
+            padding: .1rem 1.25rem 1.1rem;
+            @include lt-sm{ padding: .1rem .9rem .9rem; }
+            &[hidden]{ display: none; }
+            // waiting for entries: the note and "N more entries" already say it, so just the bar
+            @at-root .giveaway-ps .gw-box.is-waiting .gw-goal .gw-goal-text{ display: none; }
+            .gw-goal-text{
+                display: flex;
+                flex-wrap: wrap;
+                align-items: baseline;
+                gap: .2rem .6rem;
+                margin-bottom: .55rem;
+                strong{ font-size: 1rem; font-weight: 700; color: var(--amber, var(--violet)); }
+                span{ font-size: .95rem; color: var(--ink-3); }
+            }
+            .gw-goal-bar{
+                height: 8px;
+                border-radius: 999px;
+                background: var(--surface-3);
+                overflow: hidden;
+                i{
+                    display: block;
+                    height: 100%;
+                    min-width: 8px;
+                    border-radius: inherit;
+                    background: var(--amber, var(--violet));
+                }
+            }
+        }
 
         // the latest entrants: a row across the strip, small square Steam avatars like Steam's own friend lists
         .gw-entrants{
@@ -326,6 +463,7 @@
                 color: var(--ink);
                 overflow-wrap: anywhere;
                 @include lt-sm{ font-size: 1.05rem; }
+                a{ color: inherit; text-decoration: none; transition: color 150ms ease; &:hover{ color: var(--violet); } }
             }
             .winner{
                 display: flex;
@@ -342,6 +480,10 @@
                 }
             }
             .date{ margin-top: .6rem; font-size: .9rem; color: var(--ink-3); }
+            // the giveaway this page is about
+            &.is-shown{ background: var(--surface-2); }
         }
     }
 }
+
+@keyframes gw-fade{ from{ opacity: 0; } to{ opacity: 1; } }
