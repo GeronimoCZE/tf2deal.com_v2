@@ -49,6 +49,8 @@ const describe = (n) => {
             return { icon: 'trophy', title: __('notifications.giveaway_admin_winner_title'), text: v.winner
                 ? __('notifications.giveaway_admin_winner', { winner: `<b>${esc(v.winner)}</b>`, item: item_html(v.item) })
                 : __('notifications.giveaway_ended_nowinner', { item: item_html(v.item) }) }
+        case 'giveaway_admin_waiting':
+            return { icon: 'gift', title: __('notifications.giveaway_admin_waiting_title'), text: __('notifications.giveaway_admin_waiting', { item: item_html(v.item), count: esc(v.count), min: esc(v.min), n: esc(v.needed) }) }
         case 'ticket_reply':
             return { icon: 'chat', title: __('notifications.ticket_reply_title'), text: __('notifications.ticket_reply') }
         default:

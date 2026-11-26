@@ -106,7 +106,8 @@
     "category": "Compra y vende TF2 {category} por llaves | TF2Deal.com",
     "category_page": "TF2 {category} (página {page}) | TF2Deal.com",
     "category_short": "TF2 {category} | TF2Deal.com",
-    "keys": "Banco de llaves de TF2 – Cambia llaves y Refined Metal | TF2Deal.com"
+    "keys": "Banco de llaves de TF2 – Cambia llaves y Refined Metal | TF2Deal.com",
+    "giveaway_ended": "Sorteo de {item} – terminado | TF2Deal.com"
   },
   "desc": {
     "default": "Compra, vende e intercambia objetos de TF2 con bots automáticos de Steam. Sombreros, unusuals, armas y llaves por llaves y ref, oferta en segundos.",
@@ -129,7 +130,8 @@
     "item_no_stock": "Trading de TF2 automático al instante con nuestros bots.",
     "category": "Compra y vende TF2 {category} por llaves y ref: {count} objetos con precios y stock en directo, y ofertas de intercambio de nuestros bots en segundos.",
     "category_page": "Página {page} de TF2 {category} en TF2Deal.com con precios y stock en directo. Compra y vende por llaves y ref con ofertas de intercambio al instante.",
-    "keys": "Cambia Mann Co. Supply Crate Keys por Refined Metal y al revés con los bots banco de TF2Deal.com: precios de llaves en vivo de backpack.tf, hasta 5 llaves por intercambio y una oferta de Steam en segundos."
+    "keys": "Cambia Mann Co. Supply Crate Keys por Refined Metal y al revés con los bots banco de TF2Deal.com: precios de llaves en vivo de backpack.tf, hasta 5 llaves por intercambio y una oferta de Steam en segundos.",
+    "giveaway_ended": "El sorteo gratis de {item} en TF2Deal.com ha terminado. Mira quién ganó y participa en el próximo sorteo de objetos de TF2."
   },
   "item_types": {
     "cosmetic": "Cosmético",
@@ -353,7 +355,9 @@
       "gw_prize_waiting": "Nuestro bot banco te enviará una oferta de intercambio en breve.",
       "gw_received_on": "Recibido el {date}. ¡Disfrútalo!",
       "gw_won_on": "Ganado el {date}",
-      "gw_out_of": "entre {n} participaciones"
+      "gw_out_of": "entre {n} participaciones",
+      "gw_waiting": "Faltan {n} participaciones",
+      "gw_waiting_one": "Falta 1 participación"
     },
     "tickets": {
       "status_open": "Esperando a soporte",
@@ -615,7 +619,9 @@
       "giveaway_tradelink_title": "Añade tu URL de intercambio",
       "giveaway_tradelink": "Necesitamos tu URL de intercambio de Steam para enviarte {item}. Añádela en tu perfil.",
       "giveaway_admin_winner_title": "Ganador del sorteo",
-      "giveaway_admin_winner": "{winner} ganó {item}. Sus datos están en Admin → Giveaways."
+      "giveaway_admin_winner": "{winner} ganó {item}. Sus datos están en Admin → Giveaways.",
+      "giveaway_admin_waiting_title": "Sorteo esperando participantes",
+      "giveaway_admin_waiting": "{item} llegó a su hora de cierre con {count} de {min} participaciones. Sigue abierto y se sortea en cuanto participen {n} personas más. Puedes cambiar el mínimo en Admin → Giveaways."
     },
     "buy_link": {
       "buy_title": "Comprar este objeto",
@@ -833,7 +839,31 @@
     "seconds": "s",
     "how_to_enter": "Cómo participar",
     "latest_entries": "Últimas participaciones",
-    "more_entries_label": "{n} participaciones más"
+    "more_entries_label": "{n} participaciones más",
+    "waiting_label": "Esperando participantes",
+    "waiting_text": "Ya pasó la hora de cierre, pero este sorteo necesita al menos {min} participaciones. El ganador se sortea en cuanto participen {n} personas más, ¡así que compártelo con tus amigos!",
+    "waiting_text_one": "Ya pasó la hora de cierre, pero este sorteo necesita al menos {min} participaciones. El ganador se sortea en cuanto participe 1 persona más, ¡así que compártelo con tus amigos!",
+    "waiting_for": "Faltan",
+    "more_entries": "participaciones",
+    "more_entry": "participación",
+    "goal_needed": "Faltan {n} participaciones",
+    "goal_needed_one": "Falta 1 participación",
+    "goal_rule": "El ganador se sortea cuando hayan participado {min} personas.",
+    "share": "Compartir",
+    "share_link": "Enlace a este sorteo",
+    "copy_link": "Copiar enlace",
+    "link_copied": "¡Copiado!",
+    "share_on": "Compartir en",
+    "share_title": "Sorteo gratis de {item} en TF2Deal.com",
+    "share_text": "¡Gana {item} gratis en el sorteo de TF2Deal.com!",
+    "share_text_ended": "El sorteo de {item} en TF2Deal.com",
+    "ended_label": "Sorteo terminado",
+    "cancelled_label": "Sorteo cancelado",
+    "cancelled_text": "Este sorteo se canceló.",
+    "no_winner_text": "Terminó sin participantes.",
+    "see_current": "Participar en el sorteo actual",
+    "ended_on": "Terminó",
+    "cancelled_on": "Cancelado"
   },
   "blog": {
     "h1": "Blog",
@@ -1037,7 +1067,9 @@
     "key_bank_reload": "Esta página está desactualizada. Recárgala e inténtalo de nuevo.",
     "offer_cooldown": "No aceptaste tus últimas {misses} ofertas solicitadas, así que podrás pedir una nueva en {time}. Aceptar una oferta lo reinicia.",
     "cooldown_minutes": "{n} min",
-    "cooldown_hours": "{n} h"
+    "cooldown_hours": "{n} h",
+    "gw_drawing": "Este sorteo ya tiene todas las participaciones que necesita y se está eligiendo al ganador.",
+    "gw_entered_drawing": "Ya participas, y la tuya era la participación que faltaba: ¡se está eligiendo al ganador!"
   },
   "cookies": {
     "banner_title": "Cookies en TF2Deal.com",
@@ -1167,6 +1199,10 @@
       "item_details": {
         "title": "Clic derecho para ver detalles",
         "text": "Haz clic derecho en un objeto en la página de intercambio o en la de un objeto para ver todo sobre esa copia: pintura, hechizos, strange parts, killstreak y enlaces a backpack.tf, la TF2 Wiki y Steam. En el móvil, toca la ficha del objeto."
+      },
+      "giveaway_share": {
+        "title": "Comparte los sorteos con tus amigos",
+        "text": "Cada sorteo tiene ahora su propio enlace, con una imagen del premio que aparece en Discord, en el chat de Steam y en las redes sociales. Pulsa Compartir en la página del sorteo. Además, un sorteo necesita un mínimo de participaciones: hasta que participe suficiente gente, sigue abierto."
       }
     }
   }

@@ -7,7 +7,8 @@ import { blog_model } from '../../model/Blog.js';
 import { ticket_model } from '../../model/Ticket.js';
 import { giveaway_model } from '../../model/Giveaway.js';
 import User from '../../model/User.js';
-import { refresh_state, draw_winner, cancel as cancel_giveaway, recent_view } from '../../service/giveaway.js';
+import { refresh_state, draw_winner, cancel as cancel_giveaway, recent_view, progress, min_entries, parse_min_entries, set_min_entries, share_path, next_number, DEFAULT_MIN_ENTRIES, MAX_MIN_ENTRIES } from '../../service/giveaway.js';
+import * as giveaway_og from '../../service/giveaway_og.js';
 import * as giveaway_prize from '../../service/giveaway_prize.js';
 import * as giveaway_posts from '../../service/giveaway_posts.js';
 import * as translate from '../../service/translate.js';
@@ -234,12 +235,20 @@ router.get('/giveaways', async (req, res) => {
   const winner_ids = giveaways.map((g) => g.winner?.steamid).filter(Boolean);
   const winners = await User.find({ steamid: { $in: winner_ids } }, { steamid: 1, tradelink: 1, trades: 1, giveaways: 1, firstlogin: 1 }).lean();
 
-  res.json({ status: 'ok', posts: giveaway_posts.info(), prizes: await giveaway_prize.status(), giveaways: giveaways.map((g) => {
+  res.json({ status: 'ok', posts: giveaway_posts.info(), prizes: await giveaway_prize.status(), default_min_entries: DEFAULT_MIN_ENTRIES, max_min_entries: MAX_MIN_ENTRIES, giveaways: giveaways.map((g) => {
     const user = winners.find((u) => u.steamid == g.winner?.steamid);
+    const entry_count = count_of[String(g._id)] || 0;
     return {
       ...g,
       recent: undefined,
-      entry_count: count_of[String(g._id)] || 0,
+      translations: undefined,
+      entry_count,
+      // the minimum entries (older giveaways: the default) and where the running one stands
+      min_entries: min_entries(g),
+      progress: g.status == 'active' ? progress({ ...g, entry_count }) : undefined,
+      // its own page (the Share link) and share picture
+      share_url: g.number ? fn.site_url + share_path(g) : '',
+      share_image: g.number ? fn.site_url + giveaway_og.path_of({ ...g, entry_count }) : '',
       entrants: g.status == 'active' ? recent_view({ ...g, entry_count: count_of[String(g._id)] || 0 }).recent.slice(0, 12) : undefined,
       winner_tradelink: user?.tradelink || '',
       winner_user: user ? { trades: user.trades || 0, won: user.giveaways?.won || 0, entries: user.giveaways?.entries || 0, firstlogin: user.firstlogin || null } : null,
@@ -269,6 +278,11 @@ router.post('/giveaways/bank', async (req, res) => {
 router.post('/giveaways', async (req, res) => {
   const end = Number(req.body?.end);
   const pick = { bot: steamid64(req.body?.bot), assetid: asset_id(req.body?.assetid) };
+  // the winner is drawn at the end time only once this many have entered (empty: the default, 25)
+  const min = (req.body?.min_entries === undefined || req.body?.min_entries === '') ? DEFAULT_MIN_ENTRIES : parse_min_entries(req.body.min_entries);
+  if(min === null){
+    return res.status(400).json({ status: 'error', message: `Minimum entries: a whole number from 0 to ${MAX_MIN_ENTRIES}.` })
+  }
 
   if(await giveaway_model.exists({ status: 'active' })){
     return res.status(400).json({ status: 'error', message: 'End the current giveaway before starting a new one.' })
@@ -297,6 +311,8 @@ router.post('/giveaways', async (req, res) => {
 
   const now = Date.now();
   const giveaway = await new giveaway_model({
+    number: await next_number(),
+    min_entries: min,
     item,
     prize: { from_bot: pick.bot, from_assetid: pick.assetid, bot: pick.bot, assetid: pick.assetid, name: name || item.bp_sku, priced, state: 'moving', updated: now },
     description: text(req.body?.description, 500),
@@ -335,10 +351,18 @@ router.post('/giveaways', async (req, res) => {
 
   const saved = await giveaway_model.findById(giveaway._id).lean();
   await refresh_state();
-  notifications.notify({ type: 'giveaway_new', vars: { item: saved.item.bp_sku }, link: '/giveaway' });
+  notifications.notify({ type: 'giveaway_new', vars: { item: saved.item.bp_sku }, link: share_path(saved) });
+  // the share picture first (at most 10 s): the Facebook post's link preview is read right after it's posted
+  await Promise.race([giveaway_og.prepare(saved), new Promise((resolve) => setTimeout(resolve, 10 * 1000))]);
   // Steam group and Facebook announcements, posted in the background (the list shows how it went)
   await giveaway_posts.announce(saved).catch((error) => console.log('giveaway: announcing failed', error.message));
   res.json({ status: 'ok', giveaway: saved });
+});
+
+// the running giveaway's minimum entries; past its end time with enough entries now, the winner is drawn at once
+router.post('/giveaways/:id/min_entries', valid_id, async (req, res) => {
+  const result = await set_min_entries(req.params.id, req.body?.min_entries);
+  res.status(result.status == 'ok' ? 200 : 400).json(result);
 });
 
 router.post('/giveaways/:id/end', valid_id, async (req, res) => {

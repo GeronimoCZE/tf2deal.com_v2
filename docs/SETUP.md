@@ -23,6 +23,22 @@ While you work on the styles, `npm run dev` also rebuilds the CSS whenever a `.s
 2. Open `/login` and enter `ADMIN_PASSWORD`.
 3. The panel is at `/admin`. Access lasts one hour.
 
+## Giveaways: minimum entries, share links and pictures
+
+- **Minimum entries.** Each giveaway has a minimum number of entries (25 unless you set another number when you start
+  it; 0 means no minimum). If fewer people have entered by the end time, the giveaway stays open, the page says how
+  many more it needs, and the winner is drawn as soon as the last entry it needs comes in. You get a notification under
+  the bell when that happens. You can change the minimum of the running giveaway in Admin → Giveaways: lower it to the
+  number of entries it has and the winner is drawn right away. "End now & draw winner" always draws, minimum or not.
+  Giveaways started before this count as 25.
+- **Share link.** Every giveaway has its own page, `/giveaway/<number>` (1, 2, 3, ... in the order they were started).
+  The Share button on the giveaway page gives that link, and the Steam group and Facebook posts use it too. Once the
+  giveaway is over, the same link shows who won.
+- **Share picture.** Each giveaway gets its own link preview picture (1200 x 630) with the prize on it, made by the site
+  the first time it's needed and again when the winner is drawn. It needs the `@napi-rs/canvas` package (installed by
+  `npm install`) and is kept in `cache/og` in the site folder (`OG_CACHE_DIR=...` in `src/config/.env` to keep it
+  somewhere else). Without the package, link previews show the prize's own picture.
+
 ## Giveaway announcements (optional)
 
 When you start a giveaway, the site can post it on your Steam group and your Facebook Page, and remove both posts

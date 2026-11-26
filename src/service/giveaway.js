@@ -10,9 +10,61 @@ import { notify } from './notifications.js'
 import { remove_posts, remove_due } from './giveaway_posts.js'
 import * as prize from './giveaway_prize.js'
 import * as sitemap from './sitemap.js'
+import * as og from './giveaway_og.js'
 
 // avatars of the latest entries on the giveaway page; only these keep a name and an avatar
 const RECENT_MAX = 45
+
+// Minimum entries (Nikolas 2026-11-26): the winner is drawn at the end time only when at least this many have entered.
+// With fewer, the giveaway keeps running ("waiting") and the winner is drawn as soon as the last entry it needs comes
+// in. Set per giveaway in Admin → Giveaways (0 = drawn at the end time whatever happens). Giveaways from before the
+// setting count as DEFAULT_MIN_ENTRIES.
+const DEFAULT_MIN_ENTRIES = 25
+const MAX_MIN_ENTRIES = 100000
+const min_entries = (giveaway) => {
+    const n = Number(giveaway?.min_entries)
+    return Number.isFinite(n) && n >= 0 ? Math.min(MAX_MIN_ENTRIES, Math.floor(n)) : DEFAULT_MIN_ENTRIES
+}
+// what the admin panel sent, or null when it isn't a number of entries
+const parse_min_entries = (value) => {
+    if(value === '' || value === null || value === undefined){ return null }
+    const n = Number(value)
+    return Number.isInteger(n) && n >= 0 && n <= MAX_MIN_ENTRIES ? n : null
+}
+const entry_count = (giveaway) => Number(giveaway?.entry_count ?? giveaway?.entries?.length) || 0
+
+// where a running giveaway stands: how many it needs, and whether its end time has passed (over) with too few
+// entries (waiting) or with enough (due: drawn now)
+const progress = (giveaway, now = Date.now()) => {
+    const min = min_entries(giveaway)
+    const count = entry_count(giveaway)
+    const needed = Math.max(0, min - count)
+    const over = Number(giveaway?.end) <= now
+    return { min, count, needed, over, waiting: over && needed > 0, due: over && needed == 0 }
+}
+
+// every giveaway has its own page, /giveaway/<number>: the share link (the picture for it: service/giveaway_og.js)
+const share_path = (giveaway) => giveaway?.number ? `/giveaway/${giveaway.number}` : '/giveaway'
+
+// the number for a new giveaway: one more than the highest so far (the unique index catches a clash)
+const next_number = async () => {
+    const last = await giveaway_model.findOne({ number: { $gt: 0 } }, { number: 1 }).sort({ number: -1 }).lean()
+    return (Number(last?.number) || 0) + 1
+}
+
+// giveaways from before the numbers get theirs, oldest first
+let numbered = false
+const number_old = async () => {
+    if(numbered){ return }
+    numbered = true
+    const old = await giveaway_model.find({ number: { $exists: false } }, { _id: 1 }).sort({ created: 1, _id: 1 }).lean()
+    if(old.length == 0){ return }
+    let number = await next_number()
+    for (const g of old) {
+        await giveaway_model.updateOne({ _id: g._id, number: { $exists: false } }, { $set: { number: number++ } })
+    }
+    console.log(`giveaway: ${old.length} older giveaway${old.length == 1 ? '' : 's'} got ${old.length == 1 ? 'its' : 'their'} page number (/giveaway/<number>)`)
+}
 
 const STEAM_GROUP_64_BASE = 103582791429521408n
 const MEMBERS_CACHE_MS = 2 * 60 * 1000 // the group's member list is read again after this...
@@ -190,6 +242,7 @@ const archive = async (giveaway_id, extra = {}) => {
         winner = { ...g.winner, tradelink: user?.tradelink || '' }
     }
     await giveaway_archive_model.updateOne({ giveaway: g._id }, { $set: {
+        number: g.number,
         status: g.status,
         item: g.item,
         description: g.description || '',
@@ -197,6 +250,8 @@ const archive = async (giveaway_id, extra = {}) => {
         start: g.start,
         end: g.end,
         entry_count: g.entries?.length || 0,
+        min_entries: min_entries(g),
+        waiting_since: g.waiting_since || 0,
         entrants: (g.entries || []).map((e) => e.steamid),
         winner,
         prize: g.prize || null,
@@ -213,6 +268,7 @@ const cancel = async (giveaway_id, admin) => {
     await prize.release(giveaway_id, admin).catch(() => {})
     await archive(giveaway_id).catch((error) => console.log('giveaway: archiving failed', error.message))
     remove_posts(giveaway_id).catch((error) => console.log('giveaway: removing the posts failed', error.message))
+    og.prepare_id(giveaway_id) // its share picture says it was cancelled
     return true
 }
 
@@ -220,6 +276,7 @@ const cancel = async (giveaway_id, admin) => {
 let shown_id // the active giveaway the last refresh_state saw ('' none, undefined before the first)
 const refresh_state = async () => {
     await migrate_entries().catch((error) => { migrated = false; console.log('giveaway: entry migration failed', error.message) })
+    await number_old().catch((error) => { numbered = false; console.log('giveaway: numbering failed', error.message) })
     const active = await giveaway_model.findOne({ status: 'active' }, { entries: 0 }).lean()
     // a giveaway started, ended or was cancelled: the giveaway page's lastmod in the sitemap, sent to IndexNow
     const id = active ? String(active._id) : ''
@@ -228,7 +285,16 @@ const refresh_state = async () => {
     app.giveaway.active = Boolean(active)
     app.giveaway.item = active?.item
     app.giveaway.end = active?.end
+    app.giveaway.waiting = Boolean(active?.waiting_since) // its end time passed, it waits for entries
+    app.giveaway.number = active?.number
     return active
+}
+
+// steamids of the admins: role 3 accounts and ADMIN_STEAMID (for their bell)
+const admin_ids = async () => {
+    const admins = new Set((await User.find({ role: 3 }, { steamid: 1 }).lean().catch(() => [])).map((u) => String(u.steamid)))
+    if(/^\d{17}$/.test(String(process.env.ADMIN_STEAMID || ''))){ admins.add(String(process.env.ADMIN_STEAMID)) }
+    return admins
 }
 
 // picks a random winner and closes the giveaway. With the Steam group requirement the winner is checked again:
@@ -254,9 +320,10 @@ const draw_winner = async (giveaway) => {
         winner = { steamid: winner.steamid, name: profile.name || '', avatar: profile.avatar || '', entered: winner.entered || 0, drawn: Date.now() }
     }
 
+    // it ended now: early from the admin panel, or late after waiting for entries; on time it keeps its end time
     const result = await giveaway_model.updateOne({ _id: giveaway._id, status: 'active' }, { $set: {
         status: 'ended',
-        end: Math.min(giveaway.end, Date.now()),
+        end: Number(giveaway.waiting_since) > 0 ? Date.now() : Math.min(giveaway.end, Date.now()),
         winner: winner || { steamid: null, name: '', avatar: '', entered: 0, drawn: Date.now() }
     } })
 
@@ -277,9 +344,7 @@ const draw_winner = async (giveaway) => {
     if(winner){ notify({ to: winner.steamid, type: 'giveaway_won', vars: { item }, link: '/profile/giveaways' }) }
 
     // the admins get the winner (their bell links to Admin → Giveaways, where the winner's details are)
-    const admins = new Set((await User.find({ role: 3 }, { steamid: 1 }).lean().catch(() => [])).map((u) => String(u.steamid)))
-    if(/^\d{17}$/.test(String(process.env.ADMIN_STEAMID || ''))){ admins.add(String(process.env.ADMIN_STEAMID)) }
-    for (const admin of admins) {
+    for (const admin of await admin_ids()) {
         notify({ to: admin, type: 'giveaway_admin_winner', vars: { item, winner: winner ? (winner.name || winner.steamid) : '' }, link: '/admin#giveaways' })
     }
     if(winner){ console.log(`giveaway: ${winner.name || winner.steamid} (${winner.steamid}) won ${item}`) }
@@ -293,16 +358,74 @@ const draw_winner = async (giveaway) => {
 
     // Steam group / Facebook announcements (service/giveaway_posts.js)
     remove_posts(giveaway._id).catch((error) => console.log('giveaway: removing the posts failed', error.message))
+    og.prepare_id(giveaway._id) // the share picture names the winner now
     return { winner, skipped }
 }
 
-// called every minute from app.js
-const finish_due = async () => {
-    const due = await giveaway_model.find({ status: 'active', end: { $lte: Date.now() } }).lean()
-    for (const giveaway of due) {
-        await draw_winner(giveaway)
+// the end time passed with too few entries: it keeps running and the admins hear about it (once)
+const start_waiting = async (giveaway, p) => {
+    const result = await giveaway_model.updateOne(
+        { _id: giveaway._id, status: 'active', $or: [{ waiting_since: { $exists: false } }, { waiting_since: { $lte: 0 } }] },
+        { $set: { waiting_since: Date.now() } }
+    )
+    if((result?.modifiedCount ?? result?.nModified ?? 0) == 0){ return false }
+    const item = giveaway.item?.bp_sku || ''
+    console.log(`giveaway: ${item} reached its end time with ${p.count} of ${p.min} entries; it waits for ${p.needed} more`)
+    for (const admin of await admin_ids()) {
+        notify({ to: admin, type: 'giveaway_admin_waiting', vars: { item, count: p.count, min: p.min, needed: p.needed }, link: '/admin#giveaways' })
     }
-    if(due.length > 0){ await refresh_state() }
+    return true
+}
+
+// a new entry: a giveaway that waits for entries is drawn as soon as it has enough (in the background: the entrant's
+// answer doesn't wait for the Steam group checks). true when the draw started.
+const after_entry = async (giveaway_id) => {
+    const giveaway = await giveaway_model.findOne({ _id: giveaway_id, status: 'active', end: { $lte: Date.now() } }).lean()
+    if(!giveaway || !progress(giveaway).due){ return false }
+    draw_winner(giveaway)
+        .then(() => refresh_state())
+        .catch((error) => console.log('giveaway: drawing the winner failed', error.message))
+    return true
+}
+
+// Admin → Giveaways changed the minimum of the running giveaway. Past its end time with enough entries now, the winner
+// is drawn at once; with too few, it waits. → { status, min, needed, waiting, drawn, winner, skipped }
+const set_min_entries = async (giveaway_id, value) => {
+    const min = parse_min_entries(value)
+    if(min === null){ return { status: 'error', message: `The minimum is a whole number from 0 to ${MAX_MIN_ENTRIES}.` } }
+    const result = await giveaway_model.updateOne({ _id: giveaway_id, status: 'active' }, { $set: { min_entries: min } })
+    if((result?.n ?? result?.matchedCount ?? 0) == 0){ return { status: 'error', message: 'No running giveaway with this id.' } }
+
+    const giveaway = await giveaway_model.findOne({ _id: giveaway_id, status: 'active' }).lean()
+    if(!giveaway){ return { status: 'error', message: 'The giveaway ended meanwhile.' } }
+    const p = progress(giveaway)
+    if(p.due){
+        const { winner, skipped } = await draw_winner(giveaway)
+        await refresh_state()
+        return { status: 'ok', min, needed: 0, waiting: false, drawn: true, winner, skipped }
+    }
+    if(p.waiting && !(Number(giveaway.waiting_since) > 0)){
+        await giveaway_model.updateOne({ _id: giveaway._id, status: 'active' }, { $set: { waiting_since: Date.now() } })
+        await refresh_state()
+    }
+    return { status: 'ok', min, needed: p.needed, waiting: p.waiting, drawn: false }
+}
+
+// called every minute from app.js: a giveaway whose end time has passed is drawn, or waits for entries
+const finish_due = async () => {
+    const now = Date.now()
+    const due = await giveaway_model.find({ status: 'active', end: { $lte: now } }).lean()
+    let changed = false
+    for (const giveaway of due) {
+        const p = progress(giveaway, now)
+        if(p.waiting){
+            if(await start_waiting(giveaway, p)){ changed = true }
+            continue
+        }
+        await draw_winner(giveaway)
+        changed = true
+    }
+    if(changed){ await refresh_state() }
 
     // winners still waiting for their prize (no trade link yet, bank bot was offline...)
     await prize.send_due().catch((error) => console.log('giveaway: sending prizes failed', error.message))
@@ -311,4 +434,7 @@ const finish_due = async () => {
     await remove_due().catch((error) => console.log('giveaway: removing the posts failed', error.message))
 }
 
-export { in_steam_group, group_url, check_requirements, refresh_state, draw_winner, finish_due, add_entry, recent_view, cancel, archive, RECENT_MAX }
+export {
+    in_steam_group, group_url, check_requirements, refresh_state, draw_winner, finish_due, add_entry, recent_view, cancel, archive, RECENT_MAX,
+    DEFAULT_MIN_ENTRIES, MAX_MIN_ENTRIES, min_entries, parse_min_entries, progress, after_entry, set_min_entries, share_path, next_number
+}

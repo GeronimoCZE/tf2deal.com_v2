@@ -154,8 +154,24 @@
         <span class="gw-pick-meta">${esc(i.botName || i.bot)}${i.priced === false ? ' · <span class="admin-tag">unpriced</span>' : ''}${i.onBank ? ' · <span class="admin-tag">bank</span>' : ''}</span>
     </button>`
 
+    // "Ends ... · 6 of 25 entries", or past the end time: waiting for the entries it needs
+    const gw_timing = (g) => {
+        const p = g.progress || { min: g.min_entries, count: g.entry_count, needed: 0 }
+        const entries = p.min > 0 ? `${num(p.count)} of ${num(p.min)} entries` : `${num(p.count)} entries`
+        if(p.waiting){ return `<span class="tr-wait">Waiting for ${num(p.needed)} more entr${p.needed == 1 ? 'y' : 'ies'}</span> &middot; end time ${when(g.end)} passed with ${entries}. The winner is drawn as soon as ${num(p.min)} have entered.` }
+        if(p.due){ return `Drawing the winner &middot; ${entries}` }
+        return `Ends ${when(g.end)} &middot; ${entries}`
+    }
+
+    // the giveaway's own page (what the Share button on the site gives) and its share picture
+    const share_line = (g) => !g.share_url ? '' : `<div class="gw-share-line">
+        <span class="muted">Share link</span> <a href="${esc(g.share_url)}" target="_blank" rel="noopener">${esc(g.share_url.replace(/^https?:\/\//, ''))}</a>
+        <button type="button" class="copy-share" data-url="${esc(g.share_url)}">Copy</button>
+        ${g.share_image ? `<a href="${esc(g.share_image)}" target="_blank" rel="noopener">Share picture</a>` : ''}
+    </div>`
+
     const giveaways = async (root) => {
-        root.innerHTML = head('Giveaways', 'One giveaway runs at a time. A random entrant wins when it ends and the bank bot sends them the prize.') + `<div id="admin-giveaways"><div class="admin-loading"><span class="admin-spinner"></span> Loading…</div></div>`
+        root.innerHTML = head('Giveaways', 'One giveaway runs at a time. A random entrant wins when it ends (once it has its minimum entries) and the bank bot sends them the prize.') + `<div id="admin-giveaways"><div class="admin-loading"><span class="admin-spinner"></span> Loading…</div></div>`
         const box = root.querySelector('#admin-giveaways')
 
         const res = await api('/api/admin/giveaways')
@@ -173,14 +189,21 @@
         const prizes_note = PRIZE_BLOCKED[res.prizes] ? `<p class="admin-note">${PRIZE_BLOCKED[res.prizes]}</p>` : ''
 
         box.innerHTML = posts_note + prizes_note + (active ? `<div class="admin-giveaway active" data-id="${esc(active._id)}">
-                <img class="q-${esc(active.item.qualityID)}" src="${esc(active.item.image)}" alt="${esc(active.item.bp_sku)}">
+                <img class="q-${esc(active.item.qualityID)}" src="${esc(active.item.image || '/img/group-icon.png')}" alt="${esc(active.item.bp_sku)}">
                 <div>
-                    <strong>${esc(active.item.bp_sku)}</strong>${active.prize?.priced === false ? ' <span class="admin-tag">unpriced</span>' : ''}
-                    <div>Ends ${when(active.end)} &middot; ${active.entry_count} entries</div>
+                    <strong>${esc(active.item.bp_sku)}</strong>${active.prize?.priced === false ? ' <span class="admin-tag">unpriced</span>' : ''}${active.number ? ` <span class="muted">#${esc(active.number)}</span>` : ''}
+                    <div>${gw_timing(active)}</div>
+                    <form class="admin-inline-form gw-min-form">
+                        <label>Minimum entries <input type="number" name="min_entries" min="0" max="${esc(res.max_min_entries || 100000)}" step="1" value="${esc(active.min_entries)}" required></label>
+                        <button type="submit">Save</button>
+                        <span class="muted small">The winner is drawn at the end time only once this many have entered; until then it keeps running. 0 = no minimum.</span>
+                    </form>
                     ${active.entrants?.length ? `<div class="gw-mini-avatars">${active.entrants.map((e) => `<img src="${esc(e.avatar || '/img/new_user-96.webp')}" alt="" title="${esc(e.name)}" width="24" height="24">`).join('')}${active.entry_count > active.entrants.length ? `<span>+ ${active.entry_count - active.entrants.length}</span>` : ''}</div>` : ''}
                     <div class="muted">Requirements: ${[active.requirements?.steam_group && 'Steam group', active.requirements?.trade && '1 trade'].filter(Boolean).join(', ') || 'none'}</div>
-                    ${active.prize?.state ? `<div class="muted" data-prize="${esc(active._id)}">Prize: ${prize_line(active)}</div>` : ''}
+                    ${active.prize?.state ? `<div class="muted" data-prize="${esc(active._id)}">Prize: ${prize_line(active)}</div>`
+                        : '<div class="muted">Prize: not on the bank bot (this giveaway was started before bank-bot prizes). Send it to the winner yourself, then tick "Prize sent".</div>'}
                     <div class="muted" data-posts="${esc(active._id)}">${post_states(active, res.posts)}</div>
+                    ${share_line(active)}
                     <div class="actions"><button class="end-giveaway primary">End now &amp; draw winner</button> <button class="cancel-giveaway">Cancel giveaway</button> ${prize_actions(active)}</div>
                 </div>
             </div>` : `<form class="admin-card admin-form gw-form" id="giveaway-form">
@@ -195,6 +218,9 @@
                     <button type="button" class="gw-more-items" id="gw-more-items" hidden>Show more items</button>
                 </div>
                 <label>Ends <input type="datetime-local" name="end" required value="${default_end}"></label>
+                <label>Minimum entries <input type="number" name="min_entries" min="0" max="${esc(res.max_min_entries || 100000)}" step="1" value="${esc(res.default_min_entries ?? 25)}" required>
+                    <span class="muted small">If fewer people have entered by the end time, the giveaway keeps running and the winner is drawn as soon as this many have. 0 = draw at the end time whatever happens.</span>
+                </label>
                 <label>Description (optional) <input name="description" maxlength="500"></label>
                 <label>Description written in
                     <select name="lang">${LANG_OPTIONS.map(([code, name]) => `<option value="${code}">${esc(name)}</option>`).join('')}</select>
@@ -208,7 +234,7 @@
             ${past.length == 0 ? '<p class="admin-empty">None yet.</p>' : `<div class="admin-table-wrap"><table>
                 <tr><th>Item</th><th>Ended</th><th>Entries</th><th>Winner</th><th>Prize</th><th>Announcements</th></tr>
                 ${past.map((g) => `<tr data-id="${esc(g._id)}">
-                    <td>${esc(g.item.bp_sku)}</td>
+                    <td>${g.share_url ? `<a href="${esc(g.share_url)}" target="_blank" rel="noopener">${esc(g.item.bp_sku)}</a> <span class="muted">#${esc(g.number)}</span>` : esc(g.item.bp_sku)}${g.waiting_since ? '<br><span class="muted small">waited for entries</span>' : ''}</td>
                     <td>${g.status == 'cancelled' ? 'Cancelled' : when(g.end)}</td>
                     <td>${g.entry_count}</td>
                     <td>${g.winner?.steamid ? `<a href="https://steamcommunity.com/profiles/${esc(g.winner.steamid)}" target="_blank" rel="nofollow">${esc(g.winner.name || g.winner.steamid)}</a>
@@ -304,6 +330,7 @@
                     effectID: picked.effectID,
                     priced: picked.priced !== false,
                     end: new Date(form.end.value).getTime(),
+                    min_entries: form.min_entries.value,
                     description: form.description.value,
                     lang: form.lang.value,
                     steam_group: form.steam_group.checked,
@@ -317,7 +344,9 @@
         box.addEventListener('click', async (e) => {
             const id = e.target.closest('[data-id]')?.dataset.id
             if(!id){ return }
-            if(e.target.classList.contains('end-giveaway') && confirm('End the giveaway now and draw a winner?')){
+            const g_now = res.giveaways.find((g) => g._id == id)
+            const short = g_now?.progress?.needed > 0 ? ` It has ${g_now.progress.count} of the ${g_now.progress.min} entries it needs; the winner is drawn anyway.` : ''
+            if(e.target.classList.contains('end-giveaway') && confirm(`End the giveaway now and draw a winner?${short}`)){
                 const r = await api(`/api/admin/giveaways/${id}/end`, {})
                 const left = r.skipped ? ` Skipped ${r.skipped} who had left the Steam group.` : ''
                 if(toast(r, r.winner ? `Winner: ${esc(r.winner.name || r.winner.steamid)}.${left}` : r.skipped ? 'Ended without a winner: everyone had left the Steam group.' : 'Ended, there were no entries.')){ giveaways(root) }
@@ -337,6 +366,24 @@
             if(e.target.classList.contains('prize-sent')){
                 toast(await api(`/api/admin/giveaways/${id}/prize_sent`, { prize_sent: e.target.checked }), 'Saved.')
             }
+            if(e.target.classList.contains('copy-share')){
+                const url = e.target.dataset.url
+                try { await navigator.clipboard.writeText(url); toast({ status: 'ok' }, 'Link copied.') } catch (error) { window.prompt('Copy the link:', url) }
+            }
+        })
+
+        // the running giveaway's minimum entries
+        box.querySelector('.gw-min-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const id = e.target.closest('[data-id]')?.dataset.id
+            const button = e.target.querySelector('button')
+            button.disabled = true
+            const r = await api(`/api/admin/giveaways/${id}/min_entries`, { min_entries: e.target.min_entries.value })
+            button.disabled = false
+            const left = r.skipped ? ` Skipped ${r.skipped} who had left the Steam group.` : ''
+            const message = r.drawn ? (r.winner ? `It had enough entries, so the winner was drawn: ${esc(r.winner.name || r.winner.steamid)}.${left}` : 'It had enough entries and was drawn, without a winner.')
+                : r.waiting ? `Saved. It waits for ${r.needed} more entr${r.needed == 1 ? 'y' : 'ies'}.` : 'Saved.'
+            if(toast(r, message)){ giveaways(root) }
         })
     }
 

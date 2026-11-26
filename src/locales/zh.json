@@ -106,7 +106,8 @@
     "category": "买卖 TF2 {category}（钥匙和金属）| TF2Deal.com",
     "category_page": "TF2 {category}（第 {page} 页）| TF2Deal.com",
     "category_short": "TF2 {category} | TF2Deal.com",
-    "keys": "TF2 钥匙银行 – 钥匙与精炼金属互换 | TF2Deal.com"
+    "keys": "TF2 钥匙银行 – 钥匙与精炼金属互换 | TF2Deal.com",
+    "giveaway_ended": "{item} 抽奖（已结束）| TF2Deal.com"
   },
   "desc": {
     "default": "TF2 交易机器人网站：用自动化 Steam 机器人买卖 TF2 物品。帽子、Unusual、武器和钥匙，以钥匙和精炼金属计价，几秒内发出报价。",
@@ -129,7 +130,8 @@
     "item_no_stock": "与我们的交易机器人进行即时自动化 TF2 交易。",
     "category": "用钥匙和 ref 买卖 TF2 {category}：共 {count} 件物品，价格和库存实时更新，我们的机器人几秒内发送 Steam 交易报价。",
     "category_page": "TF2Deal.com 上 TF2 {category} 的第 {page} 页，价格和库存实时更新。用钥匙和 ref 买卖，即时收到交易报价。",
-    "keys": "通过 TF2Deal.com 的银行机器人把 Mann Co. Supply Crate Key 换成精炼金属或换回来：backpack.tf 实时钥匙价格，每次最多 5 把钥匙，几秒内收到 Steam 交易报价。"
+    "keys": "通过 TF2Deal.com 的银行机器人把 Mann Co. Supply Crate Key 换成精炼金属或换回来：backpack.tf 实时钥匙价格，每次最多 5 把钥匙，几秒内收到 Steam 交易报价。",
+    "giveaway_ended": "TF2Deal.com 的 {item} 免费抽奖已结束。看看谁赢了，并参加下一次 TF2 物品免费抽奖。"
   },
   "item_types": {
     "cosmetic": "饰品",
@@ -353,7 +355,9 @@
       "gw_prize_waiting": "我们的仓库机器人很快会向你发送交易报价。",
       "gw_received_on": "已于 {date} 收到，尽情享用！",
       "gw_won_on": "{date} 中奖",
-      "gw_out_of": "共 {n} 人参与"
+      "gw_out_of": "共 {n} 人参与",
+      "gw_waiting": "还差 {n} 人参加",
+      "gw_waiting_one": "还差 1 人参加"
     },
     "tickets": {
       "status_open": "等待客服回复",
@@ -615,7 +619,9 @@
       "giveaway_tradelink_title": "添加你的交易链接",
       "giveaway_tradelink": "我们需要你的 Steam 交易链接才能发送 {item}。请在个人资料中添加。",
       "giveaway_admin_winner_title": "抽奖获奖者",
-      "giveaway_admin_winner": "{winner} 赢得了 {item}。详情见 Admin → Giveaways。"
+      "giveaway_admin_winner": "{winner} 赢得了 {item}。详情见 Admin → Giveaways。",
+      "giveaway_admin_waiting_title": "抽奖正在等待参与者",
+      "giveaway_admin_waiting": "{item} 到达结束时间时只有 {count}/{min} 人参加。抽奖保持开放，再有 {n} 人参加就会抽奖。可以在 Admin → Giveaways 中修改最低人数。"
     },
     "buy_link": {
       "buy_title": "购买此物品",
@@ -833,7 +839,31 @@
     "seconds": "秒",
     "how_to_enter": "参与方式",
     "latest_entries": "最新参与者",
-    "more_entries_label": "另有 {n} 人参与"
+    "more_entries_label": "另有 {n} 人参与",
+    "waiting_label": "等待更多参与者",
+    "waiting_text": "结束时间已过，但本次抽奖至少需要 {min} 人参加。只要再有 {n} 人参加就会立即抽出获奖者，快分享给你的朋友吧！",
+    "waiting_text_one": "结束时间已过，但本次抽奖至少需要 {min} 人参加。只要再有 1 人参加就会立即抽出获奖者，快分享给你的朋友吧！",
+    "waiting_for": "还差",
+    "more_entries": "人参加",
+    "more_entry": "人参加",
+    "goal_needed": "还差 {n} 人参加",
+    "goal_needed_one": "还差 1 人参加",
+    "goal_rule": "满 {min} 人参加后抽出获奖者。",
+    "share": "分享",
+    "share_link": "本次抽奖的链接",
+    "copy_link": "复制链接",
+    "link_copied": "已复制！",
+    "share_on": "分享到",
+    "share_title": "TF2Deal.com 免费抽奖：{item}",
+    "share_text": "在 TF2Deal.com 抽奖中免费赢取 {item}！",
+    "share_text_ended": "TF2Deal.com 的 {item} 抽奖",
+    "ended_label": "抽奖已结束",
+    "cancelled_label": "抽奖已取消",
+    "cancelled_text": "本次抽奖已取消。",
+    "no_winner_text": "结束时无人参加。",
+    "see_current": "参加当前抽奖",
+    "ended_on": "结束于",
+    "cancelled_on": "取消于"
   },
   "blog": {
     "h1": "博客",
@@ -1037,7 +1067,9 @@
     "key_bank_reload": "此页面已过期。请刷新后重试。",
     "offer_cooldown": "你最近请求的 {misses} 个报价都没有接受，{time}后才能请求新的报价。接受任意报价即可重置。",
     "cooldown_minutes": "{n} 分钟",
-    "cooldown_hours": "{n} 小时"
+    "cooldown_hours": "{n} 小时",
+    "gw_drawing": "本次抽奖的参与人数已经足够，正在抽取获奖者。",
+    "gw_entered_drawing": "参加成功，你正是最后需要的那一位：现在正在抽取获奖者！"
   },
   "cookies": {
     "banner_title": "TF2Deal.com 上的 Cookie",
@@ -1167,6 +1199,10 @@
       "item_details": {
         "title": "右键查看物品详情",
         "text": "在交易页面或物品页面右键点击物品，即可查看该物品的全部信息：油漆、魔咒、奇异零件、连杀效果，以及 backpack.tf、TF2 Wiki 和 Steam 的链接。在手机上，点按物品提示框即可。"
+      },
+      "giveaway_share": {
+        "title": "把抽奖分享给朋友",
+        "text": "每次抽奖现在都有自己的链接，附带奖品图片，会显示在 Discord、Steam 聊天和社交网站上。在抽奖页面点击“分享”即可。抽奖还需要达到最低参与人数：人数不够时，抽奖会一直开放。"
       }
     }
   }

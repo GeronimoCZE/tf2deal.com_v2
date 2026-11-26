@@ -13,3 +13,6 @@ src/public/sitemaps/
 
 # pictures uploaded in the admin panel (service/uploads.js), kept on the server only
 uploads/
+
+# giveaway share pictures (service/giveaway_og.js), made on the server
+cache/

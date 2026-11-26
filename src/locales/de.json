@@ -106,7 +106,8 @@
     "category": "TF2 {category} kaufen & verkaufen | TF2Deal.com",
     "category_page": "TF2 {category} (Seite {page}) | TF2Deal.com",
     "category_short": "TF2 {category} | TF2Deal.com",
-    "keys": "TF2-Schlüsselbank – Schlüssel und Refined Metal tauschen | TF2Deal.com"
+    "keys": "TF2-Schlüsselbank – Schlüssel und Refined Metal tauschen | TF2Deal.com",
+    "giveaway_ended": "Gewinnspiel um {item} – beendet | TF2Deal.com"
   },
   "desc": {
     "default": "Kaufe, verkaufe und tausche TF2-Items mit automatischen Steam-Trade-Bots. Hüte, Unusuals, Waffen und Keys für Keys und Ref, Angebot in Sekunden.",
@@ -129,7 +130,8 @@
     "item_no_stock": "Sofortiges automatisches TF2-Trading mit unseren Trade-Bots.",
     "category": "Kaufe und verkaufe TF2 {category} gegen Schlüssel und Ref: {count} Items, aktuelle Preise und Bestand, Tauschangebote unserer Bots in Sekunden.",
     "category_page": "Seite {page} der TF2 {category} auf TF2Deal.com mit aktuellen Preisen und Bestand. Kaufe und verkaufe gegen Schlüssel und Ref mit sofortigem Tauschangebot.",
-    "keys": "Tausche Mann Co. Supply Crate Keys gegen Refined Metal und zurück mit den Bank-Bots von TF2Deal.com: Live-Schlüsselpreise von backpack.tf, bis zu 5 Schlüssel pro Tausch, ein Steam-Angebot in Sekunden."
+    "keys": "Tausche Mann Co. Supply Crate Keys gegen Refined Metal und zurück mit den Bank-Bots von TF2Deal.com: Live-Schlüsselpreise von backpack.tf, bis zu 5 Schlüssel pro Tausch, ein Steam-Angebot in Sekunden.",
+    "giveaway_ended": "Das kostenlose Gewinnspiel um {item} auf TF2Deal.com ist beendet. Sieh nach, wer gewonnen hat, und mach beim nächsten TF2-Gewinnspiel mit."
   },
   "item_types": {
     "cosmetic": "Kosmetik",
@@ -353,7 +355,9 @@
       "gw_prize_waiting": "Unser Bank-Bot schickt dir in Kürze ein Tauschangebot.",
       "gw_received_on": "Erhalten am {date}. Viel Spaß!",
       "gw_won_on": "Gewonnen am {date}",
-      "gw_out_of": "von {n} Teilnahmen"
+      "gw_out_of": "von {n} Teilnahmen",
+      "gw_waiting": "Wartet auf {n} weitere Teilnahmen",
+      "gw_waiting_one": "Wartet auf 1 weitere Teilnahme"
     },
     "tickets": {
       "status_open": "Wartet auf Support",
@@ -615,7 +619,9 @@
       "giveaway_tradelink_title": "Trade-URL hinzufügen",
       "giveaway_tradelink": "Wir brauchen deine Steam-Trade-URL, um dir {item} zu schicken. Füge sie in deinem Profil hinzu.",
       "giveaway_admin_winner_title": "Gewinner des Giveaways",
-      "giveaway_admin_winner": "{winner} hat {item} gewonnen. Details unter Admin → Giveaways."
+      "giveaway_admin_winner": "{winner} hat {item} gewonnen. Details unter Admin → Giveaways.",
+      "giveaway_admin_waiting_title": "Gewinnspiel wartet auf Teilnahmen",
+      "giveaway_admin_waiting": "{item} hat die Endzeit mit {count} von {min} Teilnahmen erreicht. Es bleibt offen und wird ausgelost, sobald {n} weitere Leute mitmachen. Das Minimum kannst du unter Admin → Giveaways ändern."
     },
     "buy_link": {
       "buy_title": "Diesen Gegenstand kaufen",
@@ -833,7 +839,31 @@
     "seconds": "Sek",
     "how_to_enter": "So nimmst du teil",
     "latest_entries": "Neueste Teilnahmen",
-    "more_entries_label": "{n} weitere Teilnahmen"
+    "more_entries_label": "{n} weitere Teilnahmen",
+    "waiting_label": "Wartet auf Teilnahmen",
+    "waiting_text": "Die Endzeit ist vorbei, aber dieses Gewinnspiel braucht mindestens {min} Teilnahmen. Der Gewinner wird ausgelost, sobald {n} weitere Leute mitmachen, also teile es mit deinen Freunden!",
+    "waiting_text_one": "Die Endzeit ist vorbei, aber dieses Gewinnspiel braucht mindestens {min} Teilnahmen. Der Gewinner wird ausgelost, sobald noch eine Person mitmacht, also teile es mit deinen Freunden!",
+    "waiting_for": "Wartet auf",
+    "more_entries": "weitere Teilnahmen",
+    "more_entry": "weitere Teilnahme",
+    "goal_needed": "Noch {n} Teilnahmen nötig",
+    "goal_needed_one": "Noch 1 Teilnahme nötig",
+    "goal_rule": "Der Gewinner wird ausgelost, sobald {min} Leute teilgenommen haben.",
+    "share": "Teilen",
+    "share_link": "Link zu diesem Gewinnspiel",
+    "copy_link": "Link kopieren",
+    "link_copied": "Kopiert!",
+    "share_on": "Teilen auf",
+    "share_title": "{item} gratis gewinnen auf TF2Deal.com",
+    "share_text": "Gewinne {item} gratis im Gewinnspiel von TF2Deal.com!",
+    "share_text_ended": "Das Gewinnspiel um {item} auf TF2Deal.com",
+    "ended_label": "Gewinnspiel beendet",
+    "cancelled_label": "Gewinnspiel abgesagt",
+    "cancelled_text": "Dieses Gewinnspiel wurde abgesagt.",
+    "no_winner_text": "Es endete ohne Teilnahmen.",
+    "see_current": "Beim aktuellen Gewinnspiel mitmachen",
+    "ended_on": "Beendet",
+    "cancelled_on": "Abgesagt"
   },
   "blog": {
     "h1": "Blog",
@@ -1037,7 +1067,9 @@
     "key_bank_reload": "Diese Seite ist veraltet. Lade sie neu und versuche es noch einmal.",
     "offer_cooldown": "Du hast deine letzten {misses} angeforderten Angebote nicht angenommen, deshalb kannst du in {time} ein neues anfordern. Ein angenommenes Angebot setzt das zurück.",
     "cooldown_minutes": "{n} Min.",
-    "cooldown_hours": "{n} Std."
+    "cooldown_hours": "{n} Std.",
+    "gw_drawing": "Dieses Gewinnspiel hat alle Teilnahmen, die es braucht, und der Gewinner wird gerade ausgelost.",
+    "gw_entered_drawing": "Du bist dabei, und genau deine Teilnahme hat noch gefehlt: Der Gewinner wird jetzt ausgelost!"
   },
   "cookies": {
     "banner_title": "Cookies auf TF2Deal.com",
@@ -1167,6 +1199,10 @@
       "item_details": {
         "title": "Rechtsklick für Item-Details",
         "text": "Rechtsklicke auf ein Item auf der Tauschseite oder einer Item-Seite, um alles über dieses Exemplar zu sehen: Farbe, Zauber, Strange Parts, Killstreak und Links zu backpack.tf, dem TF2 Wiki und Steam. Am Handy tippst du auf den Tooltip des Items."
+      },
+      "giveaway_share": {
+        "title": "Gewinnspiele mit Freunden teilen",
+        "text": "Jedes Gewinnspiel hat jetzt seinen eigenen Link, mit einem Bild des Preises, das in Discord, im Steam-Chat und in sozialen Netzwerken erscheint. Drück auf der Gewinnspielseite auf Teilen. Ein Gewinnspiel braucht außerdem eine Mindestzahl an Teilnahmen: Bis genug Leute dabei sind, bleibt es offen."
       }
     }
   }

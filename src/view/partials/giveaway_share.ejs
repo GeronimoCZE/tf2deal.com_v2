@@ -1,0 +1,25 @@
+<%# The giveaway page's Share button (part: 'button') and its panel (part: 'panel'), for share = { url, title, text }
+    (routes/router.js giveaway). On phones the button opens the system share sheet; elsewhere it opens the panel: the
+    link with a Copy button, and X, Facebook and Reddit. The script is in view/giveaway.ejs. %>
+<% if (locals.share && part == 'button') { %>
+<button type="button" class="gw-share-btn" id="giveaway-share-btn" aria-expanded="false" aria-controls="giveaway-share"
+        data-url="<%= share.url %>" data-title="<%= share.title %>" data-text="<%= share.text %>">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.1c-.8 0-1.5.3-2 .8l-7.1-4.2c.1-.2.1-.5.1-.7s0-.5-.1-.7L16 7.2c.5.5 1.2.8 2 .8 1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3c0 .2 0 .5.1.7L8 9.8C7.5 9.3 6.8 9 6 9c-1.7 0-3 1.3-3 3s1.3 3 3 3c.8 0 1.5-.3 2-.8l7.1 4.2c-.1.2-.1.4-.1.6 0 1.6 1.3 2.9 2.9 2.9s2.9-1.3 2.9-2.9-1.2-2.9-2.8-2.9z"/></svg>
+    <span><%= __('giveaway.share') %></span>
+</button>
+<% } else if (locals.share && part == 'panel') { %>
+<% const u = encodeURIComponent(share.url), t = encodeURIComponent(share.text), title = encodeURIComponent(share.title); %>
+<div class="gw-share" id="giveaway-share" hidden>
+    <label class="gw-share-label" for="giveaway-share-url"><%= __('giveaway.share_link') %></label>
+    <div class="gw-share-row">
+        <input id="giveaway-share-url" type="text" readonly value="<%= share.url %>" spellcheck="false">
+        <button type="button" class="gw-copy" id="giveaway-copy" data-label="<%= __('giveaway.copy_link') %>" data-done="<%= __('giveaway.link_copied') %>"><%= __('giveaway.copy_link') %></button>
+    </div>
+    <div class="gw-share-to">
+        <span><%= __('giveaway.share_on') %></span>
+        <a href="https://twitter.com/intent/tweet?text=<%= t %>&url=<%= u %>" target="_blank" rel="noopener nofollow">X</a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=<%= u %>" target="_blank" rel="noopener nofollow">Facebook</a>
+        <a href="https://www.reddit.com/submit?url=<%= u %>&title=<%= title %>" target="_blank" rel="noopener nofollow">Reddit</a>
+    </div>
+</div>
+<% } %>

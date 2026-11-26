@@ -46,6 +46,9 @@ const Post = mongoose.Schema({
 }, { _id: false })
 
 const Giveaway = mongoose.Schema({
+    // its own address and share picture: /giveaway/<number>, /og/giveaway-<number>.png (service/giveaway.js numbers
+    // them 1, 2, 3... in the order they were made; older giveaways get theirs when the site starts)
+    number: { type: Number },
     item: { // the prize item as shown on the site: from the bot item picked (unpriced items: bp_sku = its Steam name)
         bp_sku: { type: String, required: true },
         image: { type: String, default: '' },
@@ -62,6 +65,11 @@ const Giveaway = mongoose.Schema({
         steam_group: { type: Boolean, default: true }, // member of our Steam group
         trade: { type: Boolean, default: true } // at least 1 trade since the giveaway started
     },
+    // the winner is drawn at `end` only once this many have entered; until then the giveaway keeps running and is drawn
+    // as soon as the last entry it needs comes in (0 = drawn at `end` whatever happens). Giveaways from before this
+    // was there count as 25 (service/giveaway.js DEFAULT_MIN_ENTRIES).
+    min_entries: { type: Number, default: 25 },
+    waiting_since: { type: Number, default: 0 }, // when `end` passed with too few entries (0 = it hasn't)
     entries: { type: [Entry], default: [] },
     recent: { type: [Recent], default: [] },
     start: { type: Number, required: true },
@@ -84,6 +92,7 @@ const Giveaway = mongoose.Schema({
 })
 
 Giveaway.index({ status: 1, end: 1 });
+Giveaway.index({ number: 1 }, { unique: true, sparse: true });
 Giveaway.index({ 'entries.steamid': 1 });
 
 export const giveaway_model = mongoose.model('giveaways', Giveaway);
