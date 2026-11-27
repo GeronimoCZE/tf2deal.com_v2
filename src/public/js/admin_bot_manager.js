@@ -297,8 +297,12 @@
             flowHours: 'Keys bought against keys sold over this long...',
             flowFullAt: '...this many more on one side moves both prices the most...',
             flowMaxShift: '...this far (bought more: both lower, sold more: both higher).',
-            flips: 'Sell keys over the bank\'s aim to bot buy orders while it bought more than it sold.',
-            flipMinProfit: 'A flip sells at least this much over what the bank paid for the key (at no loss when a bank bot can\'t buy otherwise).',
+            flips: 'Sell keys to bot buy orders: every key the bank buys (below), and keys over the bank\'s aim while it bought more than it sold.',
+            flipEveryBuy: 'Resell every key the bank buys at once to the best bot buy order paying the flip profit more than that key cost. Quicksell keys are only bought when enough bot buy orders would take them.',
+            flipRetryMin: 'A key no bot buy order took within this long of its buy stays with the bank for its own sell listing (never under what it cost).',
+            flipMinProfit: 'A flip sells at least this much over what the bank paid for the key; with resale at once our buy price stays this far under the resale price.',
+            resaleBuyers: 'The resale price is what at least this many different bot buy orders pay. Our buy price never goes over it less the flip profit, so one high buy order can\'t pull it up. Quicksell keys need this many free buyers.',
+            costFloor: 'Never sell keys under what the bank\'s keys cost it (its books) plus the minimum profit, however long it holds them.',
             flipMaxOpen: 'Flip offers open at once.',
             flipOfferMinutes: 'A flip offer is cancelled after this.'
         },
@@ -2138,8 +2142,14 @@
 
     // the bank bots swap keys for metal with users (bot_manager KEY_BANK.md): what they made, the split they keep, prices
     const KB_KINDS = { site: 'tf2deal.com/keys', offer: 'offer to the bot', snipe: 'quicksell key', flip: 'flip to a bot buy order' }
+    const kb_kind = (r) => r.kind == 'flip' && r.instant ? `resold at once${r.cost ? ` <span class="muted">(bought at ${ref(r.cost)})</span>` : ''}` : esc(KB_KINDS[r.kind] || r.kind || '–')
     const KB_FLIP_WHY = { no_plan: 'no prices yet', no_keys: 'no keys to flip', split_ok: 'keys within the aim', flow_ok: 'sold as many as bought',
-        no_buyer: 'no bot buy order pays enough', no_buyer_now: 'no bot buy order could take it' }
+        no_buyer: 'no bot buy order pays enough', no_buyer_now: 'no bot buy order could take it', steam_paused: 'Steam is busy, trying again soon',
+        keys_not_free: 'the keys are in another offer', buyer_declined: 'the last buyer declined', buyer_expired: 'the last buyer didn\'t answer',
+        buyer_canceled: 'the offer was cancelled', main_bot_unavailable: 'the bank bot is offline', site_items_in_trade: 'the keys are in another trade' }
+    // why a price is where it is (bot_manager planOf), the ones words alone don't explain
+    const KB_PLAN_WHY = { resale_cap: 'buy capped under the resale price', cost_floor: 'sell held over what the keys cost', no_resale: 'not buying: too few bot buy orders',
+        lot_sell_floor: 'sell over a recent buy', lot_buy_ceiling: 'buy under a recent sale', metal_to_stay_ready: 'metal kept to stay ready' }
     const KB_MEASURES = [['edge', 'Edge', 'ref better than backpack.tf\'s middle price, booked at each swap'],
         ['profit', 'Profit', 'ref made on keys closed against what the bank paid or got for them'],
         ['keys', 'Keys swapped', 'keys bought + sold']]
@@ -2262,7 +2272,7 @@
     const kb_price = (r) => r.price ?? (r.s != null ? Math.floor(r.s / 9 * 100 + 1e-6) / 100 : null)
     const kb_rows = (list, bots) => (list || []).map((r) => `<tr>
         <td>${r.at ? ago(new Date(r.at).getTime()) : '–'}</td>
-        <td>${esc(KB_KINDS[r.kind] || r.kind || '–')}</td>
+        <td>${kb_kind(r)}</td>
         <td>${profile(r.steamid)}</td>
         <td>${esc(bots.get(r.bot) || r.bot || '–')}</td>
         <td>${r.side == 'buy' ? '<span class="admin-tag tag-buy">bought</span>' : '<span class="admin-tag tag-sell">sold</span>'}</td>
@@ -2291,6 +2301,7 @@
                 <div class="admin-card"><h3>Prices</h3><div id="bm-kb-prices">${loading}</div></div>
                 <div class="admin-card"><h3>The bank's split</h3><p class="muted">Keys against metal by value. Prices lean toward the share we aim for.</p><div id="bm-kb-split">${loading}</div></div>
                 <div class="admin-card wide"><h3>Key swaps</h3>
+                    <div id="bm-kb-resale"></div>
                     <form class="admin-inline-form" id="bm-kb-history"><input type="search" name="steamid" placeholder="Only swaps with this SteamID64" inputmode="numeric" maxlength="17"><button type="submit">Show saved swaps</button></form>
                     <div id="bm-kb-swaps">${loading}</div></div>
                 <div class="admin-card wide"><h3>Pure from other bots</h3><p class="muted">Bank bots move metal between them so each can always buy a couple of keys. Trade bots are only asked when a bank bot holds less than its minimum.</p><div id="bm-kb-refills">${loading}</div></div>
@@ -2319,6 +2330,7 @@
             const L = s.ledger || d.ledger || {}, P = s.period || {}, bank = s.bank || d.bank || {}, plan = d.plan, m = d.market, fc = d.forecast
             bot_names = new Map((d.bots || []).map((b) => [b.steamid, b.name || b.steamid]))
             const fresh = d.book?.liveAt || d.book?.at
+            const fl = d.flips || {}, ft = fl.today || {}, waiting = fl.waiting || []
             $('#bm-kb-status').innerHTML = `<div class="admin-bm-toolbar">
                     <span>${pill(d.enabled && d.started, 'Key bank on', d.started ? 'Key bank off' : 'Not started')}
                         ${d.independent ? '<span class="admin-tag" title="The bank bots\' pure is the key bank\'s alone: not lent to trade bots, not in their pure limits">own pure</span>' : '<span class="admin-tag tag-warn">pure shared with the trade bots</span>'}
@@ -2332,9 +2344,9 @@
                 ${st.status != 'ok' ? error_line(st) : ''}
                 <div class="admin-stats">
                     ${stat('Profit', signed(P.profit), `last ${num(period)} days · all time ${signed(L.realized)}`)}
+                    ${fl.enabled ? stat('Flips today', num(ft.flips || 0), `${ft.flips ? `${signed(ft.profit)} · ` : ''}goal 20+ a day${waiting.length ? ` · ${num(waiting.reduce((t, w) => t + (w.keys || 0), 0))} waiting` : ''}`) : ''}
                     ${stat('Edge', signed(P.edge), `against the middle price · all time ${signed(L.edge)}`)}
-                    ${stat('Swaps', num(P.trades), `${num(P.bought)} keys bought, ${num(P.sold)} sold${P.flips ? ` · ${num(P.flips)} ${P.flips == 1 ? 'flip' : 'flips'}` : ''}`)}
-                    ${stat('Volume', ref(P.volume), `last ${num(period)} days`)}
+                    ${stat('Swaps', num(P.trades), `${num(P.bought)} keys bought, ${num(P.sold)} sold · ${ref(P.volume)}${fl.enabled ? '' : P.flips ? ` · ${num(P.flips)} ${P.flips == 1 ? 'flip' : 'flips'}` : ''}`)}
                     ${stat('Bank', bank.valueKeys == null ? '–' : `${num(bank.valueKeys)}<small> keys</small>`, `${num(bank.keys)} keys + ${ref(bank.metal)}`)}
                     ${stat('Open position', `${L.position > 0 ? '+' : ''}${num(L.position || 0)}<small> keys</small>`, L.position ? `at ${ref(L.average)}, ${signed(L.unrealized)} at today's price` : 'every swap closed')}
                 </div>`
@@ -2342,11 +2354,21 @@
             days = kb_days(s.days, period)
             draw_chart()
 
-            const why = (plan?.why || []).map((w) => `<span class="admin-tag">${esc(String(w).replace(/_/g, ' '))}</span>`).join(' ')
+            const why = (plan?.why || []).map((w) => `<span class="admin-tag">${esc(KB_PLAN_WHY[w] || String(w).replace(/_/g, ' '))}</span>`).join(' ')
+            const lim = plan?.limits || {}
             const flow = d.flow || plan?.flow || {}, ready = d.ready || {}, flips = d.flips || {}
             const unready = (d.bots || []).filter((b) => b.online && b.ready === false).length
             const lean = plan?.shift?.flow || 0
-            const flip_state = !flips.enabled ? 'off' : flips.open ? `${num(flips.open)} offer open` : flips.last ? `waiting: ${esc(KB_FLIP_WHY[flips.last.why] || words(flips.last.why))}${flips.last.floor ? ` <span class="muted">(${ref(flips.last.floor)} or more)</span>` : ''}` : 'on'
+            const flip_last = flips.last ? `waiting: ${esc(KB_FLIP_WHY[flips.last.why] || words(flips.last.why))}${flips.last.floor ? ` <span class="muted">(${ref(flips.last.floor)} or more)</span>` : ''}` : ''
+            const flip_state = !flips.enabled ? 'off' : [
+                flips.everyBuy ? `every key bought resold at once <span class="muted">(${ref(flips.minProfit)} profit or more)</span>` : 'keys over the aim',
+                flips.open ? `${num(flips.open)} ${flips.open == 1 ? 'offer' : 'offers'} open` : '',
+                !flips.everyBuy && !flips.open ? flip_last : ''
+            ].filter(Boolean).join(' · ')
+            const resale_rows = (flips.waiting || []).map((w) => `<tr>
+                <td>${ago(w.at)}</td><td>${esc(bot_names.get(w.bot) || w.bot)}</td><td class="akb-num">${num(w.keys)}</td>
+                <td class="akb-num">${ref(w.cost)}</td><td class="akb-num">${ref(w.floor)}+</td><td>${esc(KB_KINDS[w.from] || w.from || '–')}</td>
+                <td>${w.last ? esc(KB_FLIP_WHY[w.last.why] || words(w.last.why)) : '<span class="muted">sending</span>'}</td></tr>`)
             $('#bm-kb-prices').innerHTML = !plan ? `<p class="admin-empty">${m ? 'No plan yet.' : 'No key market read yet.'}</p>` : `
                 <div class="akb-prices">
                     <div class="akb-quote is-buy"><span>We buy at</span><strong>${num(plan.buy)}<small> ref</small></strong><em>up to ${num(plan.canBuy)} keys</em></div>
@@ -2357,7 +2379,10 @@
                     ${facts([
                         ['Spread', ref(plan.spread)],
                         m && ['Best bot buy order', ref(m.bestBuy)],
+                        m && flips.everyBuy && ['Resale price', m.resale == null ? '<span class="admin-tag tag-warn">fewer than ' + num(flips.resaleBuyers || 2) + ' bot buy orders</span>' : `${ref(m.resale)} <span class="muted">(${num(flips.resaleBuyers || 2)}+ bot buy orders pay it)</span>`],
                         m && ['Cheapest real seller', ref(m.bestSell)],
+                        (lim.buyMax != null || lim.sellMin != null) && ['Never', [lim.buyMax != null && `buy over ${ref(lim.buyMax)}`, lim.sellMin != null && `sell under ${ref(lim.sellMin)}`].filter(Boolean).join(', ') +
+                            (lim.cost != null ? ` <span class="muted">(keys held cost ${ref(lim.cost)})</span>` : '')],
                         m && ['Sellers under the buy orders', `${num(m.quicksells)} <span class="muted">(ignored, quicksell targets)</span>`],
                         fc && ['Forecast', `${esc(fc.direction)} ${signed(fc.change)} in ${num(fc.horizonHours)} h <span class="muted">(${pct(fc.confidence)} sure)</span>`],
                         ['Leaning', `${signed(plan.shift?.trend)} forecast, ${signed(plan.shift?.skew)} split, ${signed(lean)} balance`],
@@ -2367,6 +2392,10 @@
                         why && ['Why', why]
                     ])}
                 </div>`
+            $('#bm-kb-resale').innerHTML = resale_rows.length ? `<h4 class="akb-sub">Waiting to be resold</h4>
+                <p class="muted">Each goes to the best bot buy order paying ${ref(flips.minProfit)} over what it cost; after ${num(flips.retryMin || 30)} min it stays with the bank.</p>
+                ${table(['Since', 'Bank bot', 'Keys', 'Bought at', 'Resell at', 'From', 'Last try'], resale_rows)}
+                <h4 class="akb-sub">Swaps</h4>` : ''
 
             const pools = new Map((d.bots || []).map((b) => [b.steamid, b]))
             const target = bank.target ?? plan?.split?.target
