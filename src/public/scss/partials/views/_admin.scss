@@ -998,6 +998,54 @@ body.admin-app{
     .muted.small{ font-size: 13px; margin: .2rem 0 0 0; }
 }
 
+// Admin -> Chat helper (js/admin_assistant.js): the key, the model, the "Try it" box and what the firewall stopped
+.admin{
+    .admin-setting .admin-note{
+        margin: .6rem 0;
+        padding: .6rem .9rem;
+        background: var(--surface-2);
+        border-radius: var(--r-sm);
+        font-size: 14px;
+    }
+    .admin-setting-body .admin-table-wrap + .admin-table-wrap{ margin-top: 1rem; }
+    .as-test .admin-row-fields{ align-items: end; }
+    .as-test .admin-toggle-row{ min-height: 2.4rem; font-weight: 400; }
+    .as-test-answer{
+        margin-top: .9rem;
+        padding: .9rem 1rem;
+        border-radius: var(--r-md);
+        background: var(--well);
+        details summary{ cursor: pointer; color: var(--ink-3); font-size: 13px; }
+        details summary:hover{ color: var(--ink); }
+    }
+    .as-test-text{
+        margin: 0 0 .7rem 0;
+        color: var(--ink);
+        font-size: 14.5px;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+    .as-test-cards{
+        display: grid;
+        gap: .35rem;
+        margin: 0 0 .7rem 0;
+        padding: 0;
+        li{ list-style: none; color: var(--ink-2); font-size: 13.5px; }
+    }
+    .as-safe{
+        display: grid;
+        gap: .6rem;
+        margin: 0;
+        padding-left: 1.1rem;
+        color: var(--ink-2);
+        font-size: 14px;
+        line-height: 1.5;
+        li{ list-style: disc; }
+        li::marker{ color: var(--ink-3); }
+    }
+}
+
 // Admin -> Inventory value (js/admin.js inventory_value): period + price filters, profit, worth over time
 .admin{
     .iv-filters{

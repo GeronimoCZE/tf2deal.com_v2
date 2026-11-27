@@ -160,4 +160,6 @@ opens it). At the end of the page, so its headings don't come before the page's 
     each new feature (data-news: the newest one, service/news.js; GET /api/news). Not on error pages and the trade
     offer pages, which include this footer with no_news %>
 <% if (locals.needs_trade_url) { %><%- include('./trade_url_modal.ejs') %><% } %>
+<%# the chat helper's button and window, while the admin has it on (service/assistant.js); not on the admin's /login %>
+<% if (assistant_on() && locals.page_path != '/login') { %><%- include('./assistant.ejs') %><% } %>
 <script src="<%= asset('/js/welcome.js') %>" id="tdWindowsScript" data-news="<%= locals.no_news ? '' : news_key() %>" defer></script>

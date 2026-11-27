@@ -1,0 +1,45 @@
+<%# The chat helper (service/assistant.js): its button in the bottom right corner of every shop page and its chat
+    window. Only there while the admin has it on (Admin -> Chat helper, which needs a Claude API key): footer.ejs checks
+    assistant_on(). public/js/plugins/assistant.js runs it (answers, item and trade cards); styles in
+    scss/partials/_assistant.scss. Texts: assistant.* and js.assistant.* in locales/<lang>.json. %>
+<div class="assistant" id="tdAssistant" translate="no">
+    <button type="button" class="as-launcher" id="assistantLauncher" aria-expanded="false" aria-controls="assistantPanel" aria-label="<%= __('assistant.launcher_label') %>">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7.6l-4.7 3.6A1 1 0 0 1 6 20.8V18H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v10h4v2.7L11.7 16H20V6H4Zm3 3.5h10v2H7v-2Z"/></svg>
+        <span class="as-launcher-text"><%= __('assistant.launcher') %></span>
+    </button>
+    <section class="as-panel" id="assistantPanel" role="dialog" aria-modal="false" aria-labelledby="assistantTitle" aria-describedby="assistantSub" hidden>
+        <header class="as-head">
+            <span class="as-lamp" aria-hidden="true"></span>
+            <div class="as-heading">
+                <h2 class="as-title" id="assistantTitle"><%= __('js.assistant.title') %></h2>
+                <p class="as-sub" id="assistantSub"><%= __('js.assistant.subtitle') %></p>
+            </div>
+            <button type="button" class="as-icon-btn" data-as-new title="<%= __('js.assistant.new_chat') %>" aria-label="<%= __('js.assistant.new_chat') %>" hidden>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5V2L8 6l4 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7Z"/></svg>
+            </button>
+            <button type="button" class="as-icon-btn" data-as-close title="<%= __('js.assistant.close') %>" aria-label="<%= __('js.assistant.close') %>">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12z"/></svg>
+            </button>
+        </header>
+        <div class="as-log" id="assistantLog" role="log" aria-live="polite" aria-label="<%= __('js.assistant.title') %>" tabindex="-1">
+            <div class="as-intro">
+                <p class="as-greeting"><%= __('js.assistant.greeting') %></p>
+                <div class="as-chips" role="group" aria-label="<%= __('js.assistant.suggestions') %>">
+                    <% for (const key of ['how', 'buy', 'keys', 'who']) { %>
+                    <button type="button" class="as-chip"><%= __('js.assistant.suggest_' + key) %></button>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        <form class="as-form" id="assistantForm" autocomplete="off" novalidate>
+            <div class="as-field">
+                <label class="sr-only" for="assistantInput"><%= __('js.assistant.placeholder') %></label>
+                <textarea id="assistantInput" rows="1" maxlength="600" placeholder="<%= __('js.assistant.placeholder') %>" enterkeyhint="send" spellcheck="true"></textarea>
+                <button type="submit" class="as-send" title="<%= __('js.assistant.send') %>" aria-label="<%= __('js.assistant.send') %>">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.6 2-12.6 2z"/></svg>
+                </button>
+            </div>
+            <p class="as-note"><%= __('js.assistant.disclaimer') %></p>
+        </form>
+    </section>
+</div>

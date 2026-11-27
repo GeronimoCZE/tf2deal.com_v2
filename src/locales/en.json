@@ -757,6 +757,32 @@
         "bank_no_change": "The bot doesn't have the right change for this right now. Try another amount or bot.",
         "no_price": "Key prices are updating. Please try again in a minute."
       }
+    },
+    "assistant": {
+      "title": "TF2Deal helper",
+      "subtitle": "Ask about the site, prices and stock",
+      "greeting": "Hi! Ask me how trading works, what an item costs or whether the bots have it. Once you're signed in, I can also set up a trade for an item you want.",
+      "suggestions": "Suggested questions",
+      "suggest_how": "How does trading work?",
+      "suggest_who": "Who runs TF2Deal?",
+      "suggest_buy": "I want to buy a Strange Part",
+      "suggest_keys": "How do I swap keys for metal?",
+      "placeholder": "Ask about trading or an item…",
+      "send": "Send",
+      "new_chat": "New chat",
+      "close": "Close",
+      "typing": "Writing an answer…",
+      "you": "You",
+      "helper": "TF2Deal helper",
+      "disclaimer": "AI answers from the site's public information. Prices change: the item page has the current one.",
+      "offline": "Couldn't reach TF2Deal. Check your connection and try again.",
+      "retry": "Try again",
+      "in_stock": "{n} in stock",
+      "out_of_stock": "Out of stock",
+      "bots_pay": "Bots pay {price}",
+      "requested": "Requested. The bot is making your Steam offer.",
+      "turns_left": "{n} questions left in this chat",
+      "item_page": "Item page"
     }
   },
   "items": {
@@ -1151,6 +1177,11 @@
       "empty": "Nothing here yet. New features will show up here as soon as they go live."
     },
     "items": {
+      "assistant": {
+        "title": "Ask the TF2Deal helper",
+        "text": "A chat helper now waits in the corner of every page. Ask how trading works, what an item costs or whether it's in stock, and once you're signed in it can put a Request trade card for an item right in the chat. It only knows the site's public information and never sees your account.",
+        "button": "Ask a question"
+      },
       "ks_combos": {
         "title": "Exact prices for every Professional Killstreak combo",
         "text": "Professional Killstreak weapons, Kits and Kit Fabricators now have a Combo select on their page. Pick a sheen and killstreaker to see what that exact combo costs. Combos few traders look for, like Hypno-Beam, are cheaper to buy, and the item's tooltip tells you when a copy is one of them."
@@ -1211,5 +1242,19 @@
         "text": "Latest trades on the home page now lists every trade made today, newest on top, one under the other. Keep pressing Show 5 more to go back through the whole day."
       }
     }
+  },
+  "assistant": {
+    "launcher": "Ask TF2Deal",
+    "launcher_label": "Open the TF2Deal helper chat",
+    "rate_limited": "You're sending messages quickly. Wait a minute, then try again.",
+    "empty": "Type a question first.",
+    "too_long": "That's a bit long. Keep it under 600 characters.",
+    "restart": "This chat has ended. Start a new chat.",
+    "daily_limit": "The helper has answered all it can for today. Try again tomorrow, or ask us on Discord or through Support.",
+    "busy": "Still answering your last message.",
+    "turns": "This chat is full. Start a new chat to keep going.",
+    "busy_api": "The helper is very busy right now. Try again in a minute.",
+    "unavailable": "The helper couldn't answer just now. Try again in a moment.",
+    "refused": "I can't help with that. Ask me about TF2Deal, trading or an item."
   }
 }

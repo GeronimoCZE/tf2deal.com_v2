@@ -4,7 +4,7 @@
 // Every entry is listed on the updates page (/news, views/news.ejs); giveaways and blog posts are not features and
 // have their own pages.
 //
-//   { key, date: 'YYYY-MM-DD', href | action, image, window }
+//   { key, date: 'YYYY-MM-DD', href | action, image, window, requires }
 //
 //   key     letters a-z, digits and _. Its texts are under news.items.<key> in every locales/<lang>.json:
 //             title, text    every entry: the headline and two or three sentences on what it is (the updates page;
@@ -16,7 +16,11 @@
 //           the entries from before the updates page carry the time their pull request was merged.
 //   href    the page the button (and the "What's new" line) opens: a site path like /items, the language is added
 //   action  instead of href, something the button does on the page (public/js/welcome.js ACTIONS):
-//             'themes'  opens the language and theme window
+//             'themes'     opens the language and theme window
+//             'assistant'  opens the chat helper
+//   requires  for a feature the admin switches on: the entry is out only while conditions[requires]() is true
+//           (service/assistant.js sets conditions.assistant: the chat helper is on and has an API key). Its time is
+//           written down the first time it's out, so /news says when visitors really got it.
 //   image   a picture in public/img/news/: <image>-1200.webp (1200 x 500) and <image>-640.webp (640 x 267)
 //   window  true for a big feature. The newest entry with window: true is shown once, in the news window, to every
 //           visitor who hasn't seen it yet (public/js/welcome.js, views/partials/news_modal.ejs). A newer one takes
@@ -27,6 +31,7 @@
 // This file imports nothing, so the check can read it without starting the site.
 
 export const NEWS = [
+  { key: 'assistant', date: '2026-11-27', action: 'assistant', requires: 'assistant', window: true },
   { key: 'today_trades', date: '2026-11-27', href: '/' },
   { key: 'giveaway_share', date: '2026-11-26', href: '/giveaway' },
   { key: 'ks_combos', date: '2026-11-25', href: '/items' },
@@ -43,7 +48,14 @@ export const NEWS = [
   { key: 'item_details', date: '2026-10-28 18:15', href: '/trade' }
 ]
 
-export const ACTIONS = ['themes']
+export const ACTIONS = ['themes', 'assistant']
+
+// the features an entry can wait for (`requires`): each one fills in conditions[<name>] when it starts
+export const REQUIRES = ['assistant']
+
+// requires -> () => true while that feature is on (filled in by the services that own them; empty for npm test)
+export const conditions = {}
+const ready = (entry) => !entry.requires || conditions[entry.requires]?.() === true
 
 export const DATE = /^(\d{4}-\d{2}-\d{2})(?: (\d{2}:\d{2}))?$/
 
@@ -60,10 +72,10 @@ export const time = (entry) => {
 }
 
 // the entries that are out (dated now or earlier), newest first
-export const published = (now = Date.now()) => NEWS.filter((entry) => time(entry) <= now)
+export const published = (now = Date.now()) => NEWS.filter((entry) => time(entry) <= now && ready(entry))
 
 // the news window's entry: the newest published one with window: true, or null
-export const live = (now = Date.now()) => NEWS.find((entry) => entry.window && time(entry) <= now) || null
+export const live = (now = Date.now()) => NEWS.find((entry) => entry.window && time(entry) <= now && ready(entry)) || null
 
 export const find = (key) => NEWS.find((entry) => entry.key === key) || null
 

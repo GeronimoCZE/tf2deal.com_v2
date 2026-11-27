@@ -757,6 +757,32 @@
         "bank_no_change": "机器人现在没有合适的找零。请换个数量或换个机器人。",
         "no_price": "钥匙价格正在更新。请一分钟后再试。"
       }
+    },
+    "assistant": {
+      "title": "TF2Deal 助手",
+      "subtitle": "关于网站、价格和库存的问题",
+      "greeting": "你好！可以问我交易怎么进行、某个物品多少钱，或者机器人有没有货。登录后，我还能为你想要的物品准备交易。",
+      "suggestions": "推荐问题",
+      "suggest_how": "交易是怎么进行的？",
+      "suggest_who": "TF2Deal 是谁在运营？",
+      "suggest_buy": "我想买一个 Strange Part",
+      "suggest_keys": "怎么用钥匙换金属？",
+      "placeholder": "问问交易或物品…",
+      "send": "发送",
+      "new_chat": "新对话",
+      "close": "关闭",
+      "typing": "正在写回答…",
+      "you": "你",
+      "helper": "TF2Deal 助手",
+      "disclaimer": "AI 根据网站公开信息回答。价格会变动，以物品页面上的当前价格为准。",
+      "offline": "无法连接 TF2Deal。请检查网络后重试。",
+      "retry": "重试",
+      "in_stock": "库存 {n}",
+      "out_of_stock": "缺货",
+      "bots_pay": "机器人收购价 {price}",
+      "requested": "已请求。机器人正在创建你的 Steam 交易报价。",
+      "turns_left": "此对话还剩 {n} 个问题",
+      "item_page": "物品页面"
     }
   },
   "items": {
@@ -1151,6 +1177,11 @@
       "empty": "这里还没有内容。新功能一上线就会出现在这里。"
     },
     "items": {
+      "assistant": {
+        "title": "问问 TF2Deal 助手",
+        "text": "现在每个页面的角落都有一个聊天助手。可以问它交易怎么进行、某个物品多少钱、有没有库存；登录后，它还能直接在聊天里为你想要的物品放上“请求交易”卡片。它只知道网站的公开信息，永远看不到你的账户。",
+        "button": "提个问题"
+      },
       "ks_combos": {
         "title": "每种 Professional Killstreak 组合的准确价格",
         "text": "Professional Killstreak 武器、Kit 和 Kit Fabricator 的页面现在有“组合”选择。选择一种 sheen 和 killstreaker，即可看到这个组合的准确价格。很少有人找的组合（例如 Hypno-Beam）买起来更便宜，物品提示也会告诉你某件物品是否属于这类组合。"
@@ -1211,5 +1242,19 @@
         "text": "首页的最新交易现在按时间从新到旧逐条列出今天的每一笔交易。不断点击“再显示 5 条”即可浏览当天的所有交易。"
       }
     }
+  },
+  "assistant": {
+    "launcher": "问问 TF2Deal",
+    "launcher_label": "打开 TF2Deal 助手聊天",
+    "rate_limited": "你发消息太快了。请等一分钟再试。",
+    "empty": "请先输入问题。",
+    "too_long": "内容有点长，请控制在 600 个字符以内。",
+    "restart": "此对话已结束，请开始新对话。",
+    "daily_limit": "助手今天的回答次数已用完。请明天再试，或在 Discord 或通过支持页面问我们。",
+    "busy": "我还在回答你的上一条消息。",
+    "turns": "此对话已满，请开始新对话继续。",
+    "busy_api": "助手现在非常忙，请一分钟后再试。",
+    "unavailable": "助手暂时无法回答，请稍后再试。",
+    "refused": "这个我帮不了你。可以问我关于 TF2Deal、交易或物品的问题。"
   }
 }
