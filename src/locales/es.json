@@ -387,9 +387,10 @@
       "stock_of": "{count} de {limit} en stock"
     },
     "home": {
-      "no_trades": "Todavía no hay intercambios registrados... ¡anímate a hacer alguno!",
+      "no_trades_today": "Todavía no hay intercambios hoy. Los nuevos aparecerán aquí en cuanto ocurran.",
       "trades_error": "Hubo un error al obtener los intercambios. Inténtalo de nuevo más tarde.",
       "show_more": "Mostrar 5 más",
+      "trades_shown": "Mostrando {shown} de {count} intercambios de hoy",
       "side_user": "Usuario",
       "side_you": "Tú",
       "side_bot": "Bot del sitio",
@@ -1204,6 +1205,10 @@
       "giveaway_share": {
         "title": "Comparte los sorteos con tus amigos",
         "text": "Cada sorteo tiene ahora su propio enlace, con una imagen del premio que aparece en Discord, en el chat de Steam y en las redes sociales. Pulsa Compartir en la página del sorteo. Además, un sorteo necesita un mínimo de participaciones: hasta que participe suficiente gente, sigue abierto."
+      },
+      "today_trades": {
+        "title": "Últimos intercambios: todos los de hoy",
+        "text": "Los últimos intercambios de la página principal ahora muestran cada intercambio de hoy, el más reciente arriba, uno debajo de otro. Pulsa Mostrar 5 más para recorrer todo el día."
       }
     }
   }

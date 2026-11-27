@@ -387,9 +387,10 @@
       "stock_of": "{count} von {limit} auf Lager"
     },
     "home": {
-      "no_trades": "Es gibt noch keine Trades... leg los und mach welche!",
+      "no_trades_today": "Heute noch keine Trades. Neue erscheinen hier, sobald sie passieren.",
       "trades_error": "Beim Abrufen der Trades ist ein Fehler aufgetreten. Bitte versuch es später erneut.",
       "show_more": "5 weitere anzeigen",
+      "trades_shown": "{shown} von {count} Trades heute",
       "side_user": "Nutzer",
       "side_you": "Du",
       "side_bot": "Seiten-Bot",
@@ -1204,6 +1205,10 @@
       "giveaway_share": {
         "title": "Gewinnspiele mit Freunden teilen",
         "text": "Jedes Gewinnspiel hat jetzt seinen eigenen Link, mit einem Bild des Preises, das in Discord, im Steam-Chat und in sozialen Netzwerken erscheint. Drück auf der Gewinnspielseite auf Teilen. Ein Gewinnspiel braucht außerdem eine Mindestzahl an Teilnahmen: Bis genug Leute dabei sind, bleibt es offen."
+      },
+      "today_trades": {
+        "title": "Letzte Trades: alle Trades von heute",
+        "text": "Die letzten Trades auf der Startseite zeigen jetzt jeden Trade von heute, den neuesten oben, einen unter dem anderen. Mit „5 weitere anzeigen“ gehst du den ganzen Tag zurück."
       }
     }
   }

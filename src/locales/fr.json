@@ -387,9 +387,10 @@
       "stock_of": "{count} sur {limit} en stock"
     },
     "home": {
-      "no_trades": "Aucun échange enregistré pour l'instant... à vous de jouer !",
+      "no_trades_today": "Pas encore d'échange aujourd'hui. Les nouveaux apparaissent ici dès qu'ils ont lieu.",
       "trades_error": "Une erreur est survenue lors de la récupération des échanges. Veuillez réessayer plus tard.",
       "show_more": "Afficher 5 de plus",
+      "trades_shown": "{shown} échanges affichés sur {count} aujourd'hui",
       "side_user": "Utilisateur",
       "side_you": "Vous",
       "side_bot": "Bot du site",
@@ -1205,6 +1206,10 @@
       "giveaway_share": {
         "title": "Partage les concours avec tes amis",
         "text": "Chaque concours a maintenant son propre lien, avec une image du lot qui s’affiche sur Discord, dans le chat Steam et sur les réseaux sociaux. Appuie sur Partager sur la page du concours. Un concours a aussi besoin d’un nombre minimum de participations : tant qu’il n’y a pas assez de monde, il reste ouvert."
+      },
+      "today_trades": {
+        "title": "Derniers échanges : tous ceux d'aujourd'hui",
+        "text": "Les derniers échanges de la page d'accueil montrent maintenant chaque échange du jour, le plus récent en haut, l'un sous l'autre. Appuyez sur Afficher 5 de plus pour remonter toute la journée."
       }
     }
   }

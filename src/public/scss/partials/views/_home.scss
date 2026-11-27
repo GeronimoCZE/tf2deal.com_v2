@@ -435,48 +435,35 @@
             @include section-title;
         }
         .section-kicker{ @include section-kicker; }
+        // today's trades one under the other, each a row: the trader's side, the arrow, the bot's side (the layout from
+        // before the five-across strip, Nikolas 2026-11-27 "Make latest trades vertical again as it was originally")
         .trades{
             @extend %trade-records;
             .trade{ background: var(--surface); width: auto; }
             .trade[hidden]{ display: none; }
-            // wide screens: a strip of trade cards, five across, each with the trader's side above the bot's
-            @media screen and (min-width: 1001px){
-                display: grid;
-                grid-template-columns: repeat(5, minmax(0, 1fr));
-                gap: .75rem;
-                .trade{
-                    display: flex;
-                    flex-direction: column;
-                    margin: 0;
-                    padding: .75rem .75rem .85rem .75rem;
-                    &.skeleton{ grid-column: 1 / -1; min-height: 12rem; .trade-icon{ display: none; } }
-                }
-                .info{ grid-column: 1 / -1; width: auto; }
-                .trade .content{
-                    display: flex;
-                    flex-direction: column;
-                    flex: 1;
-                    gap: .35rem;
-                    .user-side, .bot-side{ display: block; width: auto; }
-                    .bot-side{ flex: 1; }
-                    .trade-icon{
-                        display: flex;
-                        justify-content: center;
-                        width: auto;
-                        padding: 0;
-                        margin: 0;
-                        span{ font-size: 1.1rem !important; transform: rotate(90deg); color: var(--ink-3); }
-                    }
-                }
-            }
             // a trade that just happened fades in on top of the list
             .trade.trade-new{ animation: tradeArrive 700ms ease both; }
+        }
+        // "Show 5 more", and under it how many of today's trades are on the page
+        .trades-foot{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .55rem;
+            margin-top: 1.5rem;
+            &[hidden]{ display: none; }
         }
         .trades-more{
             @include button(secondary);
             display: flex;
-            margin: 1.5rem auto 0 auto;
+            margin: 0;
             &[hidden]{ display: none; }
+        }
+        .trades-count{
+            margin: 0;
+            font-size: 13px;
+            color: var(--ink-3);
+            &:empty{ display: none; }
         }
         @keyframes tradeArrive {
             from { opacity: 0; }

@@ -387,9 +387,10 @@
       "stock_of": "{count} of {limit} in stock"
     },
     "home": {
-      "no_trades": "There are no trade records yet... go make some!",
+      "no_trades_today": "No trades yet today. New ones show up here the moment they happen.",
       "trades_error": "There was an error fetching the trades. Please try again later.",
       "show_more": "Show 5 more",
+      "trades_shown": "{shown} of {count} trades today",
       "side_user": "User",
       "side_you": "You",
       "side_bot": "Site bot",
@@ -1204,6 +1205,10 @@
       "giveaway_share": {
         "title": "Share giveaways with your friends",
         "text": "Every giveaway has its own link now, with a picture of the prize that shows up in Discord, Steam chat and on social sites. Press Share on the giveaway page. A giveaway also needs a minimum number of entries: until enough people are in, it stays open."
+      },
+      "today_trades": {
+        "title": "Latest trades: every trade from today",
+        "text": "Latest trades on the home page now lists every trade made today, newest on top, one under the other. Keep pressing Show 5 more to go back through the whole day."
       }
     }
   }

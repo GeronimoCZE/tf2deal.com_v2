@@ -27,6 +27,7 @@
 // This file imports nothing, so the check can read it without starting the site.
 
 export const NEWS = [
+  { key: 'today_trades', date: '2026-11-27', href: '/' },
   { key: 'giveaway_share', date: '2026-11-26', href: '/giveaway' },
   { key: 'ks_combos', date: '2026-11-25', href: '/items' },
   { key: 'key_bank', date: '2026-11-25', href: '/keys' },

@@ -10,6 +10,11 @@ same way you display items in trade window"): each tile shows its quality with t
 tooltip. Swaps of only keys and metal (the key bank, docs/KEY_BANK.md) never show in Latest trades. Each side of a trade is labelled: "User" (or "You" on the profile) and the bot's Steam name linked to its Steam profile ("Site bot" when the
 record doesn't name a known bot).
 
+"Latest trades" lists today's trades only (since midnight UTC, the same day as the "N today" under the home page's trade
+total), one under the other, newest on top: 5 at first, then 5 more on each "Show 5 more" for as long as today has more
+(no cap; service/latest_trades.js keeps the whole day in memory). With no trades yet today it says so, and new trades
+still appear on top as they happen.
+
 The trader stays anonymous in "Latest trades": /api/latest_trades and the live socket send no trade ID, partner
 Steam ID or real asset IDs (copies are numbered 0, 1, 2…, since a real asset ID leads to the owner on backpack.tf),
 only the fields the page draws, and no custom name, custom description or inspect link. Profile → Trades (the
