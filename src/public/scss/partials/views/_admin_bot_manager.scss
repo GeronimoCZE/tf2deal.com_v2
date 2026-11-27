@@ -360,6 +360,7 @@
         @include lt-sm{ grid-template-columns: minmax(0, 1fr); }
         .admin-bm-facts{ margin: 0; }
     }
+    .akb-sub{ margin: 1.25rem 0 .25rem 0; font-size: 14px; color: var(--ink); + .muted{ margin: 0 0 .6rem 0; font-size: 13px; } }
     // the order book around our prices, highest first
     .akb-ladder{
         list-style: none;
