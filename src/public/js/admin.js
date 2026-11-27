@@ -1352,7 +1352,7 @@ live.emit("settings:update", { trading_state: 0 }, (res) =&gt; console.log(res.s
     /* ========================= TRADE RECORDS ========================= */
     // The newest records the bots saved in `trades`, and whether Latest trades on the home page shows each one.
 
-    const TR_STATUS = { shown: 'Shown', skipped: 'Skipped', duplicate: 'Duplicate', older: 'Not in the newest 15' }
+    const TR_STATUS = { shown: 'Shown', skipped: 'Skipped', duplicate: 'Duplicate', older: 'Before today (UTC)' }
 
     const trade_records = async (root) => {
         root.innerHTML = head('Trade records', "The newest trades the bots saved, and whether Latest trades on the home page shows each one.",

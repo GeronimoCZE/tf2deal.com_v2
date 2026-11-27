@@ -136,7 +136,11 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="button" class="trades-more" hidden><%= __('js.home.show_more') %></button>
+                        <%# today's trades only (midnight UTC), 5 more on each click for as long as today has more (plugins/latest_trades.js) %>
+                        <div class="trades-foot" hidden>
+                            <button type="button" class="trades-more" hidden><%= __('js.home.show_more') %></button>
+                            <p class="trades-count" aria-live="polite"></p>
+                        </div>
                     </div>
                     <%# The items people want most that the bots have in stock (routes/router.js home_popular), and the item
                         categories: plain links, so the home page leads to item pages (also for search engines) %>

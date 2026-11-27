@@ -387,9 +387,10 @@
       "stock_of": "Skladem {count} z {limit}"
     },
     "home": {
-      "no_trades": "Zatím tu nejsou žádné výměny... tak nějakou udělejte!",
+      "no_trades_today": "Dnes zatím žádné výměny. Nové se tu objeví hned, jak proběhnou.",
       "trades_error": "Při načítání výměn došlo k chybě. Zkuste to prosím později.",
       "show_more": "Zobrazit dalších 5",
+      "trades_shown": "Zobrazeno {shown} z {count} dnešních výměn",
       "side_user": "Uživatel",
       "side_you": "Ty",
       "side_bot": "Bot webu",
@@ -1206,6 +1207,10 @@
       "giveaway_share": {
         "title": "Sdílejte soutěže s kamarády",
         "text": "Každá soutěž má teď vlastní odkaz s obrázkem výhry, který se ukáže na Discordu, ve Steam chatu i na sociálních sítích. Stačí kliknout na Sdílet na stránce soutěže. Soutěž také potřebuje minimální počet přihlášek: dokud se nepřihlásí dost lidí, zůstává otevřená."
+      },
+      "today_trades": {
+        "title": "Poslední výměny: všechny dnešní výměny",
+        "text": "Poslední výměny na hlavní stránce teď ukazují každou dnešní výměnu, nejnovější nahoře, jednu pod druhou. Tlačítkem Zobrazit dalších 5 projdete celý den."
       }
     }
   }

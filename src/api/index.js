@@ -90,8 +90,9 @@ router.get('/item_stock', async (req, res) => {
 });
 
 
-// 5 of the newest 15 trades with something on both sides, each once (service/latest_trades.js keeps the list fresh):
-// the newest, or with ?after=<id>&before=<ms> the 5 after the last one the page has. { trades, more }
+// 5 of today's trades (since midnight UTC) with something on both sides, each once (service/latest_trades.js keeps the
+// list fresh): the newest, or with ?after=<id>&before=<ms> the 5 after the last one the page has, as far back as today
+// goes. { trades, more, count, day, now }: count = today's trades, day = midnight UTC, now = server time
 router.get('/latest_trades', async (req, res) => {
     try {
       const after = /^[\w-]{1,64}$/.test(String(req.query.after ?? '')) ? String(req.query.after) : ''
