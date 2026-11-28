@@ -1,10 +1,11 @@
 // ============================================================================
 // KEY BANKING (/keys: view keys.ejs, public/js/plugins/keys.js)
 //
-// An exchange desk, not a shop page. Three things carry it:
-//   - the quote board: the two prices big, in tabular figures, so they read like a rate board at a currency desk;
-//   - the amount as real key pictures (1 to 5): the ones you pick light up, the ones the bot can't do now go grey;
-//   - each bank bot's room as the same five cells, so "this bot sells 3" reads like the 3 lit keys above it.
+// One exchange desk split down the middle (Nikolas 2026-11-28: "make site page design simpler like devide screen in
+// to 2 for buy and sell"): Buy keys on the left, Sell keys on the right, stacked on narrow screens. Each half is a
+// whole swap read top to bottom: what you give → what you get (the items themselves), the price big in tabular
+// figures like a rate board, the amount as real key pictures (the ones you pick light up, the ones the bot can't do
+// now go grey), the bank bot, then the total and the button, which line up at the bottom of both halves.
 // Colours are the site's tokens (themes change them); no coloured edge stripes (Nikolas 2026-11-18).
 // ============================================================================
 
@@ -14,7 +15,6 @@
     font-size: 1rem;
     color: var(--ink-2);
 
-    h2{ @include section-title; font-size: 1.2rem; @include lt-sm{ font-size: 1.1rem; } }
     .kb-label{
         display: block;
         font-size: .78rem;
@@ -24,76 +24,34 @@
         color: var(--ink-3);
     }
 
-    // ------------------------------------------------------------ heading
+    // ------------------------------------------------------------ heading + live status
     .kb-head{
-        max-width: 46rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: .75rem 2rem;
         margin: 0 0 1.5rem 0;
+        .kb-head-text{ max-width: 46rem; }
         .kb-kicker{ @include section-kicker; }
         h1{ @include page-title; margin-bottom: .6rem; }
-        .kb-lede{ font-size: 1.05rem; line-height: 1.55; color: var(--ink-2); }
+        .kb-lede{ margin: 0; font-size: 1.05rem; line-height: 1.55; color: var(--ink-2); }
     }
-
-    // ------------------------------------------------------------ quote board
-    .kb-board{
-        display: grid;
-        grid-template-columns: 1fr 1fr minmax(15rem, .8fr);
-        gap: 1px;
-        border-radius: var(--r-lg);
-        overflow: hidden;
-        background: var(--line);   // the 1px gaps draw the dividers
-        margin: 0 0 1.25rem 0;
-        @media screen and (max-width: 1000px){ grid-template-columns: 1fr 1fr; }
-        > *{ background: var(--surface); }
-    }
-    .kb-quote{
-        display: flex;
-        flex-direction: column;
-        gap: .2rem;
-        padding: 1.1rem 1.4rem 1.2rem;
-        @include lt-sm{ padding: .9rem 1rem 1rem; }
-        .kb-quote-label{
-            font-size: .82rem;
-            font-weight: 600;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            color: var(--ink-3);
-        }
-        .kb-quote-value{
-            display: flex;
-            align-items: baseline;
-            gap: .4rem;
-            color: var(--ink);
-            b{
-                font-family: var(--font-heading);
-                font-weight: 800;
-                font-size: 3.1rem;
-                line-height: 1.05;
-                font-variant-numeric: tabular-nums;
-                letter-spacing: -.01em;
-                border-radius: var(--r-sm);
-                @include lt-sm{ font-size: 2.1rem; }
-            }
-            small{ font-size: 1.1rem; font-weight: 600; color: var(--ink-3); }
-        }
-        .kb-quote-hint{ font-size: .88rem; color: var(--ink-3); @include lt-sm{ font-size: .78rem; } }
-        // the price the visitor is looking at just moved
-        b.is-moved{ animation: kb-moved 1.4s ease-out; }
-    }
-    .kb-meta{
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: .55rem;
-        padding: 1rem 1.25rem;
+    .kb-live{
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
         margin: 0;
-        @media screen and (max-width: 1000px){ grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; gap: .4rem 1.5rem; padding: .75rem 1rem; }
-        > div{ display: flex; justify-content: space-between; gap: 1rem; font-size: .9rem; @media screen and (max-width: 1000px){ justify-content: flex-start; gap: .5rem; } }
-        dt{ color: var(--ink-3); }
-        dd{ margin: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
-        .kb-live dd{ display: inline-flex; align-items: center; gap: .45rem; color: var(--ink-2); }
-        .kb-live i{ width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); flex: none; }
-        .kb-live[data-state="live"] i{ background: rgb(74, 222, 74); box-shadow: 0 0 0 0 rgba(74, 222, 74, .5); animation: kb-pulse 2.4s ease-out infinite; }
-        .kb-live[data-state="stale"] i{ background: var(--amber, #ffb547); }
+        padding: .45rem .85rem;
+        border-radius: 999px;
+        background: var(--surface);
+        font-size: .88rem;
+        color: var(--ink-2);
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+        i{ width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); flex: none; }
+        &[data-state="live"] i{ background: rgb(74, 222, 74); box-shadow: 0 0 0 0 rgba(74, 222, 74, .5); animation: kb-pulse 2.4s ease-out infinite; }
+        &[data-state="stale"] i{ background: var(--amber, #ffb547); }
     }
 
     .kb-notice{
@@ -106,53 +64,88 @@
         &[hidden]{ display: none; }
     }
 
-    // ------------------------------------------------------------ the desk: swap + bots
+    // ------------------------------------------------------------ the desk: two halves
     .kb-desk{
         display: grid;
-        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-        gap: 1.25rem;
-        align-items: start;
-        margin: 0 0 1.25rem 0;
-        @media screen and (max-width: 1000px){ grid-template-columns: minmax(0, 1fr); }
-    }
-    .kb-swap, .kb-bots, .kb-chart, .kb-how{ @include panel(1.35rem); @include lt-sm{ padding: 1rem; } }
-
-    .kb-sides{
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 4px;
-        padding: 4px;
-        margin: 0 0 1.35rem 0;
-        border-radius: var(--r-md);
-        background: var(--well);
-        .kb-side{
-            padding: .7rem .5rem;
-            border: 0;
-            border-radius: calc(var(--r-md) - 3px);
-            background: transparent;
-            color: var(--ink-2);
-            font: inherit;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 150ms ease, color 150ms ease;
-            &:hover{ color: var(--ink); background: var(--surface-2); }
-            &[aria-checked="true"]{ background: var(--brand); color: #fff; }
-            &:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1px;
+        margin: 0 0 1.1rem 0;
+        border-radius: var(--r-lg);
+        overflow: hidden;
+        background: var(--line);   // the 1px gap draws the line between the halves
+        // narrow screens: the halves one under the other, each its own panel
+        @media screen and (max-width: 900px){
+            grid-template-columns: minmax(0, 1fr);
+            gap: .75rem;
+            border-radius: 0;
+            overflow: visible;
+            background: none;
         }
     }
+    .kb-half{
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        padding: 1.6rem 1.9rem 1.75rem;
+        background: var(--surface);
+        @media screen and (max-width: 900px){ border-radius: var(--r-lg); }
+        @include lt-sm{ padding: 1.15rem 1rem 1.25rem; }
+    }
+    .kb-half-head{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 0 0 1rem 0;
+        h2{ @include section-title; margin: 0; font-size: 1.35rem; @include lt-sm{ font-size: 1.2rem; } }
+    }
+    // what you give → what you get
+    .kb-dir{
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        flex: none;
+        padding: .2rem .45rem;
+        border-radius: var(--r-md);
+        background: var(--well);
+        img{ display: block; width: 34px; height: 34px; }
+        svg{ width: 15px; height: 15px; color: var(--ink-3); }
+    }
+
+    .kb-price{
+        display: flex;
+        align-items: baseline;
+        gap: .45rem;
+        margin: 0;
+        color: var(--ink);
+        b{
+            font-family: var(--font-heading);
+            font-weight: 800;
+            font-size: 3.4rem;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -.01em;
+            border-radius: var(--r-sm);
+            @include lt-sm{ font-size: 2.6rem; }
+        }
+        small{ font-size: 1.15rem; font-weight: 600; color: var(--ink-3); }
+        // a price just moved
+        b.is-moved{ animation: kb-moved 1.4s ease-out; }
+    }
+    .kb-price-hint{ margin: .45rem 0 1.5rem 0; font-size: .9rem; color: var(--ink-3); }
 
     .kb-amount{ margin: 0 0 1.25rem 0; }
     .kb-pips{
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: .6rem;
-        margin: .55rem 0 .5rem 0;
+        gap: .55rem;
+        margin: .55rem 0 0 0;
         @include lt-sm{ gap: .4rem; }
         .kb-pip{
             position: relative;
             aspect-ratio: 1 / 1;
-            max-height: 6.5rem;
+            max-height: 5.75rem;
+            padding: 0;
             border: 1px solid transparent;
             border-radius: var(--r-md);
             background: var(--tile);
@@ -195,21 +188,47 @@
             }
         }
     }
-    .kb-cap{ min-height: 1.3rem; font-size: .88rem; color: var(--ink-3); }
 
-    .kb-sum{
-        padding: 1rem 1.1rem;
-        margin: 0 0 1.1rem 0;
+    // the bank bot: a plain select (the one that can do the most is picked) and what it can do now
+    .kb-bot-pick{
+        margin: 0 0 1.25rem 0;
+        .kb-label{ margin: 0 0 .5rem 0; }
+        select{
+            @include input;
+            box-sizing: border-box !important; // full width with its padding (beats the page-wide box-sizing: unset !important)
+            width: 100%;
+            padding-right: 2.4rem;
+            font-weight: 600;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            text-overflow: ellipsis;
+            // the arrow
+            background-image: linear-gradient(45deg, transparent 50%, var(--violet) 50%), linear-gradient(135deg, var(--violet) 50%, transparent 50%);
+            background-position: calc(100% - 18px) 52%, calc(100% - 13px) 52%;
+            background-size: 5px 5px, 5px 5px;
+            background-repeat: no-repeat;
+            &:hover:not(:disabled){ border-color: var(--line-strong); }
+            &:focus-visible{ outline: 2px solid var(--violet); outline-offset: 2px; }
+            &:disabled{ opacity: .5; cursor: not-allowed; }
+            option{ background: var(--dialog); color: var(--ink); }
+        }
+    }
+    .kb-cap{ min-height: 1.3rem; margin: .5rem 0 0 0; font-size: .88rem; line-height: 1.45; color: var(--ink-3); }
+    .kb-empty{ margin: 0; font-size: .9rem; color: var(--ink-3); }
+
+    // the total and the button, at the bottom of both halves
+    .kb-close{ margin-top: auto; }
+    .kb-total{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 0 0 .85rem 0;
+        padding: .85rem 1rem;
         border-radius: var(--r-md);
         background: var(--well);
-        .kb-sum-row{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            & + .kb-sum-row{ margin-top: .55rem; padding-top: .55rem; border-top: 1px solid var(--line); }
-        }
-        .kb-sum-value{
+        .kb-total-value{
             display: inline-flex;
             align-items: center;
             gap: .45rem;
@@ -218,7 +237,6 @@
             img{ width: 30px; height: 30px; }
             b{ font-family: var(--font-heading); font-weight: 800; font-size: 1.55rem; color: var(--ink); font-variant-numeric: tabular-nums; }
         }
-        .kb-each{ margin: .5rem 0 0 0; font-size: .85rem; color: var(--ink-3); text-align: right; &:empty{ display: none; } }
     }
 
     .kb-go{
@@ -237,6 +255,7 @@
         font: inherit;
         font-weight: 700;
         font-size: 1.05rem;
+        text-align: center;
         text-decoration: none;
         cursor: pointer;
         transition: background 150ms ease, opacity 150ms ease;
@@ -246,147 +265,16 @@
         &.is-busy{ cursor: progress; }
         &.is-login{ background: var(--brand); &:hover{ background: var(--brand-hover); } }
     }
-    .kb-fine{ margin: .7rem 0 0 0; font-size: .82rem; line-height: 1.45; color: var(--ink-3); }
 
-    // ------------------------------------------------------------ bank bots
-    .kb-bot-list{ display: flex; flex-direction: column; gap: .5rem; margin: .25rem 0 .75rem 0; }
-    .kb-bot{
-        position: relative;
+    // ------------------------------------------------------------ fine print under the desk
+    .kb-fine{
         display: grid;
-        grid-template-columns: 40px minmax(0, 1fr) auto;
-        grid-template-areas: "pic name state" "pic sell buy";
-        gap: .3rem .75rem;
-        align-items: center;
-        padding: .7rem .8rem;
-        border: 1px solid transparent;
-        border-radius: var(--r-md);
-        background: var(--surface-2);
-        cursor: pointer;
-        transition: background 150ms ease, border-color 150ms ease;
-        &:hover{ background: var(--surface-3); }
-        input{ position: absolute; opacity: 0; pointer-events: none; }
-        &:has(input:checked){ background: var(--surface-3); border-color: var(--line-strong); }
-        &:has(input:focus-visible){ outline: 2px solid var(--violet); outline-offset: 2px; }
-        &.is-offline{ opacity: .5; cursor: not-allowed; }
-        .kb-bot-avatar{ grid-area: pic; width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: var(--tile); }
-        .kb-bot-name{ grid-area: name; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); font-weight: 600; font-size: .95rem; }
-        .kb-bot-state{ grid-area: state; font-size: .78rem; color: var(--ink-3); text-align: right; }
-        .kb-meter[data-dir="sell"]{ grid-area: sell; }
-        .kb-meter[data-dir="buy"]{ grid-area: buy; justify-self: end; }
-        // phones: the whole name ("… Bank #2" is what tells the bots apart); online / offline becomes a dot on the picture
-        @include lt-sm{
-            grid-template-areas: "pic name name" "pic sell buy";
-            column-gap: .6rem;
-            .kb-bot-state{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-            .kb-bot-name{ font-size: .9rem; }
-            &::after{
-                content: '';
-                position: absolute;
-                left: calc(.8rem + 29px);
-                top: 50%;
-                width: 10px;
-                height: 10px;
-                margin-top: 9px;
-                border-radius: 50%;
-                background: var(--go);
-                box-shadow: 0 0 0 2px var(--surface-2);
-            }
-            &:has(input:checked)::after, &:hover::after{ box-shadow: 0 0 0 2px var(--surface-3); }
-            &.is-offline::after{ background: var(--ink-3); }
-        }
-    }
-    .kb-meter{
-        display: inline-flex;
-        align-items: center;
-        gap: .4rem;
-        font-size: .78rem;
-        color: var(--ink-3);
-        .kb-cells{ display: inline-flex; gap: 3px; }
-        i{ width: 7px; height: 13px; border-radius: 2px; background: var(--line-strong); opacity: .55; }
-        i.on{ background: var(--ink-2); opacity: 1; }
-        b{ min-width: 1ch; color: var(--ink-2); font-variant-numeric: tabular-nums; }
-        // the side the visitor picked: the meter that matters
-        &.is-active{ color: var(--ink-2); i.on{ background: var(--violet); } b{ color: var(--ink); } }
-    }
-    .kb-empty, .kb-bots-hint{ font-size: .85rem; line-height: 1.45; color: var(--ink-3); }
-
-    // ------------------------------------------------------------ chart
-    .kb-chart{ margin: 0 0 1.25rem 0; }
-    .kb-chart-head{
-        display: flex;
-        flex-wrap: wrap;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: .25rem 1.5rem;
-        h2{ margin-bottom: .5rem; }
-    }
-    .kb-legend{
-        display: flex;
-        flex-wrap: wrap;
-        gap: .3rem 1.1rem;
-        list-style: none;
-        margin: 0 0 .5rem 0;
-        padding: 0;
-        font-size: .82rem;
-        color: var(--ink-3);
-        li{ display: inline-flex; align-items: center; gap: .4rem; }
-        i{ display: inline-block; width: 18px; }
-        .is-band i{ height: 10px; border-radius: 2px; background: rgba(var(--tint-rgb), .3); }
-        .is-mid i{ height: 2px; background: var(--ink); }
-    }
-    .kb-chart-box{
-        position: relative;
-        min-height: 200px;
-        svg{ display: block; width: 100%; height: 200px; overflow: visible; }
-        .grid{ stroke: var(--line); stroke-width: 1; }
-        .day{ stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 4; }
-        .axis{ fill: var(--ink-3); font-size: 11px; font-family: var(--font-body); font-variant-numeric: tabular-nums; }
-        .band{ fill: rgba(var(--tint-rgb), .26); stroke: none; }
-        .mid{ fill: none; stroke: var(--ink); stroke-width: 1.75; stroke-linejoin: round; stroke-linecap: round; }
-        .now{ fill: var(--violet); stroke: var(--surface); stroke-width: 2; }
-    }
-    .kb-chart-empty{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 200px;
-        border-radius: var(--r-md);
-        background: var(--well);
-        font-size: .9rem;
-        color: var(--ink-3);
-        text-align: center;
-        padding: 1rem;
-    }
-
-    // ------------------------------------------------------------ how it works
-    .kb-how ol{
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 1.25rem;
-        margin: .25rem 0 0 0;
-        padding: 0;
-        list-style: none;
-        counter-reset: kb-step;
-        @media screen and (max-width: 800px){ grid-template-columns: minmax(0, 1fr); gap: .9rem; }
-        li{
-            counter-increment: kb-step;
-            display: grid;
-            grid-template-columns: auto minmax(0, 1fr);
-            grid-template-rows: auto auto;
-            column-gap: .8rem;
-            &::before{
-                content: counter(kb-step);
-                grid-row: 1 / span 2;
-                font-family: var(--font-heading);
-                font-weight: 800;
-                font-size: 2rem;
-                line-height: 1;
-                color: var(--amber, var(--violet));
-                font-variant-numeric: tabular-nums;
-            }
-            b{ color: var(--ink); font-size: .98rem; margin-bottom: .2rem; }
-            span{ font-size: .9rem; line-height: 1.5; color: var(--ink-2); }
-        }
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .4rem 1.9rem;
+        padding: 0 .25rem;
+        @media screen and (max-width: 900px){ grid-template-columns: minmax(0, 1fr); }
+        p{ margin: 0; font-size: .84rem; line-height: 1.5; color: var(--ink-3); }
+        b{ color: var(--ink-2); font-weight: 600; }
     }
 }
 
@@ -400,6 +288,6 @@
     100%{ background: transparent; }
 }
 @media (prefers-reduced-motion: reduce){
-    .keys-ps .kb-meta .kb-live[data-state="live"] i, .keys-ps .kb-quote b.is-moved{ animation: none; }
+    .keys-ps .kb-live[data-state="live"] i, .keys-ps .kb-price b.is-moved{ animation: none; }
     .keys-ps .kb-pips .kb-pip, .keys-ps .kb-pips .kb-pip img{ transition: none; }
 }

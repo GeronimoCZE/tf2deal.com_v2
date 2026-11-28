@@ -285,13 +285,15 @@
             incomingOffers: 'Keys-for-metal offers users send to a bank bot (from its listings or by hand).',
             offerMinutes: 'Our offers for website swaps are cancelled after this.',
             checkEscrow: 'Decline swaps with users who would get a trade hold.',
-            listings: 'One buy and one sell key listing on each bank bot with a backpack.tf token.',
+            listings: 'One sell key listing on each bank bot with a backpack.tf token (and a buy listing with "Buy listings" on).',
+            buyListings: 'Also a key buy listing on each bank bot. Off since 2026-11-28 (key buy orders are mostly there to push the price up); the bank still buys keys from users, offers and quicksell listings.',
             listingEveryMin: 'Look at the key listings this often (they change only with the price or stock).',
             snipe: 'Buy keys listed under the price several bot buy orders pay.',
-            snipeMinBuyers: 'Bot buy orders that pay more than the listing, at least.',
+            snipeMinBuyers: 'Bot buy orders that pay more than the listing, at least (the resale check keeps each quicksell key profitable).',
             snipeMaxPerDay: 'Quicksell keys bought per day at most (0 = no cap).',
             snipeMaxOpen: 'Quicksell key offers open at once.',
-            snipeOfferMinutes: 'A quicksell key offer is cancelled after this.',
+            snipeOfferMinutes: 'A quicksell key offer to a bot is cancelled after this.',
+            snipePersonMinutes: 'A quicksell key offer to a person is cancelled after this (they have to see it first).',
             sellerCooldownHours: 'A seller who declined gets no new offer this long.',
             readyToBuyKeys: 'Every bank bot keeps metal for buying this many keys; one short of it gets metal from another bank bot.',
             flowHours: 'Keys bought against keys sold over this long...',
@@ -303,6 +305,7 @@
             flipMinProfit: 'A flip sells at least this much over what the bank paid for the key; with resale at once our buy price stays this far under the resale price.',
             resaleBuyers: 'The resale price is what at least this many different bot buy orders pay. Our buy price never goes over it less the flip profit, so one high buy order can\'t pull it up. Quicksell keys need this many free buyers.',
             costFloor: 'Never sell keys under what the bank\'s keys cost it (its books) plus the minimum profit, however long it holds them.',
+            priceHoldMin: 'A price we show (website, listings, offers) stays at least this long, unless keeping it would lose money (0 = prices follow the market at once).',
             flipMaxOpen: 'Flip offers open at once.',
             flipOfferMinutes: 'A flip offer is cancelled after this.'
         },
@@ -2149,7 +2152,18 @@
         buyer_canceled: 'the offer was cancelled', main_bot_unavailable: 'the bank bot is offline', site_items_in_trade: 'the keys are in another trade' }
     // why a price is where it is (bot_manager planOf), the ones words alone don't explain
     const KB_PLAN_WHY = { resale_cap: 'buy capped under the resale price', cost_floor: 'sell held over what the keys cost', no_resale: 'not buying: too few bot buy orders',
-        lot_sell_floor: 'sell over a recent buy', lot_buy_ceiling: 'buy under a recent sale', metal_to_stay_ready: 'metal kept to stay ready' }
+        lot_sell_floor: 'sell over a recent buy', lot_buy_ceiling: 'buy under a recent sale', metal_to_stay_ready: 'metal kept to stay ready', held: 'kept steady' }
+    // what became of a quicksell key (bot_manager snipeSummary)
+    const KB_SNIPE_WHY = { few_buyers: 'too few bot buy orders over it', no_resale: 'too few free bot buy orders to resell it to', no_profit: 'no profit selling it on',
+        max_open: 'enough offers out', daily_cap: 'daily cap', steam_paused: 'Steam was busy', seller_cooldown: 'seller declined lately', blacklisted: 'seller blacklisted',
+        seller_busy: 'seller had another offer', no_trade_link: 'no trade link', banned: 'seller banned on backpack.tf', no_metal: 'no bank bot had the metal',
+        inventory_failed: 'seller\'s inventory unreadable', no_key: 'seller had no tradable key', no_change: 'no exact change', seller_declined: 'seller declined',
+        seller_expired: 'seller didn\'t answer', seller_canceled: 'offer cancelled' }
+    const kb_snipe_why = (code) => String(code).startsWith('not_sent:') ? `not sent: ${words(String(code).slice(9))}` : esc(KB_SNIPE_WHY[code] || String(code).replace(/_/g, ' '))
+    // today's quicksell keys: how many were listed under the bot buy orders, bought, and why the others weren't
+    const kb_snipes = (sn) => !sn.seen ? 'none listed under the bot buy orders today <span class="muted">(nothing to flip)</span>'
+        : `${num(sn.seen)} under the bot buy orders, ${num(sn.bought)} bought${sn.waiting ? `, ${num(sn.waiting)} waiting for the seller` : ''}` +
+            (Object.keys(sn.why || {}).length ? `<br><span class="muted">not bought: ${Object.entries(sn.why).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${num(n)} ${kb_snipe_why(k)}`).join(', ')}</span>` : '')
     const KB_MEASURES = [['edge', 'Edge', 'ref better than backpack.tf\'s middle price, booked at each swap'],
         ['profit', 'Profit', 'ref made on keys closed against what the bank paid or got for them'],
         ['keys', 'Keys swapped', 'keys bought + sold']]
@@ -2389,6 +2403,9 @@
                         ['Last ' + num(flow.hours || 24) + ' h', `${num(flow.bought || 0)} bought, ${num(flow.sold || 0)} sold${lean ? ` <span class="muted">(prices ${lean < 0 ? 'lower: bought more' : 'higher: sold more'})</span>` : ''}`],
                         ready.keys > 0 && ['Ready to buy', `${num(ready.keys)} ${ready.keys == 1 ? 'key' : 'keys'} on every bank bot <span class="muted">(${ref(ready.metal)} each)</span>${unready ? ` <span class="admin-tag tag-warn">${num(unready)} not ready</span>` : ''}`],
                         ['Flips', flip_state],
+                        d.snipes && ['Quicksell keys today', kb_snipes(d.snipes)],
+                        d.posted && ['Steady prices', !(d.posted.holdMin > 0) ? 'off: prices follow the market at once'
+                            : `${plan.steady?.buy || plan.steady?.sell ? `kept <span class="muted">(the market alone: buy ${ref(plan.ideal?.buy)}, sell ${ref(plan.ideal?.sell)})</span>` : 'following the market'} · buy set ${ago(d.posted.buyAt)}, sell ${ago(d.posted.sellAt)}<br><span class="muted">each price kept ${num(d.posted.holdMin)} min unless keeping it would lose money</span>`],
                         why && ['Why', why]
                     ])}
                 </div>`
