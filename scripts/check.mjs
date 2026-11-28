@@ -55,7 +55,7 @@ for (const file of locales) check('language file', file, () => {
 // The site news (src/service/news.js): a feature's news goes live with the feature, so an entry has to be complete
 // before it's merged: its texts in all 8 languages, its picture in both sizes, newest entries on top.
 const news_file = path.join(root, 'src/service/news.js')
-const { NEWS, ACTIONS, DATE, day: news_day, time: news_time, exact: news_exact } = await import(pathToFileURL(news_file))
+const { NEWS, ACTIONS, REQUIRES, DATE, day: news_day, time: news_time, exact: news_exact } = await import(pathToFileURL(news_file))
 const { sniff } = await import(pathToFileURL(path.join(root, 'src/service/uploads.js')))
 check('news', news_file, () => {
   const dicts = Object.fromEntries(locales.map((file) => [path.basename(file), JSON.parse(fs.readFileSync(file, 'utf8'))]))
@@ -83,6 +83,7 @@ check('news', news_file, () => {
     if (entry.href && !/^\/(?!\/)/.test(entry.href)) problems.push(`${key}: href has to be a site path like /items`)
     if (entry.action && !ACTIONS.includes(entry.action)) problems.push(`${key}: unknown action "${entry.action}" (known: ${ACTIONS.join(', ')})`)
     if (entry.window && !entry.href && !entry.action) problems.push(`${key}: a news window entry needs href or action for its button`)
+    if (entry.requires !== undefined && !REQUIRES.includes(entry.requires)) problems.push(`${key}: unknown requires "${entry.requires}" (known: ${REQUIRES.join(', ')})`)
     if (entry.image) {
       for (const [width, height] of [[1200, 500], [640, 267]]) {
         const file = `src/public/img/news/${entry.image}-${width}.webp`

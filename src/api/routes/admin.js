@@ -40,6 +40,8 @@ import * as flips from '../../service/flips.js';
 import * as stats from '../../service/stats.js';
 import * as memory from '../../service/memory.js';
 import * as crawlers from '../../service/crawlers.js';
+import * as assistant from '../../service/assistant.js';
+import crypto from 'crypto';
 
 export const router = express.Router();
 
@@ -718,6 +720,44 @@ router.post('/users/:steamid/role', async (req, res) => {
   const user = await User.findOneAndUpdate({ steamid: req.params.steamid }, { $set: { role } }, { new: true, projection: user_fields }).lean();
   if(!user){ return res.status(404).json({ status: 'error', message: 'User not found.' }) }
   res.json({ status: 'ok', user });
+});
+
+/* ========================= CHAT HELPER (service/assistant.js) ========================= */
+
+// settings, where the API key comes from (never the key) and today's usage
+router.get('/assistant', (req, res) => {
+  res.json({ status: 'ok', assistant: assistant.admin_view() });
+});
+
+// { enabled, model, effort, daily_limit }: only the fields sent change
+router.post('/assistant', async (req, res) => {
+  const out = await assistant.update(req.body?.patch, 'admin');
+  if(out.errors){ return res.status(400).json({ status: 'error', message: out.errors.join(' ') }) }
+  res.json({ status: 'ok', assistant: out.view });
+});
+
+// { key }: a new Claude API key (checked with the API first), '' removes the saved one
+router.post('/assistant/key', async (req, res) => {
+  const out = await assistant.set_key(req.body?.key, 'admin');
+  if(out.errors){ return res.status(400).json({ status: 'error', message: out.errors.join(' ') }) }
+  res.json({ status: 'ok', assistant: out.view });
+});
+
+// { message, lang, signed_in }: the admin asks the helper something as a visitor would (a new chat each time) and
+// sees which tools it used. signed_in: as a signed-in visitor, so a trade card shows its button state (nothing is
+// sent from here: the card's button only works on the site's pages).
+router.post('/assistant/test', async (req, res) => {
+  if(!assistant.enabled()){ return res.status(400).json({ status: 'error', message: 'Switch the helper on first (it needs an API key).' }) }
+  const trace = [];
+  const out = await assistant.chat({
+    id: crypto.randomBytes(24).toString('base64url'),
+    text: req.body?.message,
+    user: req.body?.signed_in === true ? { steamid: String(req.user.steamid) } : null,
+    lang: LANGS.includes(req.body?.lang) ? req.body.lang : 'en',
+    has_trade_url: true,
+    trace
+  });
+  res.json({ status: out.status, reason: out.reason, reply: out.reply, trace });
 });
 
 // async errors -> JSON instead of the HTML error page

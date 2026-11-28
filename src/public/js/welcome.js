@@ -28,7 +28,9 @@
                 dialog.showModal()
                 dialog.querySelector('.ss-theme.active, .ss-theme')?.focus()
             }
-        }
+        },
+        // the chat helper's window (views/partials/assistant.ejs, js/plugins/assistant.js listens)
+        assistant: () => window.dispatchEvent(new CustomEvent('td:assistant-open'))
     }
     document.addEventListener('click', (e) => {
         const button = e.target.closest?.('#newsPage [data-news-action]')

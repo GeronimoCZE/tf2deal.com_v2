@@ -822,6 +822,7 @@ span.lang{
 @import './partials/themes';
 @import './partials/quality';
 @import './partials/lamplight';
+@import './partials/assistant'; // the chat helper (after quality: it uses the quality glow)
 
 #openChat {
     position: fixed;

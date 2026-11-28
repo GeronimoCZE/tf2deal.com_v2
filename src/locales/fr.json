@@ -758,6 +758,32 @@
         "bank_no_change": "Le bot n'a pas la bonne monnaie pour cela en ce moment. Essayez une autre quantité ou un autre bot.",
         "no_price": "Les prix des clés sont en cours de mise à jour. Réessayez dans une minute."
       }
+    },
+    "assistant": {
+      "title": "Assistant TF2Deal",
+      "subtitle": "Questions sur le site, les prix et le stock",
+      "greeting": "Bonjour ! Demandez-moi comment fonctionnent les échanges, combien coûte un objet ou si les bots l'ont. Une fois connecté, je peux aussi vous préparer un échange pour l'objet que vous voulez.",
+      "suggestions": "Questions suggérées",
+      "suggest_how": "Comment fonctionnent les échanges ?",
+      "suggest_who": "Qui gère TF2Deal ?",
+      "suggest_buy": "Je veux acheter une Strange Part",
+      "suggest_keys": "Comment échanger des clés contre du métal ?",
+      "placeholder": "Une question sur un échange ou un objet…",
+      "send": "Envoyer",
+      "new_chat": "Nouvelle discussion",
+      "close": "Fermer",
+      "typing": "Rédaction de la réponse…",
+      "you": "Vous",
+      "helper": "Assistant TF2Deal",
+      "disclaimer": "Réponses d'une IA à partir des informations publiques du site. Les prix changent : la page de l'objet indique le prix actuel.",
+      "offline": "Impossible de joindre TF2Deal. Vérifiez votre connexion et réessayez.",
+      "retry": "Réessayer",
+      "in_stock": "{n} en stock",
+      "out_of_stock": "En rupture de stock",
+      "bots_pay": "Les bots paient {price}",
+      "requested": "Demande envoyée. Le bot prépare votre offre Steam.",
+      "turns_left": "Encore {n} questions dans cette discussion",
+      "item_page": "Page de l'objet"
     }
   },
   "items": {
@@ -1152,6 +1178,11 @@
       "empty": "Rien pour l'instant. Les nouvelles fonctions apparaîtront ici dès leur mise en ligne."
     },
     "items": {
+      "assistant": {
+        "title": "Posez vos questions à l'assistant TF2Deal",
+        "text": "Un assistant de chat vous attend désormais dans le coin de chaque page. Demandez-lui comment fonctionnent les échanges, combien coûte un objet ou s'il est en stock ; une fois connecté, il peut même afficher dans le chat une carte « Demander l'échange » pour l'objet voulu. Il ne connaît que les informations publiques du site et ne voit jamais votre compte.",
+        "button": "Poser une question"
+      },
       "ks_combos": {
         "title": "Le prix exact de chaque combinaison Professional Killstreak",
         "text": "Les armes, Kits et Kit Fabricators Professional Killstreak ont maintenant un choix de Combinaison sur leur page. Choisissez un sheen et un killstreaker pour voir le prix exact de cette combinaison. Les combinaisons que peu de joueurs recherchent, comme Hypno-Beam, coûtent moins cher, et l'infobulle de l'objet vous indique quand un exemplaire en fait partie."
@@ -1212,5 +1243,19 @@
         "text": "Les derniers échanges de la page d'accueil montrent maintenant chaque échange du jour, le plus récent en haut, l'un sous l'autre. Appuyez sur Afficher 5 de plus pour remonter toute la journée."
       }
     }
+  },
+  "assistant": {
+    "launcher": "Demandez à TF2Deal",
+    "launcher_label": "Ouvrir le chat avec l'assistant TF2Deal",
+    "rate_limited": "Vous envoyez des messages très vite. Attendez une minute, puis réessayez.",
+    "empty": "Écrivez d'abord une question.",
+    "too_long": "C'est un peu long. Restez sous 600 caractères.",
+    "restart": "Cette discussion est terminée. Commencez-en une nouvelle.",
+    "daily_limit": "L'assistant a répondu à tout ce qu'il pouvait pour aujourd'hui. Réessayez demain, ou posez votre question sur Discord ou à l'assistance.",
+    "busy": "Je réponds encore à votre dernier message.",
+    "turns": "Cette discussion est pleine. Commencez-en une nouvelle pour continuer.",
+    "busy_api": "L'assistant est très sollicité en ce moment. Réessayez dans une minute.",
+    "unavailable": "L'assistant n'a pas pu répondre pour l'instant. Réessayez dans un moment.",
+    "refused": "Je ne peux pas vous aider avec ça. Posez-moi une question sur TF2Deal, les échanges ou un objet."
   }
 }

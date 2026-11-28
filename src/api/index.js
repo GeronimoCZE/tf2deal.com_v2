@@ -20,6 +20,7 @@ import {rating_model} from '../model/Rating.js'
 import {router as userApi} from './routes/user.js'
 import {router as itemApi} from './routes/items.js'
 import {router as adminApi} from './routes/admin.js'
+import {router as assistantApi} from './routes/assistant.js'
 import * as settings from '../service/settings.js'
 import * as notifications from '../service/notifications.js'
 import * as buy_link from '../service/buy_link.js'
@@ -61,6 +62,7 @@ const item_limiter = rateLimit({
 router.use('/user', userApi)
 router.use('/items', itemApi)
 router.use('/admin', adminApi)
+router.use('/assistant', assistantApi) // the chat helper (service/assistant.js)
 
 let bot_cache = []
 

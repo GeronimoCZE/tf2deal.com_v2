@@ -26,11 +26,14 @@ In the pull request that adds the feature:
      the day it's dated) is written down once (`news_times` collection) and shown on /news in each visitor's own time
      zone. To set the time yourself, write `'2026-11-20 18:00'` (UTC).
    - `href`: the page the main button opens. Or `action` for something the button does on the page instead
-     (`themes` opens the language and theme window; new actions go in `ACTIONS` in `src/public/js/welcome.js` and
-     `src/service/news.js`).
+     (`themes` opens the language and theme window, `assistant` opens the chat helper; new actions go in `ACTIONS` in
+     `src/public/js/welcome.js` and `src/service/news.js`).
    - `window: true` for a big feature: one visitors will use, like raffles or posting trades. Leave it out for
      smaller changes; those are on /news and get a line in the welcome window's "What's new".
    - `image`: optional, see 3.
+   - `requires`: for a feature the admin switches on, like the chat helper (`requires: 'assistant'`). The entry stays
+     off /news and out of the window until the feature is on, and its time is written down the first time it's out.
+     The names are in `REQUIRES` in `src/service/news.js`; the feature's own service sets `conditions.<name>`.
 
 2. **The texts**, in all 8 `src/locales/<lang>.json`, under `news.items.<key>`:
 

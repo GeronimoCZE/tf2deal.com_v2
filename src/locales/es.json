@@ -757,6 +757,32 @@
         "bank_no_change": "El bot no tiene el cambio justo para esto ahora mismo. Prueba otra cantidad u otro bot.",
         "no_price": "Los precios de las llaves se están actualizando. Inténtalo de nuevo en un minuto."
       }
+    },
+    "assistant": {
+      "title": "Asistente de TF2Deal",
+      "subtitle": "Pregunta por la web, los precios y el stock",
+      "greeting": "¡Hola! Pregúntame cómo funcionan los intercambios, cuánto cuesta un objeto o si los bots lo tienen. Si inicias sesión, también puedo prepararte un intercambio para el objeto que quieras.",
+      "suggestions": "Preguntas sugeridas",
+      "suggest_how": "¿Cómo funcionan los intercambios?",
+      "suggest_who": "¿Quién está detrás de TF2Deal?",
+      "suggest_buy": "Quiero comprar una Strange Part",
+      "suggest_keys": "¿Cómo cambio llaves por metal?",
+      "placeholder": "Pregunta por un intercambio o un objeto…",
+      "send": "Enviar",
+      "new_chat": "Nuevo chat",
+      "close": "Cerrar",
+      "typing": "Escribiendo una respuesta…",
+      "you": "Tú",
+      "helper": "Asistente de TF2Deal",
+      "disclaimer": "Respuestas de IA con la información pública de la web. Los precios cambian: el actual está en la página del objeto.",
+      "offline": "No se pudo conectar con TF2Deal. Revisa tu conexión y vuelve a intentarlo.",
+      "retry": "Reintentar",
+      "in_stock": "{n} en stock",
+      "out_of_stock": "Agotado",
+      "bots_pay": "Los bots pagan {price}",
+      "requested": "Solicitado. El bot está preparando tu oferta de Steam.",
+      "turns_left": "Quedan {n} preguntas en este chat",
+      "item_page": "Página del objeto"
     }
   },
   "items": {
@@ -1151,6 +1177,11 @@
       "empty": "Aún no hay nada aquí. Las funciones nuevas aparecerán en cuanto lleguen."
     },
     "items": {
+      "assistant": {
+        "title": "Pregunta al asistente de TF2Deal",
+        "text": "Ahora hay un asistente de chat en la esquina de cada página. Pregúntale cómo funcionan los intercambios, cuánto cuesta un objeto o si hay stock, y con la sesión iniciada puede dejarte en el chat una tarjeta para solicitar el intercambio de un objeto. Solo conoce la información pública de la web y nunca ve tu cuenta.",
+        "button": "Hacer una pregunta"
+      },
       "ks_combos": {
         "title": "Precios exactos para cada combinación Professional Killstreak",
         "text": "Las armas, Kits y Kit Fabricators Professional Killstreak tienen ahora un selector de Combinación en su página. Elige un sheen y un killstreaker para ver cuánto cuesta exactamente esa combinación. Las combinaciones que pocos buscan, como Hypno-Beam, se compran más baratas, y el tooltip del objeto te avisa cuando una copia es una de ellas."
@@ -1211,5 +1242,19 @@
         "text": "Los últimos intercambios de la página principal ahora muestran cada intercambio de hoy, el más reciente arriba, uno debajo de otro. Pulsa Mostrar 5 más para recorrer todo el día."
       }
     }
+  },
+  "assistant": {
+    "launcher": "Pregunta a TF2Deal",
+    "launcher_label": "Abrir el chat con el asistente de TF2Deal",
+    "rate_limited": "Estás enviando mensajes muy rápido. Espera un minuto y vuelve a intentarlo.",
+    "empty": "Escribe primero una pregunta.",
+    "too_long": "Es un poco largo. Usa menos de 600 caracteres.",
+    "restart": "Este chat ha terminado. Empieza uno nuevo.",
+    "daily_limit": "El asistente ya ha respondido todo lo que puede por hoy. Vuelve a intentarlo mañana o pregúntanos en Discord o en Soporte.",
+    "busy": "Todavía estoy respondiendo a tu último mensaje.",
+    "turns": "Este chat está lleno. Empieza uno nuevo para seguir.",
+    "busy_api": "El asistente está muy ocupado ahora mismo. Inténtalo de nuevo en un minuto.",
+    "unavailable": "El asistente no ha podido responder ahora. Inténtalo de nuevo en un momento.",
+    "refused": "No puedo ayudarte con eso. Pregúntame sobre TF2Deal, los intercambios o un objeto."
   }
 }

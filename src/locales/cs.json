@@ -759,6 +759,32 @@
         "bank_no_change": "Bot teď nemá správné drobné. Zkuste jiný počet nebo jiného bota.",
         "no_price": "Ceny klíčů se aktualizují. Zkuste to prosím za minutu."
       }
+    },
+    "assistant": {
+      "title": "Pomocník TF2Deal",
+      "subtitle": "Ptejte se na web, ceny a sklad",
+      "greeting": "Dobrý den! Zeptejte se, jak fungují výměny, kolik stojí předmět nebo jestli ho boti mají. Po přihlášení vám také připravím výměnu na předmět, který chcete.",
+      "suggestions": "Navrhované otázky",
+      "suggest_how": "Jak fungují výměny?",
+      "suggest_who": "Kdo provozuje TF2Deal?",
+      "suggest_buy": "Chci koupit Strange Part",
+      "suggest_keys": "Jak vyměním klíče za kov?",
+      "placeholder": "Zeptejte se na výměnu nebo předmět…",
+      "send": "Odeslat",
+      "new_chat": "Nový chat",
+      "close": "Zavřít",
+      "typing": "Píšu odpověď…",
+      "you": "Vy",
+      "helper": "Pomocník TF2Deal",
+      "disclaimer": "Odpovědi AI z veřejných informací webu. Ceny se mění: aktuální najdete na stránce předmětu.",
+      "offline": "Nepodařilo se spojit s TF2Deal. Zkontrolujte připojení a zkuste to znovu.",
+      "retry": "Zkusit znovu",
+      "in_stock": "Skladem: {n}",
+      "out_of_stock": "Není skladem",
+      "bots_pay": "Boti platí {price}",
+      "requested": "Odesláno. Bot připravuje vaši nabídku na Steamu.",
+      "turns_left": "Zbývající otázky v tomto chatu: {n}",
+      "item_page": "Stránka předmětu"
     }
   },
   "items": {
@@ -1153,6 +1179,11 @@
       "empty": "Zatím tu nic není. Nové funkce se tu objeví hned, jak budou spuštěny."
     },
     "items": {
+      "assistant": {
+        "title": "Zeptejte se pomocníka TF2Deal",
+        "text": "V rohu každé stránky teď čeká chatovací pomocník. Zeptejte se, jak fungují výměny, kolik stojí předmět nebo jestli je skladem, a po přihlášení vám rovnou v chatu připraví kartu Požádat o výměnu pro předmět, který chcete. Zná jen veřejné informace webu a váš účet nikdy nevidí.",
+        "button": "Položit otázku"
+      },
       "ks_combos": {
         "title": "Přesné ceny pro každou kombinaci Professional Killstreak",
         "text": "Zbraně, Kity a Kit Fabricatory Professional Killstreak mají teď na své stránce výběr Kombinace. Vyberte sheen a killstreaker a uvidíte, kolik stojí přesně tato kombinace. Kombinace, které hledá málokdo, třeba Hypno-Beam, koupíte levněji a popisek předmětu vám řekne, když kus patří mezi ně."
@@ -1213,5 +1244,19 @@
         "text": "Poslední výměny na hlavní stránce teď ukazují každou dnešní výměnu, nejnovější nahoře, jednu pod druhou. Tlačítkem Zobrazit dalších 5 projdete celý den."
       }
     }
+  },
+  "assistant": {
+    "launcher": "Zeptejte se TF2Deal",
+    "launcher_label": "Otevřít chat s pomocníkem TF2Deal",
+    "rate_limited": "Posíláte zprávy příliš rychle. Počkejte minutu a zkuste to znovu.",
+    "empty": "Nejdřív napište otázku.",
+    "too_long": "To je trochu dlouhé. Vejděte se do 600 znaků.",
+    "restart": "Tento chat skončil. Začněte nový.",
+    "daily_limit": "Pomocník už dnes odpověděl, kolik mohl. Zkuste to zítra, nebo se nás zeptejte na Discordu či přes podporu.",
+    "busy": "Ještě odpovídám na vaši předchozí zprávu.",
+    "turns": "Tento chat je plný. Pokračujte v novém chatu.",
+    "busy_api": "Pomocník je teď velmi vytížený. Zkuste to za minutu.",
+    "unavailable": "Pomocník teď nemohl odpovědět. Zkuste to za chvíli.",
+    "refused": "S tímhle vám nepomůžu. Zeptejte se mě na TF2Deal, výměny nebo nějaký předmět."
   }
 }

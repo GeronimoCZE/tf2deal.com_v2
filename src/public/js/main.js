@@ -6,6 +6,7 @@ import * as trade from "./plugins/trade.js";
 import * as items from "./plugins/items.js";
 import {init_latest_trades} from "./plugins/latest_trades.js";
 import "./plugins/notifications.js";
+import "./plugins/assistant.js"; // the chat helper (views/partials/assistant.ejs), when it is on
 import * as buy_link from "./plugins/buy_link.js";
 import * as item_info from "./plugins/item_info.js";
 import {init_sales_chart} from "./plugins/sales_chart.js";

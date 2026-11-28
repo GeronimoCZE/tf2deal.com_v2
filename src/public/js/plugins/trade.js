@@ -3726,15 +3726,20 @@ const item_details = (item_el, party) => {
     };
 }
 
-// on_result(ok) is called once the site answers (the buy link modal uses it for its button);
-// false is returned when nothing was sent
+// on_result(ok) is called once the site answers (the buy link modal and the chat helper's trade card use it for their
+// button); false is returned when nothing was sent.
+// single_item (a direct buy link, js/plugins/buy_link.js, or the chat helper's trade card, js/plugins/assistant.js) is one
+// bot copy picked by its assetid: it goes out from any page, also the trade page or an item page, without their trade
+// button or the items picked there.
 const create_trade = async (type, data, on_result) => {
     if(window.site_settings?.trading === false){
         iziToast.warning({ title: __('site.trading_paused_title'), message: __('site.trading_paused') });
         return false;
     }
+    const single = type == "single_item";
+    if(single && trade_req){ return false; } // one request at a time
 
-    if(processing_site_inventory || processing_user_inventory){ 
+    if(!single && (processing_site_inventory || processing_user_inventory)){ 
         iziToast.error({
             title: __('common.error'),
             message: __('trade.create_failed')
@@ -3743,12 +3748,12 @@ const create_trade = async (type, data, on_result) => {
         return false;
     }
 
-    if(view == "item_page"){
+    if(!single && view == "item_page"){
         if(trade_req || ItemTrade.iit.length == 0 || single_half_left()){ return false; }
         set_item_trade_btn('creating')
     }
 
-    if(view == "trade"){
+    if(!single && view == "trade"){
         if(!document.querySelector('.btn.trade-btn').classList.contains('ready')){
             return false;
         }
@@ -3798,6 +3803,7 @@ const create_trade = async (type, data, on_result) => {
                 title: __('common.error'),
                 message: data?.responseJSON?.message || __('trade.create_failed')
             });
+            if(single){ return }
             document.querySelector('.btn.trade-btn.ready')?.classList.replace('processing', 'denied')
             if(view == "item_page"){ set_item_trade_btn('denied') }
         })
@@ -3805,10 +3811,10 @@ const create_trade = async (type, data, on_result) => {
             trade_req = false;
             if(typeof on_result == 'function'){ on_result(data.success == 1) }
             if(data.success == 1){
-                if(view == "trade"){
-                    document.querySelector('.btn.trade-btn.ready').classList.replace('processing', 'confirmed')
+                if(!single && view == "trade"){
+                    document.querySelector('.btn.trade-btn.ready')?.classList.replace('processing', 'confirmed')
                 }
-                if(view == "item_page"){
+                if(!single && view == "item_page"){
                     set_item_trade_btn('confirmed')
                     clear_single_items()
                 }
@@ -3826,10 +3832,10 @@ const create_trade = async (type, data, on_result) => {
                     message: ""
                 });
             } else {
-                if(view == "trade"){
-                    document.querySelector('.btn.trade-btn.ready').classList.replace('processing', 'denied')
+                if(!single && view == "trade"){
+                    document.querySelector('.btn.trade-btn.ready')?.classList.replace('processing', 'denied')
                 }
-                if(view == "item_page"){ set_item_trade_btn('denied') }
+                if(!single && view == "item_page"){ set_item_trade_btn('denied') }
                 if(data?.message == "You already have an active offer from our bots!"){
                     tradeOfferConnection(localStorage.getItem(`tradeoffer${user}`), 'open')
                 }

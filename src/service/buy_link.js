@@ -77,6 +77,36 @@ export const details = (asset) => {
   return [...words(at.paint), ...words(at.spells), ...words(at.strangeParts), ...words(at.sheen), ...words(at.killstreaker)].slice(0, 8)
 }
 
+// what the page (and the chat helper's trade card, service/assistant_tools.js) shows of one bot copy
+const copy_entry = (doc, asset, key_ref, paints, bots) => {
+  const bot = asset?.ownerId ? String(asset.ownerId) : ''
+  const sell = sell_price(doc, asset, key_ref, paints)
+  return {
+    assetid: String(asset?.a ?? ''),
+    bot,
+    bot_name: bots.get(bot) || '',
+    bp_sku: doc.bp_sku,
+    name: display_name(doc.bp_sku, asset),
+    qualityID: doc.qualityID,
+    effectID: Number(doc.effectID) > 0 ? Number(doc.effectID) : 0,
+    image: asset?.icon_url ? IMG_PREFIX + asset.icon_url : doc.image,
+    image_large: doc.image_large || doc.image,
+    ks: Number(asset?.ks) || 0,
+    festivized: !!asset?.f,
+    details: details(asset),
+    // the corner marks on its picture
+    spells: words(asset?.at?.spells).length > 0,
+    parts: words(asset?.at?.strangeParts).length > 0,
+    sell,
+    price: fn.price_text(sell, key_ref)
+  }
+}
+
+const bot_names = () => new Map((Array.isArray(app.fp_data?.bots) ? app.fp_data.bots : [])
+  .filter((b) => b?.steamid).map((b) => [String(b.steamid), String(b.personaname || b.name || '')]))
+
+const COPY_FIELDS = { bp_sku: 1, type: 1, qualityID: 1, effectID: 1, image: 1, image_large: 1, sell: 1, killstreak: 1, combo_price: 1, 'bptf_data.update_key_price': 1, 'stock.items': 1 }
+
 // Every bot copy that carries this assetid, ready for the page (one entry per item + bot).
 export const find = async (assetid) => {
   const id = String(assetid ?? '')
@@ -84,14 +114,10 @@ export const find = async (assetid) => {
 
   const values = [id]
   if (Number.isSafeInteger(Number(id))) values.push(Number(id))
-  const docs = await item_model.find(
-    { 'stock.items.a': { $in: values } },
-    { bp_sku: 1, type: 1, qualityID: 1, effectID: 1, image: 1, image_large: 1, sell: 1, killstreak: 1, combo_price: 1, 'bptf_data.update_key_price': 1, 'stock.items': 1 }
-  ).limit(10).lean()
+  const docs = await item_model.find({ 'stock.items.a': { $in: values } }, COPY_FIELDS).limit(10).lean()
   const paints = await variants.prices_of(docs.map((d) => d.bp_sku))
 
-  const bots = new Map((Array.isArray(app.fp_data?.bots) ? app.fp_data.bots : [])
-    .filter((b) => b?.steamid).map((b) => [String(b.steamid), String(b.personaname || b.name || '')]))
+  const bots = bot_names()
   const copies = []
   const seen = new Set()
 
@@ -102,30 +128,30 @@ export const find = async (assetid) => {
       const bot = asset?.ownerId ? String(asset.ownerId) : ''
       if (seen.has(`${doc.bp_sku}|${bot}`)) continue
       seen.add(`${doc.bp_sku}|${bot}`)
-
-      const sell = sell_price(doc, asset, key_ref, paints)
-      copies.push({
-        assetid: id,
-        bot,
-        bot_name: bots.get(bot) || '',
-        bp_sku: doc.bp_sku,
-        name: display_name(doc.bp_sku, asset),
-        qualityID: doc.qualityID,
-        effectID: Number(doc.effectID) > 0 ? Number(doc.effectID) : 0,
-        image: asset?.icon_url ? IMG_PREFIX + asset.icon_url : doc.image,
-        image_large: doc.image_large || doc.image,
-        ks: Number(asset?.ks) || 0,
-        festivized: !!asset?.f,
-        details: details(asset),
-        // the corner marks on its picture
-        spells: words(asset?.at?.spells).length > 0,
-        parts: words(asset?.at?.strangeParts).length > 0,
-        sell,
-        price: fn.price_text(sell, key_ref)
-      })
+      copies.push(copy_entry(doc, asset, key_ref, paints, bots))
     }
   }
   return copies
+}
+
+// The bots' copies of one item (its bp_sku), cheapest first, in the same shape as find(). `tiers` are the killstreak
+// tiers wanted (0 = no killstreak; a list like [0, 1] when tier 1 has no card of its own). Each copy is a buy link's copy: a trade request for it goes through /api/create_trade with
+// single_item, which looks it up again by its assetid (pick). The chat helper's trade card uses it.
+export const copies_of = async (bp_sku, tiers = [0], max = 20) => {
+  const name = String(bp_sku ?? '')
+  if (!name || name.length > 300 || process.db_status?.connected !== true) return []
+  const doc = await item_model.findOne({ bp_sku: name, 'stock.items.0': { $exists: true } }, COPY_FIELDS).maxTimeMS(10000).lean()
+  if (!doc) return []
+  const paints = await variants.prices_of([doc.bp_sku])
+  const key_ref = Number(doc.bptf_data?.update_key_price) || Number(app.key_price?.metal) || 0
+  const bots = bot_names()
+  const wanted = new Set((Array.isArray(tiers) ? tiers : [tiers]).map((t) => Number(t) || 0))
+  return (Array.isArray(doc.stock?.items) ? doc.stock.items : [])
+    .filter((asset) => ASSETID.test(String(asset?.a ?? '')) && wanted.has(Number(asset?.ks) || 0))
+    .map((asset) => copy_entry(doc, asset, key_ref, paints, bots))
+    .filter((copy) => copy.sell > 0)
+    .sort((a, b) => a.sell - b.sell || a.details.length - b.details.length)
+    .slice(0, max)
 }
 
 // The one copy a trade request means. `bot` and `bp_sku` come from the picker; an old page without them still
