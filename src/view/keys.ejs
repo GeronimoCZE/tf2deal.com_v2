@@ -6,58 +6,51 @@
 
         <main>
             <%# Key banking (service/key_bank.js, public/js/plugins/keys.js, styles scss/partials/views/_keys.scss).
-                An exchange desk: the two prices first (what we sell a key for, what we pay for one), then the swap
-                itself (direction, 1 to 5 keys as key pictures, what you pay and get) next to the bank bots with what
-                each can do now, then the key price of the last 7 days. The server draws it all once; keys.js keeps it
-                live and sends the request. %>
+                Nikolas 2026-11-28: "make site page design simpler like devide screen in to 2 for buy and sell". So the
+                page is one desk split in two halves, Buy keys | Sell keys, each a whole swap on its own: the price,
+                1 to 5 keys as key pictures, the bank bot (the one that can do the most is picked), the total and the
+                button. The server draws it once; keys.js keeps it live and sends the request. %>
             <% const kb = info?.keybank || null %>
             <% const kb_on = !!(kb && kb.enabled && kb.price) %>
             <% const fmt = (n) => (Math.floor(Number(n) * 100 + 1e-6) / 100).toFixed(2) %>
             <% const max_keys = kb?.max_keys || 5 %>
             <% const key_pic = 'https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEAaR4uURrwvz0N252yVaDVWrRTno9m4ccG2GNqxlQoZrC2aG9hcVGUWflbX_drrVu5UGki5sAij6tOtQ/96fx96f' %>
             <% const ref_pic = 'https://community.cloudflare.steamstatic.com/economy/image/fWFc82js0fmoRAP-qOIPu5THSWqfSmTELLqcUywGkijVjZULUrsm1j-9xgEbZQsUYhTkhzJWhsO1Mv6NGucF1Ygzt8ZQijJukFMiMrbhYDEwI1yRVKNfD6xorQ3qW3Jr6546DNPuou9IOVK4p4kWJaA/96fx96f' %>
+            <% const bots_list = kb?.bots || [] %>
+            <%# the halves: the visitor's side ('buy' = they buy our keys at our sell price), which of our prices it uses %>
+            <% const halves = [
+                { side: 'buy', id: 'Buy', price: 'sell', title: __('keys.buy_keys'), hint: __('keys.we_sell_hint'), give: ref_pic, get: key_pic, total: __('keys.you_pay') },
+                { side: 'sell', id: 'Sell', price: 'buy', title: __('keys.sell_keys'), hint: __('keys.we_buy_hint'), give: key_pic, get: ref_pic, total: __('keys.you_get') }
+            ] %>
             <div class="page-section keys-ps" data-kb-root>
                 <script type="application/json" id="keybank-data"><%- JSON.stringify(kb).replace(/</g, '\\u003c') %></script>
 
                 <header class="kb-head">
-                    <p class="kb-kicker"><%= __('keys.kicker') %></p>
-                    <h1><%= __('keys.h1') %></h1>
-                    <p class="kb-lede"><%= __('keys.lede', { max: max_keys }) %></p>
+                    <div class="kb-head-text">
+                        <p class="kb-kicker"><%= __('keys.kicker') %></p>
+                        <h1><%= __('keys.h1') %></h1>
+                        <p class="kb-lede"><%= __('keys.lede', { max: max_keys }) %></p>
+                    </div>
+                    <p class="kb-live" data-kb-live data-state="<%= kb_on ? (kb.stale ? 'stale' : 'live') : 'off' %>"><i aria-hidden="true"></i><span data-kb-updated><%= kb_on ? (kb.stale ? __('keys.stale') : __('keys.live')) : __('keys.off') %></span></p>
                 </header>
-
-                <%# the quote board: the two prices, big; the market they come from and how fresh it is %>
-                <section class="kb-board" aria-label="<%= __('keys.prices_label') %>" data-kb-board>
-                    <div class="kb-quote is-sell">
-                        <span class="kb-quote-label"><%= __('keys.we_sell') %></span>
-                        <span class="kb-quote-value"><b data-kb-price="sell"><%= kb_on ? fmt(kb.price.sell) : '—' %></b> <small>ref</small></span>
-                        <span class="kb-quote-hint"><%= __('keys.we_sell_hint') %></span>
-                    </div>
-                    <div class="kb-quote is-buy">
-                        <span class="kb-quote-label"><%= __('keys.we_buy') %></span>
-                        <span class="kb-quote-value"><b data-kb-price="buy"><%= kb_on ? fmt(kb.price.buy) : '—' %></b> <small>ref</small></span>
-                        <span class="kb-quote-hint"><%= __('keys.we_buy_hint') %></span>
-                    </div>
-                    <dl class="kb-meta">
-                        <div><dt><%= __('keys.spread') %></dt><dd data-kb-spread><%= kb_on ? fmt(kb.price.sell - kb.price.buy) + ' ref' : '—' %></dd></div>
-                        <div><dt><%= __('keys.market') %></dt><dd data-kb-market><%= kb?.market?.buy && kb?.market?.sell ? `${fmt(kb.market.buy)} / ${fmt(kb.market.sell)} ref` : '—' %></dd></div>
-                        <div class="kb-live" data-kb-live data-state="<%= kb_on ? (kb.stale ? 'stale' : 'live') : 'off' %>"><dt class="sr-only"><%= __('keys.status') %></dt><dd><i aria-hidden="true"></i><span data-kb-updated><%= kb_on ? (kb.stale ? __('keys.stale') : __('keys.live')) : __('keys.off') %></span></dd></div>
-                    </dl>
-                </section>
 
                 <div class="kb-notice" data-kb-notice role="status" <%= kb_on ? 'hidden' : '' %>><%= kb ? __('keys.paused') : __('keys.unavailable') %></div>
 
                 <div class="kb-desk">
-                    <%# the swap %>
-                    <section class="kb-swap" aria-labelledby="kbSwapTitle">
-                        <h2 id="kbSwapTitle" class="sr-only"><%= __('keys.swap_title') %></h2>
-                        <div class="kb-sides" role="radiogroup" aria-label="<%= __('keys.side_label') %>">
-                            <button type="button" class="kb-side" role="radio" aria-checked="true" data-kb-side="buy"><%= __('keys.buy_keys') %></button>
-                            <button type="button" class="kb-side" role="radio" aria-checked="false" data-kb-side="sell"><%= __('keys.sell_keys') %></button>
+                    <% halves.forEach((h) => { %>
+                    <section class="kb-half is-<%= h.side %>" data-kb-half="<%= h.side %>" aria-labelledby="kb<%= h.id %>Title">
+                        <div class="kb-half-head">
+                            <h2 id="kb<%= h.id %>Title"><%= h.title %></h2>
+                            <%# what you give → what you get, as the items themselves %>
+                            <span class="kb-dir" aria-hidden="true"><img src="<%= h.give %>" alt="" width="96" height="96" data-no-fade><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8h11M9.5 4l4 4-4 4"/></svg><img src="<%= h.get %>" alt="" width="96" height="96" data-no-fade></span>
                         </div>
 
+                        <p class="kb-price"><b data-kb-price="<%= h.price %>"><%= kb_on ? fmt(kb.price[h.price]) : '—' %></b> <small>ref</small></p>
+                        <p class="kb-price-hint"><%= h.hint %></p>
+
                         <div class="kb-amount">
-                            <span class="kb-label" id="kbAmountLabel"><%= __('keys.how_many') %></span>
-                            <div class="kb-pips" role="group" aria-labelledby="kbAmountLabel" data-kb-pips>
+                            <span class="kb-label" id="kb<%= h.id %>Amount"><%= __('keys.how_many') %></span>
+                            <div class="kb-pips" role="group" aria-labelledby="kb<%= h.id %>Amount">
                                 <% for (let i = 1; i <= max_keys; i++) { %>
                                 <button type="button" class="kb-pip<%= i == 1 ? ' is-on' : '' %>" data-kb-n="<%= i %>" aria-pressed="<%= i == 1 %>" aria-label="<%= __('keys.n_keys', { n: i }) %>">
                                     <img src="<%= key_pic %>" alt="" width="96" height="96" data-no-fade>
@@ -65,74 +58,41 @@
                                 </button>
                                 <% } %>
                             </div>
+                        </div>
+
+                        <div class="kb-bot-pick">
+                            <label class="kb-label" for="kb<%= h.id %>Bot"><%= __('keys.bot_label') %></label>
+                            <% if (bots_list.length) { %>
+                            <select id="kb<%= h.id %>Bot" data-kb-bot>
+                                <% bots_list.forEach((b) => { %>
+                                <option value="<%= b.steamid %>" <%= b.online ? '' : 'disabled' %>><%= b.name || b.steamid %><%= b.online ? '' : ` (${__('keys.offline')})` %></option>
+                                <% }) %>
+                            </select>
+                            <% } else { %>
+                            <p class="kb-empty"><%= __('keys.no_bots') %></p>
+                            <% } %>
                             <p class="kb-cap" data-kb-cap aria-live="polite"></p>
                         </div>
 
-                        <div class="kb-sum" aria-live="polite">
-                            <div class="kb-sum-row">
-                                <span class="kb-label"><%= __('keys.you_pay') %></span>
-                                <span class="kb-sum-value" data-kb-pay><img src="<%= ref_pic %>" alt="" data-no-fade><b><%= kb_on ? fmt(kb.price.sell) : '—' %></b> ref</span>
+                        <div class="kb-close">
+                            <div class="kb-total" aria-live="polite">
+                                <span class="kb-label"><%= h.total %></span>
+                                <span class="kb-total-value" data-kb-total><img src="<%= ref_pic %>" alt="" data-no-fade><b><%= kb_on ? fmt(kb.price[h.price]) : '—' %></b> ref</span>
                             </div>
-                            <div class="kb-sum-row">
-                                <span class="kb-label"><%= __('keys.you_get') %></span>
-                                <span class="kb-sum-value" data-kb-get><img src="<%= key_pic %>" alt="" data-no-fade><b>1</b> <%= __('keys.word_one') %></span>
-                            </div>
-                            <p class="kb-each" data-kb-each><%= kb_on ? __('keys.each', { price: fmt(kb.price.sell) }) : '' %></p>
-                        </div>
-
-                        <% if (user) { %>
-                        <button type="button" class="kb-go" data-kb-go <%= kb_on ? '' : 'disabled' %>><%= __('keys.request') %></button>
-                        <% } else { %>
-                        <a class="kb-go is-login" rel="nofollow" href="/auth/steam"><span class="icon icon-steam_circle" aria-hidden="true"></span> <%= __('keys.sign_in') %></a>
-                        <% } %>
-                        <p class="kb-fine"><%= __('keys.fine', { minutes: 10 }) %></p>
-                    </section>
-
-                    <%# the bank bots: pick one; each says how many keys it can sell you and buy from you now %>
-                    <section class="kb-bots" aria-labelledby="kbBotsTitle">
-                        <h2 id="kbBotsTitle"><%= __('keys.bots_title') %></h2>
-                        <div class="kb-bot-list" role="radiogroup" aria-labelledby="kbBotsTitle" data-kb-bots>
-                            <% const bots_list = kb?.bots || [] %>
-                            <% if (!bots_list.length) { %>
-                            <p class="kb-empty"><%= __('keys.no_bots') %></p>
+                            <% if (user) { %>
+                            <button type="button" class="kb-go" data-kb-go <%= kb_on ? '' : 'disabled' %>><%= h.title %></button>
+                            <% } else { %>
+                            <a class="kb-go is-login" rel="nofollow" href="/auth/steam"><span class="icon icon-steam_circle" aria-hidden="true"></span> <%= __('keys.sign_in') %></a>
                             <% } %>
-                            <% bots_list.forEach((b, i) => { %>
-                            <label class="kb-bot<%= b.online ? '' : ' is-offline' %>">
-                                <input type="radio" name="kb-bot" value="<%= b.steamid %>" <%= b.online ? '' : 'disabled' %>>
-                                <img class="kb-bot-avatar" src="<%= b.avatar || '/img/icon96x96.png' %>" alt="" width="40" height="40">
-                                <span class="kb-bot-name"><%= b.name || b.steamid %></span>
-                                <span class="kb-bot-state"><%= b.online ? __('keys.online') : __('keys.offline') %></span>
-                                <span class="kb-meter" data-dir="sell"><span class="kb-meter-label"><%= __('keys.sells') %></span><span class="kb-cells"><% for (let c = 1; c <= max_keys; c++) { %><i class="<%= c <= b.can_sell ? 'on' : '' %>"></i><% } %></span><b><%= b.can_sell %></b></span>
-                                <span class="kb-meter" data-dir="buy"><span class="kb-meter-label"><%= __('keys.buys') %></span><span class="kb-cells"><% for (let c = 1; c <= max_keys; c++) { %><i class="<%= c <= b.can_buy ? 'on' : '' %>"></i><% } %></span><b><%= b.can_buy %></b></span>
-                            </label>
-                            <% }) %>
                         </div>
-                        <p class="kb-bots-hint"><%= __('keys.bots_hint') %></p>
                     </section>
+                    <% }) %>
                 </div>
 
-                <%# the key price of the last 7 days: backpack.tf's best automated buy order and cheapest real seller %>
-                <section class="kb-chart" aria-labelledby="kbChartTitle">
-                    <div class="kb-chart-head">
-                        <h2 id="kbChartTitle"><%= __('keys.chart_title') %></h2>
-                        <ul class="kb-legend">
-                            <li class="is-band"><i aria-hidden="true"></i><%= __('keys.legend_band') %></li>
-                            <li class="is-mid"><i aria-hidden="true"></i><%= __('keys.legend_mid') %></li>
-                        </ul>
-                    </div>
-                    <div class="kb-chart-box" data-kb-chart data-empty="<%= __('keys.chart_empty') %>">
-                        <p class="kb-chart-empty"><%= __('keys.chart_empty') %></p>
-                    </div>
-                </section>
-
-                <section class="kb-how" aria-labelledby="kbHowTitle">
-                    <h2 id="kbHowTitle"><%= __('keys.how_title') %></h2>
-                    <ol>
-                        <li><b><%= __('keys.how_1_title') %></b><span><%= __('keys.how_1', { max: max_keys }) %></span></li>
-                        <li><b><%= __('keys.how_2_title') %></b><span><%= __('keys.how_2', { minutes: 10 }) %></span></li>
-                        <li><b><%= __('keys.how_3_title') %></b><span><%= __('keys.how_3', { max: max_keys }) %></span></li>
-                    </ol>
-                </section>
+                <div class="kb-fine">
+                    <p><%= __('keys.fine', { minutes: 10 }) %></p>
+                    <p><b><%= __('keys.how_3_title') %>.</b> <%= __('keys.how_3', { max: max_keys }) %></p>
+                </div>
             </div>
         </main>
 
